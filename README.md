@@ -136,20 +136,19 @@ Remember, you can use any signaling implementation exists out there without modi
 
 ```javascript
 var config = {
-    openSocket: function (config) {
-        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-        var socket = new Firebase('https://chat.firebaseIO.com/' + channel);
-        socket.channel = channel;
-        socket.on('child_added', function (data) {
-            config.onmessage(data.val());
-        });
-        socket.send = function (data) {
-            this.push(data);
-        }
-        config.onopen && setTimeout(config.onopen, 1);
-        socket.onDisconnect().remove();
-        return socket;
-    }
+   openSocket: function (config) {
+		        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+		        var socket = gun.get(channel);
+		        socket.channel = channel;
+          socket.on(function(data, key) {
+              delete data._;
+                     config.onmessage(data);
+          });
+		        socket.send = function (data) {
+			         socket.put(data)
+		        }
+		        return socket;
+   }
 }
 ```
 
