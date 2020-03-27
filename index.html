@@ -130,11 +130,15 @@
                 // MIT License   - https://www.webrtc-experiment.com/licence/
                 // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/video-conferencing
 
+		var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
+		var opt = { peers: peers, localStorage: false, radisk: false };
+		var gunDB = Gun(opt).get('rtcmeeting');
+
                 var config = {
 
 		  openSocket: function (config) {
 		        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
-		        var socket = gun.get(channel);
+		        var socket = gunDB.get(channel);
 		        socket.channel = channel;
 
 			socket.on(function(data, key) {
