@@ -18,8 +18,6 @@
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
-        <meta name="author" content="Muaz Khan">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 
         <meta name="title" content="Video Conferencing" />
@@ -78,6 +76,11 @@
         <script src="https://www.webrtc-experiment.com/CodecsHandler.js"></script>
         <script src="https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js"> </script>
         <script src="https://www.webrtc-experiment.com/video-conferencing/conference.js"> </script>
+
+	<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/gun/sea.js"></script>
+	<!-- <script src="https://cdn.jsdelivr.net/npm/gun/lib/webrtc.js"></script> -->
+
     </head>
 
     <body>
@@ -141,9 +144,10 @@
 		        var socket = gunDB.get(channel);
 		        socket.channel = channel;
 
-			socket.on(function(data, key) {
+			socket.once(function(data, key) {
 			    delete data._;
 		            config.onmessage(data);
+			    console.log('debug',data);
 			});
 
 		        socket.send = function (data) {

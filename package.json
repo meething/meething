@@ -1,0 +1,28 @@
+{
+  "name": "webrtc-gun",
+  "version": "1.0.0",
+  "description": "webRTC Video Conference using GunDB Peering",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lmangani/webrtc-gun.git"
+  },
+  "keywords": [
+    "gundb",
+    "webrtc",
+    "meeting"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lmangani/webrtc-gun/issues"
+  },
+  "homepage": "https://github.com/lmangani/webrtc-gun#readme",
+  "dependencies": {
+    "https": "^1.0.0"
+  }
+}

@@ -4,10 +4,18 @@
 
 var port = process.env.PORT || 9001;
 
-var server = require('http'),
+var server = require('https'),
     url = require('url'),
     path = require('path'),
     fs = require('fs');
+
+var options = {
+  key: fs.readFileSync('self/server.key'),
+  cert: fs.readFileSync('self/server.cert')
+}
+
+var Gun = require('gun');
+var gun = Gun();
 
 function serverHandler(request, response) {
     try {
@@ -68,17 +76,15 @@ function serverHandler(request, response) {
     }
 }
 
-var app = server.createServer(serverHandler);
+var app = server.createServer(options, serverHandler);
 
 function runServer() {
     app = app.listen(port, process.env.IP || '0.0.0.0', function() {
         var addr = app.address();
-
         if (addr.address === '0.0.0.0') {
             addr.address = 'localhost';
         }
-
-        console.log('Server listening at http://' + addr.address + ':' + addr.port);
+        console.log('GunRTC Server listening at https://' + addr.address + ':' + addr.port);
     });
 }
 
