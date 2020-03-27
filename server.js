@@ -14,9 +14,6 @@ var options = {
   cert: fs.readFileSync('self/server.cert')
 }
 
-var Gun = require('gun');
-var gun = Gun();
-
 function serverHandler(request, response) {
     try {
         var uri = url.parse(request.url).pathname,
