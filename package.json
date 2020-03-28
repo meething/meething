@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "dependencies": {
     "express": "^4.17.1",
-    "gun": "^0.2020.301",
+    "gun": "^0.2020.301"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
