@@ -1,6 +1,6 @@
 <img src="https://i.imgur.com/XS79fTC.png" width=200>
 
-# webRTC Gun
+# webRTC Gun Meeting
 A semi-decentralized conference bridge using WebRTC, GunDB and Node
 
 <img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=400>
