@@ -141,18 +141,21 @@
 
 		  openSocket: function (config) {
 		        var channel = config.channel || location.href.replace(/\/|:|#|%|\.|\[|\]/g, '');
+			console.log('joining channel',channel);
 		        var socket = gunDB.get(channel);
 		        socket.channel = channel;
-
-			socket.once(function(data, key) {
+			socket.on(function(data, key) {
 			    delete data._;
 		            config.onmessage(data);
-			    console.log('debug',data);
+			    console.log('received',data);
 			});
 
-		        socket.send = function (data) {
-			    socket.put(data)
+		        socket.send = function(data) {
+			    socket.put(data);
+			    console.log('sent',data);
 		        }
+			if (config.onopen) config.onopen && setTimeout(config.onopen, 1);
+			if (config.callback) config.callback(socket);
 		        return socket;
                     },
                     onRemoteStream: function(media) {
@@ -319,12 +322,6 @@
 
             <section class="experiment">
                 <ol>
-                    <li>This <a href="https://www.webrtc-experiment.com/">WebRTC</a> experiment is aimed to transmit audio/video streams in many-to-many style.</li>
-                    <li>It setups multiple peer connections to support multi-user connectivity feature. Remember, <a href="https://www.webrtc-experiment.com/">WebRTC</a> doesn't supports 3-way handshake!</li>
-                    <li>Out of multi-peers establishment; many RTP-ports are opened according to number of media streams referenced to each peer connection.</li>
-                    <li>Multi-ports establishment will cause <a href="https://www.webrtc-experiment.com/docs/RTP-usage.html">huge CPU and bandwidth usage</a>!</li>
-                    <li>Mesh networking model is implemented to open multiple interconnected peer connections.</li>
-                    <li>Maximum peer connections limit is 256 (on chrome). It means that 256 users can be interconnected!</li>
                 </ol>
             </section>
 
