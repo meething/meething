@@ -1,28 +1,29 @@
 {
   "name": "webrtc-gun",
-  "version": "1.0.0",
-  "description": "webRTC Video Conference using GunDB Peering",
-  "main": "server.js",
+  "version": "0.0.1",
+  "description": "A conference call implementation using WebRTC, GunDB and Node.js.",
+  "main": "src/app.js",
+  "dependencies": {
+    "express": "^4.17.1",
+    "gun": "^0.2020.301",
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node src/app.js",
+    "watch": "nodemon --watch \"src/\" --exec \"node src/app.js\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lmangani/webrtc-gun.git"
   },
   "keywords": [
-    "gundb",
-    "webrtc",
-    "meeting"
+    "LiveStream",
+    "Server"
   ],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/lmangani/webrtc-gun/issues"
-  },
-  "homepage": "https://github.com/lmangani/webrtc-gun#readme",
-  "dependencies": {
-    "https": "^1.0.0"
-  }
+  "author": "QXIP Bot <qxipbot@gmail.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/lmangani/webrtc-gun#readme"
 }
