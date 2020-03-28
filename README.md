@@ -16,6 +16,12 @@ npm start
 * Choose a Room and User name
 * Share link with other participants
 
+## Todo
+* [x] create a basic working prototype
+* [ ] cleanup abandoned sessions
+* [ ] implement ts gate to discard old events
+* [ ] implement User Display
+* [ ] fix a bunch of early stage bugs!
 
 # Credits
 This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni <amirsanni@gmail.com>
