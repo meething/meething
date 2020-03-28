@@ -36,8 +36,12 @@ window.addEventListener('load', ()=>{
 		if((value.sender && value.to)&&value.sender==value.to) return;
 		console.log('debug emit key',key,'value',value);
 		if(!key||!value) return;
+		if (!value.ts) value.ts = Date.now();
+		if(key=="sdp"||key=="icecandidates") value = JSON.stringify(value);
 		socket.get(key).put(value);
 	}
+
+	// Initialize Session
 
         socket.emit('subscribe', {
                 room: room,
@@ -45,12 +49,14 @@ window.addEventListener('load', ()=>{
         });
 
 	socket.get('subscribe').on(function(data,key){
+		if(data.ts && (Date.now() - data.ts) > 1000) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
 	});
 
 	socket.get('newuser').on(function(data,key){
+		if(data.ts && (Date.now() - data.ts) > 1000) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
                 socket.emit('newUserStart', {to:data.socketId, sender:socketId});
                 pc.push(data.socketId);
@@ -58,6 +64,7 @@ window.addEventListener('load', ()=>{
 	});
 
 	socket.get('newUserStart').on(function(data,key){
+		if(data.ts && (Date.now() - data.ts) > 1000) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
                 pc.push(data.sender);
                 init(false, data.sender);
@@ -66,6 +73,7 @@ window.addEventListener('load', ()=>{
 	socket.get('icecandidates').on(function(data,key){
 		try {
 			data = JSON.parse(data);
+			if(data.ts && (Date.now() - data.ts) > 1000) return;
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
@@ -77,6 +85,7 @@ window.addEventListener('load', ()=>{
 	socket.get('sdp').on(function(data,key){
 		try {
 			data = JSON.parse(data);
+			if(data.ts && (Date.now() - data.ts) > 1000) return;
 		        if(!data || data.socketId == socketId || data.sender == socketId || !data.description ) return;
 		} catch(e) { console.log(e); return; }
 
@@ -99,7 +108,7 @@ window.addEventListener('load', ()=>{
                         
                         pc[data.sender].setLocalDescription(answer);
 
-                        socket.emit('sdp', JSON.stringify({description:pc[data.sender].localDescription, to:data.sender, sender:socketId}));
+                        socket.emit('sdp', {description:pc[data.sender].localDescription, to:data.sender, sender:socketId});
                     }).catch((e)=>{
                         console.error(e);
                     });
@@ -111,6 +120,7 @@ window.addEventListener('load', ()=>{
 	});
 
 	socket.get('chat').on(function(data,key){
+	    if(data.ts && (Date.now() - data.ts) > 1000) return;
             if(data.socketId == socketId || data.sender == socketId) return;
 	    if(data.sender == username) return;
 	    console.log('got chat',key,data);
@@ -159,14 +169,14 @@ window.addEventListener('load', ()=>{
                     
                     await pc[partnerName].setLocalDescription(offer);
 
-                    socket.emit('sdp', JSON.stringify({description:pc[partnerName].localDescription, to:partnerName, sender:socketId}));
+                    socket.emit('sdp', {description:pc[partnerName].localDescription, to:partnerName, sender:socketId});
                 };
             }
 
             //send ice candidate to partnerNames
             pc[partnerName].onicecandidate = ({candidate})=>{
 		if (!candidate) return;
-                socket.emit('icecandidates', JSON.stringify({candidate: candidate, to:partnerName, sender:socketId})  );
+                socket.emit('icecandidates', {candidate: candidate, to:partnerName, sender:socketId});
             };
 
             //add

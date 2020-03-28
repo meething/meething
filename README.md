@@ -19,8 +19,8 @@ npm start
 
 ## Todo
 * [x] create a basic working prototype
+* [x] implement ts gate to discard old events
 * [ ] cleanup abandoned gun sessions
-* [ ] implement ts gate to discard old events
 * [ ] implement CSS Styling, User Display, etc
 * [ ] fix a bunch of early stage bugs!
 
