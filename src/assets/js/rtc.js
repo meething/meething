@@ -226,6 +226,7 @@ window.addEventListener('load', ()=>{
                     //create a new div for card
                     let cardDiv = document.createElement('div');
                     cardDiv.className = 'card mb-3';
+		    cardDiv.style = "color:#FFF;";
                     cardDiv.appendChild(newVid);
                     cardDiv.appendChild(vtitle);
                     

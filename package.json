@@ -1,6 +1,6 @@
 {
   "name": "webrtc-gun",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A conference call implementation using WebRTC, GunDB and Node.js.",
   "main": "src/app.js",
   "dependencies": {

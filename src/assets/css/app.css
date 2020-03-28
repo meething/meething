@@ -1,3 +1,7 @@
+body {
+    color: #FFF;
+}
+
 .chat-col{
     right: 0;
     bottom: 0;
@@ -152,7 +156,6 @@
 .card {
   	border: 0px !important;
         background-color: #f0f8ff42;
-        color: #ffff;
 }
 
 
