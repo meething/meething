@@ -14,7 +14,7 @@ config.options = {
   cert: fs.readFileSync('src/assets/server.cert')
 }
 
-config.port =  process.env.PORT || 443;
+config.port =  process.env.PORT || 8443;
 config.gunport =  process.env.GUNPORT || 8765;
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
