@@ -3,6 +3,7 @@
 # webRTC Gun
 A semi-decentralized conference bridge using WebRTC, GunDB and Node
 
+<img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=400>
 
 # Installation
 ```
@@ -18,9 +19,9 @@ npm start
 
 ## Todo
 * [x] create a basic working prototype
-* [ ] cleanup abandoned sessions
+* [ ] cleanup abandoned gun sessions
 * [ ] implement ts gate to discard old events
-* [ ] implement User Display
+* [ ] implement CSS Styling, User Display, etc
 * [ ] fix a bunch of early stage bugs!
 
 # Credits
