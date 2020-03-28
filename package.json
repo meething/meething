@@ -24,6 +24,9 @@
     "Server"
   ],
   "author": "QXIP Bot <qxipbot@gmail.com>",
+  "engines": {
+    "node": "10.x"
+  },
   "license": "MIT",
   "homepage": "https://github.com/lmangani/webrtc-gun#readme"
 }
