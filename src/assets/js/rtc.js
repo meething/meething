@@ -45,7 +45,8 @@ window.addEventListener('load', ()=>{
 
         socket.emit('subscribe', {
                 room: room,
-                socketId: socketId
+                socketId: socketId,
+		name: username || socketId
         });
 
 	socket.get('subscribe').on(function(data,key){
@@ -184,6 +185,25 @@ window.addEventListener('load', ()=>{
                 let str = e.streams[0];
                 if(document.getElementById(`${partnerName}-video`)){
                     document.getElementById(`${partnerName}-video`).srcObject = str;
+		    //When the video frame is clicked. This will enable picture-in-picture
+		    document.getElementById(`${partnerName}-video`).addEventListener('click', ()=>{
+		        if (!document.pictureInPictureElement) {
+		            document.getElementById(`${partnerName}-video`).requestPictureInPicture()
+		            .catch(error => {
+		                // Video failed to enter Picture-in-Picture mode.
+		                console.error(error);
+		            });
+		        }
+		        else {
+		            document.exitPictureInPicture()
+		            .catch(error => {
+		                // Video failed to leave Picture-in-Picture mode.
+		                console.error(error);
+		            });
+		        }
+		    });
+
+
                 }
 
                 else{
@@ -194,10 +214,16 @@ window.addEventListener('load', ()=>{
                     newVid.autoplay = true;
                     newVid.className = 'remote-video';
                     
+		    // Video user title
+		    var vtitle = document.createElement("p");
+		    vtitle.innerHTML = `<center>${partnerName}</center>`;
+		    vtitle.id = `${partnerName}-title`
+
                     //create a new div for card
                     let cardDiv = document.createElement('div');
                     cardDiv.className = 'card mb-3';
                     cardDiv.appendChild(newVid);
+                    cardDiv.appendChild(vtitle);
                     
                     //create a new div for everything
                     let div = document.createElement('div');
@@ -207,6 +233,7 @@ window.addEventListener('load', ()=>{
                     
                     //put div in videos elem
                     document.getElementById('videos').appendChild(div);
+
                 }
             };
 

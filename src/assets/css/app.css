@@ -58,6 +58,7 @@
     position: relative;
     object-fit: cover !important;
     height: 300px;
+    border-radius: 10px;
 }
 
 .main{
@@ -68,7 +69,7 @@
     bottom: 0;
     left: 0;
     position: fixed;
-    height: 100px;
+    height: 150px;
     width: 200px;
     z-index: 1000;
 }
@@ -146,4 +147,8 @@
 
 .bg-info {
 	background-color: #c2c2c2 !important;
+}
+
+.card {
+  	border: 0px !important;
 }
