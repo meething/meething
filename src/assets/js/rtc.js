@@ -3,6 +3,7 @@
  * @date 6th January, 2020
  */
 import h from './helpers.js';
+var TIMEGAP = 2000;
 
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
@@ -50,14 +51,14 @@ window.addEventListener('load', ()=>{
         });
 
 	socket.get('subscribe').on(function(data,key){
-		if(data.ts && (Date.now() - data.ts) > 1000) return;
+		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
 	});
 
 	socket.get('newuser').on(function(data,key){
-		if(data.ts && (Date.now() - data.ts) > 1000) return;
+		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
                 socket.emit('newUserStart', {to:data.socketId, sender:socketId});
                 pc.push(data.socketId);
@@ -65,7 +66,7 @@ window.addEventListener('load', ()=>{
 	});
 
 	socket.get('newUserStart').on(function(data,key){
-		if(data.ts && (Date.now() - data.ts) > 1000) return;
+		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
                 pc.push(data.sender);
                 init(false, data.sender);
@@ -74,7 +75,7 @@ window.addEventListener('load', ()=>{
 	socket.get('icecandidates').on(function(data,key){
 		try {
 			data = JSON.parse(data);
-			if(data.ts && (Date.now() - data.ts) > 1000) return;
+			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
@@ -86,7 +87,7 @@ window.addEventListener('load', ()=>{
 	socket.get('sdp').on(function(data,key){
 		try {
 			data = JSON.parse(data);
-			if(data.ts && (Date.now() - data.ts) > 1000) return;
+			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 		        if(!data || data.socketId == socketId || data.sender == socketId || !data.description ) return;
 		} catch(e) { console.log(e); return; }
 
@@ -121,7 +122,7 @@ window.addEventListener('load', ()=>{
 	});
 
 	socket.get('chat').on(function(data,key){
-	    if(data.ts && (Date.now() - data.ts) > 1000) return;
+	    if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
             if(data.socketId == socketId || data.sender == socketId) return;
 	    if(data.sender == username) return;
 	    console.log('got chat',key,data);

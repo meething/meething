@@ -14,11 +14,25 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js" integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4=" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+	
+	<script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
+	<script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
+	<script>
+		window.VANTA = VANTA;
+		function ready(){
+			if(VANTA){
+				if (VANTA.NET) VANTA.NET('#demo');
+			}
+		}	
+		document.addEventListener("DOMContentLoaded", ready);
+	</script>
+
     </head>
 
     <body>
+	<div id="demo" class="demo"></div>
         <nav class="navbar fixed-top bg-info rounded-0 d-print-none">
-            <div class="text-white">Video Call</div>
+            <div class="text-white">GunMeeting - powered by <a href="http://gun.eco" target="_blank">GunDB</a></div>
 
             <div class="pull-right room-comm" hidden>
                 <button class="btn btn-sm rounded-0 btn-no-effect" id='toggle-video'>
@@ -41,7 +55,11 @@
 
         <div class="container-fluid" id='room-create' hidden>
             <div class="row">
-                <div class="col-12 h2 mt-5 text-center">Create Room</div>
+                <div class="col-12 h2 mt-5 text-center">
+		<img src="https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67" width="200"/>
+		<br>
+			Create Room
+		</div>
             </div>
             
             <div class="row mt-2">
@@ -104,7 +122,7 @@
 
                 <div class="col-md-2 chat-col d-print-none mb-2 bg-info" id='chat-pane'>
                     <div class="row">
-                        <div class="col-12 text-center h2 mb-3">CHAT</div>
+                        <div class="col-12 text-center h3 mb-3">ChatRoom</div>
                     </div>
 
                     <div id='chat-messages'></div>

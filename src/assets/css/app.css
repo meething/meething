@@ -146,9 +146,19 @@
 }
 
 .bg-info {
-	background-color: #c2c2c2 !important;
+	background-color: #c2c2c266 !important;
 }
 
 .card {
   	border: 0px !important;
 }
+
+
+.demo {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%;
+}
+
