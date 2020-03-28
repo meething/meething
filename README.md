@@ -21,6 +21,7 @@ npm start
 * [x] create a basic working prototype
 * [x] implement ts gate to discard old events
 * [ ] cleanup abandoned gun sessions
+* [ ] implement letsencrypt ssl automode
 * [ ] implement CSS Styling, User Display, etc
 * [ ] fix a bunch of early stage bugs!
 
