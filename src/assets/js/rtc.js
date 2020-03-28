@@ -89,6 +89,10 @@ window.addEventListener('load', ()=>{
 			data = JSON.parse(data);
 			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 		        if(!data || data.socketId == socketId || data.sender == socketId || !data.description ) return;
+			if(data.to !== socketId) {
+				console.log('not for us? dropping sdp');
+				return;
+			}
 		} catch(e) { console.log(e); return; }
 
                 if(data.description.type === 'offer'){
@@ -107,7 +111,6 @@ window.addEventListener('load', ()=>{
                         });
 
                         let answer = await pc[data.sender].createAnswer();
-                        
                         pc[data.sender].setLocalDescription(answer);
 
                         socket.emit('sdp', {description:pc[data.sender].localDescription, to:data.sender, sender:socketId});
