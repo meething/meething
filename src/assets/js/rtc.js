@@ -256,21 +256,21 @@ window.addEventListener('load', ()=>{
                 console.log("Connection State Change:" + pc[partnerName], pc[partnerName].iceConnectionState);
                 // Save State
                 STATE[pc[partnerName]] = pc[partnerName].iceConnectionState;
-                sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
                 switch(pc[partnerName].iceConnectionState){
                     case 'connected':
-                        console.log("connected");
+                        sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
                         break;
                     case 'disconnected':
+                        sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
+                        break;
                     case 'failed':
                         h.closeVideo(partnerName);
                         break;
-                        
                     case 'closed':
                         h.closeVideo(partnerName);
                         break;
                   default:
-                      console.log("Unknown state?")
+                      console.log("Unknown state?",pc[partnerName].iceConnectionState)
                       break;
                 }
             };
