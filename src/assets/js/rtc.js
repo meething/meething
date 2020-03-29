@@ -49,7 +49,7 @@ window.addEventListener('load', ()=>{
         socket.emit('subscribe', {
                 room: room,
                 socketId: socketId,
-		name: username || socketId
+		            name: username || socketId
         });
 
 	socket.get('subscribe').on(function(data,key){
@@ -57,7 +57,8 @@ window.addEventListener('load', ()=>{
     if(pc[data.socketId] !== undefined) {
       return;
     }
-	        if(data.socketId == socketId || data.sender == socketId) return;
+    
+	  if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
 	});
