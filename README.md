@@ -15,7 +15,14 @@ npm start
 * Choose a Room and User name
 * Share link with other participants
 
-<img src="https://i.imgur.com/UBrZLRv.gif" width=500/> <img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=500/>
+#### 0.3
+<img src="https://i.imgur.com/AddW4bH.png" width=500 />
+
+#### 0.2
+<img src="https://i.imgur.com/UBrZLRv.gif" width=500/> 
+
+#### 0.1
+<img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=500/>
 
 -------------
 
