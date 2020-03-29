@@ -5,8 +5,6 @@
 import h from './helpers.js';
 var TIMEGAP = 2000;
 
-var connectedClients = 0;
-
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
@@ -54,6 +52,9 @@ window.addEventListener('load', ()=>{
 
 	socket.get('subscribe').on(function(data,key){
 		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
+    if(pc[data.socketId] !== undefined) {
+      return;
+    }
 	        if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
