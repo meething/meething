@@ -55,10 +55,10 @@ window.addEventListener('load', ()=>{
 
 	socket.get('subscribe').on(function(data,key){
 		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
+    STATE.users[data.socketId] = data;
     if(pc[data.socketId] !== undefined) {
       return;
     }
-    STATE.users[data.socketId] = data;
 	  if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
@@ -67,7 +67,7 @@ window.addEventListener('load', ()=>{
 	socket.get('newuser').on(function(data,key){
 		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 	        if(data.socketId == socketId || data.sender == socketId) return;
-                socket.emit('newUserStart', {to:data.socketId, sender:socketId});
+                socket.emit('newUserStart', {to:data.socketId, sender:socketId, name:data.name||data.socketId});
                 pc.push(data.socketId);
                 init(true, data.socketId);
 	});
@@ -228,13 +228,14 @@ window.addEventListener('load', ()=>{
                     
                     // Video user title
                     var vtitle = document.createElement("p");
-                    vtitle.innerHTML = `<center>${STATE.users[partnerName].name}</center>`;
+                    var vuser = STATE.users[partnerName] ? STATE.users[partnerName].name : partnerName;
+                    vtitle.innerHTML = `<center>${vuser}</center>`;
                     vtitle.id = `${partnerName}-title`
 
                     //create a new div for card
                     let cardDiv = document.createElement('div');
                     cardDiv.className = 'card mb-3';
-		    cardDiv.style = "color:#FFF;";
+		                cardDiv.style = "color:#FFF;";
                     cardDiv.appendChild(newVid);
                     cardDiv.appendChild(vtitle);
                     
