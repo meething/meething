@@ -2,6 +2,7 @@ var fs = require('fs');
 let express = require('express');
 let app = express();
 let https = require('https');
+let http = require('http');
 var Gun = require('gun');
 
 let stream = require('./ws/stream');
@@ -25,8 +26,14 @@ app.get('/', (req, res)=>{
 
 
 //server.listen(port);
-config.server = https.createServer(config.options, app);
-config.server.listen(config.port);
+if (process.env.NOSSL) {
+	config.server = http.createServer({}, app);
+	config.server.listen(config.port);
+
+} else {
+	config.server = https.createServer(config.options, app);
+	config.server.listen(config.port);
+}
 
 config.webserver = require('http').createServer();
 var gun = Gun({web: config.webserver.listen(config.gunport)});
