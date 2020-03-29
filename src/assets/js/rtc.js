@@ -4,6 +4,7 @@
  */
 import h from './helpers.js';
 var TIMEGAP = 2000;
+var STATE = {};
 
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
@@ -253,6 +254,8 @@ window.addEventListener('load', ()=>{
 
             pc[partnerName].onconnectionstatechange = (d)=>{
                 console.log("Connection State Change:" + pc[partnerName], pc[partnerName].iceConnectionState);
+                // Save State
+                STATE[pc[partnerName]] = pc[partnerName].iceConnectionState;
                 switch(pc[partnerName].iceConnectionState){
                     case 'connected':
                         console.log("connected");
