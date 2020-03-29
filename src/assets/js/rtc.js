@@ -83,9 +83,9 @@ window.addEventListener('load', ()=>{
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
-	        if(data.socketId == socketId || data.sender == socketId) return;
-		console.log('ice candidate',data);
-                data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : '';
+	        if(data.socketId == socketId || data.sender == socketId || data.to != socketId) return;
+		      console.log('ice candidate',data);
+          data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : '';
 	});
 
 	socket.get('sdp').on(function(data,key){
