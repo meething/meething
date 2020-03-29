@@ -58,8 +58,8 @@ window.addEventListener('load', ()=>{
   });
 
 	socket.get('subscribe').on(function(data,key){
-    STATE.users[data.socketId] = data;
 		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
+    STATE.users[data.socketId] = data;
     if(pc[data.socketId] !== undefined) {
       return;
     }

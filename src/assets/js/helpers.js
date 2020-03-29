@@ -80,7 +80,7 @@ export default {
     
     
     addChat(data, senderType){
-	if (data == cache) { cache = null; return; }
+	      if (data == cache) { cache = null; return; }
         let chatMsgDiv = document.querySelector('#chat-messages');
         let contentAlign = 'justify-content-end';
         let senderName = 'You';
