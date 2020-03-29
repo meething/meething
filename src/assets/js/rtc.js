@@ -84,7 +84,6 @@ window.addEventListener('load', ()=>{
 			data = JSON.parse(data);
       console.log(data.sender.trim() + " is trying to connect with " + data.to.trim())      
 			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
-      console.log('Current Socket status for ' + data.to ,STATE[data.to])
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
@@ -143,7 +142,7 @@ window.addEventListener('load', ()=>{
 	})
 
 
-        function sendMsg(msg){
+        function sendMsg(msg,local){
             let data = {
                 room: room,
                 msg: msg,
@@ -151,7 +150,7 @@ window.addEventListener('load', ()=>{
             };
 
             //emit chat message
-            socket.emit('chat', data);
+            if(!local) socket.emit('chat', data);
             //add localchat
             h.addChat(data, 'local');
         }
@@ -189,7 +188,7 @@ window.addEventListener('load', ()=>{
 
             //send ice candidate to partnerNames
             pc[partnerName].onicecandidate = ({candidate})=>{
-		if (!candidate) return;
+		            if (!candidate) return;
                 socket.emit('icecandidates', {candidate: candidate, to:partnerName, sender:socketId});
             };
 
@@ -257,6 +256,7 @@ window.addEventListener('load', ()=>{
                 console.log("Connection State Change:" + pc[partnerName], pc[partnerName].iceConnectionState);
                 // Save State
                 STATE[pc[partnerName]] = pc[partnerName].iceConnectionState;
+                sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
                 switch(pc[partnerName].iceConnectionState){
                     case 'connected':
                         console.log("connected");
