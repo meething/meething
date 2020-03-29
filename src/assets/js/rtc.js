@@ -6,6 +6,10 @@ import h from './helpers.js';
 var TIMEGAP = 2000;
 var STATE = { media: {}, users: {} };
 
+window.gunState = function(){
+  console.log(STATE);
+}
+
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
@@ -54,8 +58,8 @@ window.addEventListener('load', ()=>{
   });
 
 	socket.get('subscribe').on(function(data,key){
-		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
     STATE.users[data.socketId] = data;
+		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
     if(pc[data.socketId] !== undefined) {
       return;
     }
@@ -134,13 +138,11 @@ window.addEventListener('load', ()=>{
 
 	socket.get('chat').on(function(data,key){
 	    if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
-            if(data.socketId == socketId || data.sender == socketId) return;
+      if(data.socketId == socketId || data.sender == socketId) return;
 	    if(data.sender == username) return;
 	    console.log('got chat',key,data);
-                h.addChat(data, 'remote');
-
+      h.addChat(data, 'remote');
 	})
-
 
         function sendMsg(msg,local){
             let data = {
@@ -159,7 +161,6 @@ window.addEventListener('load', ()=>{
 
         function init(createOffer, partnerName){
             pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-            
             h.getUserMedia().then((stream)=>{
                 //save my stream
                 myStream = stream;
