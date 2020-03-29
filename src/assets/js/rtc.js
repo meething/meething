@@ -75,6 +75,15 @@ window.addEventListener('load', ()=>{
 	socket.get('icecandidates').on(function(data,key){
 		try {
 			data = JSON.parse(data);
+      
+      console.log(data.sender + " is trying to connect with " + data.to)
+      if(data.to === socketId) {
+        console.log(data.to + " is us(" + data.to + ") connecting ")
+      } else {
+        console.log(data.to + " is not us(" + data.to + ") so ignore ")
+        return;
+      }
+      
 			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
