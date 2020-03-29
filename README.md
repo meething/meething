@@ -3,8 +3,6 @@
 # webRTC Gun Meeting
 A semi-decentralized conference bridge using WebRTC, [GunDB](http://gun.eco) and Node
 
-<img src="https://i.imgur.com/UBrZLRv.gif" width=300/> <img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=300/>
-
 ## Installation
 ```
 npm install
@@ -16,6 +14,10 @@ npm start
 * Accept the self-signed certificates if needed
 * Choose a Room and User name
 * Share link with other participants
+
+<img src="https://i.imgur.com/UBrZLRv.gif" width=500/> <img src="https://user-images.githubusercontent.com/1423657/77825853-43d80c00-710c-11ea-917c-83c2ddd08959.png" width=500/>
+
+-------------
 
 ## Todo
 * [x] create a basic working prototype
