@@ -76,11 +76,11 @@ window.addEventListener('load', ()=>{
 		try {
 			data = JSON.parse(data);
       
-      console.log(data.sender + " is trying to connect with " + data.to)
-      if(data.to === socketId || data.s === socketId)  {
-        console.log(data.to + " is us(" + data.to + ") connecting ")
+      console.log(data.sender.trim() + " is trying to connect with " + data.to.trim())
+      if(data.to.trim() === socketId.trim() || data.sender.trim() === socketId.trim())  {
+        console.log(data.to.trim() + " is us(" + data.to.trim() + ") connecting ")
       } else {
-        console.log(data.to + " is not us(" + data.to + ") so ignore ")
+        console.log(data.to.trim() + " is not us(" + data.to.trim() + ") so ignore ")
         return;
       }
       
