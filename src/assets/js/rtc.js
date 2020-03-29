@@ -32,6 +32,8 @@ window.addEventListener('load', ()=>{
 
         var socketId = h.uuidv4();
         var myStream = '';
+      
+      console.log('Starting! you are',socketId);
 
 	socket.emit = function(key,value){
 		if((value.sender && value.to)&&value.sender==value.to) return;
@@ -83,7 +85,7 @@ window.addEventListener('load', ()=>{
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
-	        if(data.socketId == socketId || data.sender == socketId || data.to != socketId) return;
+	        if(data.socketId == socketId || data.to != socketId) return;
 		      console.log('ice candidate',data);
           data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : '';
 	});
@@ -249,7 +251,7 @@ window.addEventListener('load', ()=>{
 
 
             pc[partnerName].onconnectionstatechange = (d)=>{
-                console.log("State Change::" + pc[partnerName]);
+                console.log("Connection State Change:" + pc[partnerName], pc[partnerName].iceConnectionState);
                 switch(pc[partnerName].iceConnectionState){
                     case 'connected':
                         console.log("connected");
@@ -268,6 +270,7 @@ window.addEventListener('load', ()=>{
 
 
             pc[partnerName].onsignalingstatechange = (d)=>{
+                console.log("Signaling State Change:" + pc[partnerName], pc[partnerName].signalingState);
                 switch(pc[partnerName].signalingState){
                     case 'closed':
                         console.log("Signalling state is 'closed'");
