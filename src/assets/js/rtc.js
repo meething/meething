@@ -4,7 +4,7 @@
  */
 import h from './helpers.js';
 var TIMEGAP = 2000;
-var STATE = {};
+var STATE = { media: {}, users: {} };
 
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
@@ -47,18 +47,18 @@ window.addEventListener('load', ()=>{
 
 	// Initialize Session
 
-        socket.emit('subscribe', {
+  socket.emit('subscribe', {
                 room: room,
                 socketId: socketId,
 		            name: username || socketId
-        });
+  });
 
 	socket.get('subscribe').on(function(data,key){
 		if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
     if(pc[data.socketId] !== undefined) {
       return;
     }
-    
+    STATE.users[data.socketId] = data;
 	  if(data.socketId == socketId || data.sender == socketId) return;
 		console.log('got subscribe!',data);
 		socket.emit('newuser', {socketId:data.socketId});
@@ -226,10 +226,10 @@ window.addEventListener('load', ()=>{
                     newVid.autoplay = true;
                     newVid.className = 'remote-video';
                     
-		    // Video user title
-		    var vtitle = document.createElement("p");
-		    vtitle.innerHTML = `<center>${partnerName}</center>`;
-		    vtitle.id = `${partnerName}-title`
+                    // Video user title
+                    var vtitle = document.createElement("p");
+                    vtitle.innerHTML = `<center>${STATE.users[partnerName].name}</center>`;
+                    vtitle.id = `${partnerName}-title`
 
                     //create a new div for card
                     let cardDiv = document.createElement('div');
@@ -255,13 +255,14 @@ window.addEventListener('load', ()=>{
             pc[partnerName].onconnectionstatechange = (d)=>{
                 console.log("Connection State Change:" + pc[partnerName], pc[partnerName].iceConnectionState);
                 // Save State
-                STATE[pc[partnerName]] = pc[partnerName].iceConnectionState;
+                STATE.media[pc[partnerName]] = pc[partnerName].iceConnectionState;
                 switch(pc[partnerName].iceConnectionState){
                     case 'connected':
-                        sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
+                        sendMsg(partnerName+" is "+STATE.media[pc[partnerName]],local);
                         break;
                     case 'disconnected':
-                        sendMsg(partnerName+" is "+STATE[pc[partnerName]],local);
+                        sendMsg(partnerName+" is "+STATE.media[pc[partnerName]],local);
+                        h.closeVideo(partnerName);
                         break;
                     case 'failed':
                         h.closeVideo(partnerName);
