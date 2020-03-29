@@ -77,7 +77,7 @@ window.addEventListener('load', ()=>{
 			data = JSON.parse(data);
       
       console.log(data.sender + " is trying to connect with " + data.to)
-      if(data.to === socketId) {
+      if(data.to === socketId || data.s === socketId)  {
         console.log(data.to + " is us(" + data.to + ") connecting ")
       } else {
         console.log(data.to + " is not us(" + data.to + ") so ignore ")
