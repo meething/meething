@@ -5,6 +5,8 @@
 import h from './helpers.js';
 var TIMEGAP = 2000;
 
+var connectedClients = 0;
+
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
@@ -75,15 +77,7 @@ window.addEventListener('load', ()=>{
 	socket.get('icecandidates').on(function(data,key){
 		try {
 			data = JSON.parse(data);
-      
-      console.log(data.sender.trim() + " is trying to connect with " + data.to.trim())
-      if(data.to.trim() === socketId.trim() || data.sender.trim() === socketId.trim())  {
-        console.log(data.to.trim() + " is us(" + data.to.trim() + ") connecting ")
-      } else {
-        console.log(data.to.trim() + " is not us(" + data.to.trim() + ") so ignore ")
-        return;
-      }
-      
+      console.log(data.sender.trim() + " is trying to connect with " + data.to.trim())      
 			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
@@ -254,7 +248,11 @@ window.addEventListener('load', ()=>{
 
 
             pc[partnerName].onconnectionstatechange = (d)=>{
+                console.log("State Change::" + pc[partnerName]);
                 switch(pc[partnerName].iceConnectionState){
+                    case 'connected':
+                        console.log("connected");
+                        break;
                     case 'disconnected':
                     case 'failed':
                         h.closeVideo(partnerName);
