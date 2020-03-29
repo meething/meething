@@ -84,6 +84,7 @@ window.addEventListener('load', ()=>{
 			data = JSON.parse(data);
       console.log(data.sender.trim() + " is trying to connect with " + data.to.trim())      
 			if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
+      console.log('Current Socket status for ' + data.to ,STATE[data.to])
 			data.candidate = new RTCIceCandidate(data.candidate);
 			if (!data.candidate) return;
 		} catch(e){ console.log(e); return; };
@@ -268,6 +269,9 @@ window.addEventListener('load', ()=>{
                     case 'closed':
                         h.closeVideo(partnerName);
                         break;
+                  default:
+                      console.log("Unknown state?")
+                      break;
                 }
             };
 
