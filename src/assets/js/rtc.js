@@ -33,7 +33,9 @@ window.addEventListener('load', ()=>{
 
 	var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
 	var opt = { peers: peers, localStorage: false, radisk: false };
-	var socket = Gun(opt).get('rtcmeeting').get(room);
+  var socket = Gun(opt).get('rtcmeeting').get(room);
+  var users = Gun(opt).get('rtcmeeting').get(room+"_users");
+
   // Custom Emit Function
   socket.emit = function(key,value){
 		if((value.sender && value.to)&&value.sender==value.to) return;
@@ -59,7 +61,6 @@ window.addEventListener('load', ()=>{
 
       socket.get('subscribe').on(function(data,key){
         if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
-        STATE.users[data.socketId] = data;
         if(pc[data.socketId] !== undefined) {
           return;
         }
@@ -260,6 +261,7 @@ window.addEventListener('load', ()=>{
                         break;
                     case 'disconnected':
                         sendMsg(partnerName+" is "+STATE.media[pc[partnerName]],true);
+                        usersocket.get(partnerName).put(null);
                         h.closeVideo(partnerName);
                         break;
                     case 'failed':
