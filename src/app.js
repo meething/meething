@@ -25,15 +25,17 @@ app.get('/', (req, res)=>{
 });
 
 
-//server.listen(port);
-if (process.env.NOSSL) {
-	config.server = http.createServer({}, app);
-	config.server.listen(config.port);
+app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`))
 
-} else {
-	config.server = https.createServer(config.options, app);
-	config.server.listen(config.port);
-}
+//server.listen(port);
+// if (process.env.NOSSL) {
+// 	config.server = http.createServer({}, app);
+// 	config.server.listen(config.port);
+
+// } else {
+// 	config.server = https.createServer(config.options, app);
+// 	config.server.listen(config.port);
+// }
 
 config.webserver = require('http').createServer();
 var gun = Gun({web: config.webserver.listen(config.gunport)});
