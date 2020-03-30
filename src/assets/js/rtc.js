@@ -34,6 +34,7 @@ window.addEventListener('load', ()=>{
 	var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
 	var opt = { peers: peers, localStorage: false, radisk: false };
 	var socket = Gun(opt).get('rtcmeeting').get(room);
+  window.GUN = socket;
 
         var socketId = h.uuidv4();
         var myStream = '';
