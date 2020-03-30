@@ -15,8 +15,8 @@ npm start
 * Choose a Room and User name
 * Share link with other participants
 
-#### Isolation Test @qxip
-<img src="https://i.imgur.com/AddW4bH.png" width=500 />
+#### Isolation Test @qxip @amark @qvdev
+<img src="https://user-images.githubusercontent.com/1423657/77968595-04661700-72e8-11ea-8226-b90fbe8011c8.png" width=500 />
 <img src="https://user-images.githubusercontent.com/1423657/77922600-8b43d100-72a1-11ea-9879-8e7751fde140.png" width=500 />
 
 #### 0.1
