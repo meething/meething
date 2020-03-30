@@ -33,8 +33,8 @@ window.addEventListener('load', ()=>{
 
 	var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
 	var opt = { peers: peers, localStorage: false, radisk: false };
-  var socket = Gun(opt).get('rtcmeeting').get(room);
-  var users = Gun(opt).get('rtcmeeting').get(room+"_users");
+  var socket = Gun(opt).get('rtcmeeting').get(room).get('socket');
+  var users = Gun(opt).get('rtcmeeting').get(room).get("users");
 
   // Custom Emit Function
   socket.emit = function(key,value){
