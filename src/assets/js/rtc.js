@@ -61,8 +61,7 @@ window.addEventListener('load', ()=>{
 
       socket.get('subscribe').on(function(data,key){
         if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
-        users.get('subscribers').get(data.socketId).put({name:data.name});
-        
+        //users.get('subscribers').get(data.socketId).put({name:data.name, status: false});        
         if(pc[data.socketId] !== undefined) {
           return;
         }
@@ -264,7 +263,6 @@ window.addEventListener('load', ()=>{
                     case 'disconnected':
                         sendMsg(partnerName+" is "+STATE.media[pc[partnerName]],true);
                         h.closeVideo(partnerName);
-                        users.get('subscribers').unset(partnerName);
                         break;
                     case 'failed':
                         h.closeVideo(partnerName);
