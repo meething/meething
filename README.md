@@ -36,4 +36,4 @@ npm start
 * [ ] fix a bunch of early stage bugs!
 
 ## Credits
-This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni <amirsanni@gmail.com>
+This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni
