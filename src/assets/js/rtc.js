@@ -45,7 +45,7 @@ window.addEventListener('load', ()=>{
 		if(key=="sdp"||key=="icecandidates") value = JSON.stringify(value);
 		socket.get(key).put(value);
 	}
-  window.GUN = socket;
+  window.GUN = { socket: socket, users: users };
 
       var socketId = h.uuidv4();
       var myStream = '';
@@ -61,6 +61,7 @@ window.addEventListener('load', ()=>{
 
       socket.get('subscribe').on(function(data,key){
         if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
+        users.get(data.socketId).put(data);
         if(pc[data.socketId] !== undefined) {
           return;
         }
@@ -261,8 +262,8 @@ window.addEventListener('load', ()=>{
                         break;
                     case 'disconnected':
                         sendMsg(partnerName+" is "+STATE.media[pc[partnerName]],true);
-                        usersocket.get(partnerName).put(null);
                         h.closeVideo(partnerName);
+                        users.get(partnerName).put(null);
                         break;
                     case 'failed':
                         h.closeVideo(partnerName);
