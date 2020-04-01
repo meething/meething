@@ -304,7 +304,7 @@ window.addEventListener('load', ()=>{
 
         document.getElementById('toggle-video').addEventListener('click', (e)=>{
             e.preventDefault();
-
+            if(!myStream) return;
             myStream.getVideoTracks()[0].enabled = !(myStream.getVideoTracks()[0].enabled);
 
             //toggle video icon
@@ -315,7 +315,7 @@ window.addEventListener('load', ()=>{
 
         document.getElementById('toggle-mute').addEventListener('click', (e)=>{
             e.preventDefault();
-
+            if(!myStream) return;
             myStream.getAudioTracks()[0].enabled = !(myStream.getAudioTracks()[0].enabled);
 
             //toggle audio icon
