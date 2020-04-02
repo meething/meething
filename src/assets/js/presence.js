@@ -1,4 +1,5 @@
 import h from "./helpers.js";
+import p from "./presence.js";
 
 const root = "audio";
 const users = "users_test";
@@ -15,13 +16,16 @@ console.log(pid);
 
 window.onunload = window.onbeforeunload = function() {
   console.log("leaving " + pid);
-  setPresence("left");
+  p.setPresence("left");
+  p.displayActiveUsers();
 };
 
 window.onload = function(e) {
   console.log("entering " + pid);
-  setPresence("active");
+  p.setPresence("active");
+  p.displayActiveUsers();
 };
+
 
 export default {
   displayActiveUsers() {
@@ -35,7 +39,7 @@ export default {
         } else {
           usersInRoom.delete(user.pid);
         }
-        console.log("Users in room::" + usersInRoom.size);
+        console.log("Users in "+ room + "::" + usersInRoom.size);
       });
   },
 
@@ -47,7 +51,6 @@ export default {
       .put({ pid: pid, currentRoom: room, state: currentState });
   },
 
-  // displayActiveUsers();
 
   addItem(channel) {
     if (itemExist(channel) == false) {
