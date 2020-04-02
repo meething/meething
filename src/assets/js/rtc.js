@@ -23,34 +23,35 @@ window.addEventListener('load', ()=>{
     }
 
     else{
-        let commElem = document.getElementsByClassName('room-comm');
-
-        for(let i = 0; i < commElem.length; i++){
+      let commElem = document.getElementsByClassName('room-comm');
+      
+      for(let i = 0; i < commElem.length; i++){
             commElem[i].attributes.removeNamedItem('hidden');
-        }
+      }
 
-        var pc = [];
+      var pc = []; // hold local peerconnection statuses
+      var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
+      var opt = { peers: peers, localStorage: false, radisk: false };
+      var socket = Gun(opt).get('rtcmeeting').get(room).get('socket');
+      var users = Gun(opt).get('rtcmeeting').get(room).get("users");
 
-	var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
-	var opt = { peers: peers, localStorage: false, radisk: false };
-  var socket = Gun(opt).get('rtcmeeting').get(room).get('socket');
-  var users = Gun(opt).get('rtcmeeting').get(room).get("users");
-
-  // Custom Emit Function
-  socket.emit = function(key,value){
-		if((value.sender && value.to)&&value.sender==value.to) return;
-		console.log('debug emit key',key,'value',value);
-		if(!key||!value) return;
-		if (!value.ts) value.ts = Date.now();
-		if(key=="sdp"||key=="icecandidates") value = JSON.stringify(value);
-		socket.get(key).put(value);
-	}
-  window.GUN = { socket: socket, users: users };
+      // Custom Emit Function
+      socket.emit = function(key,value){
+        if((value.sender && value.to)&&value.sender==value.to) return;
+        console.log('debug emit key',key,'value',value);
+        if(!key||!value) return;
+        if (!value.ts) value.ts = Date.now();
+        if(key=="sdp"||key=="icecandidates") value = JSON.stringify(value);
+        socket.get(key).put(value);
+      }
+      window.GUN = { socket: socket, users: users };
 
       var socketId = h.uuidv4();
       var myStream = '';
       
       console.log('Starting! you are',socketId);
+      
+      // users.get(socketId).put({name: name, status: null, peers: [] })
 
 	    // Initialize Session
       socket.emit('subscribe', {
