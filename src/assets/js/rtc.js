@@ -315,9 +315,9 @@ window.addEventListener('load', ()=>{
 
         document.getElementById('toggle-mute').addEventListener('click', (e)=>{
             e.preventDefault();
-            var audioTrack = document.getElementById("local").srcObject.getAudioTracks()[0]
-            if(!audioTrack) return;
-            audioTrack.enabled = !audioTrack.enabled;
+            if(!myStream) return;
+
+            myStream.getVideoTracks()[0].enabled = !(myStream.getVideoTracks()[0].enabled);
 
             //toggle audio icon
             e.srcElement.classList.toggle('fa-volume-up');
