@@ -55,7 +55,7 @@ function initSocket() {
 var meUser;
 var presence;
 
-var candidates = new Candidates()
+var candidates;
 
 
 function initUser(r) {
@@ -68,6 +68,7 @@ function initUser(r) {
     pid = gunDB._.opt.pid;
     sessionStorage.setItem("pid", pid);
   }
+  candidates = new Candidates(room)
 
   meUser = new User(username, pid);
   candidates.add(meUser);

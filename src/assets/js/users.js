@@ -1,7 +1,7 @@
 class Candidates {
-  constructor() {
+  constructor(room) {
     this.gun = Gun("https://gunmeetingserver.herokuapp.com/gun");
-    this.think = this.gun.get("presence/qvdev");
+    this.think = this.gun.get("presence/" + room);
     this.think.map().on(this.show);
   }
 
@@ -22,6 +22,11 @@ class Candidates {
       li.setAttribute("id", id);
       li.appendChild(document.createTextNode(thought.name));
       ul.appendChild(li);
+    } else {
+      var element = document.getElementById(id);
+      if (element !== null) {
+        element.parentNode.removeChild(element);
+      }
     }
   }
 }
