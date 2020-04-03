@@ -3,7 +3,6 @@
  * @date 6th January, 2020
  */
 import h from './helpers.js';
-import users from './users.js';
 var TIMEGAP = 2000;
 var STATE = { media: {}, users: {} };
 
@@ -48,8 +47,8 @@ window.addEventListener('load', ()=>{
       window.GUN = { socket: socket, users: users };
 
       var socketId = h.uuidv4();
-      meUser.uuid = socketId;
-      presence.addUser(meUser);
+      meUser.uuid = socketId;//assign UUID to own user
+      presence.addUser(meUser);//Save user in gun
       var myStream = '';
       
       console.log('Starting! you are',socketId);
