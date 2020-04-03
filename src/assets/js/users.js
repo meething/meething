@@ -3,16 +3,16 @@ class Presence {
     this.gun = gun;
     this.users = gun.get("presence").get(room);
     this.subscribe(function(user, id) {
-      console.log(user);
+      // console.log(user);
     });
   }
 
   subscribe(callback) {
     this.users.map().on(function(user, id) {
       if (user !== null) {
-        console.log(JSON.stringify(user));
-        callback(user, id);
+        // console.log(JSON.stringify(user));        
       }
+      callback(user, id);
     }, true);
   }
 

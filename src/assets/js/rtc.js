@@ -5,6 +5,7 @@
 import h from "./helpers.js";
 var TIMEGAP = 2000;
 var STATE = { media: {}, users: {} };
+var allUsers = [];
 
 window.gunState = function() {
   console.log(STATE);
@@ -36,7 +37,8 @@ function initUser(room, username) {
   presence = new Presence(gunDB, room);
   presence.subscribe(function(user, id) {
     var users = presence.getAllUsers().then(function(result) {
-      console.log(result);
+      allUsers = result;
+      console.log(allUsers);
     })
   })
   enter()
@@ -48,10 +50,14 @@ function enter() {
   presence.addUser(meUser);
 }
 
-function leave()
+function leave() {
   console.log("leaving " + meUser.id);
   meUser.online = false;
   presence.remove(meUser.id);
+}
+
+window.onunload = window.onbeforeunload = function() {
+  leave();
 };
 
 
@@ -82,14 +88,14 @@ function initRTC(room, username) {
       .get("users");    
 
     // Custom Emit Function
-    socket.emit = function(key, value) {
-      if (value.sender && value.to && value.sender == value.to) return;
-      console.log("debug emit key", key, "value", value);
-      if (!key || !value) return;
-      if (!value.ts) value.ts = Date.now();
-      if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-      socket.get(key).put(value);
-    };
+    // socket.emit = function(key, value) {
+    //   if (value.sender && value.to && value.sender == value.to) return;
+    //   console.log("debug emit key", key, "value", value);
+    //   if (!key || !value) return;
+    //   if (!value.ts) value.ts = Date.now();
+    //   if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    //   socket.get(key).put(value);
+    // };
     window.GUN = { socket: socket, users: users };
 
     var socketId = h.uuidv4();
@@ -346,7 +352,6 @@ function initRTC(room, username) {
             sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
             break;
           case "disconnected":
-            leave()
             sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
             h.closeVideo(partnerName);
             break;
