@@ -71,19 +71,19 @@ function initUser(r) {
   presence.subscribe(function(user, id) {
     updatePresenceList();
   });
-  enter();  
+  enter();
 }
 
-function updatePresenceList() {
-  presence.getAllUsers().then(function(result) {
-    allUsers = result;
+async function updatePresenceList() {
+  console.log("start");
+  await presence.getAllUsers().then(function(result) {
+    console.log(result.length);
   });
-  console.log(allUsers);
-  console.log(allUsers.length);
-  document.getElementById("myUL").innerHTML = "";
-  for (var i = 0; i < allUsers.length; i++) {
-    newElement(allUsers[i]);
-  }
+  console.log("done");
+  // document.getElementById("myUL").innerHTML = "";
+  // for (var i = 0; i < allUsers.length; i++) {
+  //   newElement(allUsers[i]);
+  // }
 }
 
 // setInterval(keepAlive, 1000);
