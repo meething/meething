@@ -59,7 +59,7 @@ var candidates = new Candidates()
 
 
 function initUser(r) {
-  var peers = ["https://livecodestream-us.herokuapp.com/gun"];
+  var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gunDB = Gun(opt);
 
@@ -70,6 +70,7 @@ function initUser(r) {
   }
 
   meUser = new User(username, pid);
+  candidates.add(meUser);
   // presence = new Presence(gunDB, room);
   // presence.subscribe(function(user, id) {
   //   var users = presence.getAllUsers().then(function(result) {

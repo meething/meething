@@ -6,11 +6,11 @@ class Candidates {
   }
 
   add(user) {
-    this.think.get(user.pid).put(user);
+    this.think.get(user.id).put(user);
   }
 
   remove(user) {
-    this.think.get(user.pid).put(null);
+    this.think.get(user.id).put(null);
   }
 
   show(thought, id) {
