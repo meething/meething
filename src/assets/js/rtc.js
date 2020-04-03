@@ -11,9 +11,6 @@ window.gunState = function(){
   console.log(STATE);
 }
 
-users.getMe();
-users.getAllUser();
-
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');

@@ -1,51 +1,48 @@
-if (typeof Gun === "undefined") {
-  throw new Error(
-    'Gun is not available add\n<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>'
-  );
-}
-
-var gun = window.GUN()
-var users = gun.get("presence");
-
-
-
-gun.__proto__.show = function() {
-  users.map().on(function(user, id) {
-    if (user !== null) {
-      console.log(JSON.stringify(user));
-    }
-  });
-};
-
-gun.__proto__.getAllUsers = async function() {
-  var everyone = [];
-  await users.map().on(function(user, id) {
-    if (user !== null) {
-      everyone.push(user);
-    }
-  });
-  return everyone;
-};
-
-gun.__proto__.add = function(user) {
-  if (user instanceof User) {
-    users.get(user.id).put(user);
-  } else {
-    console.log("Not of type User");
+class Presence {
+  constructor(gun, room) {
+    this.gun = gun;
+    this.users = gun.get("presence").get(room);
+    this.show();
   }
-};
 
-gun.__proto__.getUser = async function(id) {
-  var user = null;
-  await users.get(id).on(function(lookedUpUser, key) {
-    user = lookedUpUser;
-  });
-  return user;
-};
+  show() {
+    this.users.map().on(function(user, id) {
+      if (user !== null) {
+        console.log(JSON.stringify(user));
+      }
+    });
+  }
 
-gun.__proto__.remove = function(id) {
-  users.get(id).put(null);
-};
+  async getAllUsers() {
+    var everyone = [];
+    await this.users.once().map().once(function(user, id) {
+      if (user !== null) {
+        everyone.push(user);
+      }
+    });
+    return everyone;
+  }
+
+  addUser(user) {
+    if (user instanceof User) {
+      this.users.get(user.id).put(user);
+    } else {
+      console.log("Not of type User");
+    }
+  }
+
+  async getUser(id) {
+    var user = null;
+    await this.users.get(id).on(function(lookedUpUser, key) {
+      user = lookedUpUser;
+    });
+    return user;
+  }
+
+  remove(id) {
+    this.users.get(id).put(null);
+  }
+}
 
 class User {
   constructor(name, id) {
@@ -55,34 +52,32 @@ class User {
   }
 }
 
+
+var peers = ['https://livecodestream-us.herokuapp.com/gun','https://livecodestream-eu.herokuapp.com/gun'];
+var opt = { peers: peers, localStorage: false, radisk: false };
+var gunDB = Gun(opt);
+
 var pid = sessionStorage.getItem("pid");
 if (pid == null || pid == undefined) {
-  pid = gun._.opt.pid;
+  pid = Gun()._.opt.pid;
   sessionStorage.setItem("pid", pid);
 }
 
-var meUser = new User("me", pid);
+const meUser = new User("me", pid);
+const presence = new Presence(gunDB, "test");
+
+// var everyone = presence.getAllUsers().then(function(result) {
+//   console.log(result);
+// });
+
+// var me = presence.getUser(meUser.id).then(function(result) {
+//   console.log(result);
+// });
 
 window.onunload = window.onbeforeunload = function() {
-  meUser.online = false;
-  gun.add(meUser);
+  console.log("leaving " + pid);
 };
 
 window.onload = function(e) {
-  meUser.online = true;
-  gun.add(meUser);
-};
-
-export default {
-  getAllUser() {
-    var everyone = gun.getAllUsers().then(function(result) {
-      console.log(result);
-    });
-  },
-
-  getMe() {
-    var me = gun.getUser(meUser.id).then(function(result) {
-      console.log(result);
-    });
-  }
+  console.log("entering " + pid);
 };
