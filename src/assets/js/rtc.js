@@ -108,6 +108,9 @@ window.onbeforeunload = function() {
   leave();
 };
 
+var myStream = "";
+var socketId;
+
 function initRTC() {
   if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
@@ -124,10 +127,10 @@ function initRTC() {
 
     window.GUN = { socket: socket, users: users };
 
-    var socketId = h.uuidv4();
+    socketId = h.uuidv4();
     meUser.uuid = socketId; //assign UUID to own user
     presence.addUser(meUser); //Save user in gun
-    var myStream = "";
+    
 
     console.log("Starting! you are", socketId);
 
@@ -255,9 +258,46 @@ function initRTC() {
       if (data.sender == username) return;
       console.log("got chat", key, data);
       h.addChat(data, "remote");
+    }); 
+
+    document.getElementById("chat-input").addEventListener("keypress", e => {
+      if (e.which === 13 && e.target.value.trim()) {
+        e.preventDefault();
+
+        sendMsg(e.target.value);
+
+        setTimeout(() => {
+          e.target.value = "";
+        }, 50);
+      }
     });
 
-    function init(createOffer, partnerName) {
+    document.getElementById("toggle-video").addEventListener("click", e => {
+      e.preventDefault();
+      if (!myStream) return;
+      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0]
+        .enabled;
+
+      //toggle video icon
+      e.srcElement.classList.toggle("fa-video");
+      e.srcElement.classList.toggle("fa-video-slash");
+    });
+
+    document.getElementById("toggle-mute").addEventListener("click", e => {
+      e.preventDefault();
+      if (!myStream) return;
+
+      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0]
+        .enabled;
+
+      //toggle audio icon
+      e.srcElement.classList.toggle("fa-volume-up");
+      e.srcElement.classList.toggle("fa-volume-mute");
+    });
+  }
+}
+
+function init(createOffer, partnerName) {
       pc[partnerName] = new RTCPeerConnection(h.getIceServer());
       h.getUserMedia()
         .then(stream => {
@@ -393,40 +433,3 @@ function initRTC() {
         }
       };
     }
-
-    document.getElementById("chat-input").addEventListener("keypress", e => {
-      if (e.which === 13 && e.target.value.trim()) {
-        e.preventDefault();
-
-        sendMsg(e.target.value);
-
-        setTimeout(() => {
-          e.target.value = "";
-        }, 50);
-      }
-    });
-
-    document.getElementById("toggle-video").addEventListener("click", e => {
-      e.preventDefault();
-      if (!myStream) return;
-      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0]
-        .enabled;
-
-      //toggle video icon
-      e.srcElement.classList.toggle("fa-video");
-      e.srcElement.classList.toggle("fa-video-slash");
-    });
-
-    document.getElementById("toggle-mute").addEventListener("click", e => {
-      e.preventDefault();
-      if (!myStream) return;
-
-      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0]
-        .enabled;
-
-      //toggle audio icon
-      e.srcElement.classList.toggle("fa-volume-up");
-      e.srcElement.classList.toggle("fa-volume-mute");
-    });
-  }
-}
