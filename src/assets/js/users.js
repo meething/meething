@@ -23,7 +23,8 @@ class Presence {
 
   addUser(user) {
     if (user instanceof User) {
-      this.users.get(user.id).put({name : user.name, ud});
+      console.log("adding user");
+      this.users.get(user.id).put(user);
     } else {
       console.log("Not of type User");
     }
@@ -50,18 +51,18 @@ class User {
   }
 }
 
-var peers = ['https://livecodestream-us.herokuapp.com/gun','https://livecodestream-eu.herokuapp.com/gun'];
-var opt = { peers: peers, localStorage: false, radisk: false };
-var gunDB = Gun(opt);
+// var peers = ['https://livecodestream-us.herokuapp.com/gun'];
+// var opt = { peers: peers, localStorage: false, radisk: false };
+// var gunDB = Gun(opt);
 
 var pid = sessionStorage.getItem("pid");
 if (pid == null || pid == undefined) {
-  pid = gunDB._.opt.pid;
+  pid = Gun()._.opt.pid;
   sessionStorage.setItem("pid", pid);
 }
 
 const meUser = new User(pid, pid);
-const presence = new Presence(gunDB, "test");
+const presence = new Presence(Gun(), "test");
 
 window.onunload = window.onbeforeunload = function() {
   console.log("leaving " + pid);
