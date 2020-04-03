@@ -2,22 +2,25 @@ class Presence {
   constructor(gun, room) {
     this.gun = gun;
     this.users = gun.get("presence").get(room);
-    this.users.map().on(this.show, true)
+    this.users.map().on(this.show, true);
   }
 
   show(user, id) {
-      if (user !== null) {
-        console.log(JSON.stringify(user));
-      }
+    if (user !== null) {
+      console.log(JSON.stringify(user));
+    }
   }
 
   async getAllUsers() {
     var everyone = [];
-    await this.users.once().map().once(function(user, id) {
-      if (user !== null) {
-        everyone.push(user);
-      }
-    });
+    await this.users
+      .once()
+      .map()
+      .once(function(user, id) {
+        if (user !== null) {
+          everyone.push(user);
+        }
+      });
     return everyone;
   }
 
@@ -51,18 +54,18 @@ class User {
   }
 }
 
-// var peers = ['https://livecodestream-us.herokuapp.com/gun'];
-// var opt = { peers: peers, localStorage: false, radisk: false };
-// var gunDB = Gun(opt);
+var peers = ["https://livecodestream-us.herokuapp.com/gun"];
+var opt = { peers: peers, localStorage: false, radisk: false };
+var gunDB = Gun(opt);
 
 var pid = sessionStorage.getItem("pid");
 if (pid == null || pid == undefined) {
-  pid = Gun()._.opt.pid;
+  pid = gunDB._.opt.pid;
   sessionStorage.setItem("pid", pid);
 }
 
 const meUser = new User("Name", pid);
-const presence = new Presence(Gun(), "qvdev");
+const presence = new Presence(gunDB, "room");
 
 window.onunload = window.onbeforeunload = function() {
   console.log("leaving " + pid);
@@ -71,12 +74,13 @@ window.onunload = window.onbeforeunload = function() {
 };
 
 window.onload = function(e) {
-
+  console.log("entering " + pid);
+  meUser.online = true;
+  presence.addUser(meUser);
 };
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    console.log('DOM fully loaded and parsed');
-    console.log("entering " + pid);
+window.addEventListener("DOMContentLoaded", event => {
+  console.log("entering " + pid);
   meUser.online = true;
   presence.addUser(meUser);
 });

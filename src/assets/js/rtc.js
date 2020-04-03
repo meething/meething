@@ -48,6 +48,8 @@ window.addEventListener('load', ()=>{
       window.GUN = { socket: socket, users: users };
 
       var socketId = h.uuidv4();
+      meUser.uuid = socketId;
+      presence.addUser(meUser);
       var myStream = '';
       
       console.log('Starting! you are',socketId);
