@@ -71,18 +71,17 @@ function initUser(r) {
   presence.subscribe(function(user, id) {
     updatePresenceList();
   });
-  enter();
+  enter();  
 }
 
-async function updatePresenceList() {
-  console.log("start");
-  await presence.getAllUsers().then(function(result) {
-    console.log(result.length);
+function updatePresenceList() {
+  var users = presence.getUsers()
+  users.map(user => user.name === 'Mark'? user : undefined).once(function(user, id){
+    newElement(users[i]);
   });
-  console.log("done");
   // document.getElementById("myUL").innerHTML = "";
-  // for (var i = 0; i < allUsers.length; i++) {
-  //   newElement(allUsers[i]);
+  // for (var i = 0; i < users.length; i++) {
+  //   newElement(users[i]);
   // }
 }
 

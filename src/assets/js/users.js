@@ -28,6 +28,10 @@ class Presence {
       });
     return everyone;
   }
+  
+  getUsers() {
+    return this.users;
+  }
 
   addUser(user) {
     if (user instanceof User) {
