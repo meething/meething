@@ -17,23 +17,39 @@ var username;
 window.onload = function(e) {
   room = h.getQString(location.href, "room");
   username = sessionStorage.getItem("username");
-  
-  initUser()
+
+  initSocket();
+  initUser();
   initRTC();
 };
 
 var socket;
-var room
+var room;
+var users;
+var pc = []; // hold local peerconnection statuses
 
 function initSocket() {
-      var socket = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("socket");
-    var users = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("users");    
+  var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
+  var opt = { peers: peers, localStorage: false, radisk: false };
+
+  socket = Gun(opt)
+    .get("rtcmeeting")
+    .get(room)
+    .get("socket");
+  users = Gun(opt)
+    .get("rtcmeeting")
+    .get(room)
+    .get("users");
+
+  // Custom Emit Function
+  socket.emit = function(key, value) {
+    if (value.sender && value.to && value.sender == value.to) return;
+    console.log("debug emit key", key, "value", value);
+    if (!key || !value) return;
+    if (!value.ts) value.ts = Date.now();
+    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    socket.get(key).put(value);
+  };
 }
 
 var meUser;
@@ -56,29 +72,43 @@ function initUser(r) {
     var users = presence.getAllUsers().then(function(result) {
       allUsers = result;
       console.log(allUsers);
-    })
-  })
-  enter()
+    });
+  });
+  enter();
 }
 
 function enter() {
   console.log("entering " + meUser.id);
   meUser.online = true;
-  presence.addUser(meUser);  
+  presence.addUser(meUser);
+  sendMsg(meUser.name + " joining", false);
 }
 
 function leave() {
   console.log("leaving " + meUser.id);
   meUser.online = false;
   presence.remove(meUser.id);
+  sendMsg(meUser.name + " leaving", false);
 }
 
-window.onunload = window.onbeforeunload = function() {
+function sendMsg(msg, local) {
+  let data = {
+    room: room,
+    msg: msg,
+    sender: username
+  };
+
+  //emit chat message
+  if (!local) socket.emit("chat", data);
+  //add localchat
+  h.addChat(data, "local");
+}
+
+window.onbeforeunload = function() {
   leave();
 };
 
-
-function initRTC(r) {
+function initRTC() {
   if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
   } else if (!username) {
@@ -92,20 +122,6 @@ function initRTC(r) {
       commElem[i].attributes.removeNamedItem("hidden");
     }
 
-    var pc = []; // hold local peerconnection statuses
-    var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
-    var opt = { peers: peers, localStorage: false, radisk: false };
-
-
-    // Custom Emit Function
-    socket.emit = function(key, value) {
-      if (value.sender && value.to && value.sender == value.to) return;
-      console.log("debug emit key", key, "value", value);
-      if (!key || !value) return;
-      if (!value.ts) value.ts = Date.now();
-      if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-      socket.get(key).put(value);
-    };
     window.GUN = { socket: socket, users: users };
 
     var socketId = h.uuidv4();
@@ -240,19 +256,6 @@ function initRTC(r) {
       console.log("got chat", key, data);
       h.addChat(data, "remote");
     });
-
-    function sendMsg(msg, local) {
-      let data = {
-        room: room,
-        msg: msg,
-        sender: username
-      };
-
-      //emit chat message
-      if (!local) socket.emit("chat", data);
-      //add localchat
-      h.addChat(data, "local");
-    }
 
     function init(createOffer, partnerName) {
       pc[partnerName] = new RTCPeerConnection(h.getIceServer());
