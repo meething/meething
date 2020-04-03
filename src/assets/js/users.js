@@ -23,9 +23,12 @@ class Candidates {
       li.appendChild(document.createTextNode(thought.name));
       ul.appendChild(li);
     } else {
-      var element = document.getElementById(id);
-      if (element !== null) {
-        element.parentNode.removeChild(element);
+      var elements = document.getElementsByTagName("li");
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i].id;
+        if (elements[i].id == id) {
+          element.parentNode.removeChild(element);
+        }
       }
     }
   }
