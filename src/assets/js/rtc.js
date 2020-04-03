@@ -68,18 +68,24 @@ function initUser(r) {
 
   meUser = new User(username, pid);
   presence = new Presence(gunDB, room);
-  presence.subscribe(function(user, id) {
-    var users = presence.getAllUsers().then(function(result) {
-      allUsers = result;
-      console.log(allUsers);
-      document.getElementById("myUL").innerHTML = "";
-      for (var i = 0; i < allUsers.length; i++) {
-        newElement(allUsers[i]);
-      }
-    });
-  });
+  //   presence.subscribe(function(user, id) {
+
+  //   });
   enter();
 }
+
+function keepAlive() {
+  var users = presence.getAllUsers().then(function(result) {
+    allUsers = result;
+    console.log(allUsers);
+    document.getElementById("myUL").innerHTML = "";
+    for (var i = 0; i <= allUsers.length; i++) {
+      newElement(allUsers[i]);
+    }
+  });
+}
+
+setInterval(keepAlive, 1000);
 
 function newElement(user) {
   var li = document.createElement("li");
