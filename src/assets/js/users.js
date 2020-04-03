@@ -1,4 +1,4 @@
-if (typeof Gun === 'undefined') {
+if (typeof Gun === "undefined") {
   throw new Error(
     'Gun is not available add\n<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>'
   );
@@ -32,9 +32,9 @@ Gun().__proto__.add = function(user) {
   }
 };
 
-Gun().__proto__.getUser = async function(id) {  
-  var user = null
-  await users.get(id).on(function(lookedUpUser, key){
+Gun().__proto__.getUser = async function(id) {
+  var user = null;
+  await users.get(id).on(function(lookedUpUser, key) {
     user = lookedUpUser;
   });
   return user;
@@ -52,31 +52,34 @@ class User {
   }
 }
 
-var gun = new Gun();
-
 var pid = sessionStorage.getItem("pid");
 if (pid == null || pid == undefined) {
   pid = Gun()._.opt.pid;
   sessionStorage.setItem("pid", pid);
 }
 
-var meUser = new User("me", pid);  
+var meUser = new User("me", pid);
 
 window.onunload = window.onbeforeunload = function() {
   meUser.online = false;
-  gun.add(meUser);
+  Gun().add(meUser);
 };
 
 window.onload = function(e) {
   meUser.online = true;
-  gun.add(meUser);
+  Gun().add(meUser);
 };
 
+export default {
+  getAllUser() {
+    var everyone = gun.getAllUsers().then(function(result) {
+      console.log(result);
+    });
+  },
 
-var everyone = gun.getAllUsers().then(function(result) {
-  console.log(result);
-});
-
-var me = gun.getUser(meUser.id).then(function(result) {
-  console.log(result);
-});
+  getMe() {
+    var me = gun.getUser(meUser.id).then(function(result) {
+      console.log(result);
+    });
+  }
+};

@@ -3,12 +3,16 @@
  * @date 6th January, 2020
  */
 import h from './helpers.js';
+import users from './users.js';
 var TIMEGAP = 2000;
 var STATE = { media: {}, users: {} };
 
 window.gunState = function(){
   console.log(STATE);
 }
+
+users.getMe();
+users.getAllUser();
 
 window.addEventListener('load', ()=>{
     const room = h.getQString(location.href, 'room');
