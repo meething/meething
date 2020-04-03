@@ -11,18 +11,35 @@ window.gunState = function() {
   console.log(STATE);
 };
 
+var room;
+var username;
+
 window.onload = function(e) {
-  const room = h.getQString(location.href, "room");
-  const username = sessionStorage.getItem("username");
+  room = h.getQString(location.href, "room");
+  username = sessionStorage.getItem("username");
   
-  initUser(room, username)
-  initRTC(room, username);
+  initUser()
+  initRTC();
 };
+
+var socket;
+var room
+
+function initSocket() {
+      var socket = Gun(opt)
+      .get("rtcmeeting")
+      .get(room)
+      .get("socket");
+    var users = Gun(opt)
+      .get("rtcmeeting")
+      .get(room)
+      .get("users");    
+}
 
 var meUser;
 var presence;
 
-function initUser(room, username) {
+function initUser(r) {
   var peers = ["https://livecodestream-us.herokuapp.com/gun"];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gunDB = Gun(opt);
@@ -47,7 +64,7 @@ function initUser(room, username) {
 function enter() {
   console.log("entering " + meUser.id);
   meUser.online = true;
-  presence.addUser(meUser);
+  presence.addUser(meUser);  
 }
 
 function leave() {
@@ -61,7 +78,7 @@ window.onunload = window.onbeforeunload = function() {
 };
 
 
-function initRTC(room, username) {
+function initRTC(r) {
   if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
   } else if (!username) {
@@ -78,24 +95,17 @@ function initRTC(room, username) {
     var pc = []; // hold local peerconnection statuses
     var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
     var opt = { peers: peers, localStorage: false, radisk: false };
-    var socket = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("socket");
-    var users = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("users");    
+
 
     // Custom Emit Function
-    // socket.emit = function(key, value) {
-    //   if (value.sender && value.to && value.sender == value.to) return;
-    //   console.log("debug emit key", key, "value", value);
-    //   if (!key || !value) return;
-    //   if (!value.ts) value.ts = Date.now();
-    //   if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    //   socket.get(key).put(value);
-    // };
+    socket.emit = function(key, value) {
+      if (value.sender && value.to && value.sender == value.to) return;
+      console.log("debug emit key", key, "value", value);
+      if (!key || !value) return;
+      if (!value.ts) value.ts = Date.now();
+      if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+      socket.get(key).put(value);
+    };
     window.GUN = { socket: socket, users: users };
 
     var socketId = h.uuidv4();
