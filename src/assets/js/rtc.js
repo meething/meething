@@ -69,30 +69,12 @@ function initUser(r) {
   meUser = new User(username, pid);
   presence = new Presence(gunDB, room);
   presence.subscribe(function(user, id) {
-    updatePresenceList();
+    var users = presence.getAllUsers().then(function(result) {
+      allUsers = result;
+      console.log(allUsers);
+    });
   });
-  enter();  
-}
-
-function updatePresenceList() {
-  var users = presence.getUsers()
-  users.map(user => user.name === 'Mark'? user : undefined).once(function(user, id){
-    newElement(users[i]);
-  });
-  // document.getElementById("myUL").innerHTML = "";
-  // for (var i = 0; i < users.length; i++) {
-  //   newElement(users[i]);
-  // }
-}
-
-// setInterval(keepAlive, 1000);
-
-function newElement(user) {
-  var li = document.createElement("li");
-  var inputValue = user.name;
-  var t = document.createTextNode(inputValue);
-  li.appendChild(t);
-  document.getElementById("myUL").appendChild(li);
+  enter();
 }
 
 function enter() {
@@ -126,9 +108,6 @@ window.onbeforeunload = function() {
   leave();
 };
 
-var myStream = "";
-var socketId;
-
 function initRTC() {
   if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
@@ -145,9 +124,10 @@ function initRTC() {
 
     window.GUN = { socket: socket, users: users };
 
-    socketId = h.uuidv4();
+    var socketId = h.uuidv4();
     meUser.uuid = socketId; //assign UUID to own user
     presence.addUser(meUser); //Save user in gun
+    var myStream = "";
 
     console.log("Starting! you are", socketId);
 
@@ -277,6 +257,143 @@ function initRTC() {
       h.addChat(data, "remote");
     });
 
+    function init(createOffer, partnerName) {
+      pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+      h.getUserMedia()
+        .then(stream => {
+          //save my stream
+          myStream = stream;
+
+          stream.getTracks().forEach(track => {
+            pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
+          });
+
+          document.getElementById("local").srcObject = stream;
+        })
+        .catch(e => {
+          console.error(`stream error: ${e}`);
+        });
+
+      //create offer
+      if (createOffer) {
+        pc[partnerName].onnegotiationneeded = async () => {
+          let offer = await pc[partnerName].createOffer();
+          await pc[partnerName].setLocalDescription(offer);
+          socket.emit("sdp", {
+            description: pc[partnerName].localDescription,
+            to: partnerName,
+            sender: socketId
+          });
+        };
+      }
+
+      //send ice candidate to partnerNames
+      pc[partnerName].onicecandidate = ({ candidate }) => {
+        if (!candidate) return;
+        socket.emit("icecandidates", {
+          candidate: candidate,
+          to: partnerName,
+          sender: socketId
+        });
+      };
+
+      //add
+      pc[partnerName].ontrack = e => {
+        let str = e.streams[0];
+        if (document.getElementById(`${partnerName}-video`)) {
+          document.getElementById(`${partnerName}-video`).srcObject = str;
+          //When the video frame is clicked. This will enable picture-in-picture
+          document
+            .getElementById(`${partnerName}-video`)
+            .addEventListener("click", () => {
+              if (!document.pictureInPictureElement) {
+                document
+                  .getElementById(`${partnerName}-video`)
+                  .requestPictureInPicture()
+                  .catch(error => {
+                    // Video failed to enter Picture-in-Picture mode.
+                    console.error(error);
+                  });
+              } else {
+                document.exitPictureInPicture().catch(error => {
+                  // Video failed to leave Picture-in-Picture mode.
+                  console.error(error);
+                });
+              }
+            });
+        } else {
+          //video elem
+          let newVid = document.createElement("video");
+          newVid.id = `${partnerName}-video`;
+          newVid.srcObject = str;
+          newVid.autoplay = true;
+          newVid.className = "remote-video";
+
+          // Video user title
+          var vtitle = document.createElement("p");
+          var vuser = partnerName;
+          vtitle.innerHTML = `<center>${vuser}</center>`;
+          vtitle.id = `${partnerName}-title`;
+
+          //create a new div for card
+          let cardDiv = document.createElement("div");
+          cardDiv.className = "card mb-3";
+          cardDiv.style = "color:#FFF;";
+          cardDiv.appendChild(newVid);
+          cardDiv.appendChild(vtitle);
+
+          //create a new div for everything
+          let div = document.createElement("div");
+          div.className = "col-sm-12 col-md-6";
+          div.id = partnerName;
+          div.appendChild(cardDiv);
+
+          //put div in videos elem
+          document.getElementById("videos").appendChild(div);
+        }
+      };
+
+      pc[partnerName].onconnectionstatechange = d => {
+        console.log(
+          "Connection State Change:" + pc[partnerName],
+          pc[partnerName].iceConnectionState
+        );
+        // Save State
+        STATE.media[pc[partnerName]] = pc[partnerName].iceConnectionState;
+        switch (pc[partnerName].iceConnectionState) {
+          case "connected":
+            sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+            break;
+          case "disconnected":
+            sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+            h.closeVideo(partnerName);
+            break;
+          case "failed":
+            h.closeVideo(partnerName);
+            break;
+          case "closed":
+            h.closeVideo(partnerName);
+            break;
+          default:
+            console.log("Unknown state?", pc[partnerName].iceConnectionState);
+            break;
+        }
+      };
+
+      pc[partnerName].onsignalingstatechange = d => {
+        console.log(
+          "Signaling State Change:" + pc[partnerName],
+          pc[partnerName].signalingState
+        );
+        switch (pc[partnerName].signalingState) {
+          case "closed":
+            console.log("Signalling state is 'closed'");
+            h.closeVideo(partnerName);
+            break;
+        }
+      };
+    }
+
     document.getElementById("chat-input").addEventListener("keypress", e => {
       if (e.which === 13 && e.target.value.trim()) {
         e.preventDefault();
@@ -312,141 +429,4 @@ function initRTC() {
       e.srcElement.classList.toggle("fa-volume-mute");
     });
   }
-}
-
-function init(createOffer, partnerName) {
-  pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-  h.getUserMedia()
-    .then(stream => {
-      //save my stream
-      myStream = stream;
-
-      stream.getTracks().forEach(track => {
-        pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
-      });
-
-      document.getElementById("local").srcObject = stream;
-    })
-    .catch(e => {
-      console.error(`stream error: ${e}`);
-    });
-
-  //create offer
-  if (createOffer) {
-    pc[partnerName].onnegotiationneeded = async () => {
-      let offer = await pc[partnerName].createOffer();
-      await pc[partnerName].setLocalDescription(offer);
-      socket.emit("sdp", {
-        description: pc[partnerName].localDescription,
-        to: partnerName,
-        sender: socketId
-      });
-    };
-  }
-
-  //send ice candidate to partnerNames
-  pc[partnerName].onicecandidate = ({ candidate }) => {
-    if (!candidate) return;
-    socket.emit("icecandidates", {
-      candidate: candidate,
-      to: partnerName,
-      sender: socketId
-    });
-  };
-
-  //add
-  pc[partnerName].ontrack = e => {
-    let str = e.streams[0];
-    if (document.getElementById(`${partnerName}-video`)) {
-      document.getElementById(`${partnerName}-video`).srcObject = str;
-      //When the video frame is clicked. This will enable picture-in-picture
-      document
-        .getElementById(`${partnerName}-video`)
-        .addEventListener("click", () => {
-          if (!document.pictureInPictureElement) {
-            document
-              .getElementById(`${partnerName}-video`)
-              .requestPictureInPicture()
-              .catch(error => {
-                // Video failed to enter Picture-in-Picture mode.
-                console.error(error);
-              });
-          } else {
-            document.exitPictureInPicture().catch(error => {
-              // Video failed to leave Picture-in-Picture mode.
-              console.error(error);
-            });
-          }
-        });
-    } else {
-      //video elem
-      let newVid = document.createElement("video");
-      newVid.id = `${partnerName}-video`;
-      newVid.srcObject = str;
-      newVid.autoplay = true;
-      newVid.className = "remote-video";
-
-      // Video user title
-      var vtitle = document.createElement("p");
-      var vuser = partnerName;
-      vtitle.innerHTML = `<center>${vuser}</center>`;
-      vtitle.id = `${partnerName}-title`;
-
-      //create a new div for card
-      let cardDiv = document.createElement("div");
-      cardDiv.className = "card mb-3";
-      cardDiv.style = "color:#FFF;";
-      cardDiv.appendChild(newVid);
-      cardDiv.appendChild(vtitle);
-
-      //create a new div for everything
-      let div = document.createElement("div");
-      div.className = "col-sm-12 col-md-6";
-      div.id = partnerName;
-      div.appendChild(cardDiv);
-
-      //put div in videos elem
-      document.getElementById("videos").appendChild(div);
-    }
-  };
-
-  pc[partnerName].onconnectionstatechange = d => {
-    console.log(
-      "Connection State Change:" + pc[partnerName],
-      pc[partnerName].iceConnectionState
-    );
-    // Save State
-    STATE.media[pc[partnerName]] = pc[partnerName].iceConnectionState;
-    switch (pc[partnerName].iceConnectionState) {
-      case "connected":
-        sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
-        break;
-      case "disconnected":
-        sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
-        h.closeVideo(partnerName);
-        break;
-      case "failed":
-        h.closeVideo(partnerName);
-        break;
-      case "closed":
-        h.closeVideo(partnerName);
-        break;
-      default:
-        console.log("Unknown state?", pc[partnerName].iceConnectionState);
-        break;
-    }
-  };
-
-  pc[partnerName].onsignalingstatechange = d => {
-    console.log(
-      "Signaling State Change:" + pc[partnerName],
-      pc[partnerName].signalingState
-    );
-    switch (pc[partnerName].signalingState) {
-      case "closed":
-        console.log("Signalling state is 'closed'");
-        h.closeVideo(partnerName);
-        break;
-    }
-  };
 }
