@@ -70,20 +70,19 @@ function initUser(r) {
   }
 
   meUser = new User(username, pid);
-  presence = new Presence(gunDB, room);
-  presence.subscribe(function(user, id) {
-    var users = presence.getAllUsers().then(function(result) {
-      allUsers = result;
-      console.log(allUsers);
-    });
-  });
-  enter();
+  // presence = new Presence(gunDB, room);
+  // presence.subscribe(function(user, id) {
+  //   var users = presence.getAllUsers().then(function(result) {
+  //     allUsers = result;
+  //     console.log(allUsers);
+  //   });
+  // });
 }
 
 function enter() {
   console.log("entering " + meUser.id);
   meUser.online = true;
-  presence.addUser(meUser);
+  // presence.addUser(meUser);
   sendMsg(meUser.name + " joining", false);
   candidates.add(meUser);
 }
@@ -91,9 +90,9 @@ function enter() {
 function leave() {
   console.log("leaving " + meUser.id);
   meUser.online = false;
-  presence.remove(meUser.id);
+  // presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
-  candidates.remove(meUser);
+  candidates.remove(meUser)
 }
 
 function sendMsg(msg, local) {
@@ -131,7 +130,7 @@ function initRTC() {
 
     var socketId = h.uuidv4();
     meUser.uuid = socketId; //assign UUID to own user
-    presence.addUser(meUser); //Save user in gun
+    enter();
     var myStream = "";
 
     console.log("Starting! you are", socketId);

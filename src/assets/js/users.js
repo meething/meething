@@ -2,23 +2,29 @@ class Candidates {
   constructor() {
     this.gun = Gun("https://gunmeetingserver.herokuapp.com/gun");
     this.think = this.gun.get("presence/qvdev");
+    this.think.map().on(this.show);
   }
 
   add(user) {
     this.think.get(user.pid).put(user);
   }
-  
-    remove(user) {
+
+  remove(user) {
     this.think.get(user.pid).put(null);
   }
 
-  show() {
-    this.think.map().on(function(thought, id) {
-      console.log(thought);
-    });
+  show(thought, id) {
+    console.log(thought);
+    if (thought !== null) {
+      var ul = document.getElementById("dynamic-list");
+      var candidate = document.getElementById("candidate");
+      var li = document.createElement("li");
+      li.setAttribute("id", id);
+      li.appendChild(document.createTextNode(thought.name));
+      ul.appendChild(li);
+    }
   }
 }
-
 
 class Presence {
   constructor(gun, room) {
@@ -32,7 +38,7 @@ class Presence {
   subscribe(callback) {
     this.users.map().on(function(user, id) {
       if (user !== null) {
-        // console.log(JSON.stringify(user));        
+        // console.log(JSON.stringify(user));
       }
       callback(user, id);
     }, true);
