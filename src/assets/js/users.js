@@ -1,5 +1,5 @@
 class Presence {
-  init(gun, room) {
+  constructor(gun, room) {
     this.gun = gun;
     this.users = gun.get("presence").get(room);
     this.users.map().on(this.show, true);
@@ -53,3 +53,34 @@ class User {
     this.online = false;
   }
 }
+
+var peers = ["https://livecodestream-us.herokuapp.com/gun"];
+var opt = { peers: peers, localStorage: false, radisk: false };
+var gunDB = Gun(opt);
+
+var pid = sessionStorage.getItem("pid");
+if (pid == null || pid == undefined) {
+  pid = gunDB._.opt.pid;
+  sessionStorage.setItem("pid", pid);
+}
+
+const meUser = new User("Name", pid);
+const presence = new Presence(gunDB, "room");
+
+window.onunload = window.onbeforeunload = function() {
+  console.log("leaving " + pid);
+  meUser.online = false;
+  presence.remove(meUser.id);
+};
+
+window.onload = function(e) {
+  console.log("entering " + pid);
+  meUser.online = true;
+  presence.addUser(meUser);
+};
+
+window.addEventListener("DOMContentLoaded", event => {
+  console.log("entering " + pid);
+  meUser.online = true;
+  presence.addUser(meUser);
+});
