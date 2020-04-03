@@ -2,13 +2,18 @@ class Presence {
   constructor(gun, room) {
     this.gun = gun;
     this.users = gun.get("presence").get(room);
-    this.users.map().on(this.show, true);
+    this.subscribe(function(user, id) {
+      console.log(user);
+    });
   }
 
-  show(user, id) {
-    if (user !== null) {
-      console.log(JSON.stringify(user));
-    }
+  subscribe(callback) {
+    this.users.map().on(function(user, id) {
+      if (user !== null) {
+        console.log(JSON.stringify(user));
+        callback(user, id);
+      }
+    }, true);
   }
 
   async getAllUsers() {

@@ -34,6 +34,11 @@ function initUser(room, username) {
 
   meUser = new User(username, pid);
   presence = new Presence(gunDB, room);
+  presence.subscribe(function(user, id) {
+    var users = presence.getAllUsers().then(function(result) {
+      console.log(result);
+    })
+  })
   enter()
 }
 
@@ -43,7 +48,7 @@ function enter() {
   presence.addUser(meUser);
 }
 
-window.onunload = window.onbeforeunload = function() {
+function leave()
   console.log("leaving " + meUser.id);
   meUser.online = false;
   presence.remove(meUser.id);
@@ -341,6 +346,7 @@ function initRTC(room, username) {
             sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
             break;
           case "disconnected":
+            leave()
             sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
             h.closeVideo(partnerName);
             break;
