@@ -55,6 +55,9 @@ function initSocket() {
 var meUser;
 var presence;
 
+var candidates = new Candidates()
+
+
 function initUser(r) {
   var peers = ["https://livecodestream-us.herokuapp.com/gun"];
   var opt = { peers: peers, localStorage: false, radisk: false };
@@ -82,6 +85,7 @@ function enter() {
   meUser.online = true;
   presence.addUser(meUser);
   sendMsg(meUser.name + " joining", false);
+  candidates.add(meUser);
 }
 
 function leave() {
@@ -89,6 +93,7 @@ function leave() {
   meUser.online = false;
   presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
+  candidates.remove(meUser);
 }
 
 function sendMsg(msg, local) {

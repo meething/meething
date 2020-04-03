@@ -1,3 +1,25 @@
+class Candidates {
+  constructor() {
+    this.gun = Gun("https://gunmeetingserver.herokuapp.com/gun");
+    this.think = this.gun.get("presence/qvdev");
+  }
+
+  add(user) {
+    this.think.get(user.pid).put(user);
+  }
+  
+    remove(user) {
+    this.think.get(user.pid).put(null);
+  }
+
+  show() {
+    this.think.map().on(function(thought, id) {
+      console.log(thought);
+    });
+  }
+}
+
+
 class Presence {
   constructor(gun, room) {
     this.gun = gun;
