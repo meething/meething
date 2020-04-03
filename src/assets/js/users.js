@@ -2,7 +2,7 @@ class Presence {
   constructor(gun, room) {
     this.gun = gun;
     this.users = gun.get("presence").get(room);
-    this.users.map().on(this.show)
+    this.users.map().on(this.show, true)
   }
 
   show(user, id) {
@@ -61,8 +61,8 @@ if (pid == null || pid == undefined) {
   sessionStorage.setItem("pid", pid);
 }
 
-const meUser = new User(pid, pid);
-const presence = new Presence(Gun(), "test");
+const meUser = new User("Name", pid);
+const presence = new Presence(Gun(), "qvdev");
 
 window.onunload = window.onbeforeunload = function() {
   console.log("leaving " + pid);
@@ -71,7 +71,12 @@ window.onunload = window.onbeforeunload = function() {
 };
 
 window.onload = function(e) {
-  console.log("entering " + pid);
+
+};
+
+window.addEventListener('DOMContentLoaded', (event) => {
+    console.log('DOM fully loaded and parsed');
+    console.log("entering " + pid);
   meUser.online = true;
   presence.addUser(meUser);
-};
+});
