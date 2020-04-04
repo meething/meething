@@ -166,3 +166,12 @@ body {
 li {
 cursor: crosshair
 }
+
+
+.icon-off {
+  color: #FF0000 !important;
+}
+
+.icon-on {
+  color: #FFFFFF !important;
+}

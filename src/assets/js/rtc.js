@@ -141,8 +141,6 @@ function initRTC() {
 
     console.log("Starting! you are", socketId);
 
-    // users.get(socketId).put({name: name, status: null, peers: [] })
-
     // Initialize Session
     socket.emit("subscribe", {
       room: room,
@@ -295,7 +293,7 @@ function initRTC() {
       e.preventDefault();
       if (!myStream) return;
 
-      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0]
+      myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0]
         .enabled;
 
       //toggle audio icon
