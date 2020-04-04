@@ -2,6 +2,7 @@
   position: absolute;
   z-index: 9;
   background-color: #f1f1f1;
+  color: #000;
   text-align: left;
   border: 1px solid #d3d3d3;
 }

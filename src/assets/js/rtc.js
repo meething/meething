@@ -70,8 +70,8 @@ function initUser(r) {
     pid = gun._.opt.pid;
     sessionStorage.setItem("pid", pid);
   }
-  const candidates = new Candidates(gun, room);
-  const meUser = new User(username, pid);
+  candidates = new Candidates(gun, room);
+  meUser = new User(username, pid);
 }
 
 function enter() {
