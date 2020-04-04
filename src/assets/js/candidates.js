@@ -29,7 +29,6 @@ class Candidates {
   }
 
   getAll() {
-    console.log("start");
     var all = [];
     this.think.map(function(data, id) {
       all.push(data);
@@ -38,7 +37,6 @@ class Candidates {
   }
 
   show(thought, id) {
-    console.log(thought);
     var htmlCollection = document.getElementsByTagName("li");
     var elements = [...htmlCollection];
     const result = elements.map(element => element.id);
