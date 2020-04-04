@@ -81,6 +81,7 @@ function initUser(r) {
 function onCall() {
   var callTo = candidates.get(this.id);
   console.log("Start calling " + callTo.name);
+  pc.push(callTo.uuid);
   init(true, callTo.uuid);
 }
 
