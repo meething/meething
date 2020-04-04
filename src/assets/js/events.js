@@ -55,6 +55,9 @@ window.addEventListener('load', ()=>{
             document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
                 Share the <a href='${roomLink}'>room link</a> with your partners.`;
 
+            // add room name to chat title
+            document.querySelector('#chat-title').innerHTML = roomName;
+
             //empty the values
             document.querySelector('#room-name').value = '';
             document.querySelector('#your-name').value = '';

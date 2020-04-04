@@ -151,10 +151,12 @@ function initRTC() {
     });
 
     socket.get("subscribe").on(function(data, key) {
+      // Ignore subscribes older than TIMEGAP
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (pc[data.socketId] !== undefined) {
         return;
       }
+      // Ignore self-generated subscribes
       if (data.socketId == socketId || data.sender == socketId) return;
       console.log("got subscribe!", data);
       socket.emit("newuser", { socketId: data.socketId });
