@@ -53,7 +53,7 @@ window.addEventListener('load', ()=>{
 
             //show message with link to room
             document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
-                Share the room link with your partners.`;
+                Share the <a href='${roomLink}'>room link</a> with your partners.`;
 
             //empty the values
             document.querySelector('#room-name').value = '';
