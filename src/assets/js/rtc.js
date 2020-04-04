@@ -344,7 +344,7 @@ function initRTC() {
 
           //create a new div for everything
           let div = document.createElement("div");
-          div.className = "col-sm-12 col-md-6";
+          div.className = "col-sm-12 col-md-6 clipped";
           div.id = partnerName;
           div.appendChild(cardDiv);
 

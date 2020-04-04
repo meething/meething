@@ -61,8 +61,11 @@ body {
 .remote-video{
     position: relative;
     object-fit: cover !important;
-    height: auto;
-    border-radius: 10px;
+    height: auto;    
+}
+
+.clipped{
+  clip-path: circle(30%);
 }
 
 .main{
