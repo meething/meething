@@ -57,28 +57,21 @@ var presence;
 
 var candidates;
 
-
 function initUser(r) {
-  var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
+  var peers = [
+    "https://livecodestream-us.herokuapp.com/gun",
+    "https://livecodestream-eu.herokuapp.com/gun"
+  ];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  var gunDB = Gun(opt);
+  var gun = Gun(opt);
 
   var pid = sessionStorage.getItem("pid");
   if (pid == null || pid == undefined) {
-    pid = gunDB._.opt.pid;
+    pid = gun._.opt.pid;
     sessionStorage.setItem("pid", pid);
   }
-  candidates = new Candidates(room)
-
-  meUser = new User(username, pid);
-  candidates.add(meUser);
-  // presence = new Presence(gunDB, room);
-  // presence.subscribe(function(user, id) {
-  //   var users = presence.getAllUsers().then(function(result) {
-  //     allUsers = result;
-  //     console.log(allUsers);
-  //   });
-  // });
+  const candidates = new Candidates(gun, room);
+  const meUser = new User(username, pid);
 }
 
 function enter() {
@@ -94,7 +87,7 @@ function leave() {
   meUser.online = false;
   // presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
-  candidates.remove(meUser)
+  candidates.remove(meUser);
 }
 
 function sendMsg(msg, local) {
