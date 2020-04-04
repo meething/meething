@@ -27,6 +27,10 @@ class Candidates {
     return all;
   }
 
+  candidateClicked(element) {
+    console.log(element);
+  }
+
   show(thought, id) {
     console.log(thought);
     var htmlCollection = document.getElementsByTagName("li");
@@ -41,7 +45,7 @@ class Candidates {
       var ul = document.getElementById("dynamic-list");
       var candidate = document.getElementById("candidate");
       var li = document.createElement("li");
-      li.addEventListener("click", function(){console.log(this)});
+      li.addEventListener("click", Candidates.prototype.candidateClicked);
       li.setAttribute("id", thought.id);
       li.appendChild(document.createTextNode(thought.name));
       ul.appendChild(li);
@@ -54,10 +58,6 @@ class Candidates {
         }
       }
     }
-  }
-
-  candidateClicked() {
-    console.log("click");
   }
 }
 

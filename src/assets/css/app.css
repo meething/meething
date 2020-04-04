@@ -163,10 +163,6 @@ body {
   height: 100%;
 }
 
-.callCursor {
-  cursor: url("https://image.flaticon.com/icons/svg/724/724664.svg"), pointer;
-}
-
 li {
-cursor: callCursor : pointer;
+cursor: crosshair
 }
