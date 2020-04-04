@@ -307,6 +307,8 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+  let videoDefaultConstraintString = '{\n  "width": 320,\n  "height": 240,\n  "frameRate": 30\n}';
+  let audioDefaultConstraintString = '{\n  "sampleSize": 16,\n  "channelCount": 2,\n  "echoCancellation": true\n}';
   h.getUserMedia()
     .then(stream => {
       //save my stream
