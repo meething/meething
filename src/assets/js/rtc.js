@@ -81,6 +81,7 @@ function initUser(r) {
 function onCall() {
   var callTo = candidates.get(this.id);
   console.log("Start calling " + callTo.name);
+  init(true, callTo.uuid);
 }
 
 function enter() {
@@ -141,41 +142,41 @@ function initRTC() {
     // users.get(socketId).put({name: name, status: null, peers: [] })
 
     // Initialize Session
-    socket.emit("subscribe", {
-      room: room,
-      socketId: socketId,
-      name: username || socketId
-    });
+//     socket.emit("subscribe", {
+//       room: room,
+//       socketId: socketId,
+//       name: username || socketId
+//     });
 
-    socket.get("subscribe").on(function(data, key) {
-      if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-      //users.get('subscribers').get(data.socketId).put({name:data.name, status: false});
-      if (pc[data.socketId] !== undefined) {
-        return;
-      }
-      if (data.socketId == socketId || data.sender == socketId) return;
-      console.log("got subscribe!", data);
-      socket.emit("newuser", { socketId: data.socketId });
-    });
+//     socket.get("subscribe").on(function(data, key) {
+//       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+//       //users.get('subscribers').get(data.socketId).put({name:data.name, status: false});
+//       if (pc[data.socketId] !== undefined) {
+//         return;
+//       }
+//       if (data.socketId == socketId || data.sender == socketId) return;
+//       console.log("got subscribe!", data);
+//       socket.emit("newuser", { socketId: data.socketId });
+//     });
 
-    socket.get("newuser").on(function(data, key) {
-      if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-      if (data.socketId == socketId || data.sender == socketId) return;
-      socket.emit("newUserStart", {
-        to: data.socketId,
-        sender: socketId,
-        name: data.name || data.socketId
-      });
-      pc.push(data.socketId);
-      init(true, data.socketId);
-    });
+//     socket.get("newuser").on(function(data, key) {
+//       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+//       if (data.socketId == socketId || data.sender == socketId) return;
+//       socket.emit("newUserStart", {
+//         to: data.socketId,
+//         sender: socketId,
+//         name: data.name || data.socketId
+//       });
+//       pc.push(data.socketId);
+//       init(true, data.socketId);
+//     });
 
-    socket.get("newUserStart").on(function(data, key) {
-      if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-      if (data.socketId == socketId || data.sender == socketId) return;
-      pc.push(data.sender);
-      init(false, data.sender);
-    });
+//     socket.get("newUserStart").on(function(data, key) {
+//       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+//       if (data.socketId == socketId || data.sender == socketId) return;
+//       pc.push(data.sender);
+//       init(false, data.sender);
+//     });
 
     socket.get("icecandidates").on(function(data, key) {
       try {
@@ -216,7 +217,7 @@ function initRTC() {
         console.log(e);
         return;
       }
-
+      pc.push(data.sender);
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
