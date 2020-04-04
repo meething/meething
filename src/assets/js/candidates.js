@@ -17,6 +17,10 @@ class Candidates {
     update(user) {
         this.think.get(user.id).put(user);
     }
+  
+    getAll() {
+      var can = await candidates.think.map(function(data, id) {console.log(data)})
+    }
 
     show(thought, id) {
         console.log(thought);
