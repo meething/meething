@@ -18,8 +18,14 @@ class Candidates {
     this.think.get(user.id).put(user);
   }
   
-  get(id) {    
-    return [...this.think.map].find(([key, val]) => val == id)[0]
+  get(id) {
+    var user;
+    this.think.map(function(data, gunId) {
+      if(data !== null && data.id != null && data.online && data.id == id) {
+        user = data;
+      }
+    });
+    return user;
   }
 
   getAll() {
