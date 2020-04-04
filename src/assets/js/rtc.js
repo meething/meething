@@ -70,8 +70,15 @@ function initUser(r) {
     pid = gun._.opt.pid;
     sessionStorage.setItem("pid", pid);
   }
+
   candidates = new Candidates(gun, room);
+  Candidates.prototype.onCall = onCall;
   meUser = new User(username, pid);
+}
+
+function onCall() {
+  var callTo = candidates.get(this.id);
+  console.log("Start calling " + callTo.name);
 }
 
 function enter() {

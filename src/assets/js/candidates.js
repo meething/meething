@@ -17,6 +17,10 @@ class Candidates {
   update(user) {
     this.think.get(user.id).put(user);
   }
+  
+  get(id) {    
+    return [...this.think.map].find(([key, val]) => val == id)[0]
+  }
 
   getAll() {
     console.log("start");
@@ -25,10 +29,6 @@ class Candidates {
       all.push(data);
     });
     return all;
-  }
-
-  candidateClicked(element) {
-    console.log(element);
   }
 
   show(thought, id) {
@@ -45,7 +45,7 @@ class Candidates {
       var ul = document.getElementById("dynamic-list");
       var candidate = document.getElementById("candidate");
       var li = document.createElement("li");
-      li.addEventListener("click", Candidates.prototype.candidateClicked);
+      li.addEventListener("click", Candidates.prototype.onCall);
       li.setAttribute("id", thought.id);
       li.appendChild(document.createTextNode(thought.name));
       ul.appendChild(li);
