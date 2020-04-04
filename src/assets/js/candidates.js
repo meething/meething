@@ -23,8 +23,8 @@ class Candidates {
         var htmlCollection = document.getElementsByTagName("li");
         var elements = [...htmlCollection];
         const result = elements.map(element => element.id);
-
-        if(result.includes(thought.id) && thought.online) {
+      
+        if(thought != null && result.includes(thought.id) && thought.online) {
             return;
         }
 
