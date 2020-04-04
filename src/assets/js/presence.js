@@ -16,5 +16,5 @@ window.onload = function (e) {
 }
 
 window.onunload = window.onbeforeunload = async function () {
-    await leave();
+    leave();
 };

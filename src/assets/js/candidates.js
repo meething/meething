@@ -10,7 +10,7 @@ class Candidates {
     }
 
     remove(user) {
-        todos.get(user.id).put(null)
+        this.think.get(user.id).put(null)
         this.think.unset(user);
     }
 
