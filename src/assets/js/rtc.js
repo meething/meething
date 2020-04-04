@@ -81,7 +81,8 @@ function initUser(r) {
 function onCall() {
   var callTo = candidates.get(this.id);
   console.log("Start calling " + callTo.name);
-  init(true, data.socketId);
+  pc.push(callTo.uuid);
+  init(true, callTo.uuid);
 }
 
 function enter() {
@@ -168,7 +169,7 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
-      pc.push(data.socketId);
+      // pc.push(data.socketId);
       // init(true, data.socketId);
     });
 
