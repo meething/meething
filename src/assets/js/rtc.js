@@ -152,7 +152,6 @@ function initRTC() {
 
     socket.get("subscribe").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-      //users.get('subscribers').get(data.socketId).put({name:data.name, status: false});
       if (pc[data.socketId] !== undefined) {
         return;
       }
@@ -410,16 +409,20 @@ function init(createOffer, partnerName) {
     switch (pc[partnerName].iceConnectionState) {
       case "connected":
         sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+        enter();
         break;
       case "disconnected":
         sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
         h.closeVideo(partnerName);
+        leave();
         break;
       case "failed":
         h.closeVideo(partnerName);
+        leave();
         break;
       case "closed":
         h.closeVideo(partnerName);
+        leave();
         break;
       default:
         console.log("Unknown state?", pc[partnerName].iceConnectionState);
