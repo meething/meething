@@ -140,6 +140,7 @@ function initRTC() {
     });
 
     socket.get("subscribe").on(function(data, key) {
+      var all = candidates.getAll()
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       //users.get('subscribers').get(data.socketId).put({name:data.name, status: false});
       if (pc[data.socketId] !== undefined) {
