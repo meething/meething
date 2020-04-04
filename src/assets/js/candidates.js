@@ -39,7 +39,7 @@ class Candidates {
             var elements = document.getElementsByTagName("li");
             for (var i = 0; i < elements.length; i++) {
                 var element = elements[i]
-                if (element.id == id) {
+                if (element.id == id && id != sessionStorage.getItem("pid")) {
                     element.parentNode.removeChild(element);
                 }
             }
