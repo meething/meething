@@ -1,172 +1,172 @@
 body {
-    color: #FFF;
+  color: #FFF;
 }
 
-.chat-col{
-    right: 0;
-    bottom: 0;
-    top: 47.5px;
-    z-index: 1000;
-    position: fixed;
-    color: #fff;
-    padding-right: 5px;
-    padding-left: 5px;
-    padding-bottom: 40px;
-    padding-top: 15px;
-    min-height: 100vh;
+.chat-col {
+  right: 0;
+  bottom: 0;
+  top: 47.5px;
+  z-index: 1000;
+  position: fixed;
+  color: #fff;
+  padding-right: 5px;
+  padding-left: 5px;
+  padding-bottom: 40px;
+  padding-top: 15px;
+  min-height: 100vh;
 }
 
-#chat-messages{
-    height: 70vh;
-    margin-bottom: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE 10+ */
+#chat-messages {
+  height: 70vh;
+  margin-bottom: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
 #chat-messages::-webkit-scrollbar {
-    width: 0px;  /* remove scrollbar space */
-    background: transparent;
+  width: 0px; /* remove scrollbar space */
+  background: transparent;
 }
 
-.chat-box{
-    bottom: 30px;
-    right: 0;
-    position: absolute;
-    border: 0;
-    border-top: 1px groove white;
-    border-left: 1px groove white;
-    font-size: small;
+.chat-box {
+  bottom: 30px;
+  right: 0;
+  position: absolute;
+  border: 0;
+  border-top: 1px groove white;
+  border-left: 1px groove white;
+  font-size: small;
 }
 
-.chat-box::placeholder{
-    font-size: small;
-    font-weight: lighter;
-    font-style: italic;
+.chat-box::placeholder {
+  font-size: small;
+  font-weight: lighter;
+  font-style: italic;
 }
 
 .chat-box,
-.chat-box:focus{
-    resize: none !important;
-    box-shadow: none !important;
+.chat-box:focus {
+  resize: none !important;
+  box-shadow: none !important;
 }
 
-.chat-row{
-    height: 100%;
-    overflow-x: scroll;
+.chat-row {
+  height: 100%;
+  overflow-x: scroll;
 }
 
-
-.remote-video{
-    position: relative;
-    object-fit: cover !important;
-    height: auto;    
+.remote-video {
+  position: relative;
+  object-fit: cover !important;
+  height: auto;
 }
 
-.clipped{
+.clipped {
   clip-path: circle(30%);
 }
 
-.main{
-    padding-top: 40px;
+.main {
+  padding-top: 40px;
 }
 
-.local-video{
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    height: 150px;
-    width: 200px;
-    z-index: 1000;
+.local-video {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  height: 150px;
+  width: 200px;
+  z-index: 1000;
 }
 
-
-.sender-info{
-    font-size: smaller;
-    margin-top: 5px;
-    align-self: flex-end;
+.sender-info {
+  font-size: smaller;
+  margin-top: 5px;
+  align-self: flex-end;
 }
 
-
-.msg{
-    font-weight: 400;
-    font-size: 12px;
-    color: black;
-    background-color: wheat;
+.msg {
+  font-weight: 400;
+  font-size: 12px;
+  color: black;
+  background-color: wheat;
 }
 
-
-.chat-card{
-    border-radius: 6px;
+.chat-card {
+  border-radius: 6px;
 }
 
-
-.btn-no-effect:focus{
-    box-shadow: none;
+.btn-no-effect:focus {
+  box-shadow: none;
 }
 
-.very-small{
-    font-size: 6px !important;
+.very-small {
+  font-size: 6px !important;
 }
 
+@media only screen and (max-width: 767px) {
+  .chat-col {
+    right: -100vw;
+    width: 100vw;
+    z-index: 99999;
+    transition: 0.3s;
+    top: 47px;
+  }
 
-@media only screen and (max-width:767px){
-    .chat-col{
-        right: -100vw;
-        width: 100vw;
-        z-index: 99999;
-        transition: 0.3s;
-        top: 47px;
-    }
+  .chat-col.chat-opened {
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.3s ease !important;
+    -webkit-transition: all 0.3s ease !important;
+    -moz-transition: all 0.3s ease !important;
+  }
 
-    .chat-col.chat-opened {
-        right: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        transition: all 0.3s ease !important;
-        -webkit-transition: all 0.3s ease !important;
-        -moz-transition: all 0.3s ease !important;
-    }
-  
-    .chat-opened::-webkit-scrollbar {
-        display: none;
-    }
+  .chat-opened::-webkit-scrollbar {
+    display: none;
+  }
 
-    .remote-video{
-        height: 200px;
-    }
+  .remote-video {
+    height: 200px;
+  }
 
-    .local-video{
-        height: 80px;
-        width: 100px;
-    }
+  .local-video {
+    height: 80px;
+    width: 100px;
+  }
 
-    #chat-messages{
-        height: 60vh;
-    }
+  #chat-messages {
+    height: 60vh;
+  }
 
-    .chat-box{
-        bottom: 90px;
-        margin-bottom: 0px;
-    }
+  .chat-box {
+    bottom: 90px;
+    margin-bottom: 0px;
+  }
 }
 
 .bg-info {
-	background-color: #c2c2c266 !important;
+  background-color: #c2c2c266 !important;
 }
 
 .card {
-  	border: 0px !important;
-        background-color: #f0f8ff42;
+  border: 0px !important;
+  background-color: #f0f8ff42;
 }
 
-
 .demo {
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
 }
 
+.callCursor {
+  cursor: url("https://image.flaticon.com/icons/svg/724/724664.svg"), pointer;
+}
+
+li {
+cursor: callCursor : pointer;
+}
