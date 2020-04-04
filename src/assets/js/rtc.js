@@ -178,7 +178,7 @@ function initRTC() {
 //       init(false, data.sender);
 //     });
 
-    socket.get("icecandidates").on(function(data, key) {
+    socket.get("icecandidates").on(function(data, key) {      
       try {
         data = JSON.parse(data);
         console.log(
@@ -192,7 +192,7 @@ function initRTC() {
         return;
       }
       if (data.socketId == socketId || data.to != socketId) return;
-      console.log("ice candidate", data);
+      console.log("ice candidate", data);      
       data.candidate
         ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate))
         : "";
@@ -218,6 +218,7 @@ function initRTC() {
         return;
       }
       pc.push(data.sender);
+      init(false, data.sender);
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
