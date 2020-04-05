@@ -6,6 +6,7 @@ import h from "./helpers.js";
 var TIMEGAP = 5000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
+var noMediaDevices = false;
 
 window.gunState = function() {
   console.log(STATE);
@@ -242,7 +243,12 @@ function initRTC() {
               pc[data.sender].addTrack(track, stream);
             });
 
-            let answer = await pc[data.sender].createAnswer();
+            var answerConstraints = {};
+            if(noMediaDevices){
+              console.log('>>>>>>>>>>>> no media devices! answering receive only');
+              answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
+            }
+            let answer = await pc[data.sender].createAnswer(answerConstraints);
             pc[data.sender].setLocalDescription(answer);
 
             socket.emit("sdp", {
@@ -253,7 +259,7 @@ function initRTC() {
           })
           .catch(e => {
             console.error(e);
-            // var sdpConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } };
+            noMediaDevices = true;
           });
       } else if (data.description.type === "answer") {
         pc[data.sender].setRemoteDescription(
@@ -308,7 +314,6 @@ function initRTC() {
 function init(createOffer, partnerName) {
   
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-  var noMediaDevices = false;
   var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
   h.getUserMedia()
     .then(stream => {
@@ -333,7 +338,7 @@ function init(createOffer, partnerName) {
     pc[partnerName].onnegotiationneeded = async () => {
       var offerConstraints = {};
       if(noMediaDevices){ 
-          console.log('no media devices! offering receive only');
+          console.log('>>>>>>>>>>>> no media devices! offering receive only');
           offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
       };
       let offer = await pc[partnerName].createOffer(offerConstraints);
