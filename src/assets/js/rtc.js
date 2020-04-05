@@ -6,7 +6,7 @@ import h from "./helpers.js";
 var TIMEGAP = 6000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
-var noMediaDevices = false;
+var enableHacks = false;
 
 window.gunState = function() {
   console.log(STATE);
@@ -254,20 +254,19 @@ function initRTC() {
           })
           .catch(async e => {
             console.error(`answer stream error: ${e}`);
-            noMediaDevices = true;
-            // start crazy mode lets answer anyhow
-            console.log('>>>>>>>>>>>> no media devices! answering receive only');
-            var answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
-            let answer = await pc[data.sender].createAnswer(answerConstraints);
-            pc[data.sender].setLocalDescription(answer);
+            if(!enableHacks) return;
+              // start crazy mode lets answer anyhow
+              console.log('>>>>>>>>>>>> no media devices! answering receive only');
+              var answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
+              let answer = await pc[data.sender].createAnswer(answerConstraints);
+              pc[data.sender].setLocalDescription(answer);
 
-            socket.emit("sdp", {
-              description: pc[data.sender].localDescription,
-              to: data.sender,
-              sender: socketId,
-              nomedia: true
-            });
-            // end crazy mode
+              socket.emit("sdp", {
+                description: pc[data.sender].localDescription,
+                to: data.sender,
+                sender: socketId
+              });
+              // end crazy mode
           
           });
       } else if (data.description.type === "answer") {
@@ -339,18 +338,18 @@ function init(createOffer, partnerName) {
     })
     .catch(async e => {
       console.error(`stream error: ${e}`);
-      noMediaDevices = true;
-      // start crazy mode - lets offer anyway
-      var offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
-      let offer = await pc[partnerName].createOffer(offerConstraints);
-      await pc[partnerName].setLocalDescription(offer);
-      socket.emit("sdp", {
-        description: pc[partnerName].localDescription,
-        to: partnerName,
-        sender: socketId,
-        nomedia: true
-      });
-      // end crazy mode
+      if(!enableHacks) return;
+        // start crazy mode - lets offer anyway
+        console.log('>>>>>>>>>>>> no media devices! offering receive only');
+        var offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
+        let offer = await pc[partnerName].createOffer(offerConstraints);
+        await pc[partnerName].setLocalDescription(offer);
+        socket.emit("sdp", {
+          description: pc[partnerName].localDescription,
+          to: partnerName,
+          sender: socketId
+        });
+        // end crazy mode
     
     });
 
@@ -446,15 +445,14 @@ function init(createOffer, partnerName) {
         enter();
         break;
       case "disconnected":
-        sendMsg(partnerName + " is " + STATE.media[partnerName] true);
+        sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         h.closeVideo(partnerName);
         leave();
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        //sendMsg(partnerName + " is " + STATE.media[partnerName], true);
-        h.closeVideo(partnerName);
-        leave();
+        //h.closeVideo(partnerName);
+        //leave();
         break;
       case "failed":
         h.closeVideo(partnerName);
