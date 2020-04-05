@@ -192,7 +192,7 @@ function initRTC() {
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
-        console.log(e);
+        console.log(e,data);
         return;
       }
       if (data.socketId == socketId || data.to != socketId) return;
@@ -218,7 +218,7 @@ function initRTC() {
           return;
         }
       } catch (e) {
-        console.log(e);
+        console.log(e,data);
         return;
       }
   
@@ -417,6 +417,12 @@ function init(createOffer, partnerName) {
         break;
       case "disconnected":
         sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+        h.closeVideo(partnerName);
+        leave();
+        break;
+      case "new":
+        /* why is new objserved when certain clients are disconnecting? */
+        //sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
         h.closeVideo(partnerName);
         leave();
         break;
