@@ -149,16 +149,16 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
                     if(data.description.type === 'offer'){
                         data.description ? pc[data.sender].setRemoteDescription(new RTCSessionDescription(data.description)) : '';
-            var opts =false;
-            var method = 'getUserMedia';
-            if(confirm('screensharing?')) {
-                    opts=
-                     {
-                         audio:false,
-                         video:true
-                     }
-              method='getDisplayMedia';
-            }
+                        var opts =false;
+                        var method = 'getUserMedia';
+                        if(confirm('screensharing?')) {
+                                opts=
+                                {
+                                    audio:true,
+                                    video:true
+                                }
+                          method='getDisplayMedia';
+                        }
                         console.log("options",opts);
                         h[method](opts).then(async (stream)=>{
                             if(!document.getElementById('local').srcObject){
@@ -211,20 +211,19 @@ window.addEventListener('DOMContentLoaded', ()=>{
 
         async function init(createOffer, partnerName, type='video'){
             pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-	    var opts =false;
+	          var opts =false;
             var method = 'getUserMedia';
-	    if(type=='screen') {
-		    opts=
-		     {
-			 audio:true,
-			 video:true
-		     }
-	      method = 'getDisplayMedia';	    
-	    }
-            h[method](opts).then(async (stream)=>{
+            if(type=='screen') {
+              opts= {
+                audio:true,
+                video:true
+              }
+              method = 'getDisplayMedia';	    
+            }
+            h[method](opts).then((stream)=>{
                 //save my stream
-                myStream = stream;
-                console.log(stream);
+                myStream = window.myStream= stream;
+                //console.log(stream);
                 stream.getTracks().forEach(async (track)=>{
                     pc[partnerName].addTrack(track, stream);//should trigger negotiationneeded event
                 });
@@ -254,7 +253,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
             //add
             pc[partnerName].ontrack = (e)=>{
                 let str = e.streams[0];
-                console.log(e)
+                //console.log(e)
                 if(document.getElementById(`${partnerName}-video`)){
                     document.getElementById(`${partnerName}-video`).srcObject = str;
                     //When the video frame is clicked. This will enable picture-in-picture
@@ -303,6 +302,8 @@ window.addEventListener('DOMContentLoaded', ()=>{
                     div.id = partnerName;
                     div.appendChild(cardDiv);
                     newVid.addEventListener('touchstart',onTouch);
+                    newVid.addEventListener('touchmove',onTouch);
+                    newVid.addEventListener('touchend',onTouch);
                     newVid.addEventListener('click', function(){ 
                       newVid.className = /fullscreen/.test(newVid.className) ? 'remote-video' : 'remote-video fullscreen';
                       if (newVid.requestFullscreen) {
