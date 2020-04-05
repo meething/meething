@@ -228,7 +228,7 @@ function initRTC() {
               new RTCSessionDescription(data.description)
             )
           : "";
-        
+
         h.getUserMedia()
           .then(async stream => {
             if (!document.getElementById("local").srcObject) {
@@ -253,6 +253,7 @@ function initRTC() {
           })
           .catch(e => {
             console.error(e);
+            // var sdpConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } };
           });
       } else if (data.description.type === "answer") {
         pc[data.sender].setRemoteDescription(
@@ -305,7 +306,9 @@ function initRTC() {
 }
 
 function init(createOffer, partnerName) {
+  
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+  var noMediaDevices = false;
   var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
   h.getUserMedia()
     .then(stream => {
@@ -322,6 +325,7 @@ function init(createOffer, partnerName) {
     })
     .catch(e => {
       console.error(`stream error: ${e}`);
+      noMediaDevices = true;
     });
 
   //create offer
