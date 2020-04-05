@@ -3,7 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-var TIMEGAP = 5000;
+var TIMEGAP = 6000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
 var noMediaDevices = false;
@@ -243,12 +243,7 @@ function initRTC() {
               pc[data.sender].addTrack(track, stream);
             });
 
-            var answerConstraints = {};
-            if(noMediaDevices){
-              console.log('>>>>>>>>>>>> no media devices! answering receive only');
-              answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
-            }
-            let answer = await pc[data.sender].createAnswer(answerConstraints);
+            let answer = await pc[data.sender].createAnswer();
             pc[data.sender].setLocalDescription(answer);
 
             socket.emit("sdp", {
@@ -257,9 +252,23 @@ function initRTC() {
               sender: socketId
             });
           })
-          .catch(e => {
+          .catch(async e => {
             console.error(`answer stream error: ${e}`);
             noMediaDevices = true;
+            // start crazy mode lets answer anyhow
+            console.log('>>>>>>>>>>>> no media devices! answering receive only');
+            var answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
+            let answer = await pc[data.sender].createAnswer(answerConstraints);
+            pc[data.sender].setLocalDescription(answer);
+
+            socket.emit("sdp", {
+              description: pc[data.sender].localDescription,
+              to: data.sender,
+              sender: socketId,
+              nomedia: true
+            });
+            // end crazy mode
+          
           });
       } else if (data.description.type === "answer") {
         pc[data.sender].setRemoteDescription(
@@ -328,20 +337,27 @@ function init(createOffer, partnerName) {
 
       document.getElementById("local").srcObject = stream;
     })
-    .catch(e => {
+    .catch(async e => {
       console.error(`stream error: ${e}`);
       noMediaDevices = true;
+      // start crazy mode - lets offer anyway
+      var offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
+      let offer = await pc[partnerName].createOffer(offerConstraints);
+      await pc[partnerName].setLocalDescription(offer);
+      socket.emit("sdp", {
+        description: pc[partnerName].localDescription,
+        to: partnerName,
+        sender: socketId,
+        nomedia: true
+      });
+      // end crazy mode
+    
     });
 
   //create offer
   if (createOffer) {
     pc[partnerName].onnegotiationneeded = async () => {
-      var offerConstraints = {};
-      if(noMediaDevices){ 
-          console.log('>>>>>>>>>>>> no media devices! offering receive only');
-          offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
-      };
-      let offer = await pc[partnerName].createOffer(offerConstraints);
+      let offer = await pc[partnerName].createOffer();
       await pc[partnerName].setLocalDescription(offer);
       socket.emit("sdp", {
         description: pc[partnerName].localDescription,
@@ -423,20 +439,20 @@ function init(createOffer, partnerName) {
       pc[partnerName].iceConnectionState
     );
     // Save State
-    STATE.media[pc[partnerName]] = pc[partnerName].iceConnectionState;
+    STATE.media[partnerName] = pc[partnerName].iceConnectionState;
     switch (pc[partnerName].iceConnectionState) {
       case "connected":
-        sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+        sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         enter();
         break;
       case "disconnected":
-        sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+        sendMsg(partnerName + " is " + STATE.media[partnerName] true);
         h.closeVideo(partnerName);
         leave();
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        //sendMsg(partnerName + " is " + STATE.media[pc[partnerName]], true);
+        //sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         h.closeVideo(partnerName);
         leave();
         break;
