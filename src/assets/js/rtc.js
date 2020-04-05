@@ -298,8 +298,9 @@ function initRTC() {
 
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
-      if (!myStream) return;
-      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
+      if (!window.myStream) return;
+      window.myStream.getVideoTracks()[0].enabled = !window.myStream.getVideoTracks()[0].enabled;
+      console.log('local video enable: ',window.myStream.getVideoTracks()[0].enabled );
 
       //toggle video icon
       e.srcElement.classList.toggle("fa-video");
@@ -308,10 +309,10 @@ function initRTC() {
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
-      if (!myStream) return;
+      if (!window.myStream) return;
 
-      myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
-
+      window.myStream.getAudioTracks()[0].enabled = !window.myStream.getAudioTracks()[0].enabled;
+      console.log('local audio enable: ',window.myStream.getAudioTracks()[0].enabled);
       //toggle audio icon
       e.srcElement.classList.toggle("fa-volume-up");
       e.srcElement.classList.toggle("fa-volume-mute");
@@ -328,7 +329,7 @@ function init(createOffer, partnerName) {
       //save my stream
       myStream = stream;
       //provide access to window for debug
-      window.localStream = myStream;
+      window.myStream = myStream;
 
       stream.getTracks().forEach(track => {
         pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
