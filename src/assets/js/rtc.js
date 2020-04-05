@@ -277,7 +277,7 @@ function initRTC() {
     });
 
     socket.get("chat").on(function(data, key) {
-      if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+      if (data.ts && Date.now() - data.ts > 1000) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.sender == username) return;
       console.log("got chat", key, data);
@@ -298,10 +298,9 @@ function initRTC() {
 
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
-      if (!window.myStream) return;
-      window.myStream.getVideoTracks()[0].enabled = !window.myStream.getVideoTracks()[0].enabled;
-      console.log('local video enable: ',window.myStream.getVideoTracks()[0].enabled );
-
+      if (!myStream) return;
+      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
+      console.log('local video enable: ',myStream.getVideoTracks()[0].enabled );
       //toggle video icon
       e.srcElement.classList.toggle("fa-video");
       e.srcElement.classList.toggle("fa-video-slash");
@@ -309,10 +308,9 @@ function initRTC() {
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
-      if (!window.myStream) return;
-
-      window.myStream.getAudioTracks()[0].enabled = !window.myStream.getAudioTracks()[0].enabled;
-      console.log('local audio enable: ',window.myStream.getAudioTracks()[0].enabled);
+      if (!myStream) return;
+      myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
+      console.log('local audio enable: ',myStream.getAudioTracks()[0].enabled);
       //toggle audio icon
       e.srcElement.classList.toggle("fa-volume-up");
       e.srcElement.classList.toggle("fa-volume-mute");
@@ -324,7 +322,14 @@ function init(createOffer, partnerName) {
   
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
-  h.getUserMedia()
+  // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
+  if (myStream){    
+      myStream.getTracks().forEach(track => {
+        pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+      });
+  } else {
+
+   h.getUserMedia()
     .then(stream => {
       //save my stream
       myStream = stream;
@@ -350,9 +355,11 @@ function init(createOffer, partnerName) {
           to: partnerName,
           sender: socketId
         });
-        // end crazy mode
-    
+        // end crazy mode 
     });
+    
+  }
+
 
   //create offer
   if (createOffer) {
