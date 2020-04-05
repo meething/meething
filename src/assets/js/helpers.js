@@ -56,15 +56,24 @@ export default {
         return !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
     },
 
-
-    getUserMedia(){
+    getDisplayMedia(opts){
+       if(navigator.mediaDevices.getDisplayMedia) {
+         return navigator.mediaDevices.getDisplayMedia(opts)
+       }
+       else if(navigator.getDisplayMedia) {
+         navigator.getDisplayMedia(opts)
+       }
+       else {
+         throw new Error('Display media not available');
+       }
+    },
+    getUserMedia(opts){
+	var opts = opts ? opts : {
+	  video:true,
+          audio:{ echoCancellation:true }
+	};
         if(this.userMediaAvailable()){
-            return navigator.mediaDevices.getUserMedia({
-                video: true, 
-                audio: {
-                    echoCancellation: true
-                }
-            });
+            return navigator.mediaDevices.getUserMedia(opts);
         }
 
         else{

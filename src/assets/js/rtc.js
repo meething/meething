@@ -3,14 +3,46 @@
  * @date 6th January, 2020
  */
 import h from './helpers.js';
-var TIMEGAP = 2000;
+var TIMEGAP = 10000;
 var STATE = { media: {}, users: {} };
 
 window.gunState = function(){
   console.log(STATE);
 }
+function onTouch(evt) {
+  evt.preventDefault();
+  if (evt.touches.length > 1 || (evt.type == "touchend" && evt.touches.length > 0))
+    return;
 
-window.addEventListener('load', ()=>{
+  var newEvt = document.createEvent("MouseEvents");
+  var type = null;
+  var touch = null;
+
+  switch (evt.type) {
+    case "touchstart": 
+      type = "mousedown";
+      touch = evt.changedTouches[0];
+      break;
+    case "touchmove":
+      type = "mousemove";
+      touch = evt.changedTouches[0];
+      break;
+    case "touchend":        
+      type = "mouseup";
+      touch = evt.changedTouches[0];
+      break;
+  }
+
+  newEvt.initMouseEvent(type, true, true, evt.originalTarget.ownerDocument.defaultView, 0,
+    touch.screenX, touch.screenY, touch.clientX, touch.clientY,
+    evt.ctrlKey, evt.altKey, evt.shiftKey, evt.metaKey, 0, null);
+  evt.originalTarget.dispatchEvent(newEvt);
+}
+document.addEventListener('touchstart',onTouch);
+document.addEventListener('touchend',onTouch);
+document.addEventListener('touchmove',onTouch);
+
+window.addEventListener('DOMContentLoaded', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
 
@@ -31,10 +63,10 @@ window.addEventListener('load', ()=>{
 
         var pc = [];
 
-	var peers = ['https://gunmeetingserver.herokuapp.com/gun'];
+	var peers = ['https://'+window.location.host+'/gun'/*'https://gunmeetingserver.herokuapp.com/gun'*/];
 	var opt = { peers: peers, localStorage: false, radisk: false };
-  var socket = Gun(opt).get('rtcmeeting').get(room).get('socket');
-  var users = Gun(opt).get('rtcmeeting').get(room).get("users");
+  var socket = window.socket = Gun(opt).get('rtcmeeting').get(room).get('socket');
+  var users = window.users = Gun(opt).get('rtcmeeting').get(room).get("users");
 
   // Custom Emit Function
   socket.emit = function(key,value){
@@ -45,10 +77,10 @@ window.addEventListener('load', ()=>{
 		if(key=="sdp"||key=="icecandidates") value = JSON.stringify(value);
 		socket.get(key).put(value);
 	}
-  window.GUN = { socket: socket, users: users };
+      window.GStream = { socket: socket, users: users };
 
-      var socketId = h.uuidv4();
-      var myStream = '';
+      var socketId = window.socketId = h.uuidv4();
+      var myStream = window.myStream = '';
       
       console.log('Starting! you are',socketId);
 
@@ -75,14 +107,20 @@ window.addEventListener('load', ()=>{
               if(data.socketId == socketId || data.sender == socketId) return;
                     socket.emit('newUserStart', {to:data.socketId, sender:socketId, name:data.name||data.socketId});
                     pc.push(data.socketId);
-                    init(true, data.socketId);
+	            if(confirm('screensharing?')){
+                    init(true, data.socketId,'screen');
+		    } else {
+		      init(true,data.socketId);
+		    }
       });
 
       socket.get('newUserStart').on(function(data,key){
         if(data.ts && (Date.now() - data.ts) > TIMEGAP) return;
               if(data.socketId == socketId || data.sender == socketId) return;
                     pc.push(data.sender);
-                    init(false, data.sender);
+	            if(confirm('screensharing?')) {init(false,data.sender,'screen') } else { 
+                    init(false, data.sender); }
+
       });
 
       socket.get('icecandidates').on(function(data,key){
@@ -111,8 +149,18 @@ window.addEventListener('load', ()=>{
 
                     if(data.description.type === 'offer'){
                         data.description ? pc[data.sender].setRemoteDescription(new RTCSessionDescription(data.description)) : '';
-
-                        h.getUserMedia().then(async (stream)=>{
+            var opts =false;
+            var method = 'getUserMedia';
+            if(confirm('screensharing?')) {
+                    opts=
+                     {
+                         audio:false,
+                         video:true
+                     }
+              method='getDisplayMedia';
+            }
+                        console.log("options",opts);
+                        h[method](opts).then(async (stream)=>{
                             if(!document.getElementById('local').srcObject){
                                 document.getElementById('local').srcObject = stream;
                             }
@@ -161,13 +209,23 @@ window.addEventListener('load', ()=>{
 
 
 
-        function init(createOffer, partnerName){
+        async function init(createOffer, partnerName, type='video'){
             pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-            h.getUserMedia().then((stream)=>{
+	    var opts =false;
+            var method = 'getUserMedia';
+	    if(type=='screen') {
+		    opts=
+		     {
+			 audio:true,
+			 video:true
+		     }
+	      method = 'getDisplayMedia';	    
+	    }
+            h[method](opts).then(async (stream)=>{
                 //save my stream
                 myStream = stream;
-
-                stream.getTracks().forEach((track)=>{
+                console.log(stream);
+                stream.getTracks().forEach(async (track)=>{
                     pc[partnerName].addTrack(track, stream);//should trigger negotiationneeded event
                 });
 
@@ -196,6 +254,7 @@ window.addEventListener('load', ()=>{
             //add
             pc[partnerName].ontrack = (e)=>{
                 let str = e.streams[0];
+                console.log(e)
                 if(document.getElementById(`${partnerName}-video`)){
                     document.getElementById(`${partnerName}-video`).srcObject = str;
                     //When the video frame is clicked. This will enable picture-in-picture
@@ -230,7 +289,7 @@ window.addEventListener('load', ()=>{
                     var vuser = partnerName;
                     vtitle.innerHTML = `<center>${vuser}</center>`;
                     vtitle.id = `${partnerName}-title`
-
+                    
                     //create a new div for card
                     let cardDiv = document.createElement('div');
                     cardDiv.className = 'card mb-3';
@@ -243,7 +302,19 @@ window.addEventListener('load', ()=>{
                     div.className = 'col-sm-12 col-md-6';
                     div.id = partnerName;
                     div.appendChild(cardDiv);
-                    
+                    newVid.addEventListener('touchstart',onTouch);
+                    newVid.addEventListener('click', function(){ 
+                      newVid.className = /fullscreen/.test(newVid.className) ? 'remote-video' : 'remote-video fullscreen';
+                      if (newVid.requestFullscreen) {
+                        newVid.requestFullscreen();
+                      } else if (newVid.msRequestFullscreen) {
+                        newVid.msRequestFullscreen();
+                      } else if (newVid.mozRequestFullScreen) {
+                        newVid.mozRequestFullScreen();
+                      } else if (newVid.webkitRequestFullscreen) {
+                        newVid.webkitRequestFullscreen();
+                      }
+                    }) 
                     //put div in videos elem
                     document.getElementById('videos').appendChild(div);
 
@@ -306,7 +377,7 @@ window.addEventListener('load', ()=>{
             e.preventDefault();
 
             myStream.getVideoTracks()[0].enabled = !(myStream.getVideoTracks()[0].enabled);
-
+            
             //toggle video icon
             e.srcElement.classList.toggle('fa-video');
             e.srcElement.classList.toggle('fa-video-slash');
