@@ -307,7 +307,7 @@ function initRTC() {
 function init(createOffer, partnerName) {
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
-  h.getUserMedia(constraints)
+  h.getUserMedia()
     .then(stream => {
       //save my stream
       myStream = stream;
