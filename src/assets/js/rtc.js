@@ -3,7 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-var TIMEGAP = 2000;
+var TIMEGAP = 5000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
 
@@ -150,7 +150,10 @@ function initRTC() {
 
     socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
-      if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+      if (data.ts && Date.now() - data.ts > TIMEGAP) {
+        console.log('discarding old sub',data);
+        return;                                             
+      }
       if (pc[data.socketId] !== undefined) {
         return;
       }
