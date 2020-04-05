@@ -9,7 +9,7 @@ var STATE = { media: {}, users: {} };
 window.gunState = function(){
   console.log(STATE);
 }
-function onTouch(evt) {
+/*function onTouch(evt) {
   evt.preventDefault();
   if (evt.touches.length > 1 || (evt.type == "touchend" && evt.touches.length > 0))
     return;
@@ -41,7 +41,7 @@ function onTouch(evt) {
 document.addEventListener('touchstart',onTouch);
 document.addEventListener('touchend',onTouch);
 document.addEventListener('touchmove',onTouch);
-
+*/
 window.addEventListener('DOMContentLoaded', ()=>{
     const room = h.getQString(location.href, 'room');
     const username = sessionStorage.getItem('username');
@@ -301,9 +301,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
                     div.className = 'col-sm-12 col-md-6';
                     div.id = partnerName;
                     div.appendChild(cardDiv);
-                    newVid.addEventListener('touchstart',onTouch);
+                    /*newVid.addEventListener('touchstart',onTouch);
                     newVid.addEventListener('touchmove',onTouch);
-                    newVid.addEventListener('touchend',onTouch);
+                    newVid.addEventListener('touchend',onTouch);*/
                     newVid.addEventListener('click', function(){ 
                       newVid.className = /fullscreen/.test(newVid.className) ? 'remote-video' : 'remote-video fullscreen';
                       if (newVid.requestFullscreen) {
@@ -387,8 +387,7 @@ window.addEventListener('DOMContentLoaded', ()=>{
             //save my stream
             myStream = window.myStream= stream;
             //console.log(stream);
-            stream.getTracks().forEach(async (track)=>{ 
-              //FIXME: propagate change to other peers
+            stream.getTracks().forEach(async (track)=>{
                 pc.forEach((partnerName)=>{ 
                   console.log(partnerName);
                   partnerName.addTrack(track, stream); //should trigger negotiationneeded event
