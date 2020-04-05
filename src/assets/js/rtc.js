@@ -258,7 +258,7 @@ function initRTC() {
             });
           })
           .catch(e => {
-            console.error(e);
+            console.error(`answer stream error: ${e}`);
             noMediaDevices = true;
           });
       } else if (data.description.type === "answer") {
