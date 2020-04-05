@@ -228,7 +228,7 @@ function initRTC() {
               new RTCSessionDescription(data.description)
             )
           : "";
-
+        
         h.getUserMedia()
           .then(async stream => {
             if (!document.getElementById("local").srcObject) {
