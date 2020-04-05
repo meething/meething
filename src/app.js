@@ -28,7 +28,8 @@ app.get('/', (req, res)=>{
 app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`))
 
 //server.listen(port);
-// if (process.env.NOSSL) {
+
+// if (process.env.SSL) {
 // 	config.server = http.createServer({}, app);
 // 	config.server.listen(config.port);
 
