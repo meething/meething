@@ -299,7 +299,10 @@ function initRTC() {
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
       if (!myStream) return;
-      myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
+      //myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
+      myStream.getTracks().forEach((t) => {
+          if (t.kind === 'video') t.enabled = !t.enabled;
+      });
       console.log('local video enable: ',myStream.getVideoTracks()[0].enabled );
       //toggle video icon
       e.srcElement.classList.toggle("fa-video");
@@ -309,7 +312,10 @@ function initRTC() {
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
       if (!myStream) return;
-      myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
+      //myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
+      myStream.getTracks().forEach((t) => {
+          if (t.kind === 'audio') t.enabled = !t.enabled;
+      });
       console.log('local audio enable: ',myStream.getAudioTracks()[0].enabled);
       //toggle audio icon
       e.srcElement.classList.toggle("fa-volume-up");
