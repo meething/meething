@@ -374,6 +374,34 @@ window.addEventListener('DOMContentLoaded', ()=>{
         });
 
 
+        document.getElementById('toggle-screen').addEventListener('click', (e)=>{
+          e.preventDefault();
+
+          if(myStream && myStream.getVideoTracks) myStream.getVideoTracks()[0].enabled = !(myStream.getVideoTracks()[0].enabled);
+          var opts= {
+            audio:true,
+            video:true
+          }
+          var method = 'getDisplayMedia';
+          h[method](opts).then((stream)=>{
+            //save my stream
+            myStream = window.myStream= stream;
+            //console.log(stream);
+            stream.getTracks().forEach(async (track)=>{ 
+              //FIXME: propagate change to other peers
+                pc.forEach((partnerName)=>{ 
+                  console.log(partnerName);
+                  partnerName.addTrack(track, stream); //should trigger negotiationneeded event
+                });
+            });
+
+            document.getElementById('local').srcObject = stream;
+          }).catch((e)=>{
+              console.error(`stream error: ${e}`);
+          });
+        });
+
+
         document.getElementById('toggle-video').addEventListener('click', (e)=>{
             e.preventDefault();
 
