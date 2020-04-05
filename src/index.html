@@ -1,137 +1,201 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Gun: Multi-User Video Call</title>
+  <head>
+    <title>Gun: Multi-User Video Call</title>
 
-        <meta content="width=device-width, initial-scale=1" name="viewport" />
+    <meta content="width=device-width, initial-scale=1" name="viewport" />
 
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
-        <link rel="stylesheet" href="assets/css/app.css" type="text/css">
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
+    <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
 
-        <script type="module" src="assets/js/rtc.js"></script>
-        <script type="module" src="assets/js/events.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js" integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4=" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-      	<script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
-	
-	<script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
-	<script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
-	<script>
-		window.VANTA = VANTA;
-		function ready(){
-			if(VANTA){
-				if (VANTA.NET) VANTA.NET('#demo');
-			}
-		}	
-		document.addEventListener("DOMContentLoaded", ready);
-	</script>
--->
-    </head>
+    <script type="module" src="assets/js/rtc.js"></script>
+    <script type="module" src="assets/js/events.js"></script>
 
-    <body>
-	<div id="demo" class="demo"></div>
-        <nav class="navbar fixed-top bg-info rounded-0 d-print-none">
-            <div class="text-white">GunMeeting - powered by <a href="http://gun.eco" target="_blank">GunDB</a></div>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
+      integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
+    <script src="assets/js/candidates.js"></script>
 
-            <div class="pull-right room-comm" hidden>
-                <button class="btn btn-sm rounded-0 btn-no-effect" id='toggle-video'>
-                    <i class="fa fa-video text-white"></i>
-                </button>
+    <script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
+    <script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
+    <script>
+      window.VANTA = VANTA;
+      function ready() {
+        if (VANTA) {
+          if (VANTA.NET) VANTA.NET("#demo");
+        }
+      }
+      document.addEventListener("DOMContentLoaded", ready);
+    </script>
+  </head>
 
-                <button class="btn btn-sm rounded-0 btn-no-effect" id='toggle-mute'>
-                    <i class="fa fa-volume-up text-white"></i>
-                </button>
+  <body>
+    <div id="demo" class="demo"></div>
+    <nav class="navbar fixed-top bg-info rounded-0 d-print-none">
+      <div class="text-white">
+        GunMeeting - powered by
+        <a href="http://gun.eco" target="_blank">GunDB</a>
+      </div>
 
-                <button class="btn btn-sm text-white pull-right d-md-none btn-no-effect" id='toggle-chat-pane'>
-                    <i class="fa fa-comment"></i> <span class="badge badge-danger very-small font-weight-lighter" id='new-chat-notification' hidden>New</span>
-                </button>
+      <div class="pull-right room-comm" hidden>
+        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-video">
+          <i class="fa fa-video text-white"></i>
+        </button>
 
-                <button class="btn btn-sm rounded-0 btn-no-effect text-white">
-                    <a href="/" class="text-white text-decoration-none">Leave Room</a>
-                </button>
-            </div>
-        </nav>
+        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-mute">
+          <i class="fa fa-volume-up text-white"></i>
+        </button>
 
-        <div class="container-fluid" id='room-create' hidden>
-            <div class="row">
-                <div class="col-12 h2 mt-5 text-center">
-		<img src="https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67" width="200" style="filter: invert(1);"/>
-		<br>
-			Create Room
-		</div>
-            </div>
-            
-            <div class="row mt-2">
-                <div class="col-12 text-center">
-                    <span class="form-text small text-danger" id='err-msg'></span>
-                </div>
+        <button
+          class="btn btn-sm text-white pull-right d-md-none btn-no-effect"
+          id="toggle-chat-pane"
+        >
+          <i class="fa fa-comment"></i>
+          <span
+            class="badge badge-danger very-small font-weight-lighter"
+            id="new-chat-notification"
+            hidden
+            >New</span
+          >
+        </button>
 
-                <div class="col-12 col-md-4 offset-md-4 mb-3">
-                    <label for="room-name">Room Name</label>
-                    <input type="text" id='room-name' class="form-control rounded-0" placeholder="Room Name">
-                </div>
+        <button class="btn btn-sm rounded-0 btn-no-effect text-white">
+          <a href="/" class="text-white text-decoration-none">Leave Room</a>
+        </button>
+      </div>
+    </nav>
 
-                <div class="col-12 col-md-4 offset-md-4 mb-3">
-                    <label for="your-name">Your Name</label>
-                    <input type="text" id='your-name' class="form-control rounded-0" placeholder="Your Name">
-                </div>
+    <div class="container-fluid" id="room-create" hidden>
+      <div class="row">
+        <div class="col-12 h2 mt-5 text-center">
+          <img
+            src="https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67"
+            width="200"
+            style="filter: invert(1);"
+          />
+          <br />
+          Create Room
+        </div>
+      </div>
 
-                <div class="col-12 col-md-4 offset-md-4 mb-3">
-                    <button id='create-room' class="btn btn-block rounded-0 btn-info">Create Room</button>
-                </div>
-
-                <div class="col-12 col-md-4 offset-md-4 mb-3" id='room-created'></div>
-            </div>
+      <div class="row mt-2">
+        <div class="col-12 text-center">
+          <span class="form-text small text-danger" id="err-msg"></span>
         </div>
 
-
-
-        <div class="container-fluid" id='username-set' hidden>
-            <div class="row">
-                <div class="col-12 h4 mt-5 text-center">Your Name</div>
-            </div>
-            
-            <div class="row mt-2">
-                <div class="col-12 text-center">
-                    <span class="form-text small text-danger" id='err-msg-username'></span>
-                </div>
-
-                <div class="col-12 col-md-4 offset-md-4 mb-3">
-                    <label for="username">Your Name</label>
-                    <input type="text" id='username' class="form-control rounded-0" placeholder="Your Name">
-                </div>
-
-                <div class="col-12 col-md-4 offset-md-4 mb-3">
-                    <button id='enter-room' class="btn btn-block rounded-0 btn-info">Enter Room</button>
-                </div>
-            </div>
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <label for="room-name">Room Name</label>
+          <input
+            type="text"
+            id="room-name"
+            class="form-control rounded-0"
+            placeholder="Room Name"
+          />
         </div>
 
-
-        
-        <div class="container-fluid room-comm" hidden>
-            <div class="row">
-                <video class="local-video" id='local' volume='0' autoplay muted></video>
-            </div>
-            
-            <div class="row">
-                <div class="col-md-10 mt-2 mb-2 main">
-                    <div class="row" id='videos'></div>
-                </div>
-
-                <div class="col-md-2 chat-col d-print-none mb-2 bg-info" id='chat-pane'>
-                    <div class="row">
-                        <div class="col-12 text-center h3 mb-3">ChatRoom</div>
-                    </div>
-
-                    <div id='chat-messages'></div>
-
-                    <div class="row">
-                        <textarea id='chat-input' class="form-control rounded-0 chat-box border-info" rows='3' placeholder="Type here..."></textarea>
-                    </div>
-                </div>
-            </div>
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <label for="your-name">Your Name</label>
+          <input
+            type="text"
+            id="your-name"
+            class="form-control rounded-0"
+            placeholder="Your Name"
+          />
         </div>
-    </body>
+
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <button id="create-room" class="btn btn-block rounded-0 btn-info">
+            Create Room
+          </button>
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 mb-3" id="room-created"></div>
+      </div>
+    </div>
+
+    <div class="container-fluid" id="username-set" hidden>
+      <div class="row">
+        <div class="col-12 h4 mt-5 text-center">Your Name</div>
+      </div>
+
+      <div class="row mt-2">
+        <div class="col-12 text-center">
+          <span
+            class="form-text small text-danger"
+            id="err-msg-username"
+          ></span>
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <label for="username">Your Name</label>
+          <input
+            type="text"
+            id="username"
+            class="form-control rounded-0"
+            placeholder="Your Name"
+          />
+        </div>
+
+        <div class="col-12 col-md-4 offset-md-4 mb-3">
+          <button id="enter-room" class="btn btn-block rounded-0 btn-info">
+            Enter Room
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid room-comm" hidden>
+      <div class="row">
+        <video class="local-video clipped" id="local" volume="0" autoplay muted></video>
+      </div>
+
+      <div class="row">
+        <div class="col-md-10 mt-2 mb-2 main">
+          <div class="row" id="videos"></div>
+        </div>
+
+        <div class="col-md-2 chat-col d-print-none mb-2 bg-info" id="chat-pane">
+          <div class="row">
+            <div class="col-12 text-center h5 mb-3" id="chat-title">ChatRoom</div>
+          </div>
+
+          <div id="chat-messages"></div>
+
+          <div class="row">
+            <textarea
+              id="chat-input"
+              class="form-control rounded-0 chat-box border-info"
+              rows="3"
+              placeholder="Type here..."
+            ></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="mydiv">
+      <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+      <div id="mydivheader">Users</div>
+      <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
+    </div>
+    <script src="assets/js/presence.js"></script>
+    <script src="assets/js/dragable.js"></script>
+  </body>
 </html>
