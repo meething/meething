@@ -23,7 +23,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.get('/', (req, res)=>{
     res.sendFile(__dirname+'/index.html');
 });
-=======
+
 if (!process.env.SSL) {
  	config.webserver = http.createServer({}, app);
  	config.webserver.listen(config.port, () => console.log(`Example HTTP app listening on port ${config.port}!`))
@@ -32,7 +32,5 @@ if (!process.env.SSL) {
 	config.webserver.listen(config.port, () => console.log(`Example HTTPS app listening on port ${config.port}!`))
 }
 
-//app.listen(config.port, () => console.log(`Example app listening on port ${config.port}!`))
-//config.webserver = require('http').createServer();
-//var gun = Gun({web: config.webserver.listen(config.gunport)});
-
+//var gun = Gun({web: server.listen(port)});
+//console.log('Relay peer started on port ' + config.port + ' with /gun');
