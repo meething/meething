@@ -331,7 +331,12 @@ function init(createOffer, partnerName) {
   //create offer
   if (createOffer) {
     pc[partnerName].onnegotiationneeded = async () => {
-      let offer = await pc[partnerName].createOffer();
+      var offerConstraints = {};
+      if(noMediaDevices){ 
+          console.log('no media devices! offering receive only');
+          offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
+      };
+      let offer = await pc[partnerName].createOffer(offerConstraints);
       await pc[partnerName].setLocalDescription(offer);
       socket.emit("sdp", {
         description: pc[partnerName].localDescription,
