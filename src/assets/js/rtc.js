@@ -195,14 +195,14 @@ function initRTC() {
       pc.push(data.sender);
       init(false, data.sender);
     });
-
+ 
     socket.get("icecandidates").on(function(data, key) {      
       try {
         data = JSON.parse(data);
+        if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
-        if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
