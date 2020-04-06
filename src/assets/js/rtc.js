@@ -8,9 +8,11 @@ var STATE = { media: {}, users: {} };
 var allUsers = [];
 var enableHacks = false;
 
-window.gunState = function() {
-  console.log(STATE);
-};
+window.gunDebug = {
+    gunState: function() {
+      console.log(STATE);
+    }
+}
 
 var room;
 var username;
@@ -44,6 +46,9 @@ function initSocket() {
     .get(room)
     .get("users");
 
+  // DEBUG ONLY: Remove from prod.
+  window.gunDebug.socket = socket;
+  
   // Custom Emit Function
   socket.emit = function(key, value) {
     if (value.sender && value.to && value.sender == value.to) return;
@@ -459,13 +464,13 @@ function init(createOffer, partnerName) {
         enter();
         break;
       case "disconnected":
+        if(partnerName == socketId) return;
         sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         h.closeVideo(partnerName);
         leave();
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        //h.closeVideo(partnerName);
         //leave();
         break;
       case "failed":
