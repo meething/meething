@@ -87,6 +87,7 @@ function initUser(r) {
 function onCall() {
   var callTo = candidates.get(this.id);
   console.log("Start calling " + callTo.name);
+  socket.emit("newuser", { socketId: socketId, to: callTo.uuid });
   //TODO make call to clicked candidate
   // pc.push(callTo.uuid);
   // init(true, callTo.uuid);
@@ -172,6 +173,7 @@ function initRTC() {
     socket.get("newuser").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
+      if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       socket.emit("newUserStart", {
         to: data.socketId,
         sender: socketId,
