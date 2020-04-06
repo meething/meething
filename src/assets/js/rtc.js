@@ -244,7 +244,7 @@ function initRTC() {
             });
 
             let answer = await pc[data.sender].createAnswer();
-            pc[data.sender].setLocalDescription(answer);
+            await pc[data.sender].setLocalDescription(answer);
 
             socket.emit("sdp", {
               description: pc[data.sender].localDescription,
@@ -259,7 +259,7 @@ function initRTC() {
               console.log('>>>>>>>>>>>> no media devices! answering receive only');
               var answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
               let answer = await pc[data.sender].createAnswer(answerConstraints);
-              pc[data.sender].setLocalDescription(answer);
+              await pc[data.sender].setLocalDescription(answer);
 
               socket.emit("sdp", {
                 description: pc[data.sender].localDescription,
