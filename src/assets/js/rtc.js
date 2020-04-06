@@ -107,6 +107,10 @@ function leave() {
   // presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
   candidates.remove(meUser);
+  if(meUser.uuid == socketId){
+    // wait a second that was us! Send presence if we're still here!
+    socket.emit("newuser", { socketId: socketId });
+  }
 }
 
 function sendMsg(msg, local) {
@@ -328,6 +332,14 @@ function initRTC() {
       e.srcElement.classList.toggle("fa-volume-up");
       e.srcElement.classList.toggle("fa-volume-mute");
     });
+    
+    document.getElementById("toggle-invite").addEventListener("click", e => {
+      e.preventDefault();
+      if (!myStream) return;
+      console.log('Re-Send presence to all users...');
+      socket.emit("newuser", { socketId: socketId });
+    });
+    
   }
 }
 
