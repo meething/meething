@@ -12,48 +12,48 @@ window.gunState = function() {
   console.log(STATE);
 };
 
-  var room;
-  var username;
-  
-  window.onload = function(e) {
-    room = h.getQString(location.href, "room");
-    username = sessionStorage.getItem("username");
-  
-    initSocket();
-    initUser();
-    initRTC();
+var room;
+var username;
+
+window.onload = function(e) {
+  room = h.getQString(location.href, "room");
+  username = sessionStorage.getItem("username");
+
+  initSocket();
+  initUser();
+  initRTC();
+};
+
+var socket;
+var room;
+var users;
+var pc = []; // hold local peerconnection statuses
+var myStream = "";
+var socketId;
+
+function initSocket() {
+  var peers = [""+location.protocol+"//"+location.hostname+"/gun"];
+  var opt = { peers: peers, localStorage: false, radisk: false };
+
+  socket = Gun(opt)
+    .get("rtcmeeting")
+    .get(room)
+    .get("socket");
+  users = Gun(opt)
+    .get("rtcmeeting")
+    .get(room)
+    .get("users");
+
+  // Custom Emit Function
+  socket.emit = function(key, value) {
+    if (value.sender && value.to && value.sender == value.to) return;
+    console.log("debug emit key", key, "value", value);
+    if (!key || !value) return;
+    if (!value.ts) value.ts = Date.now();
+    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    socket.get(key).put(value);
   };
-  
-  var socket;
-  var room;
-  var users;
-  var pc = []; // hold local peerconnection statuses
-  var myStream = "";
-  var socketId;
-  
-  function initSocket() {
-    var peers = [""+location.protocol+"//"+location.hostname+"/gun"];
-    var opt = { peers: peers, localStorage: false, radisk: false };
-  
-    socket = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("socket");
-    users = Gun(opt)
-      .get("rtcmeeting")
-      .get(room)
-      .get("users");
-  
-    // Custom Emit Function
-    socket.emit = function(key, value) {
-      if (value.sender && value.to && value.sender == value.to) return;
-      console.log("debug emit key", key, "value", value);
-      if (!key || !value) return;
-      if (!value.ts) value.ts = Date.now();
-      if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-      socket.get(key).put(value);
-    };
-  }
+}
 
 var meUser;
 var presence;
@@ -347,7 +347,6 @@ function initRTC() {
   }
 
 function init(createOffer, partnerName, type='video'){
-
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -356,7 +355,6 @@ function init(createOffer, partnerName, type='video'){
         pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
       });
   } else {
-    var constraints =false;
     var method = 'getUserMedia';
     if(type=='screen') {
       constraints = {
@@ -395,7 +393,6 @@ function init(createOffer, partnerName, type='video'){
   });
   
 }
-
 
   //create offer
   if (createOffer) {
@@ -447,29 +444,29 @@ function init(createOffer, partnerName, type='video'){
     } else {
       //video elem
       let newVid = document.createElement("video");
-      newVid.id = `${partnerName}-video`;            
+      newVid.id = `${partnerName}-video`;
       newVid.srcObject = str;
       newVid.autoplay = true;
       newVid.className = "remote-video";
-      
       // Video user title
       var vtitle = document.createElement("p");
       var vuser = partnerName;
       vtitle.innerHTML = `<center>${vuser}</center>`;
       vtitle.id = `${partnerName}-title`;
-      
+
       //create a new div for card
       let cardDiv = document.createElement("div");
       cardDiv.className = "card mb-3";
       cardDiv.style = "color:#FFF;";
       cardDiv.appendChild(newVid);
       cardDiv.appendChild(vtitle);
-      
+
       //create a new div for everything
       let div = document.createElement("div");
       div.className = "col-sm-12 col-md-6";
       div.id = partnerName;
       div.appendChild(cardDiv);
+
 
       //Fullscreen toggler
       newVid.addEventListener('click', function(){ 
