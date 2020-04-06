@@ -32,7 +32,7 @@ window.gunState = function() {
   var socketId;
   
   function initSocket() {
-    var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
+    var peers = [""+location.protocol+"//"+location.hostname+"/gun"];
     var opt = { peers: peers, localStorage: false, radisk: false };
   
     socket = Gun(opt)
@@ -62,7 +62,7 @@ var candidates;
 
 function initUser(r) {
   var peers = [
-    ""+location.protocol+""+location.hostname+"/gun"
+    ""+location.protocol+"//"+location.hostname+"/gun"
 //    "https://livecodestream-us.herokuapp.com/gun",
 //    "https://livecodestream-eu.herokuapp.com/gun"
   ];
