@@ -1,171 +1,179 @@
 body {
-    color: #FFF;
+  color: #FFF;
 }
 
-.chat-col{
-    right: 0;
-    bottom: 0;
-    top: 47.5px;
-    z-index: 1000;
-    position: fixed;
-    color: #fff;
-    padding-right: 5px;
-    padding-left: 5px;
-    padding-bottom: 40px;
-    padding-top: 15px;
-    min-height: 100vh;
+.chat-col {
+  right: 0;
+  bottom: 0;
+  top: 47.5px;
+  z-index: 1000;
+  position: fixed;
+  color: #fff;
+  padding-right: 5px;
+  padding-left: 5px;
+  padding-bottom: 40px;
+  padding-top: 15px;
+  min-height: 100vh;
 }
 
-#chat-messages{
-    height: 70vh;
-    margin-bottom: 20px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none;  /* IE 10+ */
+#chat-messages {
+  height: 70vh;
+  margin-bottom: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
 #chat-messages::-webkit-scrollbar {
-    width: 0px;  /* remove scrollbar space */
-    background: transparent;
+  width: 0px; /* remove scrollbar space */
+  background: transparent;
 }
 
-.chat-box{
-    bottom: 30px;
-    right: 0;
-    position: absolute;
-    border: 0;
-    border-top: 1px groove white;
-    border-left: 1px groove white;
-    font-size: small;
+.chat-box {
+  bottom: 30px;
+  right: 0;
+  position: absolute;
+  border: 0;
+  border-top: 1px groove white;
+  border-left: 1px groove white;
+  font-size: small;
 }
 
-.chat-box::placeholder{
-    font-size: small;
-    font-weight: lighter;
-    font-style: italic;
+.chat-box::placeholder {
+  font-size: small;
+  font-weight: lighter;
+  font-style: italic;
 }
 
 .chat-box,
-.chat-box:focus{
-    resize: none !important;
-    box-shadow: none !important;
+.chat-box:focus {
+  resize: none !important;
+  box-shadow: none !important;
 }
 
-.chat-row{
-    height: 100%;
-    overflow-x: scroll;
+.chat-row {
+  height: 100%;
+  overflow-x: scroll;
 }
 
-
-.remote-video{
-    position: relative;
-    object-fit: cover !important;
-    height: auto;
-    border-radius: 10px;
+.remote-video {
+  position: relative;
+  object-fit: cover !important;
+  height: auto;
 }
 
-.main{
-    padding-top: 40px;
+.clipped {
+  clip-path: circle(40%);
 }
 
-.local-video{
-    bottom: 0;
-    left: 0;
-    position: fixed;
-    height: 150px;
-    width: 200px;
-    z-index: 1000;
+.main {
+  padding-top: 40px;
 }
 
-
-.sender-info{
-    font-size: smaller;
-    margin-top: 5px;
-    align-self: flex-end;
+.local-video {
+  bottom: 0;
+  left: 0;
+  position: fixed;
+  height: 150px;
+  width: 200px;
+  z-index: 1000;
 }
 
-
-.msg{
-    font-weight: 400;
-    font-size: 12px;
-    color: black;
-    background-color: wheat;
+.sender-info {
+  font-size: smaller;
+  margin-top: 5px;
+  align-self: flex-end;
 }
 
-
-.chat-card{
-    border-radius: 6px;
+.msg {
+  font-weight: 400;
+  font-size: 12px;
+  color: black;
+  background-color: wheat;
 }
 
-
-.btn-no-effect:focus{
-    box-shadow: none;
+.chat-card {
+  border-radius: 6px;
 }
 
-.very-small{
-    font-size: 6px !important;
+.btn-no-effect:focus {
+  box-shadow: none;
 }
 
+.very-small {
+  font-size: 6px !important;
+}
 
-@media only screen and (max-width:767px){
-    .chat-col{
-        right: -100vw;
-        width: 100vw;
-        z-index: 99999;
-        transition: 0.3s;
-        top: 47px;
-    }
+@media only screen and (max-width: 767px) {
+  .chat-col {
+    right: -100vw;
+    width: 100vw;
+    z-index: 99999;
+    transition: 0.3s;
+    top: 47px;
+  }
 
-    .chat-col.chat-opened {
-        right: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        transition: all 0.3s ease !important;
-        -webkit-transition: all 0.3s ease !important;
-        -moz-transition: all 0.3s ease !important;
-    }
-  
-    .chat-opened::-webkit-scrollbar {
-        display: none;
-    }
+  .chat-col.chat-opened {
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.3s ease !important;
+    -webkit-transition: all 0.3s ease !important;
+    -moz-transition: all 0.3s ease !important;
+  }
 
-    .remote-video{
-        height: 200px;
-    }
+  .chat-opened::-webkit-scrollbar {
+    display: none;
+  }
 
-    .local-video{
-        height: 80px;
-        width: 100px;
-    }
+  .remote-video {
+    height: 200px;
+  }
 
-    #chat-messages{
-        height: 60vh;
-    }
+  .local-video {
+    height: 80px;
+    width: 100px;
+  }
 
-    .chat-box{
-        bottom: 90px;
-        margin-bottom: 0px;
-    }
+  #chat-messages {
+    height: 60vh;
+  }
+
+  .chat-box {
+    bottom: 90px;
+    margin-bottom: 0px;
+  }
 }
 
 .bg-info {
-	background-color: #c2c2c266 !important;
+  background-color: #c2c2c266 !important;
 }
 
 .card {
-  	border: 0px !important;
-        background-color: #f0f8ff42;
+  border: 0px !important;
+  background-color: #f0f8ff42;
 }
 
-
 .demo {
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
   height: 100%;
   background-image: url("../images/background.png");
   -webkit-background-image: url("../images/background.png");
 }
 
+li {
+cursor: crosshair
+}
+
+
+.icon-off {
+  color: #FF0000 !important;
+}
+
+.icon-on {
+  color: #FFFFFF !important;
+}

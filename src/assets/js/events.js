@@ -1,6 +1,6 @@
 import helpers from './helpers.js';
 
-window.addEventListener('load', ()=>{
+window.addEventListener('DOMContentLoaded', ()=>{
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e)=>{
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
@@ -53,7 +53,10 @@ window.addEventListener('load', ()=>{
 
             //show message with link to room
             document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
-                Share the room link with your partners.`;
+                Share the <a href='${roomLink}'>room link</a> with your partners.`;
+
+            // add room name to chat title
+            document.querySelector('#chat-title').innerHTML = roomName;
 
             //empty the values
             document.querySelector('#room-name').value = '';
