@@ -312,10 +312,8 @@ function initRTC() {
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
       if (!myStream) return;
-      //myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
-      myStream.getTracks().forEach((t) => {
-          if (t.kind === 'video') t.enabled = !t.enabled;
-      });
+      const videoTrack = myStream.getVideoTracks()[0];
+      videoTrack.enabled = !videoTrack.enabled;
       console.log('local video enable: ',myStream.getVideoTracks()[0].enabled );
       //toggle video icon
       e.srcElement.classList.toggle("fa-video");
@@ -326,9 +324,8 @@ function initRTC() {
       e.preventDefault();
       if (!myStream) return;
       //myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
-      myStream.getTracks().forEach((t) => {
-          if (t.kind === 'audio') t.enabled = !t.enabled;
-      });
+      const audioTrack = myStream.getAudioTracks()[0];
+      audioTrack.enabled = !audioTrack.enabled;
       console.log('local audio enable: ',myStream.getAudioTracks()[0].enabled);
       //toggle audio icon
       e.srcElement.classList.toggle("fa-volume-up");
