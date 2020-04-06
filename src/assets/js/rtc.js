@@ -102,15 +102,17 @@ function enter() {
 }
 
 function leave() {
+  if(meUser.uuid == socketId){
+    // wait a second that was us! Send presence if we're still here!
+    socket.emit("newuser", { socketId: socketId });
+    return;
+  }
   console.log("leaving " + meUser.id);
   meUser.online = false;
   // presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
   candidates.remove(meUser);
-  if(meUser.uuid == socketId){
-    // wait a second that was us! Send presence if we're still here!
-    socket.emit("newuser", { socketId: socketId });
-  }
+  
 }
 
 function sendMsg(msg, local) {
@@ -337,7 +339,11 @@ function initRTC() {
       e.preventDefault();
       if (!myStream) return;
       console.log('Re-Send presence to all users...');
-      socket.emit("newuser", { socketId: socketId });
+      var r = confirm("Re-Invite ALL room participants?");
+        if (r == true) {
+          socket.emit("newuser", { socketId: socketId });
+        }
+      
     });
     
   }
