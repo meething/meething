@@ -32,7 +32,7 @@
     // FIXME: Find the wire throwing ICE Failed
     // The above change corrects at least firefox RTC Peer handler where it **throws** on over 6 ice servers, and updates url: to urls: removing deprecation warning 
     opt.rtc.dataChannel = opt.rtc.dataChannel || {ordered: false, maxRetransmits: 2};
-    opt.rtc.sdp = opt.rtc.sdp || {mandatory: {OfferToReceiveAudio: false, OfferToReceiveVideo: false}};
+    opt.rtc.sdp = opt.rtc.sdp || {mandatory: {OfferToReceiveAudio: true, OfferToReceiveVideo: true}};
     opt.announce = function(to){
 			root.on('out', {rtc: {id: opt.pid, to:to}}); // announce ourself
     };
@@ -62,6 +62,10 @@
 			//if(opt.peers[rtc.id]){ return }
 			if(open[rtc.id]){ return }
 			(peer = new opt.RTCPeerConnection(opt.rtc)).id = rtc.id;
+            
+      peer.addEventListener('track', async (event) => {
+        console.log("Got a track");
+      });
 			var wire = peer.wire = peer.createDataChannel('dc', opt.rtc.dataChannel);
 			open[rtc.id] = peer;
 			wire.onclose = function(){
