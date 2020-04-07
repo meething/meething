@@ -1,28 +1,20 @@
-const DB_RECORD_META = 'gunmeeting_metadata'
-const CUE_SHOW_TIME = 4;
-let USER_METADATA = 'metadata_' + STREAM_ID;
+const DB_RECORD_META = "gunmeeting_metadata";
 
 var metaData = (function() {
   "use strict";
-  
 
-    gunDB.get(DB_RECORD_META).map().on(function (data, id) {
-        if (!data) {
-            return
-        }
+  Gun()
+    .get(DB_RECORD_META)
+    .map()
+    .on(function(data, id) {
+      if (!data) {
+        return;
+      }
 
-        var tab = document.getElementsByTagName("video")[0].id
-
-        /* EVENT HANDLER */
-        if (data.text) {
-            SETCLUE(data.text, tab, 1);
-        }
-
-        if (data.like && data.streamId == STREAM_ID) {
-            sentLove();
-        }
+      /* EVENT HANDLER */
+      if (data.text) {
+      }
     });
-}
 
   // Create the methods object
   var methods = {};
@@ -30,14 +22,11 @@ var metaData = (function() {
   //
   // Methods
   //
-  methods.sentMessage = function(message) {
-    this.sentControlData({ text: message });
-  };
-
-  methods.sentControlData = function(data) {
-    data.streamId = STREAM_ID;
-    let metaData = gunDB.get(USER_METADATA).put(data);
-    gunDB.get(DB_RECORD_META).set(metaData);
+  methods.sentControlData = function(data, streamId) {
+    const USER_METADATA = "metadata_" + streamId;
+    data.streamId = streamId;
+    const metaData = Gun().get(USER_METADATA).put(data);
+    Gun().get(DB_RECORD_META).set(metaData);
   };
 
   // Expose the public methods
