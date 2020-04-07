@@ -28,7 +28,9 @@ var socket;
 var room;
 var users;
 var pc = []; // hold local peerconnection statuses
+var peers = window.peers=new Map();
 var myStream = "";
+var screenStream;
 var socketId;
 
 function initSocket() {
@@ -57,7 +59,6 @@ function initSocket() {
 
 var meUser;
 var presence;
-
 var candidates;
 
 function initUser(r) {
@@ -175,11 +176,7 @@ function initRTC() {
         });
         pc.push(data.socketId);
         //TODO : decide where this screen sharing happens
-        if(confirm('screensharing?')){
-          init(true, data.socketId, 'screen');
-		    } else {
-		      init(true,data.socketId);
-		    }
+		    init(true,data.socketId);
       });
 
       socket.get("newUserStart").on(function(data, key) {
@@ -187,11 +184,7 @@ function initRTC() {
         if (data.socketId == socketId || data.sender == socketId) return;
         pc.push(data.sender);
         //TODO : decide where this screen sharing happens
-        if(confirm('screensharing?')) {
-          init(false,data.sender, 'screen') 
-        } else { 
-          init(false, data.sender); 
-        }
+        init(false, data.sender); 
       });
 
       socket.get("icecandidates").on(function(data, key) {      
@@ -243,10 +236,10 @@ function initRTC() {
 
             var opts =false;
             var method = 'getUserMedia';
-            if(confirm('screensharing?')) {
+            /*if(confirm('screensharing?')) {
               opts={ audio:true, video:true}
               method='getDisplayMedia';
-            }
+            }*/
             // if we do screensharing, we use getDisplayMedia, if not getUserMedia 
             h[method](opts)
               .then(async stream => {
@@ -301,7 +294,15 @@ function initRTC() {
         console.log("got chat", key, data);
         h.addChat(data, "remote");
       });
-
+      function replaceVideoTrack(withTrack) {
+        peers.forEach((peer,id) => {
+          var _pc = (peer && typeof peer == "object" && peer.hasOwnProperty(id)) ? peer[id] : false; 
+          var sender = (_pc && _pc.getSenders) ? _pc.getSenders().find(s => s.track && s.track.kind === 'video') : false;
+          if (sender) {
+            sender.replaceTrack(withTrack);
+          }
+        });
+      };
       document.getElementById("chat-input").addEventListener("keypress", e => {
         if (e.which === 13 && e.target.value.trim()) {
           e.preventDefault();
@@ -313,17 +314,39 @@ function initRTC() {
           }, 50);
         }
       });
-
-      document.getElementById("toggle-screen").addEventListener("click", e => {
+     
+      document.getElementById("toggle-screen").addEventListener("click", async (e) => {
         e.preventDefault();
-        if (!myStream) return;
-        //TODO Enable/Disable screen sharing
-        //myStream.getVideoTracks()[0].enabled = !myStream.getVideoTracks()[0].enabled;
-        //console.log('local video enable: ',myStream.getVideoTracks()[0].enabled );
-        //toggle video icon
-        e.srcElement.classList.toggle("fa-desktop");
-        e.srcElement.classList.toggle("fa-desktop-slash");
+        //TODO: When new people arrive to chat and you're screen sharing, send the screenStream instead of default video track
+        if (screenStream) { // click-to-end.
+          screenStream.getTracks().forEach(t => t.stop());
+          screenStream = null;
+          document.getElementById('local').srcObject = myStream;
+          replaceVideoTrack(myStream.getVideoTracks()[0]);
+          e.srcElement.classList.remove('sharing');
+          e.srcElement.classList.add('text-white');
+          e.srcElement.classList.remove('text-black');
+          return;
+        }
+        var stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+        var track = stream.getVideoTracks()[0];
+        replaceVideoTrack(track);
+        document.getElementById('local').srcObject = stream;
+        track.addEventListener('ended', () => {
+            console.log('Screensharing ended via the browser UI');
+            screenStream = null;
+            document.getElementById('local').srcObject = myStream;
+            replaceVideoTrack(myStream.getVideoTracks()[0]);
+            e.srcElement.classList.remove('sharing');
+            e.srcElement.classList.add('text-white');
+            e.srcElement.classList.remove('text-black');    
+        });
+        screenStream = stream;
+        e.srcElement.classList.add('sharing');
+        e.srcElement.classList.remove("text-white");
+        e.srcElement.classList.add("text-black");
       });
+      
       document.getElementById("toggle-video").addEventListener("click", e => {
         e.preventDefault();
         if (!myStream) return;
@@ -392,7 +415,7 @@ function init(createOffer, partnerName, type='video'){
       // end crazy mode 
   });
   
-}
+  }
 
   //create offer
   if (createOffer) {
@@ -534,4 +557,5 @@ function init(createOffer, partnerName, type='video'){
         break;
     }
   };
+  peers.set(partnerName, pc);
 }
