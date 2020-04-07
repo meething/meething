@@ -328,7 +328,7 @@ function initRTC() {
           e.srcElement.classList.remove('text-black');
           return;
         }
-        var stream = await navigator.mediaDevices.getDisplayMedia({video: true});
+        var stream = await h.getDisplayMedia({audio:true, video: true});
         var track = stream.getVideoTracks()[0];
         replaceVideoTrack(track);
         document.getElementById('local').srcObject = stream;
@@ -346,7 +346,7 @@ function initRTC() {
         e.srcElement.classList.remove("text-white");
         e.srcElement.classList.add("text-black");
       });
-      
+
       document.getElementById("toggle-video").addEventListener("click", e => {
         e.preventDefault();
         if (!myStream) return;
