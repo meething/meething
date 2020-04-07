@@ -47,6 +47,7 @@
 		});
 
 		function open(msg){
+      console.log('ẂEBRTC: open',msg);
 			var rtc = msg.rtc, peer, tmp;
 			if(!rtc || !rtc.id){ return }
 			delete opt.announce[rtc.id]; /// remove after connect
