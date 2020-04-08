@@ -34,7 +34,11 @@ var myStream = "";
 var socketId;
 
 function initSocket() {
-  var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
+  //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
+  var peers = [
+    "https://livecodestream-us.herokuapp.com/gun",
+    "https://livecodestream-eu.herokuapp.com/gun"
+  ];
   var opt = { peers: peers, localStorage: false, radisk: false };
 
   socket = Gun(opt)
@@ -177,6 +181,7 @@ function initRTC() {
     });
 
     socket.get("newuser").on(function(data, key) {
+      console.log('got new user, checking...',data);
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
@@ -334,7 +339,7 @@ function initRTC() {
     
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
-      if (!myStream) return;
+      //if (!myStream) return;
       console.log('Re-Send presence to all users...');
       var r = confirm("Re-Invite ALL room participants?");
         if (r == true) {
