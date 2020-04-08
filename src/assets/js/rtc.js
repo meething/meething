@@ -395,14 +395,20 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
+    let negotiating = false;
     pc[partnerName].onnegotiationneeded = async () => {
-      let offer = await pc[partnerName].createOffer();
-      await pc[partnerName].setLocalDescription(offer);
-      socket.emit("sdp", {
-        description: pc[partnerName].localDescription,
-        to: partnerName,
-        sender: socketId
-      });
+      try {
+        // if negotiation needed @jabis
+        if (negotiating || pc[partnerName].signalingState != "stable") return;
+        negotiating = true;
+        let offer = await pc[partnerName].createOffer();
+        await pc[partnerName].setLocalDescription(offer);
+        socket.emit("sdp", {
+          description: pc[partnerName].localDescription,
+          to: partnerName,
+          sender: socketId
+        });
+      } finally { negotiating = false; }
     };
   }
 
