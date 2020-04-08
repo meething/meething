@@ -36,8 +36,7 @@ var socketId;
 function initSocket() {
   //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
   var peers = [
-    "https://livecodestream-us.herokuapp.com/gun",
-    "https://livecodestream-eu.herokuapp.com/gun"
+    "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
 
@@ -493,7 +492,8 @@ function init(createOffer, partnerName) {
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        //leave();
+        h.closeVideo(partnerName);
+        leave();
         break;
       case "failed":
         h.closeVideo(partnerName);
