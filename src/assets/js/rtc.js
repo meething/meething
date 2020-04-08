@@ -399,7 +399,8 @@ function init(createOffer, partnerName) {
     pc[partnerName].onnegotiationneeded = async () => {
       try {
         // if negotiation needed @jabis
-        if (negotiating || pc[partnerName].signalingState != "stable") return;
+        console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
+        //if (negotiating || pc[partnerName].signalingState != "stable") return;
         negotiating = true;
         let offer = await pc[partnerName].createOffer();
         await pc[partnerName].setLocalDescription(offer);
