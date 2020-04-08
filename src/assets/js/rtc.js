@@ -3,7 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-var TIMEGAP = 6000;
+var TIMEGAP = 3000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
 var enableHacks = false;
@@ -176,6 +176,8 @@ function initRTC() {
       // Ignore self-generated subscribes
       if (data.socketId == socketId || data.sender == socketId) return;
       console.log("got subscribe!", data);
+
+      // is this event needed? we can merge subscribe and newuser to make things less intricate?
       socket.emit("newuser", { socketId: data.socketId });
     });
 
