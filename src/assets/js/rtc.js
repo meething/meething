@@ -90,7 +90,11 @@ function initUser(r) {
 function onCall() {
   var callTo = candidates.get(this.id);
   console.log("Start calling " + callTo.name);
-  socket.emit("newuser", { socketId: socketId, to: callTo.uuid });
+  socket.emit("subscribe", {
+      room: room,
+      socketId: socketId,
+      name: username || socketId
+    });
   //TODO make call to clicked candidate
   // pc.push(callTo.uuid);
   // init(true, callTo.uuid);
@@ -107,7 +111,11 @@ function enter() {
 function leave() {
   if(meUser.uuid == socketId){
     // wait a second that was us! Send presence if we're still here!
-    socket.emit("newuser", { socketId: socketId });
+    socket.emit("subscribe", {
+      room: room,
+      socketId: socketId,
+      name: username || socketId
+    });
     return;
   }
   console.log("leaving " + meUser.id);
@@ -349,7 +357,11 @@ function initRTC() {
       console.log('Re-Send presence to all users...');
       var r = confirm("Re-Invite ALL room participants?");
         if (r == true) {
-          socket.emit("newuser", { socketId: socketId });
+          socket.emit("subscribe", {
+            room: room,
+            socketId: socketId,
+            name: username || socketId
+          });
         }
       
     });
