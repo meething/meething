@@ -148,6 +148,9 @@ function initRTC() {
     for (let i = 0; i < commElem.length; i++) {
       commElem[i].attributes.removeNamedItem("hidden");
     }
+    
+    // Remove animated bg... to be replaced entirely with something cpu friendly
+    document.getElementById("demo").remove();
 
     window.GUN = { socket: socket, users: users };
 
