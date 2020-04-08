@@ -177,14 +177,16 @@ function initRTC() {
       if (data.socketId == socketId || data.sender == socketId) return;
       console.log("got subscribe!", data);
 
+    /*      
       // is this event needed? we can merge subscribe and newuser to make things less intricate?
       socket.emit("newuser", { socketId: data.socketId });
     });
-
     socket.get("newuser").on(function(data, key) {
       console.log('got new user, checking...',data);
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
+   */     
+      
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
       if (pc[data.socketId] && pc[data.socketId].iceConnectionState == "connected") { 
