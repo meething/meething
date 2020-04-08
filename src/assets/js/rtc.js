@@ -184,6 +184,9 @@ function initRTC() {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
+      /* discard new user for connected parties? */
+      if (pc[data.socketId].iceConnectionState == "connected") return;
+      // New Peer, setup peerConnection
       socket.emit("newUserStart", {
         to: data.socketId,
         sender: socketId,
