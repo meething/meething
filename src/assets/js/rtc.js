@@ -185,9 +185,9 @@ function initRTC() {
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
-      if (pc[data.socketId].iceConnectionState == "connected") { 
-        console.log('already connected to peer!',data.socketId);
-        return; 
+      if (pc[data.socketId] && pc[data.socketId].iceConnectionState == "connected") { 
+        console.log('already connected to peer?',data.socketId);
+        //return; 
       }
       // New Peer, setup peerConnection
       socket.emit("newUserStart", {
@@ -202,6 +202,10 @@ function initRTC() {
     socket.get("newUserStart").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
+      if (pc[data.socketId] && pc[data.socketId].iceConnectionState == "connected") { 
+        console.log('already connected to peer?',data.socketId);
+        //return; 
+      }
       pc.push(data.sender);
       init(false, data.sender);
     });
@@ -405,7 +409,7 @@ function init(createOffer, partnerName) {
       try {
         // if negotiation needed @jabis
         console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
-        if (negotiating || pc[partnerName].signalingState != "stable") return;
+        //if (negotiating || pc[partnerName].signalingState != "stable") return;
         negotiating = true;
         let offer = await pc[partnerName].createOffer();
         await pc[partnerName].setLocalDescription(offer);
