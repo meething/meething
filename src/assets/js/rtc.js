@@ -389,18 +389,17 @@ function init(createOffer, partnerName) {
         });
         // end crazy mode 
     });
-    
   }
 
 
   //create offer
   if (createOffer) {
-    let negotiating = false;
+    var negotiating = false;
     pc[partnerName].onnegotiationneeded = async () => {
       try {
         // if negotiation needed @jabis
         console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
-        //if (negotiating || pc[partnerName].signalingState != "stable") return;
+        if (negotiating || pc[partnerName].signalingState != "stable") return;
         negotiating = true;
         let offer = await pc[partnerName].createOffer();
         await pc[partnerName].setLocalDescription(offer);
