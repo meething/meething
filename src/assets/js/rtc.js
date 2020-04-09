@@ -364,8 +364,14 @@ function initRTC() {
             name: username || socketId
           });
         }
-      
-    });
+    }); 
+    
+    document.getElementById("toggle-users").addEventListener("click", e => {
+      e.preventDefault();
+      var div = document.getElementById('my-div');
+      if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
+      else div.style.display = 'block';
+    }); 
     
   }
 }
