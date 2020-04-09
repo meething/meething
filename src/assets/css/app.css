@@ -63,7 +63,7 @@ body {
   position: relative;
   object-fit: cover !important;
   height: auto;
-  min-height: 100%;
+  min-height: 400px;
 }
 
 .clipped {
