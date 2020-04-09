@@ -182,8 +182,8 @@ function initRTC() {
         console.log('discarding old sub',data);
         return;                                             
       }
-      if (pc[data.socketId] !== undefined) {
-        console.log('Existing peer subscribe, discarding...',data)
+      if (pc[data.socketId] !== undefined && pc[data.socketId].connectionState == "connected") {
+        console.log('Existing peer subscribe, discarding...',pc[data.socketId])
         return;
       }
       // Ignore self-generated subscribes
@@ -220,7 +220,7 @@ function initRTC() {
     socket.get("icecandidates").on(function(data, key) {      
       try {
         data = JSON.parse(data);
-        if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+        if (data.ts && Date.now() - data.ts > TIMEGAP || !data.sender) return;
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );

@@ -2,9 +2,6 @@ class Candidates {
   constructor(gun, room) {
     this.gun = gun;
     this.think = gun.get(room);
-    this.think.map(function(data, id) {
-      console.log('room', data.online);
-    });
     this.think.map().on(this.show);
   }
 
