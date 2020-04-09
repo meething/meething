@@ -177,6 +177,7 @@ function initRTC() {
 
     socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
+      console.log('Got channel subscribe',data);
       if (data.ts && Date.now() - data.ts > TIMEGAP) {
         console.log('discarding old sub',data);
         return;                                             
@@ -361,7 +362,7 @@ function initRTC() {
           socket.emit("subscribe", {
             room: room,
             socketId: socketId,
-            name: socketId
+            name: username || socketId
           });
         }
       
