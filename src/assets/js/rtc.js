@@ -3,7 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-var TIMEGAP = 3000;
+var TIMEGAP = 6000;
 var STATE = { media: {}, users: {} };
 var allUsers = [];
 var enableHacks = false;

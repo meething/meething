@@ -2,6 +2,9 @@ class Candidates {
   constructor(gun, room) {
     this.gun = gun;
     this.think = gun.get(room);
+    this.think.map(function(data, id) {
+      console.log('room', data.online);
+    });
     this.think.map().on(this.show);
   }
 
@@ -31,6 +34,7 @@ class Candidates {
   getAll() {
     var all = [];
     this.think.map(function(data, id) {
+      if(data && !data.online) return;
       all.push(data);
     });
     return all;
