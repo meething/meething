@@ -414,13 +414,13 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
-    var negotiating = false;
     pc[partnerName].onnegotiationneeded = async () => {
       try {
-        // if negotiation needed @jabis
-        console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
-        //if (negotiating || pc[partnerName].signalingState != "stable") return;
-        negotiating = true;
+        if (pc[partnerName].isNegotiating) {
+            console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
+            return; // Chrome nested negotiation bug
+        }
+        pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
         await pc[partnerName].setLocalDescription(offer);
         socket.emit("sdp", {
@@ -428,7 +428,7 @@ function init(createOffer, partnerName) {
           to: partnerName,
           sender: socketId
         });
-      } finally { negotiating = false; }
+      } finally { pc[partnerName].isNegotiating = false; }
     };
   }
 
@@ -530,7 +530,7 @@ function init(createOffer, partnerName) {
         leave();
         break;
       default:
-        console.log("Unknown state?", pc[partnerName].iceConnectionState);
+        console.log("Change of state", pc[partnerName].iceConnectionState);
         break;
     }
   };
@@ -541,6 +541,9 @@ function init(createOffer, partnerName) {
       pc[partnerName].signalingState
     );
     switch (pc[partnerName].signalingState) {
+      case "stable":
+        pc[partnerName].isNegotiating = false;
+        break;
       case "closed":
         console.log("Signalling state is 'closed'");
         h.closeVideo(partnerName);
