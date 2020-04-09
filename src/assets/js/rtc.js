@@ -220,7 +220,7 @@ function initRTC() {
     socket.get("icecandidates").on(function(data, key) {      
       try {
         data = JSON.parse(data);
-        if (data.ts && Date.now() - data.ts > TIMEGAP || !data.sender) return;
+        if (data.ts && Date.now() - data.ts > TIMEGAP || !data.sender || !data.to) return;
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
@@ -417,8 +417,8 @@ function init(createOffer, partnerName) {
     pc[partnerName].onnegotiationneeded = async () => {
       try {
         if (pc[partnerName].isNegotiating) {
-            console.log('negotiation needed. existing state?',partnerName, pc[partnerName].signalingState);
-            return; // Chrome nested negotiation bug
+            console.log('negotiation needed with existing state?',partnerName, pc[partnerName].isNegotiating, pc[partnerName].signalingState);
+            //return; // Chrome nested negotiation bug
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
