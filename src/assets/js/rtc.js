@@ -182,6 +182,7 @@ function initRTC() {
         return;                                             
       }
       if (pc[data.socketId] !== undefined) {
+        console.log('Existing peer subscribe, discarding...',data)
         return;
       }
       // Ignore self-generated subscribes
@@ -360,7 +361,7 @@ function initRTC() {
           socket.emit("subscribe", {
             room: room,
             socketId: socketId,
-            name: username || socketId
+            name: socketId
           });
         }
       
