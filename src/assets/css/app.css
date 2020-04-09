@@ -153,6 +153,10 @@ body {
   background-color: #c2c2c266 !important;
 }
 
+.bg-green {
+  background-color: #d7f7c5 !important;
+}
+
 .card {
   border: 0px !important;
   background-color: #f0f8ff42;

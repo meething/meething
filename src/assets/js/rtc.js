@@ -130,7 +130,7 @@ function sendMsg(msg, local) {
   let data = {
     room: room,
     msg: msg,
-    sender: username
+    sender: username || socketId
   };
 
   //emit chat message

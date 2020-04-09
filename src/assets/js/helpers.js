@@ -97,7 +97,7 @@ export default {
         if(senderType === 'remote'){
             contentAlign = 'justify-content-start';
             senderName = data.sender;
-            msgBg = '';
+            msgBg = 'bg-green';
 
             this.toggleChatNotificationBadge();
         }
