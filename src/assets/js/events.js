@@ -12,6 +12,14 @@ window.addEventListener('load', ()=>{
             }
         }, 300);
     });
+  
+    // Show/Hide user list
+    document.getElementById("toggle-users").addEventListener("click", e => {
+      e.preventDefault();
+      var div = document.getElementById('mydiv');
+      if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
+      else div.style.display = 'block';
+    }); 
 
 
     //When the video frame is clicked. This will enable picture-in-picture
