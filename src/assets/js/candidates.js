@@ -13,6 +13,7 @@ class Candidates {
   }
 
   remove(user) {
+    this.think.get(user.online).put(false);
     this.think.get(user.id).put(null);
     this.think.unset(user);
   }

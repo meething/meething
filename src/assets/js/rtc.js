@@ -232,9 +232,8 @@ function initRTC() {
       }
       if (data.socketId == socketId || data.to != socketId) return;
       console.log("ice candidate", data);      
-      data.candidate
-        ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate))
-        : "";
+      //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
+      data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
 
     socket.get("sdp").on(function(data, key) {
