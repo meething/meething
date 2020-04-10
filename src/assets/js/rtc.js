@@ -30,6 +30,7 @@ var socket;
 var room;
 var users;
 var pc = []; // hold local peerconnection statuses
+const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
 var socketId;
 
