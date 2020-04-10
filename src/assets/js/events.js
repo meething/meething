@@ -19,6 +19,10 @@ window.addEventListener('load', ()=>{
       var div = document.getElementById('mydiv');
       if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
       else div.style.display = 'block';
+      
+       e.srcElement.classList.toggle("fa-user-plus");
+       e.srcElement.classList.toggle("fa-user-minus");
+      
     }); 
 
 
