@@ -124,7 +124,6 @@ function leave() {
   // presence.remove(meUser.id);
   sendMsg(meUser.name + " leaving", false);
   candidates.remove(meUser);
-  
 }
 
 function sendMsg(msg, local) {
@@ -512,23 +511,21 @@ function init(createOffer, partnerName) {
         enter();
         break;
       case "disconnected":
-        if(partnerName == socketId) return;
+        if(partnerName == socketId) { leave(); return; }
         sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         h.closeVideo(partnerName);
-        leave();
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
         h.closeVideo(partnerName);
-        leave();
         break;
       case "failed":
+        if(partnerName == socketId) { leave(); return; }
         h.closeVideo(partnerName);
         leave();
         break;
       case "closed":
         h.closeVideo(partnerName);
-        leave();
         break;
       default:
         console.log("Change of state: ", pc[partnerName].iceConnectionState);
