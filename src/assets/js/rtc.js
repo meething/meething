@@ -373,7 +373,8 @@ function initRTC() {
 function init(createOffer, partnerName) {
   
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
-  var constraints = { video: { minFrameRate: 10, maxFrameRate: 30 }, audio: { sampleSize: 8, echoCancellation: true } };
+  pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
+  
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (myStream){    
       myStream.getTracks().forEach(track => {
@@ -530,7 +531,7 @@ function init(createOffer, partnerName) {
         leave();
         break;
       default:
-        console.log("Change of state", pc[partnerName].iceConnectionState);
+        console.log("Change of state: ", pc[partnerName].iceConnectionState);
         break;
     }
   };
