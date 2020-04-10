@@ -525,7 +525,7 @@ function init(createOffer, partnerName) {
         leave();
         break;
       case "closed":
-        h.closeVideo(partnerName);
+        h.closeVideo(partnerName); 
         break;
       default:
         console.log("Change of state: ", pc[partnerName].iceConnectionState);
