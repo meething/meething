@@ -1,20 +1,74 @@
-function leave() {
-    console.log("leaving " + meUser.id);
-    meUser.online = false;
-    candidates.update(meUser);
-    candidates.remove(meUser);
+var peers = ['https://livecodestream-us.herokuapp.com/gun', 'https://livecodestream-eu.herokuapp.com/gun'];
+var opt = { peers: peers, localStorage: false, radisk: false };
+var root = Gun(opt);
+
+const pid = root._.opt.pid;
+const users = new Map();
+
+window.onunload = leave;
+document.addEventListener("DOMContentLoaded", enter)
+const presenceTimer = setInterval(() => distrubutePresence(), 500);
+
+
+root.on('in', function (msg) {
+    switch (msg.event) {
+        case "enter":
+            users.set(msg.pid, msg);
+            addItem(msg.pid);
+            break;
+        case "leave":
+            users.delete(msg.pid);
+            removeItem(msg.pid);
+            break;
+        case "presence":
+            addReceivedUsers(msg.data);
+            break;
+        default:
+            console.log(msg)
+    }
+});
+
+function addReceivedUsers(data) {
+    const receivedUsers = new Map(JSON.parse(data));
+    receivedUsers.forEach(function (value, key) {
+        if (!users.has(key)) {
+            users.set(key, value);
+            addItem(key);
+        }
+    })
+}
+
+function send(event, data) {
+    root.on('out', { pid: pid, event: event, data: data });
 }
 
 function enter() {
-    console.log("entering " + meUser.id);
-    meUser.online = true;
-    candidates.add(meUser);
+    send("enter", null);
+    users.set(pid, null);
+    addItem(pid);
 }
 
-window.onload = function (e) {
-    enter();
+function leave() {
+    send("leave", null)
+    clearInterval(presenceTimer);
 }
 
-window.onunload = window.onbeforeunload = async function () {
-    leave();
-};
+function distrubutePresence() {
+    send("presence", JSON.stringify([...users]));
+}
+
+function addItem(pid) {
+    var ul = document.getElementById("dynamic-list");
+
+    var li = document.createElement("li");
+    li.setAttribute('id', pid);
+    li.appendChild(document.createTextNode(pid));
+    ul.appendChild(li);
+}
+
+function removeItem(pid) {
+    var ul = document.getElementById("dynamic-list");
+
+    var item = document.getElementById(pid);
+    ul.removeChild(item);
+}
