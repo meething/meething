@@ -83,9 +83,9 @@ function initUser(r) {
     sessionStorage.setItem("pid", pid);
   }
 
-  candidates = new Candidates(gun, room);
-  Candidates.prototype.onCall = onCall;
-  meUser = new User(username, pid);
+  //candidates = new Candidates(gun, room);
+  //Candidates.prototype.onCall = onCall;
+  //meUser = new User(username, pid);
 }
 
 function onCall() {
@@ -102,11 +102,11 @@ function onCall() {
 }
 
 function enter() {
-  console.log("entering " + meUser.id);
-  meUser.online = true;
+  //console.log("entering " + meUser.id);
+  //meUser.online = true;
   // presence.addUser(meUser);
-  sendMsg(meUser.name + " joining", false);
-  candidates.add(meUser);
+  //sendMsg(meUser.name + " joining", false);
+  //candidates.add(meUser);
 }
 
 function leave() {
@@ -163,7 +163,7 @@ function initRTC() {
     window.GUN = { socket: socket, users: users };
 
     socketId = h.uuidv4();
-    meUser.uuid = socketId; //assign UUID to own user
+    //meUser.uuid = socketId; //assign UUID to own user
     enter();    
 
     console.log("Starting! you are", socketId);
