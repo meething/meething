@@ -28,7 +28,6 @@ window.onload = function(e) {
 
 var socket;
 var room;
-var users;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
@@ -43,14 +42,14 @@ function initSocket() {
   var opt_out = { peers: [], localStorage: false, radisk: false };
   
   var root = Gun(opt);
+  
+  // Replace socket with Emitter controlled by DAM Events
+  //socket = new EventEmitter();
+  
   socket = root
     .get("rtcmeeting")
     .get(room)
     .get("socket");
-  users = root
-    .get("rtcmeeting")
-    .get(room)
-    .get("users");
   
   /* DAM START */
 
@@ -215,8 +214,6 @@ function initRTC() {
     
     // Remove animated bg... to be replaced entirely with something cpu friendly
     document.getElementById("demo").remove();
-
-    window.GUN = { socket: socket, users: users };
 
     socketId = h.uuidv4();
     //meUser.uuid = socketId; //assign UUID to own user
