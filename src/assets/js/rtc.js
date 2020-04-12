@@ -50,6 +50,23 @@ function initSocket() {
     .get(room)
     .get("users");
 
+  const pid = socket._.opt.pid;
+  
+  // DAM Receiver : signaling event
+  socket.on('in', function (msg) {
+    if(msg && msg.signaling){
+      console.log('DAM: handle inbound signaling')
+      if(msg.signaling.to && msg.signaling.to == pid){
+        console.log('DAM: signaling for local peer');
+      }
+    }
+  // DAM Emitter : signaling event 
+  });
+  socket.damemit = function(event, data, to) {
+    console.log('DAM: send event to:',event,to);
+    root.on('out', { pid: pid, to: to || pid, signaling: event, data: data });
+  }
+
   // DEBUG ONLY: Remove from prod.
   window.gunDebug.socket = socket;
   
@@ -59,8 +76,10 @@ function initSocket() {
     console.log("debug emit key", key, "value", value);
     if (!key || !value) return;
     if (!value.ts) value.ts = Date.now();
+    socket.damemit(value,null,value.to);
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
+    
   };
 }
 
