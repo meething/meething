@@ -44,8 +44,8 @@ function initSocket() {
   /* DAM START */
 
   // Replace socket with Emitter controlled by DAM Events
-  const damsocket = {}
-  h.eventify(damsocket)
+  //const damsocket = {}
+  //.eventify(damsocket)
   
   const pid = root._.opt.pid;
   
@@ -65,7 +65,7 @@ function initSocket() {
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
-        damsocket.emit(msg.signaling,msg.data);
+        //damsocket.emit(msg.signaling,msg.data);
       }
     }
     
@@ -79,9 +79,7 @@ function initSocket() {
   /* DAM END */
   
   
-  
-  // DEBUG ONLY: Remove from prod.
-  window.gunDebug.socket = socket;
+
   
   // Custom Emit Function
   socket.emit = function(key, value) {
