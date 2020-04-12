@@ -82,6 +82,7 @@ function initSocket() {
         }
       }
     }
+    
   // DAM Emitter : signaling event 
   });
   socket.damemit = function(event, data, to) {
@@ -191,6 +192,11 @@ function sendMsg(msg, local) {
 
 window.onbeforeunload = function() {
   leave();
+  // Cleanup peerconnections
+  pcmap.forEach((pc, id) => {
+    pcmap.get(id).close();
+    pcmap.delete(id);
+  });
 };
 
 function initRTC() {
