@@ -40,6 +40,8 @@ function initSocket() {
     "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
+  var opt_out = { peers: [], localStorage: false, radisk: false };
+  
   var root = Gun(opt);
   socket = root
     .get("rtcmeeting")
@@ -53,18 +55,22 @@ function initSocket() {
   const pid = root._.opt.pid;
   
   // DAM Receiver : signaling event
+  /* LIMITATIONS: This is NOT scoped to a Room! Filtering is client side only! */
   root.on('in', function (msg) {
     if(msg && msg.signaling){
       console.log('DAM: handle inbound signaling!',msg.signaling)
+      if(msg.room && msg.socketId && !msg.to){
+          // This is a broadcast subscribe
+      } 
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
         switch (msg.signaling) {
-          case "icecandidate":
-            console.log('Got ICE!');
+          case "icecandidates":
+            console.log('DAM: Got ICE!');
             break;
           default:
-            console.log('Unhandled event',msg.signaling);
+            console.log('DAM: Unhandled event',msg.signaling);
             break;
         }
       }
