@@ -150,7 +150,8 @@ body {
 }
 
 .bg-info {
-  background-color: #c2c2c266 !important;
+  background-color: #c2c2c222 !important;
+  
 }
 
 .bg-green {
@@ -182,4 +183,19 @@ cursor: crosshair
 
 .icon-on {
   color: #FFFFFF !important;
+}
+
+#dynamic-list > * {
+  list-style:none;
+  color:grey;
+  letter-spacing:1px;
+  font-size: 12px;
+  margin-top:6px;
+  cursor:pointer;
+}
+
+#login{
+  background:#473761bb !important;
+  box-shadow: 4px 0px 8px black;
+  
 }

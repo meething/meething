@@ -4,13 +4,19 @@
   background-color: #f1f1f1;
   color: #000;
   text-align: left;
-  border: 1px solid #d3d3d3;
+  border-radius:3px;
+  cursor:pointer;
+  box-shadow:10px 10px 40px black;
+
 }
 
 #mydivheader {
-  padding: 10px;
+  text-transform:uppercase;
+  padding: 8px;
+  letter-spacing:1px;
   cursor: move;
+  font-size:12px;
   z-index: 10;
-  background-color: #2196F3;
+  background-color: #17a2b8;
   color: #fff;
 }
