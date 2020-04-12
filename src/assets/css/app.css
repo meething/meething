@@ -201,16 +201,17 @@ cursor: crosshair
 
 
 #room-create img{
-  margin-top:40px;
-  margin-bottom:30px;
+  
+  margin-top:15px;
+  
   
 }
 
 #room-create .create-room{
-  font-size:24px;
+  font-size:22px;
   letter-spacing:1px;
 }
 
 #create-room{
-  margin-top:40px;
+  margin-top:15px;
 }
