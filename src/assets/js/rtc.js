@@ -44,8 +44,7 @@ function initSocket() {
   /* DAM START */
 
   // Replace socket with Emitter controlled by DAM Events
-  //const damsocket = {}
-  //.eventify(damsocket)
+  const damsocket =  new h.myEmitter();
   
   const pid = root._.opt.pid;
   
