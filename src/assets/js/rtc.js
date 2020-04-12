@@ -59,9 +59,13 @@ function initSocket() {
   root.on('in', function (msg) {
     if(msg && msg.signaling){
       console.log('DAM: handle inbound signaling!',msg.signaling)
-      if(msg.signaling == 'subscribe'){
+      if(msg.signaling == 'subscribe' && msg.data.socketId){
           // This is a broadcast subscribe
-        
+          console.log('DAM: subscribe from',msg.data.socketId);
+          if(pcmap.has(msg.data.socketId)) { 
+             console.log('DAM: Known Peer! Check status.')
+            //pcmap.get(msg.data.socketId).
+          } 
       } 
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
