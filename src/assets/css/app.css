@@ -186,13 +186,11 @@ cursor: crosshair
 }
 
 #dynamic-list > * {
-  list-style:none;
   color:grey;
   letter-spacing:1px;
   font-size: 12px;
-  margin-top:6px;
   cursor:pointer;
-  margin-left:15px;
+  margin-left:18px;
 }
 
 #login{
