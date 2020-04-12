@@ -55,9 +55,10 @@ function initSocket() {
   // DAM Receiver : signaling event
   root.on('in', function (msg) {
     if(msg && msg.signaling){
-      console.log('DAM: handle inbound signaling!')
+      console.log('DAM: handle inbound signaling!',msg.signaling)
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
-        console.log('DAM: signaling for our local peer!',msg);
+        // Switch by msg.signaling event
+        console.log('DAM: signaling for our local peer!',msg.data);
       }
     }
   // DAM Emitter : signaling event 
@@ -78,7 +79,7 @@ function initSocket() {
     if (!value.ts) value.ts = Date.now();
 
     // Send through DAM as-is
-    socket.damemit(value,null,value.to||pid);
+    socket.damemit(key,value,value.to||socketId);
 
     // Legacy send through GUN JSON
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
