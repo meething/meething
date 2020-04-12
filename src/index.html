@@ -41,7 +41,7 @@
 
     <script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
     <script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
-    <!--
+   <!--
     <script>
       window.VANTA = VANTA;
       function ready() {
@@ -56,7 +56,7 @@
 
   <body>
     <div id="demo" class="demo"></div>
-    <nav class="navbar fixed-top bg-info rounded-0 d-print-none">
+    <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
       <div class="text-white">
         GunMeeting - powered by
         <a href="http://gun.eco" target="_blank">GunDB</a>
@@ -112,7 +112,7 @@
         </div>
       </div>
 
-      <div class="row mt-2">
+      <div class="row mt-2" id="create-room-form">
         <div class="col-12 text-center">
           <span class="form-text small text-danger" id="err-msg"></span>
         </div>
@@ -122,7 +122,7 @@
           <input
             type="text"
             id="room-name"
-            class="form-control rounded-0"
+            class="form-control borderless"
             placeholder="Room Name"
           />
         </div>
@@ -132,13 +132,13 @@
           <input
             type="text"
             id="your-name"
-            class="form-control rounded-0"
+            class="form-control borderless"
             placeholder="Your Name"
           />
         </div>
 
         <div class="col-12 col-md-4 offset-md-4 mb-3">
-          <button id="create-room" class="btn btn-block rounded-0 btn-info">
+          <button id="create-room" class="btn btn-block borderless btn-info">
             Create Room
           </button>
         </div>
@@ -208,7 +208,7 @@
     </div>
     <div id="mydiv">
       <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-      <div id="mydivheader">Users</div>
+      <div id="mydivheader"><i class="fas fa-users"></i>  Users</div>
       <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
     </div>
     <script src="assets/js/presence.js"></script>

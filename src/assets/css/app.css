@@ -16,6 +16,7 @@ body {
   padding-bottom: 40px;
   padding-top: 15px;
   min-height: 100vh;
+  background:black;
 }
 
 #chat-messages {
@@ -150,7 +151,7 @@ body {
 }
 
 .bg-info {
-  background-color: #c2c2c266 !important;
+  background-color: #c2c2c222 !important;
 }
 
 .bg-green {
@@ -175,7 +176,12 @@ li {
 cursor: crosshair
 }
 
-
+.borderless {
+border-style:solid !important;
+  border-radius:0;
+  box-shadow:2px 2px 8px black;
+  
+}
 .icon-off {
   color: #FF0000 !important;
 }
@@ -183,3 +189,28 @@ cursor: crosshair
 .icon-on {
   color: #FFFFFF !important;
 }
+#room-create{ 
+  margin-top:40px;
+  margin-bottom:20px;
+}
+nav .navbar{
+  box-shadow: 20px 0px 40px black;
+}
+#create-room{
+  margin-top:40px;
+}
+
+#login{
+  box-shadow: 4px 0px 8px black;
+}
+ 
+#dynamic-list > * {
+  list-style:none;
+  color:grey;
+  letter-spacing:1px;
+  font-size: 12px;
+  margin-top:4px;
+  cursor:pointer;
+ 
+}
+
