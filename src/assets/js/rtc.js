@@ -55,9 +55,9 @@ function initSocket() {
   // DAM Receiver : signaling event
   root.on('in', function (msg) {
     if(msg && msg.signaling){
-      console.log('DAM: handle inbound signaling',msg)
-      if(msg.signaling.to && msg.signaling.to == pid){
-        console.log('DAM: signaling for local peer');
+      console.log('DAM: handle inbound signaling!')
+      if(msg.to && (msg.to == pid || msg.to == socketId) ){
+        console.log('DAM: signaling for our local peer!',msg);
       }
     }
   // DAM Emitter : signaling event 
