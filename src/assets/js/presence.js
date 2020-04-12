@@ -11,6 +11,8 @@ const presenceTimer = setInterval(() => distrubutePresence(), 500);
 
 
 root.on('in', function (msg) {
+  if (msg && msg.event){
+    // Handle Global event: ALL peers will receive this!
     switch (msg.event) {
         case "enter":
             users.set(msg.pid, msg);
@@ -26,6 +28,7 @@ root.on('in', function (msg) {
         default:
             console.log(msg)
     }
+  }
 });
 
 function addReceivedUsers(data) {
