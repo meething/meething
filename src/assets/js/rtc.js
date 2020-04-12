@@ -51,6 +51,8 @@ function initSocket() {
     .get("rtcmeeting")
     .get(room)
     .get("users");
+  
+  /* DAM START */
 
   const pid = root._.opt.pid;
   
@@ -63,8 +65,8 @@ function initSocket() {
           // This is a broadcast subscribe
           console.log('DAM: subscribe from',msg.data.socketId);
           if(pcmap.has(msg.data.socketId)) { 
-             console.log('DAM: Known Peer! Check status.')
-            //pcmap.get(msg.data.socketId).
+             console.log('DAM: Known Peer! Check status', pcmap.get(msg.data.socketId).iceConnectionState)
+            //;
           } 
       } 
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
@@ -83,10 +85,14 @@ function initSocket() {
   // DAM Emitter : signaling event 
   });
   socket.damemit = function(event, data, to) {
-    console.log('DAM: send event to:',to,event);
+    console.log('DAM: send event:',to,event);
     root.on('out', { pid: pid, to: to || pid, signaling: event, data: data });
   }
 
+  /* DAM END */
+  
+  
+  
   // DEBUG ONLY: Remove from prod.
   window.gunDebug.socket = socket;
   
@@ -544,7 +550,7 @@ function init(createOffer, partnerName) {
 
   pc[partnerName].onconnectionstatechange = d => {
     console.log(
-      "Connection State Change:" + pc[partnerName],
+      "Connection State Change:" + partnerName,
       pc[partnerName].iceConnectionState
     );
     // Save State
@@ -558,13 +564,16 @@ function init(createOffer, partnerName) {
         if(partnerName == socketId) { leave(); return; }
         sendMsg(partnerName + " is " + STATE.media[partnerName], true);
         h.closeVideo(partnerName);
+        // PC Tracking cleanup
+        pcmap.get(partnerName).close();
+        pcmap.delete(partnerName);
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
         h.closeVideo(partnerName);
         break;
       case "failed":
-        if(partnerName == socketId) { leave(); return; }
+        if(partnerName == socketId) { leave(); return; } // retry catch needed
         h.closeVideo(partnerName);
         leave();
         break;
