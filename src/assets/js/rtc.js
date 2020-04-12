@@ -4,15 +4,8 @@
  */
 import h from "./helpers.js";
 var TIMEGAP = 6000;
-var STATE = { media: {}, users: {} };
 var allUsers = [];
 var enableHacks = false;
-
-window.gunDebug = {
-    gunState: function() {
-      console.log(STATE);
-    }
-}
 
 var room;
 var username;
@@ -43,9 +36,6 @@ function initSocket() {
   
   var root = Gun(opt);
   
-  // Replace socket with Emitter controlled by DAM Events
-  //const damsocket = new EventEmitter();
-  
   socket = root
     .get("rtcmeeting")
     .get(room)
@@ -53,6 +43,10 @@ function initSocket() {
   
   /* DAM START */
 
+  // Replace socket with Emitter controlled by DAM Events
+  const damsocket = {}
+  h.eventify(damsocket)
+  
   const pid = root._.opt.pid;
   
   // DAM Receiver : signaling event
@@ -71,7 +65,7 @@ function initSocket() {
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
-        damsocket.emit(msg.signaling,msg.data)
+        damsocket.emit(msg.signaling,msg.data);
       }
     }
     
@@ -417,7 +411,9 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   
+  // OLD: track peerconnections in array
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+  // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
   
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -546,19 +542,18 @@ function init(createOffer, partnerName) {
 
   pc[partnerName].onconnectionstatechange = d => {
     console.log(
-      "Connection State Change:" + partnerName,
+      "Connection State Change: " + partnerName,
       pc[partnerName].iceConnectionState
     );
     // Save State
-    STATE.media[partnerName] = pc[partnerName].iceConnectionState;
     switch (pc[partnerName].iceConnectionState) {
       case "connected":
-        sendMsg(partnerName + " is " + STATE.media[partnerName], true);
+        sendMsg(partnerName + " is " + pc[partnerName].iceConnectionState, true);
         enter();
         break;
       case "disconnected":
         if(partnerName == socketId) { leave(); return; }
-        sendMsg(partnerName + " is " + STATE.media[partnerName], true);
+        sendMsg(partnerName + " is " + pc[partnerName].iceConnectionState, true);
         h.closeVideo(partnerName);
         // PC Tracking cleanup
         pcmap.get(partnerName).close();
@@ -584,7 +579,7 @@ function init(createOffer, partnerName) {
 
   pc[partnerName].onsignalingstatechange = d => {
     console.log(
-      "Signaling State Change:" + pc[partnerName],
+      "Signaling State Change: " + partnerName,
       pc[partnerName].signalingState
     );
     switch (pc[partnerName].signalingState) {

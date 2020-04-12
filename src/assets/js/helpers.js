@@ -182,12 +182,7 @@ export default {
                 self.removeListener(event, g)
                 listener.apply(self, arguments)
             })
+        }
     }
-}
-  
-  
-  
-  
-  
   
 };
