@@ -44,7 +44,7 @@ function initSocket() {
   var root = Gun(opt);
   
   // Replace socket with Emitter controlled by DAM Events
-  //socket = new EventEmitter();
+  //const damsocket = new EventEmitter();
   
   socket = root
     .get("rtcmeeting")
@@ -71,14 +71,7 @@ function initSocket() {
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
-        switch (msg.signaling) {
-          case "icecandidates":
-            console.log('DAM: Got ICE!');
-            break;
-          default:
-            console.log('DAM: Unhandled event',msg.signaling);
-            break;
-        }
+        damsocket.emit(msg.signaling,msg.data)
       }
     }
     
