@@ -199,3 +199,8 @@ cursor: crosshair
   box-shadow: 4px 0px 8px black;
   
 }
+
+#room-create img{
+  margin-top:40px;
+  margin-bottom:30px;
+}
