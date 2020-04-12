@@ -12,6 +12,14 @@ window.addEventListener('load', ()=>{
             }
         }, 300);
     });
+  
+    // Show/Hide user list
+    document.getElementById("toggle-users").addEventListener("click", e => {
+      e.preventDefault();
+      var div = document.getElementById('mydiv');
+      if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
+      else div.style.display = 'block';
+    }); 
 
 
     //When the video frame is clicked. This will enable picture-in-picture
@@ -53,7 +61,10 @@ window.addEventListener('load', ()=>{
 
             //show message with link to room
             document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
-                Share the room link with your partners.`;
+                Share the <a href='${roomLink}'>room link</a> with your partners.`;
+
+            // add room name to chat title
+            document.querySelector('#chat-title').innerHTML = roomName;
 
             //empty the values
             document.querySelector('#room-name').value = '';
