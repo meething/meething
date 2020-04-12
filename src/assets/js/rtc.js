@@ -43,8 +43,8 @@ function initSocket() {
   
   /* DAM START */
 
-  // Replace socket with Emitter controlled by DAM Events
-  const damsocket =  new h.myEmitter();
+  // Replace socket with local-only Emitter controlled by DAM Events
+  const damsocket = h.myEmitter();
   
   const pid = root._.opt.pid;
   
@@ -64,7 +64,7 @@ function initSocket() {
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
-        //damsocket.emit(msg.signaling,msg.data);
+        damsocket.emit(msg.signaling,msg.data);
       }
     }
     
