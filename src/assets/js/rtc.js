@@ -59,6 +59,14 @@ function initSocket() {
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
         console.log('DAM: signaling for our local peer!',msg.data);
+        switch (msg.signaling) {
+          case "icecandidate":
+            console.log('Got ICE!');
+            break;
+          default:
+            console.log('Unhandled event',msg.signaling);
+            break;
+        }
       }
     }
   // DAM Emitter : signaling event 
