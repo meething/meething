@@ -429,7 +429,6 @@ function init(createOffer, partnerName) {
       myStream = stream;
       //provide access to window for debug
       window.myStream = myStream;
-
       stream.getTracks().forEach(track => {
         pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
       });
