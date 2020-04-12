@@ -4,9 +4,17 @@
     <title>Gun: Multi-User Video Call</title>
 
     <meta content="width=device-width, initial-scale=1" name="viewport" />
-    
-    <link rel="shortcut icon" href="https://cdn.glitch.com/f8a2490d-9ef5-4a19-92c4-1bcb76996f85%2Ffavicon%20(1).ico" type="image/x-icon">
-    <link rel="icon" href="https://cdn.glitch.com/f8a2490d-9ef5-4a19-92c4-1bcb76996f85%2Ffavicon%20(1).ico" type="image/x-icon">
+
+    <link
+      rel="shortcut icon"
+      href="https://cdn.glitch.com/f8a2490d-9ef5-4a19-92c4-1bcb76996f85%2Ffavicon%20(1).ico"
+      type="image/x-icon"
+    />
+    <link
+      rel="icon"
+      href="https://cdn.glitch.com/f8a2490d-9ef5-4a19-92c4-1bcb76996f85%2Ffavicon%20(1).ico"
+      type="image/x-icon"
+    />
 
     <link
       rel="stylesheet"
@@ -24,20 +32,20 @@
     <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
 
     <script type="module" src="assets/js/rtc.js"></script>
-    <script type="module" src="assets/js/events.js"></script>      
-    
+    <script type="module" src="assets/js/events.js"></script>
+
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
     <!--<script
       src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
       integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4="
       crossorigin="anonymous"
     ></script> -->
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
-    <!-- <script src="assets/js/webrtc.js"></script> -->    
+    <!-- <script src="assets/js/webrtc.js"></script> -->
 
     <script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
     <script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
@@ -63,11 +71,19 @@
       </div>
 
       <div class="pull-right room-comm" hidden>
-        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-video" title="Mute/Unmute Video">
+        <button
+          class="btn btn-sm rounded-0 btn-no-effect"
+          id="toggle-video"
+          title="Mute/Unmute Video"
+        >
           <i class="fa fa-video text-white"></i>
         </button>
 
-        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-mute" title="Mute/Unmute Audio">
+        <button
+          class="btn btn-sm rounded-0 btn-no-effect"
+          id="toggle-mute"
+          title="Mute/Unmute Audio"
+        >
           <i class="fa fa-volume-up text-white"></i>
         </button>
 
@@ -84,19 +100,26 @@
             >New</span
           >
         </button>
-        
-         <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-users" title="Show?hide Users">
+
+        <button
+          class="btn btn-sm rounded-0 btn-no-effect"
+          id="toggle-users"
+          title="Show?hide Users"
+        >
           <i class="fa fa-user-minus text-white"></i>
         </button>
 
-        <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-invite" title="Re-Invite all Users">
+        <button
+          class="btn btn-sm rounded-0 btn-no-effect"
+          id="toggle-invite"
+          title="Re-Invite all Users"
+        >
           <i class="fa fa-recycle text-white"></i>
         </button>
-        
+
         <button class="btn btn-sm rounded-0 btn-no-effect text-white">
           <a href="/" class="text-white text-decoration-none">Leave Room</a>
         </button>
-        
       </div>
     </nav>
 
@@ -105,14 +128,13 @@
         <div class="col-12 h2 mt-5 text-center">
           <img
             src="https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67"
-            width="175"
+            width="190"
             style="filter: invert(1);"
           />
           <br />
           <p class="create-room">
-              Create Room
+            Create Room
           </p>
-        
         </div>
       </div>
 
@@ -184,7 +206,13 @@
 
     <div class="container-fluid room-comm" hidden>
       <div class="row">
-        <video class="local-video clipped" id="local" volume="0" autoplay muted></video>
+        <video
+          class="local-video clipped"
+          id="local"
+          volume="0"
+          autoplay
+          muted
+        ></video>
       </div>
 
       <div class="row">
@@ -194,7 +222,9 @@
 
         <div class="col-md-4 chat-col d-print-none mb-2 bg-info" id="chat-pane">
           <div class="row">
-            <div class="col-12 text-center h5 mb-3" id="chat-title">ChatRoom</div>
+            <div class="col-12 text-center h5 mb-3" id="chat-title">
+              ChatRoom
+            </div>
           </div>
 
           <div id="chat-messages"></div>
@@ -212,8 +242,11 @@
     </div>
     <div id="mydiv">
       <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-      <div id="mydivheader"><i class="fas fa-users"></i>  Users</div>
-      <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
+      <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
+      <ul
+        id="dynamic-list"
+        style="list-style-type:none ;margin-right: 3em;"
+      ></ul>
     </div>
     <script src="assets/js/presence.js"></script>
     <script src="assets/js/dragable.js"></script>
