@@ -21,7 +21,9 @@
   margin-top:5px;
   width:100%;
   max-height:250px;
-  overflow-y:scroll;
+  overflow-y:auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
 
 }
 
