@@ -4,15 +4,16 @@
   background-color: #f1f1f1;
   color: #000;
   text-align: left;
-  height:100px;
-  bottom:20px;
-  left:20px;
+
+
   border-radius:3px;
   cursor:pointer;
   box-shadow:10px 10px 40px black;
+
 }
 
 #mydivheader {
+
   text-transform:uppercase;
   padding: 8px;
   letter-spacing:1px;
