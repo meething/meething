@@ -40,22 +40,22 @@ function initSocket() {
     "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
-
-  socket = Gun(opt)
+  var root = Gun(opt);
+  socket = root
     .get("rtcmeeting")
     .get(room)
     .get("socket");
-  users = Gun(opt)
+  users = root
     .get("rtcmeeting")
     .get(room)
     .get("users");
 
-  const pid = socket._.opt.pid;
+  const pid = root._.opt.pid;
   
   // DAM Receiver : signaling event
-  socket.on('in', function (msg) {
+  root.on('in', function (msg) {
     if(msg && msg.signaling){
-      console.log('DAM: handle inbound signaling')
+      console.log('DAM: handle inbound signaling',msg)
       if(msg.signaling.to && msg.signaling.to == pid){
         console.log('DAM: signaling for local peer');
       }
@@ -63,7 +63,7 @@ function initSocket() {
   // DAM Emitter : signaling event 
   });
   socket.damemit = function(event, data, to) {
-    console.log('DAM: send event to:',event,to);
+    console.log('DAM: send event to:',to,event);
     root.on('out', { pid: pid, to: to || pid, signaling: event, data: data });
   }
 
@@ -76,9 +76,14 @@ function initSocket() {
     console.log("debug emit key", key, "value", value);
     if (!key || !value) return;
     if (!value.ts) value.ts = Date.now();
-    socket.damemit(value,null,value.to);
+
+    // Send through DAM as-is
+    socket.damemit(value,null,value.to||pid);
+
+    // Legacy send through GUN JSON
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
+    
     
   };
 }
@@ -197,7 +202,7 @@ function initRTC() {
     socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
       console.log('Got channel subscribe',data);
-      if (data.ts && Date.now() - data.ts > TIMEGAP) {
+      if (data.ts && Date.now() - data.ts > (TIMEGAP*2)) {
         console.log('discarding old sub',data);
         return;                                             
       }
