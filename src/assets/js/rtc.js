@@ -59,8 +59,9 @@ function initSocket() {
   root.on('in', function (msg) {
     if(msg && msg.signaling){
       console.log('DAM: handle inbound signaling!',msg.signaling)
-      if(msg.room && msg.socketId && !msg.to){
+      if(msg.signaling == 'subscribe'){
           // This is a broadcast subscribe
+        
       } 
       if(msg.to && (msg.to == pid || msg.to == socketId) ){
         // Switch by msg.signaling event
