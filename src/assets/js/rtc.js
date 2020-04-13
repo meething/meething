@@ -79,14 +79,10 @@ function initSocket() {
 
     // DAM Emitter : signaling event
   });
-  socket.damemit = function(event, data, to) {
-    console.log("DAM: send event:", to, event);
-    root.on("out", { pid: pid, to: to || pid, signaling: event, data: data });
-  };
 
   /* DAM END */
 
-  // Custom Emit Function
+  // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
     if (value.sender && value.to && value.sender == value.to) return;
     console.log("debug emit key", key, "value", value);
@@ -97,7 +93,7 @@ function initSocket() {
     socket.get(key).put(value);
 
     // Send through DAM as-is
-    // socket.damemit(key, value, value.to || socketId);
+    // root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
   };
 }
 
