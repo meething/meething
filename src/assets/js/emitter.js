@@ -1,32 +1,17 @@
 export default class EventEmitter {
-  constructor(gun) {
+  constructor(gun, pcmap) {
     this.events = {};
     this.root = gun;
-    this.init();
+    this.pcmap = pcmap;
+    this.init(); 
   }
 
   init() {
     this.pid = this.root._.opt.pid;
-    // DAM Receiver : signaling event
-    /* LIMITATIONS: This is NOT scoped to a Room! Filtering is client side only! */
+
     this.root.on("in", function(msg) {      
       if (msg && msg.signaling) {
-        console.log("DAM: handle inbound signaling!", msg.signaling);
-        if (msg.signaling == "subscribe" && msg.data.socketId) {
-          // This is a broadcast subscribe
-          console.log("DAM: subscribe from", msg.data.socketId);
-          // if (pcmap.has(msg.data.socketId)) {
-          //   console.log(
-          //     "DAM: Known Peer! Check status",
-          //     pcmap.get(msg.data.socketId).iceConnectionState
-          //   );
-            //;
-          // }
-        }
-        // if (msg.to && (msg.to == pid || msg.to == socketId)) {
-        //   // Switch by msg.signaling event
-        //   console.log("DAM: signaling for our local peer!", msg.data);
-        // }
+        console.log("DAM: handle inbound signaling!", msg.signaling);        
       }
     });
   }

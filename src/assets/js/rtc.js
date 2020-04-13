@@ -43,17 +43,17 @@ function initSocket() {
     .get("socket");
 
   const pid = root._.opt.pid;
-  var damSocket = new EventEmitter(root);  
+  var damSocket = new EventEmitter(root, pcmap);  
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
-    // if (value.sender && value.to && value.sender == value.to) return;
-    // console.log("debug emit key", key, "value", value);
-    // if (!key || !value) return;
-    // if (!value.ts) value.ts = Date.now();
-    //  // Legacy send through GUN JSON
-    // if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    // socket.get(key).put(value);
+    if (value.sender && value.to && value.sender == value.to) return;
+    console.log("debug emit key", key, "value", value);
+    if (!key || !value) return;
+    if (!value.ts) value.ts = Date.now();
+     // Legacy send through GUN JSON
+    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    socket.get(key).put(value);
 
     // Send through DAM as-is
     root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
