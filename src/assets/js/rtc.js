@@ -42,58 +42,21 @@ function initSocket() {
     .get(room)
     .get("socket");
 
-  /* DAM START */
-
-  // Replace socket with local-only Emitter controlled by DAM Events
-  var damSocket = new EventEmitter();
-  /*
-    damSocket.on('test', function(data){
-        console.log(data)
-    })
-    damSocket.emit('test', {num: 10, sub: [1,2,3]})
-  */
-
   const pid = root._.opt.pid;
-
-  // DAM Receiver : signaling event
-  /* LIMITATIONS: This is NOT scoped to a Room! Filtering is client side only! */
-  root.on("in", function(msg) {
-    if (msg && msg.signaling) {
-      console.log("DAM: handle inbound signaling!", msg.signaling);
-      if (msg.signaling == "subscribe" && msg.data.socketId) {
-        // This is a broadcast subscribe
-        console.log("DAM: subscribe from", msg.data.socketId);
-        if (pcmap.has(msg.data.socketId)) {
-          console.log(
-            "DAM: Known Peer! Check status",
-            pcmap.get(msg.data.socketId).iceConnectionState
-          );
-          //;
-        }
-      }
-      if (msg.to && (msg.to == pid || msg.to == socketId)) {
-        // Switch by msg.signaling event
-        console.log("DAM: signaling for our local peer!", msg.data);
-      }
-    }
-
-    // DAM Emitter : signaling event
-  });
-
-  /* DAM END */
+  var damSocket = new EventEmitter(root);  
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
-    if (value.sender && value.to && value.sender == value.to) return;
-    console.log("debug emit key", key, "value", value);
-    if (!key || !value) return;
-    if (!value.ts) value.ts = Date.now();
-     // Legacy send through GUN JSON
-    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    socket.get(key).put(value);
+    // if (value.sender && value.to && value.sender == value.to) return;
+    // console.log("debug emit key", key, "value", value);
+    // if (!key || !value) return;
+    // if (!value.ts) value.ts = Date.now();
+    //  // Legacy send through GUN JSON
+    // if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    // socket.get(key).put(value);
 
     // Send through DAM as-is
-    // root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
+    root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
   };
 }
 
