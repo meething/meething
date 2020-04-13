@@ -37,16 +37,15 @@ function initSocket() {
 
   var root = Gun(opt);
 
-  socket =  new EventEmitter();
-  // socket = root
-  //   .get("rtcmeeting")
-  //   .get(room)
-  //   .get("socket");
+  socket = root
+    .get("rtcmeeting")
+    .get(room)
+    .get("socket");
 
   /* DAM START */
 
   // Replace socket with local-only Emitter controlled by DAM Events
-  // var damSocket = new EventEmitter();
+  var damSocket = new EventEmitter();
   /*
     damSocket.on('test', function(data){
         console.log(data)
@@ -70,24 +69,20 @@ function initSocket() {
             pcmap.get(msg.data.socketId).iceConnectionState
           );
           //;
-        } else {
-            socket.emit("subscribe", {
-              room: room,
-              socketId: socketId,
-              name: username || socketId
-            });
         }
       }
       if (msg.to && (msg.to == pid || msg.to == socketId)) {
         // Switch by msg.signaling event
         console.log("DAM: signaling for our local peer!", msg.data);
-        // See root.out and forward to local emitter?
-        // damSocket.emit(msg.signaling,msg.data)
       }
     }
 
     // DAM Emitter : signaling event
   });
+  socket.damemit = function(event, data, to) {
+    console.log("DAM: send event:", to, event);
+    root.on("out", { pid: pid, to: to || pid, signaling: event, data: data });
+  };
 
   /* DAM END */
 
@@ -99,11 +94,11 @@ function initSocket() {
     if (!value.ts) value.ts = Date.now();
 
     // Send through DAM as-is
-    root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
+    socket.damemit(key, value, value.to || socketId);
 
     // Legacy send through GUN JSON
-    //if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    //socket.get(key).put(value);
+    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    socket.get(key).put(value);
   };
 }
 
@@ -171,8 +166,7 @@ function initRTC() {
       name: username || socketId
     });
 
-    //socket.get("subscribe").on(function(data, key) {
-    socket.on("subscribe", function(data, key) {  
+    socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
@@ -212,8 +206,7 @@ function initRTC() {
       init(true, data.socketId);
     });
 
-    //socket.get("newUserStart").on(function(data, key) {
-    socket.on("newUserStart", function(data, key) {
+    socket.get("newUserStart").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -227,8 +220,7 @@ function initRTC() {
       init(false, data.sender);
     });
 
-    //socket.get("icecandidates").on(function(data, key) {
-    socket.on("icecandidates", function(data, key) {
+    socket.get("icecandidates").on(function(data, key) {
       try {
         data = JSON.parse(data);
         if (
@@ -252,8 +244,7 @@ function initRTC() {
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
 
-    //socket.get("sdp").on(function(data, key) {
-    socket.on("sdp", function(data, key) {
+    socket.get("sdp").on(function(data, key) {
       try {
         data = JSON.parse(data);
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
@@ -330,8 +321,7 @@ function initRTC() {
       }
     });
 
-    //socket.get("chat").on(function(data, key) {
-    socket.on("chat", function(data, key) {
+    socket.get("chat").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > 1000) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.sender == username) return;
