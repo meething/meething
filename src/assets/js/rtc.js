@@ -3,6 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
+import EventEmitter from './emitter.js';
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -44,6 +45,13 @@ function initSocket() {
   /* DAM START */
 
   // Replace socket with local-only Emitter controlled by DAM Events
+  var damSocket = new EventEmitter();
+  /*
+    damSocket.on('test', function(data){
+        console.log(data)
+    })
+    damSocket.emit('test', {num: 10, sub: [1,2,3]})
+  */
   
   const pid = root._.opt.pid;
   
