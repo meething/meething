@@ -3,15 +3,22 @@ export default class EventEmitter {
     this.events = {};
     this.root = gun;
     this.pcmap = pcmap;
-    this.init(); 
+    this.init();
   }
 
   init() {
     this.pid = this.root._.opt.pid;
 
-    this.root.on("in", function(msg) {      
+    this.root.on("in", function(msg) {
       if (msg && msg.signaling) {
-        console.log("DAM: handle inbound signaling!", msg.signaling);        
+        console.log("DAM: handle inbound signaling!", msg.signaling);
+
+        if (msg.signaling == "subscribe" && msg.data.socketId) {
+          console.log("DAM: subscribe from", msg.data.socketId);
+        }
+        if (msg.to && msg.to == pid) {
+          console.log("DAM: signaling for our local peer!", msg.data);
+        }
       }
     });
   }
@@ -47,5 +54,14 @@ export default class EventEmitter {
 
   removeListener(eventName, fn) {
     this._getEventListByName(eventName).delete(fn);
+  }
+
+  out(key, value) {
+    this.root.on("out", {
+      pid: this.pid,
+      to: value.to || this.pid,
+      signaling: key,
+      data: value
+    });
   }
 }
