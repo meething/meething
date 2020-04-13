@@ -105,9 +105,8 @@ function initSocket() {
 }
 
 var meUser;
-var presence;
+const presence = new Presence();
 
-var candidates;
 
 function initUser(r) {
   var peers = [
@@ -122,31 +121,18 @@ function initUser(r) {
     pid = gun._.opt.pid;
     sessionStorage.setItem("pid", pid);
   }
-
-  //candidates = new Candidates(gun, room);
-  //Candidates.prototype.onCall = onCall;
-  //meUser = new User(username, pid);
 }
 
 function onCall() {
-  var callTo = candidates.get(this.id);
-  console.log("Start calling " + callTo.name);
   socket.emit("subscribe", {
       room: room,
       socketId: socketId,
       name: username || socketId
     });
-  //TODO make call to clicked candidate
-  // pc.push(callTo.uuid);
-  // init(true, callTo.uuid);
 }
 
 function enter() {
-  //console.log("entering " + meUser.id);
-  //meUser.online = true;
-  // presence.addUser(meUser);
-  //sendMsg(meUser.name + " joining", false);
-  //candidates.add(meUser);
+  presence.protype.onCall = onCall
 }
 
 function leave() {
@@ -161,9 +147,8 @@ function leave() {
   }
   console.log("leaving " + meUser.id);
   meUser.online = false;
-  // presence.remove(meUser.id);
+  
   sendMsg(meUser.name + " leaving", false);
-  candidates.remove(meUser);
 }
 
 function sendMsg(msg, local) {
