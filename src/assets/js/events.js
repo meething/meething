@@ -1,6 +1,6 @@
 import helpers from './helpers.js';
 
-window.addEventListener('load', ()=>{
+window.addEventListener('DOMContentLoaded', ()=>{
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e)=>{
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
