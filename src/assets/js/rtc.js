@@ -26,6 +26,7 @@ var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
 var socketId;
+var damSocket;
 
 function initSocket() {
   //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
@@ -43,7 +44,7 @@ function initSocket() {
     .get("socket");
 
   const pid = root._.opt.pid;
-  var damSocket = new EventEmitter(root, pcmap);
+  damSocket = new EventEmitter(root, pcmap);
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
@@ -124,6 +125,9 @@ function initRTC() {
       name: username || socketId
     });
 
+    //Do we do this here?
+    //damsocket.on()
+    
     socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
       console.log("Got channel subscribe", data);
@@ -202,6 +206,7 @@ function initRTC() {
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
 
+    
     socket.get("sdp").on(function(data, key) {
       try {
         data = JSON.parse(data);

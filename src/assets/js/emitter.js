@@ -15,6 +15,7 @@ export default class EventEmitter {
 
         if (msg.signaling == "subscribe" && msg.data.socketId) {
           console.log("DAM: subscribe from", msg.data.socketId);
+          //Do we emit this?
         }
         if (msg.to && msg.to == pid) {
           console.log("DAM: signaling for our local peer!", msg.data);
