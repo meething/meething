@@ -92,13 +92,12 @@ function initSocket() {
     console.log("debug emit key", key, "value", value);
     if (!key || !value) return;
     if (!value.ts) value.ts = Date.now();
-
-    // Send through DAM as-is
-    socket.damemit(key, value, value.to || socketId);
-
-    // Legacy send through GUN JSON
+     // Legacy send through GUN JSON
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
+
+    // Send through DAM as-is
+    // socket.damemit(key, value, value.to || socketId);
   };
 }
 
