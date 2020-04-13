@@ -18,6 +18,7 @@ export default class EventEmitter{
   }
   
   get(key){
+    this.on(key)
     console.log("get " + key);
     return this;
   }

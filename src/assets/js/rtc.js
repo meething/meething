@@ -75,6 +75,8 @@ function initSocket() {
       if (msg.to && (msg.to == pid || msg.to == socketId)) {
         // Switch by msg.signaling event
         console.log("DAM: signaling for our local peer!", msg.data);
+        // See root.out and forward to local emitter?
+        // damSocket.emit(msg.signaling,msg.data)
       }
     }
 
