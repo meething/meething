@@ -26,6 +26,15 @@ export default class EventEmitter{
     this.on(eventName, onceFn);
 
   }
+  
+  get(key) {
+    console.log("get " + key);
+    return this;
+  }
+  
+  put(key) {
+    console.log("put " + key);
+  }
 
   emit(eventName, ...args){
 
