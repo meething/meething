@@ -139,17 +139,6 @@ export default {
         else{
             document.querySelector('#new-chat-notification').removeAttribute('hidden');
         }
-    },
-  
-    myEmitter(){
-        //create "dummy" element
-        var dummy = document.createElement('eventBus');
-        //method for listening for events
-        this.on = function(event, func){dummy.addEventListener(event, func);};
-        //you need a way to fire events
-        this.emit = function(event, obj){
-          dummy.dispatchEvent(new CustomEvent(event, {detail: obj}));
-        }
     }
   
 };
