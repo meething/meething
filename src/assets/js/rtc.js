@@ -37,15 +37,16 @@ function initSocket() {
 
   var root = Gun(opt);
 
-  socket = root
-    .get("rtcmeeting")
-    .get(room)
-    .get("socket");
+  socket =  new EventEmitter();
+  // socket = root
+  //   .get("rtcmeeting")
+  //   .get(room)
+  //   .get("socket");
 
   /* DAM START */
 
   // Replace socket with local-only Emitter controlled by DAM Events
-  var damSocket = new EventEmitter();
+  // var damSocket = new EventEmitter();
   /*
     damSocket.on('test', function(data){
         console.log(data)
