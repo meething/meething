@@ -171,7 +171,8 @@ function initRTC() {
       name: username || socketId
     });
 
-    socket.get("subscribe").on(function(data, key) {
+    //socket.get("subscribe").on(function(data, key) {
+    socket.on("subscribe", function(data, key) {  
       // Ignore subscribes older than TIMEGAP
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
@@ -211,7 +212,8 @@ function initRTC() {
       init(true, data.socketId);
     });
 
-    socket.get("newUserStart").on(function(data, key) {
+    //socket.get("newUserStart").on(function(data, key) {
+    socket.on("newUserStart", function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -225,7 +227,8 @@ function initRTC() {
       init(false, data.sender);
     });
 
-    socket.get("icecandidates").on(function(data, key) {
+    //socket.get("icecandidates").on(function(data, key) {
+    socket.on("icecandidates", function(data, key) {
       try {
         data = JSON.parse(data);
         if (
@@ -249,7 +252,8 @@ function initRTC() {
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
 
-    socket.get("sdp").on(function(data, key) {
+    //socket.get("sdp").on(function(data, key) {
+    socket.on("sdp", function(data, key) {
       try {
         data = JSON.parse(data);
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
@@ -326,7 +330,8 @@ function initRTC() {
       }
     });
 
-    socket.get("chat").on(function(data, key) {
+    //socket.get("chat").on(function(data, key) {
+    socket.on("chat", function(data, key) {
       if (data.ts && Date.now() - data.ts > 1000) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.sender == username) return;
