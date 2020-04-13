@@ -83,6 +83,13 @@ body {
   z-index: 1000;
 }
 
+.mirror-mode{
+  -ms-transform: scaleX(-1);
+  -moz-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1);
+}
+
 .sender-info {
   font-size: smaller;
   margin-top: 5px;
