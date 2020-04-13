@@ -1,5 +1,3 @@
-class Presence {}
-
 var peers = [
   "https://livecodestream-us.herokuapp.com/gun",
   "https://livecodestream-eu.herokuapp.com/gun"
@@ -68,7 +66,6 @@ function addItem(pid) {
   var ul = document.getElementById("dynamic-list");
 
   var li = document.createElement("li");
-  li.addEventListener("click", Presence.prototype.onCall);
   li.setAttribute("id", pid);
   li.appendChild(document.createTextNode(pid));
   ul.appendChild(li);

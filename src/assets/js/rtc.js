@@ -3,7 +3,7 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-import EventEmitter from './emitter.js';
+import EventEmitter from "./emitter.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -34,14 +34,14 @@ function initSocket() {
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
-  
+
   var root = Gun(opt);
-  
+
   socket = root
     .get("rtcmeeting")
     .get(room)
     .get("socket");
-  
+
   /* DAM START */
 
   // Replace socket with local-only Emitter controlled by DAM Events
@@ -52,40 +52,40 @@ function initSocket() {
     })
     damSocket.emit('test', {num: 10, sub: [1,2,3]})
   */
-  
+
   const pid = root._.opt.pid;
-  
+
   // DAM Receiver : signaling event
   /* LIMITATIONS: This is NOT scoped to a Room! Filtering is client side only! */
-  root.on('in', function (msg) {
-    if(msg && msg.signaling){
-      console.log('DAM: handle inbound signaling!',msg.signaling)
-      if(msg.signaling == 'subscribe' && msg.data.socketId){
-          // This is a broadcast subscribe
-          console.log('DAM: subscribe from',msg.data.socketId);
-          if(pcmap.has(msg.data.socketId)) { 
-             console.log('DAM: Known Peer! Check status', pcmap.get(msg.data.socketId).iceConnectionState)
-            //;
-          } 
-      } 
-      if(msg.to && (msg.to == pid || msg.to == socketId) ){
+  root.on("in", function(msg) {
+    if (msg && msg.signaling) {
+      console.log("DAM: handle inbound signaling!", msg.signaling);
+      if (msg.signaling == "subscribe" && msg.data.socketId) {
+        // This is a broadcast subscribe
+        console.log("DAM: subscribe from", msg.data.socketId);
+        if (pcmap.has(msg.data.socketId)) {
+          console.log(
+            "DAM: Known Peer! Check status",
+            pcmap.get(msg.data.socketId).iceConnectionState
+          );
+          //;
+        }
+      }
+      if (msg.to && (msg.to == pid || msg.to == socketId)) {
         // Switch by msg.signaling event
-        console.log('DAM: signaling for our local peer!',msg.data);
+        console.log("DAM: signaling for our local peer!", msg.data);
       }
     }
-    
-  // DAM Emitter : signaling event 
+
+    // DAM Emitter : signaling event
   });
   socket.damemit = function(event, data, to) {
-    console.log('DAM: send event:',to,event);
-    root.on('out', { pid: pid, to: to || pid, signaling: event, data: data });
-  }
+    console.log("DAM: send event:", to, event);
+    root.on("out", { pid: pid, to: to || pid, signaling: event, data: data });
+  };
 
   /* DAM END */
-  
-  
 
-  
   // Custom Emit Function
   socket.emit = function(key, value) {
     if (value.sender && value.to && value.sender == value.to) return;
@@ -94,19 +94,13 @@ function initSocket() {
     if (!value.ts) value.ts = Date.now();
 
     // Send through DAM as-is
-    socket.damemit(key,value,value.to||socketId);
+    socket.damemit(key, value, value.to || socketId);
 
     // Legacy send through GUN JSON
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
-    
-    
   };
 }
-
-var meUser;
-const presence = new Presence();
-
 
 function initUser(r) {
   var peers = [
@@ -123,34 +117,6 @@ function initUser(r) {
   }
 }
 
-function onCall() {
-  socket.emit("subscribe", {
-      room: room,
-      socketId: socketId,
-      name: username || socketId
-    });
-}
-
-function enter() {
-  presence.protype.onCall = onCall
-}
-
-function leave() {
-  if(meUser.uuid == socketId){
-    // wait a second that was us! Send presence if we're still here!
-    socket.emit("subscribe", {
-      room: room,
-      socketId: socketId,
-      name: username || socketId
-    });
-    return;
-  }
-  console.log("leaving " + meUser.id);
-  meUser.online = false;
-  
-  sendMsg(meUser.name + " leaving", false);
-}
-
 function sendMsg(msg, local) {
   let data = {
     room: room,
@@ -165,7 +131,6 @@ function sendMsg(msg, local) {
 }
 
 window.onbeforeunload = function() {
-  leave();
   // Cleanup peerconnections
   pcmap.forEach((pc, id) => {
     pcmap.get(id).close();
@@ -186,13 +151,11 @@ function initRTC() {
     for (let i = 0; i < commElem.length; i++) {
       commElem[i].attributes.removeNamedItem("hidden");
     }
-    
+
     // Remove animated bg... to be replaced entirely with something cpu friendly
     document.getElementById("demo").remove();
 
     socketId = h.uuidv4();
-    //meUser.uuid = socketId; //assign UUID to own user
-    enter();    
 
     console.log("Starting! you are", socketId);
 
@@ -205,13 +168,19 @@ function initRTC() {
 
     socket.get("subscribe").on(function(data, key) {
       // Ignore subscribes older than TIMEGAP
-      console.log('Got channel subscribe',data);
-      if (data.ts && Date.now() - data.ts > (TIMEGAP*2)) {
-        console.log('discarding old sub',data);
-        return;                                             
+      console.log("Got channel subscribe", data);
+      if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
+        console.log("discarding old sub", data);
+        return;
       }
-      if (pc[data.socketId] !== undefined && pc[data.socketId].connectionState == "connected") {
-        console.log('Existing peer subscribe, discarding...',pc[data.socketId])
+      if (
+        pc[data.socketId] !== undefined &&
+        pc[data.socketId].connectionState == "connected"
+      ) {
+        console.log(
+          "Existing peer subscribe, discarding...",
+          pc[data.socketId]
+        );
         return;
       }
       // Ignore self-generated subscribes
@@ -220,9 +189,12 @@ function initRTC() {
 
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
-      if (pc[data.socketId] && pc[data.socketId].iceConnectionState == "connected") { 
-        console.log('already connected to peer?',data.socketId);
-        //return; 
+      if (
+        pc[data.socketId] &&
+        pc[data.socketId].iceConnectionState == "connected"
+      ) {
+        console.log("already connected to peer?", data.socketId);
+        //return;
       }
       // New Peer, setup peerConnection
       socket.emit("newUserStart", {
@@ -237,29 +209,37 @@ function initRTC() {
     socket.get("newUserStart").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
-      if (pc[data.socketId] && pc[data.socketId].iceConnectionState == "connected") { 
-        console.log('already connected to peer?',data.socketId);
-        //return; 
+      if (
+        pc[data.socketId] &&
+        pc[data.socketId].iceConnectionState == "connected"
+      ) {
+        console.log("already connected to peer?", data.socketId);
+        //return;
       }
       pc.push(data.sender);
       init(false, data.sender);
     });
- 
-    socket.get("icecandidates").on(function(data, key) {      
+
+    socket.get("icecandidates").on(function(data, key) {
       try {
         data = JSON.parse(data);
-        if (data.ts && Date.now() - data.ts > TIMEGAP || !data.sender || !data.to) return;
+        if (
+          (data.ts && Date.now() - data.ts > TIMEGAP) ||
+          !data.sender ||
+          !data.to
+        )
+          return;
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
-        console.log(e,data);
+        console.log(e, data);
         return;
       }
       if (data.socketId == socketId || data.to != socketId) return;
-      console.log("ice candidate", data);      
+      console.log("ice candidate", data);
       //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
@@ -280,10 +260,10 @@ function initRTC() {
           return;
         }
       } catch (e) {
-        console.log(e,data);
+        console.log(e, data);
         return;
       }
-  
+
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
@@ -315,20 +295,24 @@ function initRTC() {
           })
           .catch(async e => {
             console.error(`answer stream error: ${e}`);
-            if(!enableHacks) return;
-              // start crazy mode lets answer anyhow
-              console.log('>>>>>>>>>>>> no media devices! answering receive only');
-              var answerConstraints = { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true }; 
-              let answer = await pc[data.sender].createAnswer(answerConstraints);
-              await pc[data.sender].setLocalDescription(answer);
+            if (!enableHacks) return;
+            // start crazy mode lets answer anyhow
+            console.log(
+              ">>>>>>>>>>>> no media devices! answering receive only"
+            );
+            var answerConstraints = {
+              OfferToReceiveAudio: true,
+              OfferToReceiveVideo: true
+            };
+            let answer = await pc[data.sender].createAnswer(answerConstraints);
+            await pc[data.sender].setLocalDescription(answer);
 
-              socket.emit("sdp", {
-                description: pc[data.sender].localDescription,
-                to: data.sender,
-                sender: socketId
-              });
-              // end crazy mode
-          
+            socket.emit("sdp", {
+              description: pc[data.sender].localDescription,
+              to: data.sender,
+              sender: socketId
+            });
+            // end crazy mode
           });
       } else if (data.description.type === "answer") {
         pc[data.sender].setRemoteDescription(
@@ -362,7 +346,7 @@ function initRTC() {
       if (!myStream) return;
       const videoTrack = myStream.getVideoTracks()[0];
       videoTrack.enabled = !videoTrack.enabled;
-      console.log('local video enable: ',myStream.getVideoTracks()[0].enabled );
+      console.log("local video enable: ", myStream.getVideoTracks()[0].enabled);
       //toggle video icon
       e.srcElement.classList.toggle("fa-video");
       e.srcElement.classList.toggle("fa-video-slash");
@@ -374,61 +358,60 @@ function initRTC() {
       //myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
       const audioTrack = myStream.getAudioTracks()[0];
       audioTrack.enabled = !audioTrack.enabled;
-      console.log('local audio enable: ',myStream.getAudioTracks()[0].enabled);
+      console.log("local audio enable: ", myStream.getAudioTracks()[0].enabled);
       //toggle audio icon
       e.srcElement.classList.toggle("fa-volume-up");
       e.srcElement.classList.toggle("fa-volume-mute");
     });
-    
+
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;
-      console.log('Re-Send presence to all users...');
+      console.log("Re-Send presence to all users...");
       var r = confirm("Re-Invite ALL room participants?");
-        if (r == true) {
-          socket.emit("subscribe", {
-            room: room,
-            socketId: socketId,
-            name: username || socketId
-          });
-        }
-    }); 
-    
+      if (r == true) {
+        socket.emit("subscribe", {
+          room: room,
+          socketId: socketId,
+          name: username || socketId
+        });
+      }
+    });
   }
 }
 
 function init(createOffer, partnerName) {
-  
   // OLD: track peerconnections in array
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
-  
+
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
-  if (myStream){    
-      myStream.getTracks().forEach(track => {
-        pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
-      });
+  if (myStream) {
+    myStream.getTracks().forEach(track => {
+      pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+    });
   } else {
+    h.getUserMedia()
+      .then(stream => {
+        //save my stream
+        myStream = stream;
+        //provide access to window for debug
+        window.myStream = myStream;
+        stream.getTracks().forEach(track => {
+          pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
+        });
 
-   h.getUserMedia()
-    .then(stream => {
-      //save my stream
-      myStream = stream;
-      //provide access to window for debug
-      window.myStream = myStream;
-      stream.getTracks().forEach(track => {
-        pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
-      });
-
-      document.getElementById("local").srcObject = stream;
-    })
-    .catch(async e => {
-      console.error(`stream error: ${e}`);
-      if(!enableHacks) return;
+        document.getElementById("local").srcObject = stream;
+      })
+      .catch(async e => {
+        console.error(`stream error: ${e}`);
+        if (!enableHacks) return;
         // start crazy mode - lets offer anyway
-        console.log('>>>>>>>>>>>> no media devices! offering receive only');
-        var offerConstraints = { 'mandatory': { 'OfferToReceiveAudio': true, 'OfferToReceiveVideo': true } } 
+        console.log(">>>>>>>>>>>> no media devices! offering receive only");
+        var offerConstraints = {
+          mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
+        };
         let offer = await pc[partnerName].createOffer(offerConstraints);
         await pc[partnerName].setLocalDescription(offer);
         socket.emit("sdp", {
@@ -436,18 +419,22 @@ function init(createOffer, partnerName) {
           to: partnerName,
           sender: socketId
         });
-        // end crazy mode 
-    });
+        // end crazy mode
+      });
   }
-
 
   //create offer
   if (createOffer) {
     pc[partnerName].onnegotiationneeded = async () => {
       try {
         if (pc[partnerName].isNegotiating) {
-            console.log('negotiation needed with existing state?',partnerName, pc[partnerName].isNegotiating, pc[partnerName].signalingState);
-            //return; // Chrome nested negotiation bug
+          console.log(
+            "negotiation needed with existing state?",
+            partnerName,
+            pc[partnerName].isNegotiating,
+            pc[partnerName].signalingState
+          );
+          //return; // Chrome nested negotiation bug
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
@@ -457,7 +444,9 @@ function init(createOffer, partnerName) {
           to: partnerName,
           sender: socketId
         });
-      } finally { pc[partnerName].isNegotiating = false; }
+      } finally {
+        pc[partnerName].isNegotiating = false;
+      }
     };
   }
 
@@ -535,12 +524,19 @@ function init(createOffer, partnerName) {
     // Save State
     switch (pc[partnerName].iceConnectionState) {
       case "connected":
-        sendMsg(partnerName + " is " + pc[partnerName].iceConnectionState, true);
-        enter();
+        sendMsg(
+          partnerName + " is " + pc[partnerName].iceConnectionState,
+          true
+        );
         break;
       case "disconnected":
-        if(partnerName == socketId) { leave(); return; }
-        sendMsg(partnerName + " is " + pc[partnerName].iceConnectionState, true);
+        if (partnerName == socketId) {
+          return;
+        }
+        sendMsg(
+          partnerName + " is " + pc[partnerName].iceConnectionState,
+          true
+        );
         h.closeVideo(partnerName);
         // PC Tracking cleanup
         pcmap.get(partnerName).close();
@@ -551,12 +547,13 @@ function init(createOffer, partnerName) {
         h.closeVideo(partnerName);
         break;
       case "failed":
-        if(partnerName == socketId) { leave(); return; } // retry catch needed
+        if (partnerName == socketId) {
+          return;
+        } // retry catch needed
         h.closeVideo(partnerName);
-        leave();
         break;
       case "closed":
-        h.closeVideo(partnerName); 
+        h.closeVideo(partnerName);
         break;
       default:
         console.log("Change of state: ", pc[partnerName].iceConnectionState);
