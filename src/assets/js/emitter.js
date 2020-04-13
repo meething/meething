@@ -3,7 +3,6 @@ export default class EventEmitter{
   constructor(){
     this.events = {};
     this.get = this.get
-    this.get.put = this.put
   }
 
   _getEventListByName(eventName){
@@ -18,9 +17,8 @@ export default class EventEmitter{
   }
   
   get(key){
-    this.on(key)
     console.log("get " + key);
-    return this;
+    return this
   }
   
   put(value) {

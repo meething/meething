@@ -70,6 +70,12 @@ function initSocket() {
             pcmap.get(msg.data.socketId).iceConnectionState
           );
           //;
+        } else {
+            socket.emit("subscribe", {
+              room: room,
+              socketId: socketId,
+              name: username || socketId
+            });
         }
       }
       if (msg.to && (msg.to == pid || msg.to == socketId)) {
@@ -82,10 +88,6 @@ function initSocket() {
 
     // DAM Emitter : signaling event
   });
-  socket.damemit = function(event, data, to) {
-    console.log("DAM: send event:", to, event);
-    root.on("out", { pid: pid, to: to || pid, signaling: event, data: data });
-  };
 
   /* DAM END */
 
@@ -97,11 +99,11 @@ function initSocket() {
     if (!value.ts) value.ts = Date.now();
 
     // Send through DAM as-is
-    socket.damemit(key, value, value.to || socketId);
+    root.on("out", { pid: pid, to: value.to || pid, signaling: key, data: value });
 
     // Legacy send through GUN JSON
-    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    socket.get(key).put(value);
+    //if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    //socket.get(key).put(value);
   };
 }
 
