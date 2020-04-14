@@ -165,7 +165,8 @@ function initRTC() {
       init(true, data.socketId);
     };
 
-    EventEmitter.prototype.onNewUserStart = function(data) {
+    //This becomes EventEmitter.prototype.onNewUserStart = function(data) { etc...
+    socket.get("newUserStart").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -177,7 +178,7 @@ function initRTC() {
       }
       pc.push(data.sender);
       init(false, data.sender);
-    };
+    });
 
     socket.get("icecandidates").on(function(data, key) {
       try {
