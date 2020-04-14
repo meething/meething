@@ -127,7 +127,6 @@ function initRTC() {
 
     //Do we do this here this is now triggered from DAM?
     EventEmitter.prototype.onSubscribe = function(data) {
-      console.log("DAM " + data);
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
         console.log("discarding old sub", data);
