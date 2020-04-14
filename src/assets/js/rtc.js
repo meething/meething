@@ -125,8 +125,7 @@ function initRTC() {
       name: username || socketId
     });
 
-    //Do we do this here?
-    //damsocket.on()
+    //Do we do this here this is now triggered from DAM?
     EventEmitter.prototype.onSubscribe = function(data) {
       console.log("DAM " + data);
       console.log("Got channel subscribe", data);
