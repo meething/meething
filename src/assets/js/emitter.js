@@ -1,12 +1,12 @@
 export default class EventEmitter {
-  constructor(gun, pcmap) {
-    this.events = {};
+  constructor(gun) {
+    this.events = [];
     this.root = gun;
-    this.pcmap = pcmap;
     this.init();
   }
 
   init() {
+    const self = this;
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function(msg) {
@@ -15,9 +15,9 @@ export default class EventEmitter {
 
         if (msg.signaling == "subscribe" && msg.data.socketId) {
           console.log("DAM: subscribe from", msg.data.socketId);
-          //Do we emit this?
+          self.onSubscribe(msg.data);
         }
-        if (msg.to && msg.to == pid) {
+        if (msg.to && msg.to == this.pid) {
           console.log("DAM: signaling for our local peer!", msg.data);
         }
       }

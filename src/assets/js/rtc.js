@@ -127,9 +127,8 @@ function initRTC() {
 
     //Do we do this here?
     //damsocket.on()
-    
-    socket.get("subscribe").on(function(data, key) {
-      // Ignore subscribes older than TIMEGAP
+    EventEmitter.prototype.onSubscribe = function(data) {
+      console.log("DAM " + data);
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
         console.log("discarding old sub", data);
@@ -166,7 +165,7 @@ function initRTC() {
       });
       pc.push(data.socketId);
       init(true, data.socketId);
-    });
+    };
 
     socket.get("newUserStart").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
@@ -206,7 +205,6 @@ function initRTC() {
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
 
-    
     socket.get("sdp").on(function(data, key) {
       try {
         data = JSON.parse(data);
