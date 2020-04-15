@@ -331,6 +331,11 @@ function initRTC() {
         });
       }
     });
+
+    document.getElementById("private-toggle").addEventListener("click", e => {
+      e.preventDefault();
+      console.log("Remove all connected peers...");
+    });
   }
 }
 
@@ -440,7 +445,7 @@ function init(createOffer, partnerName) {
         });
     } else {
       //video elem
-      h.addVideo(partnerName, str)
+      h.addVideo(partnerName, str);
     }
   };
 
