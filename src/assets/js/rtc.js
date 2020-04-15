@@ -4,12 +4,14 @@
  */
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
+import PeerManagement from "./peermanagement.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
 
 var room;
 var username;
+var peerManager = new PeerManagement();
 
 window.onload = function(e) {
   room = h.getQString(location.href, "room");
@@ -334,7 +336,7 @@ function initRTC() {
 
     document.getElementById("private-toggle").addEventListener("click", e => {
       e.preventDefault();
-      console.log("Remove all connected peers...");
+      peerManager.disconnectPeers()
     });
   }
 }
