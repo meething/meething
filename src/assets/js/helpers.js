@@ -12,7 +12,6 @@ export default {
       document.getElementById(elemId).remove();
     }
   },
-
   uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
       var r = (Math.random() * 16) | 0,
@@ -62,7 +61,15 @@ export default {
 
     return null;
   },
-
+  replaceVideoTrackForPeers(peers,track) {
+    peers.forEach((peer,id) => {
+      console.log('trying to send new track to peer `'+id+'`');
+      var sender = (peer && peer.getSenders) ? peer.getSenders().find(s => s.track && s.track.kind === 'video') : false;
+      if (sender) {
+        sender.replaceTrack(track);
+      }
+    });
+  },
   userMediaAvailable() {
     return !!(
       navigator.getUserMedia ||
@@ -71,7 +78,17 @@ export default {
       navigator.msGetUserMedia
     );
   },
-
+  getDisplayMedia(opts){
+    if(navigator.mediaDevices.getDisplayMedia) {
+      return navigator.mediaDevices.getDisplayMedia(opts)
+    }
+    else if(navigator.getDisplayMedia) {
+      navigator.getDisplayMedia(opts)
+    }
+    else {
+      throw new Error('Display media not available');
+    }
+  },
   getUserMedia() {
     if (this.userMediaAvailable()) {
       return navigator.mediaDevices.getUserMedia({
@@ -173,6 +190,21 @@ export default {
       newVid.autoplay = true;
       newVid.className = "remote-video";
 
+      // fullscreen on click of video check if it works with the new card system
+      /*
+      newVid.addEventListener('click', function(){ 
+        newVid.className = /fullscreen/.test(newVid.className) ? 'remote-video' : 'remote-video fullscreen';
+        if (newVid.requestFullscreen) {
+          newVid.requestFullscreen();
+        } else if (newVid.msRequestFullscreen) {
+          newVid.msRequestFullscreen();
+        } else if (newVid.mozRequestFullScreen) {
+          newVid.mozRequestFullScreen();
+        } else if (newVid.webkitRequestFullscreen) {
+          newVid.webkitRequestFullscreen();
+        }
+      });
+      */
       // Video user title
       var vtitle = document.createElement("p");
       var vuser = partnerName;
