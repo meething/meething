@@ -17,8 +17,9 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function(msg) {
-      if (msg && msg.signaling && msg.data && msg.data.room !== undefined && msg.data.room === self.room) {        
+      if (msg && msg.signaling) {        
         console.log("DAM: handle inbound signaling!", msg.signaling);
+        console.log("Room:: ", msg.data.room);
 
         switch (msg.signaling) {
           case "subscribe":
