@@ -48,8 +48,13 @@ function initSocket() {
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
-    // Send through DAM as-is
-    damSocket.out(key, value);
+    if (value.sender && value.to && value.sender == value.to) return;
+    console.log("debug emit key", key, "value", value);
+    if (!key || !value) return;
+    if (!value.ts) value.ts = Date.now();
+    // Legacy send through GUN JSON
+    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    socket.get(key).put(value);
   };
 }
 
@@ -111,7 +116,7 @@ function initRTC() {
     console.log("Starting! you are", socketId);
 
     // Initialize Session
-    socket.emit("subscribe", {
+    damSocket.out("subscribe", {
       room: room,
       socketId: socketId,
       name: username || socketId
@@ -148,7 +153,7 @@ function initRTC() {
         //return;
       }
       // New Peer, setup peerConnection
-      socket.emit("newUserStart", {
+      damSocket.out("newUserStart", {
         to: data.socketId,
         sender: socketId,
         name: data.name || data.socketId
@@ -236,7 +241,7 @@ function initRTC() {
             let answer = await pc[data.sender].createAnswer();
             await pc[data.sender].setLocalDescription(answer);
 
-            socket.emit("sdp", {
+            damSocket.out("sdp", {
               description: pc[data.sender].localDescription,
               to: data.sender,
               sender: socketId
@@ -388,7 +393,7 @@ function init(createOffer, partnerName) {
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
         await pc[partnerName].setLocalDescription(offer);
-        socket.emit("sdp", {
+        damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
           to: partnerName,
           sender: socketId
@@ -402,7 +407,7 @@ function init(createOffer, partnerName) {
   //send ice candidate to partnerNames
   pc[partnerName].onicecandidate = ({ candidate }) => {
     if (!candidate) return;
-    socket.emit("icecandidates", {
+    damSocket.out("icecandidates", {
       candidate: candidate,
       to: partnerName,
       sender: socketId
