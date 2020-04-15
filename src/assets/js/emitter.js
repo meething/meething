@@ -17,9 +17,13 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function(msg) {
-      if (msg && msg.signaling) {        
+      if (msg && msg.signaling) {
         console.log("DAM: handle inbound signaling!", msg.signaling);
-        console.log("Room:: ", msg.data.room);
+        console.log("DAM: ROOM ", msg.data.room);
+        if(msg.data.room !== self.room) {
+          console.log("Not our room " + msg.data.room);
+          return;
+        } 
 
         switch (msg.signaling) {
           case "subscribe":
@@ -53,13 +57,12 @@ export default class EventEmitter {
   }
 
   out(key, value) {
-    if (value.room == this.room) {
-      this.root.on("out", {
-        pid: this.pid,
-        to: value.to || this.pid,
-        signaling: key,
-        data: value
-      });
-    }
+    value.room = this.room;
+    this.root.on("out", {
+      pid: this.pid,
+      to: value.to || this.pid,
+      signaling: key,
+      data: value
+    });
   }
 }
