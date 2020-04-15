@@ -261,7 +261,7 @@ function initRTC() {
             let answer = await pc[data.sender].createAnswer(answerConstraints);
             await pc[data.sender].setLocalDescription(answer);
 
-            socket.emit("sdp", {
+            damSocket.out("sdp", {
               description: pc[data.sender].localDescription,
               to: data.sender,
               sender: socketId
@@ -324,7 +324,7 @@ function initRTC() {
       console.log("Re-Send presence to all users...");
       var r = confirm("Re-Invite ALL room participants?");
       if (r == true) {
-        socket.emit("subscribe", {
+        damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
           name: username || socketId
@@ -368,7 +368,7 @@ function init(createOffer, partnerName) {
         };
         let offer = await pc[partnerName].createOffer(offerConstraints);
         await pc[partnerName].setLocalDescription(offer);
-        socket.emit("sdp", {
+        damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
           to: partnerName,
           sender: socketId
@@ -440,33 +440,7 @@ function init(createOffer, partnerName) {
         });
     } else {
       //video elem
-      let newVid = document.createElement("video");
-      newVid.id = `${partnerName}-video`;
-      newVid.srcObject = str;
-      newVid.autoplay = true;
-      newVid.className = "remote-video";
-
-      // Video user title
-      var vtitle = document.createElement("p");
-      var vuser = partnerName;
-      vtitle.innerHTML = `<center>${vuser}</center>`;
-      vtitle.id = `${partnerName}-title`;
-
-      //create a new div for card
-      let cardDiv = document.createElement("div");
-      cardDiv.className = "card mb-3";
-      cardDiv.style = "color:#FFF;";
-      cardDiv.appendChild(newVid);
-      cardDiv.appendChild(vtitle);
-
-      //create a new div for everything
-      let div = document.createElement("div");
-      div.className = "col-sm-12 col-md-6";
-      div.id = partnerName;
-      div.appendChild(cardDiv);
-
-      //put div in videos elem
-      document.getElementById("videos").appendChild(div);
+      h.addVideo(partnerName, str)
     }
   };
 
