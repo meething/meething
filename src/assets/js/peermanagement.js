@@ -8,6 +8,7 @@ export default class PeerManagement {
   }
 
   disconnectPeers() {
+    this.root.on('bye', "https://livecodestream-us.herokuapp.com/gun");    
     console.log("Disconnect peers!");
   }
 }
