@@ -29,6 +29,13 @@ app.get('/:room/gun', (req, res)=>{
   /* serve unique Gun instance */
   //var gun = Gun({peers: [], web: server.listen(port)});
   //console.log('Relay peer started on port ' + config.port + ' with /gun');
+  /* 
+    var token = req.params.room || 'public'
+    var customApp = express();
+    
+    app.use('/'+token+'/gun', appClient));
+  
+  */
 });
 
 if (!process.env.SSL) {
