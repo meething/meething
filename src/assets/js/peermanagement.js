@@ -1,8 +1,15 @@
 export default class PeerManagement {
-  constructor(gun) {
+  constructor() {
+    const peers = ["https://livecodestream-us.herokuapp.com/gun"];
+    const opt = { peers: peers, localStorage: false, radisk: false };
+    const opt_out = { peers: [], localStorage: false, radisk: false };
+
+    this.root = Gun(opt);
   }
-  
-  
+
+  disconnectPeers() {
+    console.log("Disconnect peers!");
+  }
 }
 
 // function getPeers() {

@@ -4,6 +4,7 @@
  */
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
+import PeerManagement from "./peermanagement.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -27,16 +28,10 @@ const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
 var socketId;
 var damSocket;
+var peerManager = new PeerManagement()
 
 function initSocket() {
-  //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
-  var peers = [
-    "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
-  ];
-  var opt = { peers: peers, localStorage: false, radisk: false };
-  var opt_out = { peers: [], localStorage: false, radisk: false };
-
-  var root = Gun(opt);
+  var root = peerManager.root
 
   socket = root
     .get("rtcmeeting")
@@ -59,12 +54,7 @@ function initSocket() {
 }
 
 function initUser(r) {
-  var peers = [
-    "https://livecodestream-us.herokuapp.com/gun",
-    "https://livecodestream-eu.herokuapp.com/gun"
-  ];
-  var opt = { peers: peers, localStorage: false, radisk: false };
-  var gun = Gun(opt);
+  var gun = peerManager.root
 
   var pid = sessionStorage.getItem("pid");
   if (pid == null || pid == undefined) {
@@ -334,7 +324,7 @@ function initRTC() {
 
     document.getElementById("private-toggle").addEventListener("click", e => {
       e.preventDefault();
-      console.log("Remove all connected peers...");
+      peerManager.disconnectPeers()
     });
   }
 }

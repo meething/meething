@@ -27,14 +27,13 @@ app.get('/', (req, res)=>{
 app.get('/:room/gun', (req, res)=>{
     console.log('Gun request for roomid',req.params.room)
   /* serve unique Gun instance */
-  //var gun = Gun({peers: [], web: server.listen(port)});
-  //console.log('Relay peer started on port ' + config.port + ' with /gun');
   /* 
     var token = req.params.room || 'public'
     var customApp = express();
-    
-    app.use('/'+token+'/gun', appClient));
-  
+    var gun = Gun({peers: []});
+    gun.wsp(customApp);
+    app.use('/'+token+'/gun', customApp));
+    console.log('Gun Relay peer started with token: ' + token);
   */
 });
 
