@@ -38,5 +38,3 @@ if (!process.env.SSL) {
  	config.webserver = https.createServer(config.options, app);
 	config.webserver.listen(config.port, () => console.log(`Example HTTPS app listening on port ${config.port}!`))
 }
-
-

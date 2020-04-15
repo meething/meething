@@ -108,7 +108,7 @@ body {
   font-size: 6px !important;
 }
 
-@media only screen and (max-width: 1767px) {
+@media only screen and (max-width: 2767px) {
   .chat-col {
     right: -100vw;
     width: 100vw;
