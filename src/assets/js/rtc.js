@@ -48,14 +48,6 @@ function initSocket() {
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {
-    if (value.sender && value.to && value.sender == value.to) return;
-    console.log("debug emit key", key, "value", value);
-    if (!key || !value) return;
-    if (!value.ts) value.ts = Date.now();
-    // Legacy send through GUN JSON
-    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    socket.get(key).put(value);
-
     // Send through DAM as-is
     damSocket.out(key, value);
   };
@@ -165,8 +157,7 @@ function initRTC() {
       init(true, data.socketId);
     };
 
-    //This becomes EventEmitter.prototype.onNewUserStart = function(data) { etc...
-    socket.get("newUserStart").on(function(data, key) {
+    EventEmitter.prototype.onNewUserStart = function(data) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -178,11 +169,10 @@ function initRTC() {
       }
       pc.push(data.sender);
       init(false, data.sender);
-    });
+    };
 
-    socket.get("icecandidates").on(function(data, key) {
+    EventEmitter.prototype.onIceCandidates = function(data) {
       try {
-        data = JSON.parse(data);
         if (
           (data.ts && Date.now() - data.ts > TIMEGAP) ||
           !data.sender ||
@@ -202,11 +192,10 @@ function initRTC() {
       console.log("ice candidate", data);
       //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
-    });
+    };
 
-    socket.get("sdp").on(function(data, key) {
+    EventEmitter.prototype.onSdp = function(data) {
       try {
-        data = JSON.parse(data);
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         if (
           !data ||
@@ -279,7 +268,7 @@ function initRTC() {
           new RTCSessionDescription(data.description)
         );
       }
-    });
+    };
 
     socket.get("chat").on(function(data, key) {
       if (data.ts && Date.now() - data.ts > 1000) return;
