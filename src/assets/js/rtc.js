@@ -21,7 +21,6 @@ window.onload = function(e) {
 };
 
 var socket;
-var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";

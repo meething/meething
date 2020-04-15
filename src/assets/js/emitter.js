@@ -20,10 +20,9 @@ export default class EventEmitter {
       if (msg && msg.signaling) {
         console.log("DAM: handle inbound signaling!", msg.signaling);
         console.log("DAM: ROOM ", msg.data.room);
-        if(msg.data.room !== self.room) {
+        if (msg.data.room !== self.room) {
           console.log("Not our room " + msg.data.room);
-          return;
-        } 
+        }
 
         switch (msg.signaling) {
           case "subscribe":
