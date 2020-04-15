@@ -25,13 +25,14 @@ var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
+var screenStream;
 var socketId;
 var damSocket;
 
 function initSocket() {
   //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
   var peers = [
-    "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
+     "https://livecodestream-us.herokuapp.com/gun" /* ""+location.protocol+"//"+location.hostname+"/gun" ,"https://livecodestream-eu.herokuapp.com/gun" */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
@@ -62,6 +63,8 @@ function initUser(r) {
   var peers = [
     "https://livecodestream-us.herokuapp.com/gun",
     "https://livecodestream-eu.herokuapp.com/gun"
+    /*""+location.protocol+"//"+location.hostname+"/gun"
+    */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gun = Gun(opt);
@@ -301,8 +304,10 @@ function initRTC() {
       if (screenStream) { // click-to-end.
         screenStream.getTracks().forEach(t => t.stop());
         screenStream = null;
-        document.getElementById('local').srcObject = myStream;
-        h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+        if(myStream){
+          document.getElementById('local').srcObject = myStream;
+          h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+        }
         e.srcElement.classList.remove('sharing');
         e.srcElement.classList.add('text-white');
         e.srcElement.classList.remove('text-black');
@@ -315,8 +320,10 @@ function initRTC() {
       track.addEventListener('ended', () => {
           console.log('Screensharing ended via the browser UI');
           screenStream = null;
-          document.getElementById('local').srcObject = myStream;
-          h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+          if(myStream){
+            document.getElementById('local').srcObject = myStream;
+            h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+          }
           e.srcElement.classList.remove('sharing');
           e.srcElement.classList.add('text-white');
           e.srcElement.classList.remove('text-black');    
