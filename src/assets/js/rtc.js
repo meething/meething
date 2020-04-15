@@ -4,7 +4,6 @@
  */
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
-import PeerManagement from "./peermanagement.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -38,7 +37,7 @@ function initSocket() {
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
 
-  var root = Gun(opt);
+  var root = manager.root;
 
   socket = root
     .get("rtcmeeting")
@@ -66,7 +65,7 @@ function initUser(r) {
     "https://livecodestream-eu.herokuapp.com/gun"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  var gun = Gun(opt);
+  var gun = manager.root;
 
   var pid = sessionStorage.getItem("pid");
   if (pid == null || pid == undefined) {
@@ -336,7 +335,7 @@ function initRTC() {
 
     document.getElementById("private-toggle").addEventListener("click", e => {
       e.preventDefault();
-      peerManager.disconnectPeers()
+      manager.disconnectPeers()
     });
   }
 }

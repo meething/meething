@@ -1,4 +1,4 @@
-export default class PeerManagement {
+class PeerManagement {
   constructor() {
     const peers = ["https://livecodestream-us.herokuapp.com/gun", "https://livecodestream-eu.herokuapp.com/gun"];
     const opt = { peers: peers, localStorage: false, radisk: false };
@@ -16,9 +16,7 @@ export default class PeerManagement {
       peer = "";
     });
     
-    this.root._.opt.peers = [];
-    // this.root.on('bye', "https://livecodestream-us.herokuapp.com/gun");    
-    
+    this.root._.opt.peers = [];    
     console.log("Disconnect peers!");
   }
 }
