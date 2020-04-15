@@ -25,13 +25,14 @@ var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream = "";
+var screenStream;
 var socketId;
 var damSocket;
 
 function initSocket() {
   //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
   var peers = [
-    "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
+     "https://livecodestream-us.herokuapp.com/gun" /* ""+location.protocol+"//"+location.hostname+"/gun" ,"https://livecodestream-eu.herokuapp.com/gun" */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
@@ -62,6 +63,8 @@ function initUser(r) {
   var peers = [
     "https://livecodestream-us.herokuapp.com/gun",
     "https://livecodestream-eu.herokuapp.com/gun"
+    /*""+location.protocol+"//"+location.hostname+"/gun"
+    */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gun = Gun(opt);
@@ -295,6 +298,42 @@ function initRTC() {
       }
     });
 
+    document.getElementById("toggle-screen").addEventListener("click", async (e) => {
+      e.preventDefault();
+      //TODO: When new people arrive to chat and you're screen sharing, send the screenStream instead of default video track
+      if (screenStream) { // click-to-end.
+        screenStream.getTracks().forEach(t => t.stop());
+        screenStream = null;
+        if(myStream){
+          document.getElementById('local').srcObject = myStream;
+          h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+        }
+        e.srcElement.classList.remove('sharing');
+        e.srcElement.classList.add('text-white');
+        e.srcElement.classList.remove('text-black');
+        return;
+      }
+      var stream = await h.getDisplayMedia({audio:true, video: true});
+      var track = stream.getVideoTracks()[0];
+      h.replaceVideoTrackForPeers(pcmap, track);
+      document.getElementById('local').srcObject = stream;
+      track.addEventListener('ended', () => {
+          console.log('Screensharing ended via the browser UI');
+          screenStream = null;
+          if(myStream){
+            document.getElementById('local').srcObject = myStream;
+            h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+          }
+          e.srcElement.classList.remove('sharing');
+          e.srcElement.classList.add('text-white');
+          e.srcElement.classList.remove('text-black');    
+      });
+      screenStream = stream;
+      e.srcElement.classList.add('sharing');
+      e.srcElement.classList.remove("text-white");
+      e.srcElement.classList.add("text-black");
+    });
+    
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
       if (!myStream) return;
