@@ -44,7 +44,7 @@ function initSocket() {
     .get("socket");
 
   const pid = root._.opt.pid;
-  damSocket = new EventEmitter(root, pcmap);
+  damSocket = new EventEmitter(root, room);
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function(key, value) {

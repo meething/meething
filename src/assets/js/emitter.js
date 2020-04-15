@@ -1,6 +1,7 @@
 export default class EventEmitter {
-  constructor(gun) {
+  constructor(gun, room) {
     this.root = gun;
+    this.room = room;
     this.init();
   }
 
@@ -16,7 +17,7 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function(msg) {
-      if (msg && msg.signaling) {
+      if (msg && msg.signaling && msg.data && msg.data.room !== undefined && msg.data.room === self.room) {        
         console.log("DAM: handle inbound signaling!", msg.signaling);
 
         switch (msg.signaling) {
@@ -51,11 +52,13 @@ export default class EventEmitter {
   }
 
   out(key, value) {
-    this.root.on("out", {
-      pid: this.pid,
-      to: value.to || this.pid,
-      signaling: key,
-      data: value
-    });
+    if (value.room == this.room) {
+      this.root.on("out", {
+        pid: this.pid,
+        to: value.to || this.pid,
+        signaling: key,
+        data: value
+      });
+    }
   }
 }
