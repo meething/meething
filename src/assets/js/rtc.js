@@ -10,7 +10,6 @@ var enableHacks = false;
 
 var room;
 var username;
-var peerManager = new PeerManagement();
 
 window.onload = function(e) {
   room = h.getQString(location.href, "room");
@@ -37,7 +36,7 @@ function initSocket() {
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
 
-  var root = manager.root;
+  var root = Gun(opt);
 
   socket = root
     .get("rtcmeeting")
@@ -65,7 +64,7 @@ function initUser(r) {
     "https://livecodestream-eu.herokuapp.com/gun"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  var gun = manager.root;
+  var gun = Gun(opt);
 
   var pid = sessionStorage.getItem("pid");
   if (pid == null || pid == undefined) {
@@ -333,9 +332,9 @@ function initRTC() {
       }
     });
 
-    document.getElementById("private-toggle").addEventListener("click", e => {
+    document.getElementById("toggle-private").addEventListener("click", e => {
       e.preventDefault();
-      manager.disconnectPeers()
+      console.log("Remove all connected peers...");
     });
   }
 }

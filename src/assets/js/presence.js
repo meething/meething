@@ -1,5 +1,9 @@
-var manager = new PeerManagement();
-var root = manager.root;
+var peers = [
+  "https://livecodestream-us.herokuapp.com/gun",
+  "https://livecodestream-eu.herokuapp.com/gun"
+];
+var opt = { peers: peers, localStorage: false, radisk: false };
+var root = Gun(opt);
 
 const pid = root._.opt.pid;
 const users = new Map();
