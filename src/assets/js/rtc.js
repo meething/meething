@@ -53,7 +53,7 @@ function initSocket() {
     if (!key || !value) return;
     if (!value.ts) value.ts = Date.now();
     // Legacy send through GUN JSON
-    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
+    // if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
   };
 }
@@ -276,7 +276,7 @@ function initRTC() {
     };
 
     socket.get("chat").on(function(data, key) {
-      if (data.ts && Date.now() - data.ts > 1000) return;
+      if (data.ts && Date.now() - data.ts > 5000) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.sender == username) return;
       console.log("got chat", key, data);
