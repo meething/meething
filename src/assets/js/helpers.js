@@ -191,7 +191,7 @@ export default {
       newVid.className = "remote-video";
 
       // fullscreen on click of video check if it works with the new card system
-      /*
+      
       newVid.addEventListener('click', function(){ 
         newVid.className = /fullscreen/.test(newVid.className) ? 'remote-video' : 'remote-video fullscreen';
         if (newVid.requestFullscreen) {
@@ -204,7 +204,7 @@ export default {
           newVid.webkitRequestFullscreen();
         }
       });
-      */
+      
       // Video user title
       var vtitle = document.createElement("p");
       var vuser = partnerName;
