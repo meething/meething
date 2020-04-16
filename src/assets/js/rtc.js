@@ -332,7 +332,7 @@ function initRTC() {
         });
       }
     });
-    
+
     document
       .getElementById("toggle-screen")
       .addEventListener("click", async e => {
@@ -381,21 +381,15 @@ function init(createOffer, partnerName) {
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
-  if (myStream) {
+  if (screenStream) {
+    screenStream.getTracks().forEach(track => {
+      pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
+    });
+  } else if (myStream) {
     myStream.getTracks().forEach(track => {
       pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
     });
   } else {
-    if(screenStream) {
-      myStream = screenStream;
-        //provide access to window for debug
-        window.myStream = myStream;
-        screenStream.getTracks().forEach(track => {
-          pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
-        });
-
-        document.getElementById("local").srcObject = screenStream;
-    }
     h.getUserMedia()
       .then(stream => {
         //save my stream
