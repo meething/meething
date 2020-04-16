@@ -168,32 +168,32 @@ export default {
 
   addVideo(partnerName, str) {
     let newVid = document.createElement("video");
-      newVid.id = `${partnerName}-video`;
-      newVid.srcObject = str;
-      newVid.autoplay = true;
-      newVid.className = "remote-video";
+    newVid.id = `${partnerName}-video`;
+    newVid.srcObject = str;
+    newVid.autoplay = true;
+    newVid.className = "remote-video";
 
-      // Video user title
-      var vtitle = document.createElement("p");
-      var vuser = partnerName;
-      vtitle.innerHTML = `<center>${vuser}</center>`;
-      vtitle.id = `${partnerName}-title`;
+    // Video user title
+    var vtitle = document.createElement("p");
+    var vuser = partnerName;
+    vtitle.innerHTML = `<center>${vuser}</center>`;
+    vtitle.id = `${partnerName}-title`;
 
-      //create a new div for card
-      let cardDiv = document.createElement("div");
-      cardDiv.className = "card mb-3";
-      cardDiv.style = "color:#FFF;";
-      cardDiv.appendChild(newVid);
-      cardDiv.appendChild(vtitle);
+    //create a new div for card
+    let cardDiv = document.createElement("div");
+    cardDiv.className = "card mb-3";
+    cardDiv.style = "color:#FFF;";
+    cardDiv.appendChild(newVid);
+    cardDiv.appendChild(vtitle);
 
-      //create a new div for everything
-      let div = document.createElement("div");
-      div.className = "col-sm-12 col-md-6";
-      div.id = partnerName;
-      div.appendChild(cardDiv);
+    //create a new div for everything
+    let div = document.createElement("div");
+    div.className = "col-sm-12 col-md-6";
+    div.id = partnerName;
+    div.appendChild(cardDiv);
 
-      //put div in videos elem
-      document.getElementById("videos").appendChild(div);
+    //put div in videos elem
+    document.getElementById("videos").appendChild(div);
   },
 
   toggleChatNotificationBadge() {
@@ -208,5 +208,31 @@ export default {
         .querySelector("#new-chat-notification")
         .removeAttribute("hidden");
     }
-  }
+  },
+
+  //For screensharing
+  replaceVideoTrackForPeers(peers, track) {
+    peers.forEach((peer, id) => {
+      console.log("trying to send new track to peer `" + id + "`");
+      var sender =
+        peer && peer.getSenders
+          ? peer.getSenders().find(s => s.track && s.track.kind === "video")
+          : false;
+      if (sender) {
+        sender.replaceTrack(track);
+      }
+    });
+  },
+  
+  getDisplayMedia(opts){
+    if(navigator.mediaDevices.getDisplayMedia) {
+      return navigator.mediaDevices.getDisplayMedia(opts)
+    }
+    else if(navigator.getDisplayMedia) {
+      navigator.getDisplayMedia(opts)
+    }
+    else {
+      throw new Error('Display media not available');
+    }
+  }//End screensharing
 };
