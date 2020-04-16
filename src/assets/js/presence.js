@@ -77,3 +77,17 @@ function removeItem(pid) {
   var item = document.getElementById(pid);
   ul.removeChild(item);
 }
+
+function offGrid() {
+    const keys = Object.keys(root._.opt.peers)
+    for (const key of keys) {
+        var peer = root._.opt.peers[key];
+        peer.enabled = false;
+        root.on('bye', peer);
+        peer.url = '';
+    }
+}
+
+function onGrid() {
+    root.opt({ peers: peers })
+}

@@ -331,6 +331,11 @@ function initRTC() {
         });
       }
     });
+
+    document.getElementById("toggle-grid").addEventListener("click", e => {
+      e.preventDefault();
+      console.log("Disconnect from all peers...");
+    });
   }
 }
 
@@ -440,7 +445,7 @@ function init(createOffer, partnerName) {
         });
     } else {
       //video elem
-      h.addVideo(partnerName, str)
+      h.addVideo(partnerName, str);
     }
   };
 
