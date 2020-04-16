@@ -335,6 +335,8 @@ function initRTC() {
     document.getElementById("toggle-grid").addEventListener("click", e => {
       e.preventDefault();
       console.log("Disconnect from all peers...");
+      offGrid(root);
+      offGrid(socket);
     });
   }
 }

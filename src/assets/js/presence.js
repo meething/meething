@@ -78,16 +78,16 @@ function removeItem(pid) {
   ul.removeChild(item);
 }
 
-function offGrid() {
-    const keys = Object.keys(root._.opt.peers)
+function offGrid(instance) {
+    const keys = Object.keys(instance._.opt.peers);
     for (const key of keys) {
-        var peer = root._.opt.peers[key];
+        var peer = instance._.opt.peers[key];
         peer.enabled = false;
-        root.on('bye', peer);
+        instance.on('bye', peer);
         peer.url = '';
     }
 }
 
-function onGrid() {
-    root.opt({ peers: peers })
+function onGrid(instance) {
+    instance.opt({ peers: peers })
 }
