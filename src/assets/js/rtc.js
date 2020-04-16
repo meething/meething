@@ -337,17 +337,17 @@ function initRTC() {
       .getElementById("toggle-screen")
       .addEventListener("click", async e => {
         e.preventDefault();
-
         if (screenStream) {
           screenStream.getTracks().forEach(t => {
             t.stop();
+            t.onended();
           });
         } else {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var track = stream.getVideoTracks()[0];
           h.replaceVideoTrackForPeers(pcmap, track);
           document.getElementById("local").srcObject = stream;
-          track.onended = function() {
+          track.onended = function(event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
