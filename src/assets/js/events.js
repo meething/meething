@@ -4,7 +4,6 @@ window.addEventListener('load', ()=>{
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e)=>{
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
-
         //remove the 'New' badge on chat icon (if any) once chat is opened.
         setTimeout(()=>{
             if(document.querySelector('#chat-pane').classList.contains('chat-opened')){
