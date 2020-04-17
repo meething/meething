@@ -4,10 +4,13 @@
  */
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
+import Presence from "./presence.js";
+
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
 
+var root;
 var room;
 var username;
 var title = "ChatRoom";
@@ -18,7 +21,6 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/_(.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
-  initUser();
   initRTC();
 });
 
@@ -30,19 +32,17 @@ var myStream;
 var screenStream;
 var socketId;
 var damSocket;
+var presence;
 
 function initSocket() {
   var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
   if (room) {
     roomPeer = "https://gundb-multiserver.glitch.me/" + room;
-    offGrid();
-    onGrid(roomPeer);
   }
 
+  var peers = [roomPeer];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  var opt_out = { peers: [], localStorage: false, radisk: false };
-
-  var root = Gun(opt);
+  root = Gun(opt);
 
   socket = root
     .get("rtcmeeting")
@@ -64,20 +64,6 @@ function initSocket() {
   };
 }
 
-function initUser(r) {
-  var peers = [
-    "https://gundb-multiserver.glitch.me/lobby"
-  ];
-  var opt = { peers: peers, localStorage: false, radisk: false };
-  var gun = Gun(opt);
-
-  var pid = sessionStorage.getItem("pid");
-  if (pid == null || pid == undefined) {
-    pid = gun._.opt.pid;
-    sessionStorage.setItem("pid", pid);
-  }
-}
-
 function sendMsg(msg, local) {
   let data = {
     room: room,
@@ -92,7 +78,7 @@ function sendMsg(msg, local) {
 }
 
 window.onbeforeunload = function () {
-  // Cleanup peerconnections
+  presence.leave();
   pcmap.forEach((pc, id) => {
     if (pcmap.has(id)) {
       pcmap.get(id).close();
@@ -100,6 +86,12 @@ window.onbeforeunload = function () {
     }
   });
 };
+
+function initPresence() {
+  presence = new Presence(root, room);
+  damSocket.__proto__.presence = presence;
+  presence.enter();
+}
 
 function initRTC() {
   if (!room) {
@@ -109,6 +101,7 @@ function initRTC() {
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
   } else {
+    initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
