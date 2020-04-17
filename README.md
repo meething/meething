@@ -8,6 +8,8 @@ A semi-decentralized conference bridge using WebRTC, [GunDB](http://gun.eco) and
 ## Status
 * Experimental!
 
+[![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
+
 ## Installation
 ```
 npm install
