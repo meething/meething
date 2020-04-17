@@ -59,16 +59,6 @@ function leave() {
   clearInterval(presenceTimer);
 }
 
-// host with admin opts? (for security issues)
-/*
-function kick(user,admin) {
-if(admin === "host"){
-send("kick",null);
-users.delete(pid,null)
-  }
-}
-*/
-
 function distrubutePresence() {
   send("presence", JSON.stringify([...users]));
 }
