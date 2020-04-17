@@ -47,6 +47,7 @@ function send(event, data) {
   root.on("out", { pid: pid, event: event, data: data });
 }
 
+
 function enter() {
   send("enter", null);
   users.set(pid, null);
@@ -57,6 +58,16 @@ function leave() {
   send("leave", null);
   clearInterval(presenceTimer);
 }
+
+// host with admin opts? (for security issues)
+/*
+function kick(user,admin) {
+if(admin === "host"){
+send("kick",null);
+users.delete(pid,null)
+  }
+}
+*/
 
 function distrubutePresence() {
   send("presence", JSON.stringify([...users]));

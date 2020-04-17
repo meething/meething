@@ -69,7 +69,7 @@ window.addEventListener('load', ()=>{
 
             // add room name to chat title
             document.querySelector('#chat-title').innerHTML = roomName;
-
+            
             //empty the values
             document.querySelector('#room-name').value = '';
             document.querySelector('#your-name').value = '';
