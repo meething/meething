@@ -89,7 +89,7 @@ export default {
     var servers = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls:["turn:stun.hepic.tel:3478", "stun:stun.hepic.tel:3478"], "username":"meething",credential:"meething"}
+        { urls:["turn:stun.hepic.tel:3478", "turns:stun.hepic.tel:443?transport=tcp", "stun:stun.hepic.tel:3478"], "username":"meething",credential:"meething"}
         /*
           { urls: "stun:stun.sipgate.net:3478"},
           {urls: "stun:stun.stunprotocol.org"},
