@@ -4,7 +4,7 @@ var peers = [
 ];
 var opt = { peers: peers, localStorage: false, radisk: false };
 var root = Gun(opt);
-console.log("before",root._.opt.peers);
+
 const pid = root._.opt.pid;
 const users = new Map();
 
