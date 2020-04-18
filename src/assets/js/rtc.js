@@ -454,6 +454,7 @@ function init(createOffer, partnerName) {
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
+        console.log('set local description',offer);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
