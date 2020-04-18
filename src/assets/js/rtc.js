@@ -32,10 +32,8 @@ function initSocket() {
   var roomPeer = "https://livecodestream-us.herokuapp.com/gun";
   if (room) {
     roomPeer = "https://gundb-multiserver.glitch.me/" + room;
-    debugger
     offGrid();
     onGrid(roomPeer);
-    debugger
   }
 
   var opt = { peers: peers, localStorage: false, radisk: false };
@@ -340,12 +338,12 @@ function initRTC() {
     document.getElementById("lock-room").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return; // do I need this here?
-
+      // TODO: can we unlock? the room as well?
       offGrid();
 
       //toggle audio icon
-      e.srcElement.classList.toggle("fa-volume-up");
-      e.srcElement.classList.toggle("fa-volume-mute");
+      e.srcElement.classList.toggle("fa-unlock");
+      e.srcElement.classList.toggle("fa-lock");
     });
 
   }
