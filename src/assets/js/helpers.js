@@ -166,25 +166,20 @@ export default {
     cache = data;
   },
 
-  addFullscreenToElements(selector='fsme'){
-    var elems =  document.getElementsByClassName(selector);
-    if(elems.length==0) return [];
-    elems.map(elem=>{  
-      return elem.addEventListener('click', e => {
-        e.preventDefault(); 
-        elem.className = /fullscreen/.test(elem.className) ? 'remote-video' : 'remote-video fullscreen';
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen();
-        } else if (elem.msRequestFullscreen) {
-          elem.msRequestFullscreen();
-        } else if (elem.mozRequestFullScreen) {
-          elem.mozRequestFullScreen();
-        } else if (elem.webkitRequestFullscreen) {
-          elem.webkitRequestFullscreen();
-        }
-      });
+  addFullscreenToElement(elem){
+    return elem.addEventListener('click', e => {
+      e.preventDefault(); 
+      elem.className = /fullscreen/.test(elem.className) ? 'remote-video' : 'remote-video fullscreen';
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      }
     });
-    return elems; //debugging
   },
 
   addVideo(partnerName, str) {
@@ -193,7 +188,7 @@ export default {
     newVid.srcObject = str;
     newVid.autoplay = true;
     newVid.className = "remote-video fsme";
-
+    if(true) this.addFullscreenToElement(newVid); // TODO: set options for this somewhere
     // Video user title
     var vtitle = document.createElement("p");
     var vuser = partnerName;
@@ -242,7 +237,7 @@ export default {
         sender.replaceTrack(track);
         resolve(sender);
       }
-      return reject(sender);
+      return reject('no sender');
     });
   },
   

@@ -10,22 +10,23 @@ var enableHacks = false;
 
 var room;
 var username;
+var title = "ChatRoom";
 
-window.onload = function(e) {
-  room = h.getQString(location.href, "room");
-  username = sessionStorage.getItem("username");
-
+window.addEventListener('DOMContentLoaded', function() {
+  room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
+  username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+  title = room.replace(/_(.*)/,'');
+  if(title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML=title;
   initSocket();
   initUser();
   initRTC();
-};
+});
 
 var socket;
 var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
-const negotiations = new Map();
-var myStream = "";
+var myStream;
 var screenStream;
 var socketId;
 var damSocket;
@@ -174,7 +175,7 @@ function initRTC() {
         pc[data.socketId].iceConnectionState == "connected"
       ) {
         console.log("already connected to peer?", data.socketId);
-        //return;
+        return; // We don't need another round of Init for existing peers
       }
       pc.push(data.sender);
       init(false, data.sender);
@@ -375,6 +376,7 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
+  if(pcmap.has(partnerName)) return pcmap.get(partnerName); // DO NOT overwrite existing peer connections with new listeners - many malformed iceCandidates resulted from this
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
@@ -432,28 +434,27 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
-    if (!negotiations.has(partnerName)) negotiations.set(partnerName, false);
     pc[partnerName].onnegotiationneeded = async () => {
       try {
-        try {
-          if (
-            negotiations.get(partnerName) == true ||
-            pc[partnerName].signalingState != "stable"
-          )
-            return;
-          negotiations.set(partnerName, true);
-          let offer = await pc[partnerName].createOffer();
-          await pc[partnerName].setLocalDescription(offer);
-          damSocket.out("sdp", {
-            description: pc[partnerName].localDescription,
-            to: partnerName,
-            sender: socketId,
-          });
-        } finally {
-          negotiations.set(partnerName, false);
+        if (pc[partnerName].isNegotiating) {
+          console.log(
+            "negotiation needed with existing state?",
+            partnerName,
+            pc[partnerName].isNegotiating,
+            pc[partnerName].signalingState
+          );
+          return; // Chrome nested negotiation bug
         }
-      } catch (err) {
-        console.log("error in ONN handler with `" + partnerName + "`", err);
+        pc[partnerName].isNegotiating = true;
+        let offer = await pc[partnerName].createOffer();
+        await pc[partnerName].setLocalDescription(offer);
+        damSocket.out("sdp", {
+          description: pc[partnerName].localDescription,
+          to: partnerName,
+          sender: socketId
+        });
+      } finally {
+        pc[partnerName].isNegotiating = false;
       }
     };
   }
