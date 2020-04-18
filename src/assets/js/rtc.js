@@ -468,7 +468,10 @@ function init(createOffer, partnerName) {
 
   //send ice candidate to partnerNames
   pc[partnerName].onicecandidate = ({ candidate }) => {
-    if (!candidate) return;
+    if (!candidate) {
+        console.log('!!! NO ICE CANDIDATES');
+        return;
+    }
     damSocket.out("icecandidates", {
       candidate: candidate,
       to: partnerName,
