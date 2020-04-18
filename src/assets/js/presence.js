@@ -90,7 +90,6 @@ function offGrid() {
 }
 
 function onGrid(peerUrl) {
-  console.log('before',root._.opt.peers)
   let peers = root._.opt.peers;
   let keys = Object.keys(peers);
   // check if peers are empty
@@ -99,5 +98,4 @@ function onGrid(peerUrl) {
   peer.url = peerUrl;
   peers[peerUrl] = peer;
   root._.opt.peers = peers;
-  console.log('after',root._.opt.peers)
 }
