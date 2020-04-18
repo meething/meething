@@ -35,11 +35,11 @@ export default class EventEmitter {
               self.onNewUserStart(msg.data);
               break;
             case "icecandidates":
-              console.log("DAM: icecandidates");
+              console.log("DAM: icecandidates", msg.data);
               self.onIceCandidates(msg.data);
               break;
             case "sdp":
-              console.log("DAM: sdp");
+              console.log("DAM: sdp",msg.data);
               self.onSdp(msg.data);
               break;
             default:
