@@ -472,29 +472,10 @@ function init(createOffer, partnerName) {
   //add
   pc[partnerName].ontrack = e => {
     let str = e.streams[0];
-    if (document.getElementById(`${partnerName}-video`)) {
-      document.getElementById(`${partnerName}-video`).srcObject = str;
-      //When the video frame is clicked. This will enable picture-in-picture
-      document
-        .getElementById(`${partnerName}-video`)
-        .addEventListener("click", () => {
-          if (!document.pictureInPictureElement) {
-            document
-              .getElementById(`${partnerName}-video`)
-              .requestPictureInPicture()
-              .catch(error => {
-                // Video failed to enter Picture-in-Picture mode.
-                console.error(error);
-              });
-          } else {
-            document.exitPictureInPicture().catch(error => {
-              // Video failed to leave Picture-in-Picture mode.
-              console.error(error);
-            });
-          }
-        });
+    var el = document.getElementById(`${partnerName}-video`);
+    if (el) {
+      el.srcObject = str;
     } else {
-      //video elem
       h.addVideo(partnerName, str);
     }
   };
