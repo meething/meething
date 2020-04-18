@@ -4,7 +4,7 @@ var peers = [
 ];
 var opt = { peers: peers, localStorage: false, radisk: false };
 var root = Gun(opt);
-
+console.log("before",root._.opt.peers);
 const pid = root._.opt.pid;
 const users = new Map();
 
@@ -80,9 +80,13 @@ function removeItem(pid) {
 }
 
 function offGrid() {
+  console.log('root peers', root._.opt.peers);
   const keys = Object.keys(root._.opt.peers)
+  console.log("keys",keys);
   for (const key of keys) {
+    console.log("key",key)
     var peer = root._.opt.peers[key];
+    console.log("peer", peer);
     peer.enabled = false;
     root.on('bye', peer);
     peer.url = '';
@@ -90,5 +94,7 @@ function offGrid() {
 }
 
 function onGrid(peer) {
-  root.opt({ peers: [peer] })
+  let peers = [];
+  peers.push(peer);
+  root.opt({peers:peers})
 }
