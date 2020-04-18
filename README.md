@@ -8,6 +8,8 @@ A semi-decentralized conference bridge using WebRTC, [GunDB](http://gun.eco) and
 ## Status
 * Experimental!
 
+[![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
+
 ## Installation
 ```
 npm install
@@ -29,16 +31,8 @@ npm start
 
 -------------
 
-## Blocking Bugs
-* [ ] in 3+ party mode, new participants are not aware of existing subscribers
-
 ## Todo
-* [x] create a basic working prototype
-* [x] implement ts gate to discard old events
-* [ ] cleanup abandoned gun sessions
-* [ ] implement letsencrypt ssl automode
-* [ ] implement CSS Styling, User Display, etc
-* [ ] fix a bunch of early stage bugs!
+* see project [issues](https://github.com/meething/webrtc-gun/issues)
 
 ## Credits
 This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni
