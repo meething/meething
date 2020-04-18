@@ -99,6 +99,7 @@ export default {
       ]
     };
     //return servers;
+    
     return {
       iceServers: [
         { urls: ["stun:eu-turn4.xirsys.com"] },
@@ -117,6 +118,7 @@ export default {
         }
       ]
     };
+    
   },
 
   addChat(data, senderType) {
