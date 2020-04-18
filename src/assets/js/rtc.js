@@ -14,6 +14,7 @@ var root;
 var room;
 var username;
 var title = "ChatRoom";
+var videoBitrate = 'unlimited'
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -91,6 +92,7 @@ function initPresence() {
   presence = new Presence(root, room);
   damSocket.__proto__.presence = presence;
   presence.enter();
+  presence.__proto__.adaptBitrate = setBitrate;
 }
 
 function initRTC() {
@@ -239,6 +241,7 @@ function initRTC() {
             });
 
             let answer = await pc[data.sender].createAnswer();
+            answer.sdp = setMediaBitrates(answer.sdp);
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -259,6 +262,7 @@ function initRTC() {
               OfferToReceiveVideo: true
             };
             let answer = await pc[data.sender].createAnswer(answerConstraints);
+            answer.sdp = setMediaBitrates(answer.sdp);
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -417,6 +421,7 @@ function init(createOffer, partnerName) {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
         let offer = await pc[partnerName].createOffer(offerConstraints);
+        offer.sdp = setMediaBitrates(offer.sdp);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
@@ -442,6 +447,7 @@ function init(createOffer, partnerName) {
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
+        offer.sdp = setMediaBitrates(offer.sdp);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
@@ -535,4 +541,125 @@ function init(createOffer, partnerName) {
         break;
     }
   };
+}
+
+function calculateBitrate() {
+  var oldBitrate = videoBitrate;
+  switch (presence.users.size) {
+    case 0:
+    case 1:
+    case 2:
+      videoBitrate = "2000";
+      break;
+    case 3:
+      videoBitrate = "1000";
+      break;
+    case 4:
+      videoBitrate = "500";
+      break;
+    case 5:
+      videoBitrate = "250";
+      break;
+    case 6:
+      videoBitrate = "125";
+      break;
+    default:
+      videoBitrate = "60";
+      break;
+  }
+
+  if (oldBitrate == videoBitrate) {
+    return false;
+  } else {
+    sendMsg("Bitrate " + videoBitrate, true);
+    return true;
+  }
+}
+
+function setBitrate(count) {
+  if (calculateBitrate()) {
+    console.log("Adapt to " + count + " users");
+    if ((adapter.browserDetails.browser === 'chrome' ||
+      adapter.browserDetails.browser === 'safari' ||
+      (adapter.browserDetails.browser === 'firefox' &&
+        adapter.browserDetails.version >= 64)) &&
+      'RTCRtpSender' in window &&
+      'setParameters' in window.RTCRtpSender.prototype) {
+      var bandwidth = videoBitrate;
+      console.log("Setting bandwidth::" + bandwidth);
+      pc.forEach((pc1, id) => {
+        pc[pc1].getSenders().forEach((sender) => {
+          if (sender.transport && sender.transport.state == "connected") {
+            const parameters = sender.getParameters();
+            if (!parameters.encodings) {
+              parameters.encodings = [{}];
+            }
+            if (bandwidth === 'unlimited') {
+              console.log("Removing bitrate setting");
+              if (parameters.encodings[0]) {
+                delete parameters.encodings[0].maxBitrate;
+              }
+            } else {
+              if (parameters.encodings[0] !== undefined) {
+                parameters.encodings[0].maxBitrate = bandwidth * 1000;
+              }
+            }
+            sender.setParameters(parameters)
+              .then(() => {
+                console.log("Done setting Bandwidth to:" + bandwidth)
+              })
+              .catch(e => console.error(e));
+          }
+        })
+      });
+      return;
+    }
+  }
+}
+
+function setMediaBitrates(sdp) {
+  if (videoBitrate == 'unlimited' || !calculateBitrate()) {
+    console.log("Not changing bitrate max is set")
+    return sdp;
+  } else {
+    return setMediaBitrate(setMediaBitrate(sdp, "video", videoBitrate), "audio", 50);
+  }
+}
+
+function setMediaBitrate(sdp, media, bitrate) {
+  var lines = sdp.split("\n");
+  var line = -1;
+  for (var i = 0; lines.length; i++) {
+    if (lines[i].indexOf("m=" + media) === 0) {
+      line = i;
+      break;
+    }
+  }
+  if (line === -1) {
+    console.debug("Could not find the m line for", media);
+    return sdp;
+  }
+  console.debug("Found the m line for", media, "at line", line);
+
+  // Pass the m line
+  line++;
+
+  // Skip i and c lines
+  while (lines[line].indexOf("i=") === 0 || lines[line].indexOf("c=") === 0) {
+    line++;
+  }
+
+  // If we're on a b line, replace it
+  if (lines[line].indexOf("b") === 0) {
+    console.debug("Replaced b line at line", line);
+    lines[line] = "b=AS:" + bitrate;
+    return lines.join("\n");
+  }
+
+  // Add a new b line
+  console.debug("Adding new b line before line", line);
+  var newLines = lines.slice(0, line)
+  newLines.push("b=AS:" + bitrate)
+  newLines = newLines.concat(lines.slice(line, lines.length))
+  return newLines.join("\n")
 }

@@ -14,18 +14,28 @@ export default class Presence {
           this.users.set(msg.pid, msg);
           this.addItem(msg.pid);
           this.distrubutePresence();
+          this.onUserChange();
           break;
         case "leave":
           this.users.delete(msg.pid);
           this.removeItem(msg.pid);
           this.distrubutePresence();
+          this.onUserChange();
           break;
         case "presence":
           this.addReceivedUsers(msg.data);
+          this.onUserChange();
           break;
         default:
           console.log(msg);
       }
+    }
+  }
+
+  onUserChange() {
+    self = this;
+    if (self.adaptBitrate) {
+      self.adaptBitrate(this.users.size)
     }
   }
 
