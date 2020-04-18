@@ -98,7 +98,12 @@ export default {
       ],
     };
     
-    return servers;
+    // return servers;
+    
+      return {
+      iceServers: [
+        { "username":"meething",credential:"meething",urls:["turn:stun.hepic.tel:19302","stun:stun.hepic.tel:19302"]}  
+      ]};
     
     /*
     return {
