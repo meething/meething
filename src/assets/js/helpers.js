@@ -96,8 +96,9 @@ export default {
           {urls: 'stun:stun.services.mozilla.com'}*/
       ]
     };
-    //return servers;
+    return servers;
     
+    /*
     return {
       iceServers: [
         { urls: ["stun:eu-turn4.xirsys.com"] },
@@ -116,6 +117,7 @@ export default {
         }
       ]
     };
+    */
     
   },
 
