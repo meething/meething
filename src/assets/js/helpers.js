@@ -166,7 +166,7 @@ export default {
   },
 
   addVideoElementEvent(elem, type = "pip") {
-    if ("pictureInPictureEnabled" in document  && type == "pip") {
+    if ("pictureInPictureEnabled" in document && type == "pip") {
       elem.addEventListener("click", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
@@ -206,7 +206,7 @@ export default {
     newVid.srcObject = str;
     newVid.autoplay = true;
     newVid.className = "remote-video";
-    this.addVideoElementEvent(newVid,"pip");
+    this.addVideoElementEvent(newVid, "pip");
 
     // Video user title
     var vtitle = document.createElement("p");

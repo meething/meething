@@ -12,11 +12,11 @@ var room;
 var username;
 var title = "ChatRoom";
 
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-  title = room.replace(/_(.*)/,'');
-  if(title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML=title;
+  title = room.replace(/_(.*)/, '');
+  if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
   initUser();
   initRTC();
@@ -38,7 +38,7 @@ function initSocket() {
     offGrid();
     onGrid(roomPeer);
   }
-  
+
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
 
@@ -53,7 +53,7 @@ function initSocket() {
   damSocket = new EventEmitter(root, room);
 
   // Custom Emit Function - move to Emitter?
-  socket.emit = function(key, value) {
+  socket.emit = function (key, value) {
     if (value.sender && value.to && value.sender == value.to) return;
     console.log("debug emit key", key, "value", value);
     if (!key || !value) return;
@@ -92,10 +92,10 @@ function sendMsg(msg, local) {
   h.addChat(data, "local");
 }
 
-window.onbeforeunload = function() {
+window.onbeforeunload = function () {
   // Cleanup peerconnections
   pcmap.forEach((pc, id) => {
-    if(pcmap.has(id)){
+    if (pcmap.has(id)) {
       pcmap.get(id).close();
       pcmap.delete(id);
     }
@@ -131,7 +131,7 @@ function initRTC() {
     });
 
     //Do we do this here this is now triggered from DAM?
-    EventEmitter.prototype.onSubscribe = function(data) {
+    EventEmitter.prototype.onSubscribe = function (data) {
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
         console.log("discarding old sub", data);
@@ -170,7 +170,7 @@ function initRTC() {
       init(true, data.socketId);
     };
 
-    EventEmitter.prototype.onNewUserStart = function(data) {
+    EventEmitter.prototype.onNewUserStart = function (data) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -184,7 +184,7 @@ function initRTC() {
       init(false, data.sender);
     };
 
-    EventEmitter.prototype.onIceCandidates = function(data) {
+    EventEmitter.prototype.onIceCandidates = function (data) {
       try {
         if (
           (data.ts && Date.now() - data.ts > TIMEGAP) ||
@@ -207,7 +207,7 @@ function initRTC() {
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     };
 
-    EventEmitter.prototype.onSdp = function(data) {
+    EventEmitter.prototype.onSdp = function (data) {
       try {
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         if (
@@ -229,8 +229,8 @@ function initRTC() {
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
-              new RTCSessionDescription(data.description)
-            )
+            new RTCSessionDescription(data.description)
+          )
           : "";
 
         h.getUserMedia()
@@ -283,7 +283,7 @@ function initRTC() {
       }
     };
 
-    socket.get("chat").on(function(data, key) {
+    socket.get("chat").on(function (data, key) {
       if (data.ts && Date.now() - data.ts > 5000) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (data.sender == username) return;
@@ -353,10 +353,10 @@ function initRTC() {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
-          if(false) h.replaceAudioTrackForPeers(pcmap,atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not 
+          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not 
           h.replaceVideoTrackForPeers(pcmap, vtrack);
           document.getElementById("local").srcObject = stream;
-          vtrack.onended = function(event) {
+          vtrack.onended = function (event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
@@ -379,22 +379,22 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if(pcmap.has(partnerName)) return pcmap.get(partnerName); // DO NOT overwrite existing peer connections with new listeners - many malformed iceCandidates resulted from this
+  if (pcmap.has(partnerName)) return pcmap.get(partnerName); // DO NOT overwrite existing peer connections with new listeners - many malformed iceCandidates resulted from this
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
-    var tracks ={}; 
+    var tracks = {};
     tracks['audio'] = screenStream.getAudioTracks();
-    tracks['video'] = screenStream.getVideoTracks(); 
-    if(myStream){
+    tracks['video'] = screenStream.getVideoTracks();
+    if (myStream) {
       tracks['audio'] = myStream.getAudioTracks(); //We want sounds from myStream if there is such
-      if(!tracks.video.length) tracks['video'] = myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
+      if (!tracks.video.length) tracks['video'] = myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
     }
 
-    ['audio','video'].map(tracklist=>{
+    ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
         pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
       });
