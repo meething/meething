@@ -85,10 +85,16 @@ export default {
   },
 
   getIceServer() {
+    try {
+     var pc = new RTCPeerConnection()
+       var iceServers = RTCPeerConnection.getDefaultIceServers();
+       if (iceServers) { console.log(iceServers); return iceServers; }
+    } catch(e){ console.log(e); }
+    
     var servers = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun.sipgate.net:3478"} /*,
+        { urls: "stun:stun.sipgate.net:3478"}/*,
           {urls: "stun:stun.stunprotocol.org"},
           {urls: "stun:stun.sipgate.net:10000"},
           {urls: "stun:217.10.68.152:10000"},
@@ -97,8 +103,7 @@ export default {
     };
     
     var xirsys = [{ urls: ["stun:eu-turn4.xirsys.com"] },
-        {
-          username: "ml0jh0qMKZKd9P_9C0UIBY2G0nSQMCFBUXGlk6IXDJf8G2uiCymg9WwbEJTMwVeiAAAAAF2__hNSaW5vbGVl",
+        { username: "ml0jh0qMKZKd9P_9C0UIBY2G0nSQMCFBUXGlk6IXDJf8G2uiCymg9WwbEJTMwVeiAAAAAF2__hNSaW5vbGVl",
           credential: "4dd454a6-feee-11e9-b185-6adcafebbb45",
           urls: [
             "turn:eu-turn4.xirsys.com:80?transport=udp",
