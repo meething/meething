@@ -4,7 +4,6 @@ window.addEventListener('load', ()=>{
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e)=>{
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
-
         //remove the 'New' badge on chat icon (if any) once chat is opened.
         setTimeout(()=>{
             if(document.querySelector('#chat-pane').classList.contains('chat-opened')){
@@ -69,7 +68,7 @@ window.addEventListener('load', ()=>{
 
             // add room name to chat title
             document.querySelector('#chat-title').innerHTML = roomName;
-
+            
             //empty the values
             document.querySelector('#room-name').value = '';
             document.querySelector('#your-name').value = '';

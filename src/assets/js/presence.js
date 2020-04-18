@@ -47,6 +47,7 @@ function send(event, data) {
   root.on("out", { pid: pid, event: event, data: data });
 }
 
+
 function enter() {
   send("enter", null);
   users.set(pid, null);
@@ -76,4 +77,18 @@ function removeItem(pid) {
 
   var item = document.getElementById(pid);
   ul.removeChild(item);
+}
+
+function offGrid() {
+  const keys = Object.keys(root._.opt.peers)
+  for (const key of keys) {
+    var peer = root._.opt.peers[key];
+    peer.enabled = false;
+    root.on('bye', peer);
+    peer.url = '';
+  }
+}
+
+function onGrid(peer) {
+  root.opt({ peers: [peer] })
 }
