@@ -190,11 +190,15 @@ function initRTC() {
           (data.ts && Date.now() - data.ts > TIMEGAP) ||
           !data.sender ||
           !data.to
-        )
+        ) {
+          console.log('discarding candidate',data);
+          return;
+        }
           return;
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
+        console.log('Generating candidate', data.candidate);
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
