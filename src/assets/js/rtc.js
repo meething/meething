@@ -24,6 +24,7 @@ var socket;
 var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
+const negotiations = new Map();
 var myStream = "";
 var screenStream;
 var socketId;
@@ -90,8 +91,10 @@ function sendMsg(msg, local) {
 window.onbeforeunload = function() {
   // Cleanup peerconnections
   pcmap.forEach((pc, id) => {
-    pcmap.get(id).close();
-    pcmap.delete(id);
+    if(pcmap.has(id)){
+      pcmap.get(id).close();
+      pcmap.delete(id);
+    }
   });
 };
 
@@ -344,15 +347,18 @@ function initRTC() {
           });
         } else {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
-          var track = stream.getVideoTracks()[0];
-          h.replaceVideoTrackForPeers(pcmap, track);
+          var atrack = stream.getAudioTracks()[0];
+          var vtrack = stream.getVideoTracks()[0];
+          if(false) h.replaceAudioTrackForPeers(pcmap,atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not 
+          h.replaceVideoTrackForPeers(pcmap, vtrack);
           document.getElementById("local").srcObject = stream;
-          track.onended = function(event) {
+          vtrack.onended = function(event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
               document.getElementById("local").srcObject = myStream;
               h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
+              h.replaceAudioTrackForPeers(pcmap, myStream.getAudioTracks()[0]);
             }
             e.srcElement.classList.remove("sharing");
             e.srcElement.classList.add("text-white");
@@ -375,10 +381,20 @@ function init(createOffer, partnerName) {
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
-    screenStream.getTracks().forEach(track => {
-      pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
+    var tracks ={}; 
+    tracks['audio'] = screenStream.getAudioTracks();
+    tracks['video'] = screenStream.getVideoTracks(); 
+    if(myStream){
+      tracks['audio'] = myStream.getAudioTracks(); //We want sounds from myStream if there is such
+      if(!tracks.video.length) tracks['video'] = myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
+    }
+
+    ['audio','video'].map(tracklist=>{
+      tracks[tracklist].forEach(track => {
+        pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
+      });
     });
-  } else if (myStream) {
+  } else if (!screenStream && myStream) {
     myStream.getTracks().forEach(track => {
       pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
     });
@@ -416,27 +432,28 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
+    if (!negotiations.has(partnerName)) negotiations.set(partnerName, false);
     pc[partnerName].onnegotiationneeded = async () => {
       try {
-        if (pc[partnerName].isNegotiating) {
-          console.log(
-            "negotiation needed with existing state?",
-            partnerName,
-            pc[partnerName].isNegotiating,
-            pc[partnerName].signalingState
-          );
-          //return; // Chrome nested negotiation bug
+        try {
+          if (
+            negotiations.get(partnerName) == true ||
+            pc[partnerName].signalingState != "stable"
+          )
+            return;
+          negotiations.set(partnerName, true);
+          let offer = await pc[partnerName].createOffer();
+          await pc[partnerName].setLocalDescription(offer);
+          damSocket.out("sdp", {
+            description: pc[partnerName].localDescription,
+            to: partnerName,
+            sender: socketId,
+          });
+        } finally {
+          negotiations.set(partnerName, false);
         }
-        pc[partnerName].isNegotiating = true;
-        let offer = await pc[partnerName].createOffer();
-        await pc[partnerName].setLocalDescription(offer);
-        damSocket.out("sdp", {
-          description: pc[partnerName].localDescription,
-          to: partnerName,
-          sender: socketId
-        });
-      } finally {
-        pc[partnerName].isNegotiating = false;
+      } catch (err) {
+        console.log("error in ONN handler with `" + partnerName + "`", err);
       }
     };
   }

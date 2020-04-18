@@ -166,12 +166,33 @@ export default {
     cache = data;
   },
 
+  addFullscreenToElements(selector='fsme'){
+    var elems =  document.getElementsByClassName(selector);
+    if(elems.length==0) return [];
+    elems.map(elem=>{  
+      return elem.addEventListener('click', e => {
+        e.preventDefault(); 
+        elem.className = /fullscreen/.test(elem.className) ? 'remote-video' : 'remote-video fullscreen';
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        }
+      });
+    });
+    return elems; //debugging
+  },
+
   addVideo(partnerName, str) {
     let newVid = document.createElement("video");
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = str;
     newVid.autoplay = true;
-    newVid.className = "remote-video";
+    newVid.className = "remote-video fsme";
 
     // Video user title
     var vtitle = document.createElement("p");
@@ -211,19 +232,48 @@ export default {
   },
 
   //For screensharing
-  replaceVideoTrackForPeers(peers, track) {
-    peers.forEach((peer, id) => {
-      console.log("trying to send new track to peer `" + id + "`");
+  replaceTrackForPeer(peer,track,kind){
+    return new Promise((resolve,reject)=>{
       var sender =
-        peer && peer.getSenders
-          ? peer.getSenders().find(s => s.track && s.track.kind === "video")
-          : false;
+      peer && peer.getSenders
+        ? peer.getSenders().find(s => s.track && s.track.kind === kind)
+        : false;
       if (sender) {
         sender.replaceTrack(track);
+        resolve(sender);
       }
+      return reject(sender);
     });
   },
   
+  replaceAudioTrackForPeers(peers, track) {
+    var self = this;
+    let promises = [];
+    peers.forEach((peer, id) => {
+      console.log("trying to send new Audio track to peer `" + id + "`");
+      promises.push(self.replaceTrackForPeer(peer,track,'audio'));
+    });
+    return Promise.all(promises).then(results=>{
+      console.log('Promises passed',results);
+    }).catch(err=>{
+      console.log('there was a problem with peers',err);
+    })
+  },
+
+  replaceVideoTrackForPeers(peers, track) {
+    var self = this;
+    let promises = [];
+    peers.forEach((peer, id) => {
+      console.log("trying to send new Video track to peer `" + id + "`");
+      promises.push(self.replaceTrackForPeer(peer,track,'video'));
+    });
+    return Promise.all(promises).then(results=>{
+      console.log('Promises passed',results);
+    }).catch(err=>{
+      console.log('there was a problem with peers',err);
+    })
+  },
+
   getDisplayMedia(opts){
     if(navigator.mediaDevices.getDisplayMedia) {
       return navigator.mediaDevices.getDisplayMedia(opts)
