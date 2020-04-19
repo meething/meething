@@ -222,6 +222,7 @@ cursor: crosshair
 .gridtile {
   background-color: #473761bb !important;
 }
+
 /* video styles */
 .v-toolbox{
   display:grid;
@@ -239,5 +240,13 @@ cursor: crosshair
 }
 .v-user:hover {
   opacity: 1;
+}
+
+.nd-logo {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: baseline;
+    color: #fff;
+    font-family: "Helvetica-Neue-Bold";
 }
 

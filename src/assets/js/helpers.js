@@ -5,6 +5,10 @@ export default {
   },
 
   closeVideo(elemId) {
+    var widget = document.getElementById(elemId);
+    var gridster = $(".gridster ul").gridster().data('gridster');
+    gridster.remove_widget(widget);
+
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
     }
@@ -246,7 +250,7 @@ export default {
     ligrid.id = partnerName;
     //document.getElementById("gridul").appendChild(ligrid);
     var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.add_widget(ligrid, 1, 1);
+    gridster.add_widget(ligrid, 1, 1, 1, 1);
     gridster.resize_responsive_layout();
 
     //put div in videos elem
