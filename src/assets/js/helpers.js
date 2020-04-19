@@ -5,9 +5,9 @@ export default {
   },
 
   closeVideo(elemId) {
-    var widget = document.getElementById(elemId);
-    var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.remove_widget(widget);
+    var widget = document.getElementById(elemId+"-widget");
+    grid.removeWidget(widget);
+    grid.compact();
 
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
@@ -243,18 +243,19 @@ export default {
     div.id = partnerName;
     div.appendChild(cardDiv);
 
-    let ligrid = document.createElement("li");
-    let gridiv = document.createElement("div");
-    gridiv.appendChild(cardDiv);
-    ligrid.appendChild(gridiv);
-    ligrid.id = partnerName;
-    //document.getElementById("gridul").appendChild(ligrid);
-    var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.add_widget(ligrid, 1, 1, 1, 1);
-    gridster.resize_responsive_layout();
+
+    let ogrid = document.createElement("div");
+    let xgrid = document.createElement("div");
+    xgrid.className = "grid-stack-item-content";
+    xgrid.appendChild(cardDiv);
+    ogrid.appendChild(xgrid);
+    ogrid.id = partnerName + "-widget";
+    grid.addWidget(ogrid, 0, 0, 3, 4, true);
+    grid.compact();
+    resizeGrid();
 
     //put div in videos elem
-    // document.getElementById("videos").appendChild(div);
+    //document.getElementById("videos").appendChild(div);
   },
 
   toggleChatNotificationBadge() {
