@@ -117,7 +117,8 @@ function initRTC() {
     }
 
     // Remove animated bg... to be replaced entirely with something cpu friendly
-    document.getElementById("demo").remove();
+    //document.getElementById("demo").remove();
+    document.getElementById("demo").attributes.removeNamedItem("hidden");
 
     socketId = h.uuidv4();
 

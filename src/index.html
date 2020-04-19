@@ -33,18 +33,25 @@
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
   <!-- <script src="assets/js/webrtc.js"></script> -->
-  <!-- Gridstack.js cdn ands styles -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
-  <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
+
+  <!-- gridster.js -->
+  <link rel="stylesheet" href="https://dsmorse.github.io/gridster.js/dist/jquery.gridster.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script src="https://dsmorse.github.io/gridster.js/dist/jquery.gridster.min.js" type="text/javascript" charset="utf-8"></script>
+
 
 </head>
 
 <body>
-  <div id="demo" class="demo"></div>
+  <div id="demo" class="gridster demo" hidden>
+    <ul class="nonelist" id="gridul">
+      <!-- <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" class="gridtile">Waiting Video...</li> -->
+    </ul>
+
+  </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
     <div class="text-white">
-      GunMeeting - powered by
-      <a href="http://gun.eco" target="_blank">GunDB</a>
+      <a href="http://github.com/meething" target="_blank">Gun Meething</a>
     </div>
 
     <div class="pull-right room-comm" hidden>
@@ -179,7 +186,15 @@
   <script src="assets/js/dragable.js"></script>
   <!-- js gridstack requirement -->
   <script type="text/javascript">
-    var grid = GridStack.init();
+    // var grid = GridStack.init();
+    // Gridster
+    $(function(){ //DOM Ready
+	    var gridster = $(".gridster > ul").gridster({
+		widget_base_dimensions: [320, 240],
+	        widget_margins: [5, 5],
+	        resize: { enabled: true}
+	    }).data(gridster);
+    });
   </script>
 </body>
 

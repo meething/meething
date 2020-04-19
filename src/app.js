@@ -11,11 +11,11 @@ let path = require('path');
 var config = {};
 
 config.options = {
-	key: process.env.SSLKEY || fs.readFileSync('src/assets/server.key'),
-	cert: process.env.SSLCERT || fs.readFileSync('src/assets/server.cert')
+  key: process.env.SSLKEY || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/privkey.pem'),
+  cert: process.env.SSLCERT || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/fullchain.pem')
 }
 
-config.port = process.env.PORT || 8443;
+config.port = process.env.PORT || 443;
 config.gunport = process.env.GUNPORT || 8765;
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
