@@ -11,8 +11,10 @@ let path = require('path');
 var config = {};
 
 config.options = {
-  key: process.env.SSLKEY || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/privkey.pem'),
-  cert: process.env.SSLCERT || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/fullchain.pem')
+  //key: process.env.SSLKEY || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/privkey.pem'),
+	//cert: process.env.SSLCERT || fs.readFileSync('/etc/letsencrypt/live/meething.hepic.tel/fullchain.pem')
+	key: process.env.SSLKEY || fs.readFileSync('src/assets/server.key'),
+	cert: process.env.SSLCERT || fs.readFileSync('src/assets/server.cert')
 }
 
 config.port = process.env.PORT || 443;

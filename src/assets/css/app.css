@@ -101,7 +101,7 @@ body {
 }
 
 .chat-card {
-  border-radius: 6px;
+  border-radius: 3px;
 }
 
 .btn-no-effect:focus {
@@ -181,7 +181,6 @@ li {
 cursor: crosshair
 }
 
-
 .icon-off {
   color: #FF0000 !important;
 }
@@ -201,15 +200,10 @@ cursor: crosshair
 #login{
   background:#473761bb !important;
   box-shadow: 4px 0px 8px black;
-  
 }
 
-
 #room-create img{
-  
   margin-top:15px;
-  
-  
 }
 
 #room-create .create-room{
@@ -229,10 +223,21 @@ cursor: crosshair
   background-color: #473761bb !important;
 }
 
-.nd-logo {
-    font-size: 16px;
-    display: inline-block;
-    vertical-align: baseline;
-    color: #fff;
-    font-family: "Helvetica-Neue-Bold";
+/* video styles */
+.v-toolbox{
+  display:grid;
+  height:40px;
+  width:auto;
+  background:#23153ccc;
+  
+}
+.v-user{
+  margin-top:5px;
+  text-align:center;
+  font-size:12px;
+  letter-spacing:1px;
+  opacity:.7;
+}
+.v-user:hover {
+  opacity: 1;
 }
