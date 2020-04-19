@@ -167,7 +167,7 @@ export default {
 
   addVideoElementEvent(elem, type = "pip") {
     if ("pictureInPictureEnabled" in document && type == "pip") {
-      elem.addEventListener("click", (e) => {
+      elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
           elem.requestPictureInPicture().catch((error) => {
@@ -227,8 +227,18 @@ export default {
     div.id = partnerName;
     div.appendChild(cardDiv);
 
+    let ligrid = document.createElement("li");
+    let gridiv = document.createElement("div");
+    gridiv.appendChild(cardDiv);
+    ligrid.appendChild(gridiv);
+    ligrid.id = partnerName;
+    //document.getElementById("gridul").appendChild(ligrid);
+    var gridster = $(".gridster ul").gridster().data('gridster');
+    gridster.add_widget(ligrid, 1, 1);
+    gridster.resize_responsive_layout();
+
     //put div in videos elem
-    document.getElementById("videos").appendChild(div);
+    // document.getElementById("videos").appendChild(div);
   },
 
   toggleChatNotificationBadge() {
