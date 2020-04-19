@@ -11,24 +11,24 @@ let path = require('path');
 var config = {};
 
 config.options = {
-  key: process.env.SSLKEY || fs.readFileSync('src/assets/server.key'),
-  cert: process.env.SSLCERT || fs.readFileSync('src/assets/server.cert')
+	key: process.env.SSLKEY || fs.readFileSync('src/assets/server.key'),
+	cert: process.env.SSLCERT || fs.readFileSync('src/assets/server.cert')
 }
 
-config.port =  process.env.PORT || 8443;
-config.gunport =  process.env.GUNPORT || 8765;
+config.port = process.env.PORT || 8443;
+config.gunport = process.env.GUNPORT || 8765;
 
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.get('/', (req, res)=>{
-    res.sendFile(__dirname+'/index.html');
+app.get('/', (req, res) => {
+	res.sendFile(__dirname + '/index.html');
 });
 
 if (!process.env.SSL) {
- 	config.webserver = http.createServer({}, app);
- 	config.webserver.listen(config.port, () => console.log(`Example HTTP app listening on port ${config.port}!`))
+	config.webserver = http.createServer({}, app);
+	config.webserver.listen(config.port, () => console.log(`Example HTTP app listening on port ${config.port}!`))
 } else {
- 	config.webserver = https.createServer(config.options, app);
+	config.webserver = https.createServer(config.options, app);
 	config.webserver.listen(config.port, () => console.log(`Example HTTPS app listening on port ${config.port}!`))
 }
 

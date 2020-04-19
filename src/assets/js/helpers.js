@@ -1,10 +1,7 @@
 var cache;
 export default {
   generateRandomString() {
-    return Math.random()
-      .toString(36)
-      .slice(2)
-      .substring(0, 15);
+    return Math.random().toString(36).slice(2).substring(0, 15);
   },
 
   closeVideo(elemId) {
@@ -14,7 +11,9 @@ export default {
   },
 
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
+      c
+    ) {
       var r = (Math.random() * 16) | 0,
         v = c == "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
@@ -42,7 +41,7 @@ export default {
       if (splittedQStrings.length) {
         let queryStringObj = {};
 
-        splittedQStrings.forEach(function(keyValuePair) {
+        splittedQStrings.forEach(function (keyValuePair) {
           let keyValue = keyValuePair.split("=", 2);
 
           if (keyValue.length) {
@@ -77,8 +76,8 @@ export default {
       return navigator.mediaDevices.getUserMedia({
         video: true,
         audio: {
-          echoCancellation: true
-        }
+          echoCancellation: true,
+        },
       });
     } else {
       throw new Error("User media not available");
@@ -90,13 +89,13 @@ export default {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
         {
-          urls: "stun:stun.sipgate.net:3478"
+          urls: "stun:stun.sipgate.net:3478",
         } /*,
           {urls: "stun:stun.stunprotocol.org"},
           {urls: "stun:stun.sipgate.net:10000"},
           {urls: "stun:217.10.68.152:10000"},
-          {urls: 'stun:stun.services.mozilla.com'}*/
-      ]
+          {urls: 'stun:stun.services.mozilla.com'}*/,
+      ],
     };
     //return servers;
     return {
@@ -112,10 +111,10 @@ export default {
             "turn:eu-turn4.xirsys.com:80?transport=tcp",
             "turn:eu-turn4.xirsys.com:3478?transport=tcp",
             "turns:eu-turn4.xirsys.com:443?transport=tcp",
-            "turns:eu-turn4.xirsys.com:5349?transport=tcp"
-          ]
-        }
-      ]
+            "turns:eu-turn4.xirsys.com:5349?transport=tcp",
+          ],
+        },
+      ],
     };
   },
 
@@ -166,34 +165,70 @@ export default {
     cache = data;
   },
 
+  addVideoElementEvent(elem, type = "pip") {
+    if ("pictureInPictureEnabled" in document && type == "pip") {
+      elem.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!document.pictureInPictureElement) {
+          elem.requestPictureInPicture().catch((error) => {
+            // Video failed to enter Picture-in-Picture mode.
+            console.error(error);
+          });
+        } else {
+          document.exitPictureInPicture().catch((error) => {
+            // Video failed to leave Picture-in-Picture mode.
+            console.error(error);
+          });
+        }
+      });
+    } else {
+      elem.addEventListener("click", (e) => {
+        e.preventDefault();
+        elem.className = /fullscreen/.test(elem.className)
+          ? "remote-video"
+          : "remote-video fullscreen";
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.msRequestFullscreen) {
+          elem.msRequestFullscreen();
+        } else if (elem.mozRequestFullScreen) {
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) {
+          elem.webkitRequestFullscreen();
+        }
+      });
+    }
+  },
+
   addVideo(partnerName, str) {
     let newVid = document.createElement("video");
-      newVid.id = `${partnerName}-video`;
-      newVid.srcObject = str;
-      newVid.autoplay = true;
-      newVid.className = "remote-video";
+    newVid.id = `${partnerName}-video`;
+    newVid.srcObject = str;
+    newVid.autoplay = true;
+    newVid.className = "remote-video";
+    this.addVideoElementEvent(newVid, "pip");
 
-      // Video user title
-      var vtitle = document.createElement("p");
-      var vuser = partnerName;
-      vtitle.innerHTML = `<center>${vuser}</center>`;
-      vtitle.id = `${partnerName}-title`;
+    // Video user title
+    var vtitle = document.createElement("p");
+    var vuser = partnerName;
+    vtitle.innerHTML = `<center>${vuser}</center>`;
+    vtitle.id = `${partnerName}-title`;
 
-      //create a new div for card
-      let cardDiv = document.createElement("div");
-      cardDiv.className = "card mb-3";
-      cardDiv.style = "color:#FFF;";
-      cardDiv.appendChild(newVid);
-      cardDiv.appendChild(vtitle);
+    //create a new div for card
+    let cardDiv = document.createElement("div");
+    cardDiv.className = "card mb-3";
+    cardDiv.style = "color:#FFF;";
+    cardDiv.appendChild(newVid);
+    cardDiv.appendChild(vtitle);
 
-      //create a new div for everything
-      let div = document.createElement("div");
-      div.className = "col-sm-12 col-md-6";
-      div.id = partnerName;
-      div.appendChild(cardDiv);
+    //create a new div for everything
+    let div = document.createElement("div");
+    div.className = "col-sm-12 col-md-6";
+    div.id = partnerName;
+    div.appendChild(cardDiv);
 
-      //put div in videos elem
-      document.getElementById("videos").appendChild(div);
+    //put div in videos elem
+    document.getElementById("videos").appendChild(div);
   },
 
   toggleChatNotificationBadge() {
@@ -208,5 +243,62 @@ export default {
         .querySelector("#new-chat-notification")
         .removeAttribute("hidden");
     }
-  }
+  },
+
+  //For screensharing
+  replaceTrackForPeer(peer, track, kind) {
+    return new Promise((resolve, reject) => {
+      var sender =
+        peer && peer.getSenders
+          ? peer.getSenders().find((s) => s.track && s.track.kind === kind)
+          : false;
+      if (sender) {
+        sender.replaceTrack(track);
+        resolve(sender);
+      }
+      return reject("no sender");
+    });
+  },
+
+  replaceAudioTrackForPeers(peers, track) {
+    var self = this;
+    let promises = [];
+    peers.forEach((peer, id) => {
+      console.log("trying to send new Audio track to peer `" + id + "`");
+      promises.push(self.replaceTrackForPeer(peer, track, "audio"));
+    });
+    return Promise.all(promises)
+      .then((results) => {
+        console.log("Promises passed", results);
+      })
+      .catch((err) => {
+        console.log("there was a problem with peers", err);
+      });
+  },
+
+  replaceVideoTrackForPeers(peers, track) {
+    var self = this;
+    let promises = [];
+    peers.forEach((peer, id) => {
+      console.log("trying to send new Video track to peer `" + id + "`");
+      promises.push(self.replaceTrackForPeer(peer, track, "video"));
+    });
+    return Promise.all(promises)
+      .then((results) => {
+        console.log("Promises passed", results);
+      })
+      .catch((err) => {
+        console.log("there was a problem with peers", err);
+      });
+  },
+
+  getDisplayMedia(opts) {
+    if (navigator.mediaDevices.getDisplayMedia) {
+      return navigator.mediaDevices.getDisplayMedia(opts);
+    } else if (navigator.getDisplayMedia) {
+      navigator.getDisplayMedia(opts);
+    } else {
+      throw new Error("Display media not available");
+    }
+  }, //End screensharing
 };
