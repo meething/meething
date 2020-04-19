@@ -101,14 +101,7 @@ export default {
     };
     
     return servers;
-    /*
-      return {
-      iceServers: [
-        { urls: "stun:stun.hepic.tel:19302"},
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls:["turn:stun.hepic.tel:19302","stun:stun.hepic.tel:19302"], "username":"meething",credential:"meething"}  
-      ]};
-    */
+
     /*
     return {
       iceServers: [
