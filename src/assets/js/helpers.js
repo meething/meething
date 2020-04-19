@@ -201,25 +201,37 @@ export default {
   },
 
   addVideo(partnerName, str) {
+
     let newVid = document.createElement("video");
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = str;
     newVid.autoplay = true;
     newVid.className = "remote-video";
     this.addVideoElementEvent(newVid, "pip");
-
+    // add toolbox div for vdeo title and options
+    var videoToolbox = document.createElement("div");
+    videoToolbox.className = 'v-toolbox';
     // Video user title
     var vtitle = document.createElement("p");
+     // add user icon
+     let userIcon = document.createElement("i");
+     userIcon.className = "fas fa-user";
+     
+     // add user name
     var vuser = partnerName;
-    vtitle.innerHTML = `<center>${vuser}</center>`;
+    //vtitle.appendChild(userIcon);
+    vtitle.textContent = vuser;
+    vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
-
+    videoToolbox.appendChild(vtitle);
+    
+   
     //create a new div for card
     let cardDiv = document.createElement("div");
     cardDiv.className = "card mb-3";
-    cardDiv.style = "color:#FFF;";
+    cardDiv.style = "color:#FFF; font-size";
     cardDiv.appendChild(newVid);
-    cardDiv.appendChild(vtitle);
+    cardDiv.appendChild(videoToolbox);
 
     //create a new div for everything
     let div = document.createElement("div");
