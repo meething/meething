@@ -228,3 +228,11 @@ cursor: crosshair
 .gridtile {
   background-color: #473761bb !important;
 }
+
+.nd-logo {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: baseline;
+    color: #fff;
+    font-family: "Helvetica-Neue-Bold";
+}
