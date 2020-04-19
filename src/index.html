@@ -22,11 +22,6 @@
   <script type="module" src="assets/js/events.js"></script>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-  <!--<script
-      src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
-      integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4="
-      crossorigin="anonymous"
-    ></script> -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
@@ -34,20 +29,16 @@
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
   <!-- <script src="assets/js/webrtc.js"></script> -->
 
-  <!-- gridster.js -->
-  <link rel="stylesheet" href="https://dsmorse.github.io/gridster.js/dist/jquery.gridster.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script src="https://dsmorse.github.io/gridster.js/dist/jquery.gridster.min.js" type="text/javascript" charset="utf-8"></script>
-
+  <!-- Gridstack -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
 
 </head>
 
 <body>
-  <div id="demo" class="gridster demo" hidden>
-    <ul class="nonelist" id="gridul">
-      <!-- <li data-row="1" data-col="1" data-sizex="1" data-sizey="1" class="gridtile">Waiting Video...</li> -->
-    </ul>
-
+  <div id="demo" class="demo" hidden>
+	<div class="grid-stack">
+	</div>
   </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
     <div class="text-white" style="margin-left:-15px;">
@@ -87,8 +78,16 @@
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
-        Private mode
+        <span class="fa fa-lock"></span>
       </button>
+
+      <select id ="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(this.value);" title="Grid Columns">
+	  <option value='1'>1</option>
+	  <option value='4'>4</option>
+	  <option value='6'>6</option>
+      </select>
+
+
     </div>
   </nav>
 
@@ -187,16 +186,49 @@
   <script src="assets/js/presence.js"></script>
   <script src="assets/js/dragable.js"></script>
   <!-- js gridstack requirement -->
-  <script type="text/javascript">
-    // var grid = GridStack.init();
-    // Gridster
-    $(function(){ //DOM Ready
-	    var gridster = $(".gridster > ul").gridster({
-		widget_base_dimensions: [320, 240],
-	        widget_margins: [5, 5],
-	        resize: { enabled: true}
-	    }).data(gridster);
+<script type="text/javascript">
+    var grid = GridStack.init({
+      float: true 
     });
+
+    //grid.enableMove(true,true)
+    var text = document.querySelector('#column-text');
+    
+    function resizeGrid() {
+      var width = document.body.clientWidth;
+      if (width < 300) {
+        grid.column(1);
+      } else if (width < 750) {
+        grid.column(2);
+      } else if (width < 850) {
+        grid.column(3);
+      } else if (width < 950) {
+        grid.column(3);
+      } else if (width > 951) {
+        grid.column(6);
+      } else if (width > 1250) {
+        grid.column(8);
+      }
+    };
+    
+    var items = [
+      {x: 0, y: 0, width: 2, height: 2},
+      {x: 2, y: 0, width: 2, height: 1},
+      {x: 5, y: 0, width: 1, height: 1},
+      {x: 1, y: 3, width: 4, height: 1},
+      {x: 5, y: 2, width: 2, height: 1},
+      {x: 0, y: 4, width: 12, height: 1}
+    ];
+    grid.batchUpdate();
+    /*
+    items.forEach(function(node, index) {
+      grid.addWidget('<div><div class="grid-stack-item-content">' + index + '</div></div>', node);
+    });
+    */
+    grid.commit();
+    resizeGrid();
+
+    window.addEventListener('resize', function() {resizeGrid()});
   </script>
 </body>
 
