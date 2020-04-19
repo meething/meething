@@ -1,7 +1,4 @@
-var peers = [
-  "https://livecodestream-us.herokuapp.com/gun",
-  "https://livecodestream-eu.herokuapp.com/gun"
-];
+var peers = ["https://gundb-multiserver.glitch.me/lobby"];
 var opt = { peers: peers, localStorage: false, radisk: false };
 var root = Gun(opt);
 
