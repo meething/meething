@@ -1,6 +1,5 @@
 var peers = [
-  "https://livecodestream-us.herokuapp.com/gun",
-  "https://livecodestream-eu.herokuapp.com/gun"
+   ""+location.protocol+"//"+location.hostname+"/gun"
 ];
 var opt = { peers: peers, localStorage: false, radisk: false };
 var root = Gun(opt);

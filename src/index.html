@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8"/>
     <title>Gun: Multi-User Video Call</title>
 
     <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -18,9 +19,7 @@
 
     <link
       rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
+      href="assets/css/bootstrap.min.css"
     />
     <link
       rel="stylesheet"
@@ -30,7 +29,8 @@
     />
     <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
     <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
-
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
+    <script type="module" src="assets/js/emitter.js"></script>
     <script type="module" src="assets/js/rtc.js"></script>
     <script type="module" src="assets/js/events.js"></script>
 
@@ -47,8 +47,8 @@
     <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
     <!-- <script src="assets/js/webrtc.js"></script> -->
 
-    <script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
-    <script src="https://www.vantajs.com/dist/vanta.net.min.js"></script>
+    <!--script src="https://www.vantajs.com/vendor/three.r95.min.js"></script>
+    <script src="https://www.vantajs.com/dist/vanta.net.min.js"></script-->
     <!--
     <script>
       window.VANTA = VANTA;
@@ -62,19 +62,18 @@
     -->
   </head>
 
-  <body>
-    <div id="demo" class="demo"></div>
+  <body><div id="demo" class="demo"></div>
     <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
+      
       <div class="text-white">
         GunMeeting - powered by
         <a href="http://gun.eco" target="_blank">GunDB</a>
       </div>
 
       <div class="pull-right room-comm" hidden>
-        <button
-          class="btn btn-sm rounded-0 btn-no-effect"
-          id="toggle-screen"
-          title="Start/Stop Screensharing"
+        <button class="btn btn-sm rounded-0 btn-no-effect" 
+        id='toggle-screen'
+        title="Start/Stop Screensharing"
         >
           <i class="fa fa-desktop text-white"></i>
         </button>
@@ -114,7 +113,7 @@
           id="toggle-users"
           title="Show/hide Users"
         >
-          <i class="fa fa-user-minus text-white"></i>
+          <i class="fa fa-user-plus text-white"></i>
         </button>
 
         <button
@@ -127,12 +126,6 @@
 
         <button class="btn btn-sm rounded-0 btn-no-effect text-white">
           <a href="/" class="text-white text-decoration-none">Leave Room</a>
-        </button>
-
-        <button
-          class="btn btn-sm rounded-0 btn-no-effect text-white"
-          id="private-toggle">
-          Private mode
         </button>
       </div>
     </nav>
@@ -254,7 +247,7 @@
         </div>
       </div>
     </div>
-    <div id="mydiv">
+    <div id="mydiv" style="visibility:hidden;">
       <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
       <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
       <ul

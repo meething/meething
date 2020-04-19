@@ -100,6 +100,9 @@ export default {
     //return servers;
     return {
       iceServers: [
+        { "username":"meething",credential:"59d940d7b97e52d7e78c54fd5995e2d1",urls:["turns:gamma.coder.fi","stun:gamma.coder.fi"]},
+        { urls:"stun:stun.hepic.tel"}
+        /*
         { urls: ["stun:eu-turn4.xirsys.com"] },
         {
           username:
@@ -113,7 +116,7 @@ export default {
             "turns:eu-turn4.xirsys.com:443?transport=tcp",
             "turns:eu-turn4.xirsys.com:5349?transport=tcp",
           ],
-        },
+        } */
       ],
     };
   },

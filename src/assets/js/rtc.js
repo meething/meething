@@ -6,7 +6,7 @@ import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
 var TIMEGAP = 6000;
 var allUsers = [];
-var enableHacks = false;
+var enableHacks = true;
 
 var room;
 var username;
@@ -34,7 +34,7 @@ var damSocket;
 function initSocket() {
   //var peers = ["https://gunmeetingserver.herokuapp.com/gun"];
   var peers = [
-    "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun"
+    ""+location.protocol+"//"+location.hostname+"/gun" /* "https://livecodestream-us.herokuapp.com/gun" //,"https://livecodestream-eu.herokuapp.com/gun" */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var opt_out = { peers: [], localStorage: false, radisk: false };
@@ -63,8 +63,9 @@ function initSocket() {
 
 function initUser(r) {
   var peers = [
+    ""+location.protocol+"//"+location.hostname+"/gun" /*
     "https://livecodestream-us.herokuapp.com/gun",
-    "https://livecodestream-eu.herokuapp.com/gun"
+    "https://livecodestream-eu.herokuapp.com/gun" */
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gun = Gun(opt);
@@ -114,7 +115,7 @@ function initRTC() {
     }
 
     // Remove animated bg... to be replaced entirely with something cpu friendly
-    document.getElementById("demo").remove();
+    //document.getElementById("demo").remove();
 
     socketId = h.uuidv4();
 
@@ -175,7 +176,7 @@ function initRTC() {
         pc[data.socketId].iceConnectionState == "connected"
       ) {
         console.log("already connected to peer?", data.socketId);
-        return; // We don't need another round of Init for existing peers
+        return;
       }
       pc.push(data.sender);
       init(false, data.sender);
@@ -376,7 +377,7 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if(pcmap.has(partnerName)) return pcmap.get(partnerName); // DO NOT overwrite existing peer connections with new listeners - many malformed iceCandidates resulted from this
+  if(pcmap.has(partnerName)) return pcmap.get(partnerName);
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
@@ -470,7 +471,8 @@ function init(createOffer, partnerName) {
   };
 
   //add
-  pc[partnerName].ontrack = e => {
+   //add
+   pc[partnerName].ontrack = e => {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
