@@ -12,7 +12,7 @@ window.onunload = leave;
 document.addEventListener("DOMContentLoaded", enter);
 const presenceTimer = setInterval(() => distrubutePresence(), 500);
 
-root.on("in", function(msg) {
+root.on("in", function (msg) {
   if (msg && msg.event) {
     // Handle Global event: ALL peers will receive this!
     switch (msg.event) {
@@ -35,7 +35,7 @@ root.on("in", function(msg) {
 
 function addReceivedUsers(data) {
   const receivedUsers = new Map(JSON.parse(data));
-  receivedUsers.forEach(function(value, key) {
+  receivedUsers.forEach(function (value, key) {
     if (!users.has(key)) {
       users.set(key, value);
       addItem(key);

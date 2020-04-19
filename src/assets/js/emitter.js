@@ -16,7 +16,7 @@ export default class EventEmitter {
     const self = this;
     this.pid = this.root._.opt.pid;
 
-    this.root.on("in", function(msg) {
+    this.root.on("in", function (msg) {
       if (msg && msg.signaling) {
         console.log(
           "DAM: handle inbound signaling!",
@@ -47,7 +47,7 @@ export default class EventEmitter {
               break;
           }
         } else {
-          console.log("Not for this room: " + msg.data.room);          
+          console.log("Not for this room: " + msg.data.room);
         }
 
         if (msg.to && msg.to == this.pid) {
