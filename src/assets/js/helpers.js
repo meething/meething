@@ -88,8 +88,10 @@ export default {
     
     var servers = {
       iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls:["turns:stun.hepic.tel", "stun:stun.hepic.tel:3478"], "username":"meething",credential:"9739939e1719f22a30c1e18b86905eac"}
+        { urls: ["stun:eu-turn4.xirsys.com"] },
+        { urls: ["stun:stun.l.google.com:19302"] },
+        { urls:["turns:stun.hepic.tel"], "username":"meething",credential:"9739939e1719f22a30c1e18b86905eac"},
+        
         /*
           { urls: "stun:stun.sipgate.net:3478"},
           {urls: "stun:stun.stunprotocol.org"},
