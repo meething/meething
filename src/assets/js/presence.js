@@ -85,6 +85,7 @@ export default class Presence {
   onGrid(peerUrl) {
     let peers = this.root._.opt.peers;
     let peer = {};
+    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl;
     peer.id = peerUrl;
     peer.url = peerUrl;
     peers[peerUrl] = peer;
