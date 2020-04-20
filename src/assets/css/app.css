@@ -1,3 +1,6 @@
+/* required file for gridstack to work */
+@import "https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css";
+
 body {
   color: #FFF;
   background: url("../images/background.png")no-repeat center center fixed; 
@@ -235,4 +238,10 @@ cursor: crosshair
     vertical-align: baseline;
     color: #fff;
     font-family: "Helvetica-Neue-Bold";
+}
+
+.grid-stack-item-content {
+  color: #2c3e50;
+  text-align: center;
+  background-color: #c2c2c222;
 }
