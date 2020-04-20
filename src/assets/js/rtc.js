@@ -511,13 +511,13 @@ function init(createOffer, partnerName) {
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        h.closeVideo(partnerName);
+        // h.closeVideo(partnerName);
         break;
       case "failed":
         if (partnerName == socketId) {
           return;
         } // retry catch needed
-        h.closeVideo(partnerName);
+        // h.closeVideo(partnerName);
         break;
       case "closed":
         h.closeVideo(partnerName);
