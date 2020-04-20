@@ -17,7 +17,10 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function (msg) {
-      if (msg && msg.signaling) {
+      if (msg && msg.event && self.presence) {
+        self.presence.handleADamEvents(msg);
+      }
+      else if (msg && msg.signaling) {
         console.log(
           "DAM: handle inbound signaling!",
           msg.signaling + " for room " + msg.data.room
@@ -47,9 +50,8 @@ export default class EventEmitter {
               break;
           }
         } else {
-          console.log("Not for this room: " + msg.data.room);
+          console.error("Should never happen privacy issue we got msg for other room " + msg.data.room);
         }
-
         if (msg.to && msg.to == this.pid) {
           console.log("DAM: signaling for our local peer!", msg.data);
         }
