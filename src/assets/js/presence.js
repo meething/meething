@@ -82,7 +82,7 @@ export default class Presence {
     }
   }
 
-  onGrid(peer) {
+  onGrid(peerUrl) {
     let peers = root._.opt.peers;
     let peer = {};
     peer.id = peerUrl;
