@@ -251,8 +251,9 @@ cursor: crosshair
 }
 
 .ui-draggable-handle{
-  background:black;
-  min-width:350px;
+  background:#23153ccc;
+  border-bottom:1px solid #23153c;
+  /*min-width:350px; */
 }
 /*
 .grid-stack{

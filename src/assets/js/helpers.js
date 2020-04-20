@@ -237,7 +237,7 @@ export default {
 
     ogrid.appendChild(xgrid);
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 4, 3, true);
+    grid.addWidget(ogrid, 0, 0, 2, 2, true);
     grid.compact();
     resizeGrid();
 
