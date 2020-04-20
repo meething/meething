@@ -4,9 +4,9 @@ export default {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
   closeVideo(elemId) {
-    var widget = document.getElementById(elemId);
-    var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.remove_widget(widget);
+    var widget = document.getElementById(elemId+"-widget");
+    grid.removeWidget(widget);
+    grid.compact();
 
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
@@ -220,40 +220,25 @@ export default {
     cardDiv.style = "color:#FFF; font-size";
     cardDiv.appendChild(newVid);
     cardDiv.appendChild(videoToolbox);
-
     //create a new div for everything
     let div = document.createElement("div");
     div.className = "col-sm-12 col-md-6";
     div.id = partnerName;
     div.appendChild(cardDiv);
+    let ogrid = document.createElement("div");
+    let xgrid = document.createElement("div");
+    xgrid.className = "grid-stack-item-content";
+    xgrid.appendChild(cardDiv);
+    ogrid.appendChild(xgrid);
+    ogrid.id = partnerName + "-widget";
+    grid.addWidget(ogrid, 0, 0, 3, 4, true);
+    grid.compact();
+    resizeGrid();
 
-    let ligrid = document.createElement("li");
-    let gridiv = document.createElement("div");
-    gridiv.appendChild(cardDiv);
-    ligrid.appendChild(gridiv);
-    ligrid.id = partnerName;
-    //document.getElementById("gridul").appendChild(ligrid);
-    var gridster = $(".gridster ul").gridster().data('gridster');
-    gridster.add_widget(ligrid, 1, 1, 1, 1);
-    gridster.resize_responsive_layout();
-    console.log(gridster.serialize());
     //put div in videos elem
-    // document.getElementById("videos").appendChild(div);
+    //document.getElementById("videos").appendChild(div);
   },
-  // method to resize all elements when remove or add video to grid;
-  //https://dsmorse.github.io/gridster.js/#resize_widget_method
-  resizeElements(ligrid,partnerName){
-    // array of widgets ids
-    let $widget = ligrid.className = partnerName ;
-    let widgets = [];
-    // widget max widths
-    let size_x = [4,6,8];
-    let size_y = [4,6,8]
 
-    for(let i = 0 ; i < widgets.length ; i++ ) {
-    gridster.resize_widget( $widget/*widgets[i]*/, [size_x], [size_y], [reposition], [callback] )
-    }
-  },
 
   toggleChatNotificationBadge() {
     if (
