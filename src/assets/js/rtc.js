@@ -530,7 +530,14 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
-        h.closeVideo(partnerName);
+	// Re-Send Subscribe
+	    damSocket.out("subscribe", {
+	      room: room,
+	      socketId: socketId,
+	      name: username || socketId
+	    });
+
+        //h.closeVideo(partnerName);
         break;
     }
   };
