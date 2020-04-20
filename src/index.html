@@ -207,7 +207,6 @@ gridst.setAttribute('style',`width:${clientwidth}`);
     var text = document.querySelector('#column-text');
     
     function resizeGrid() {
-
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
       //var clientWDT = document.documentElement.clientWidth
@@ -225,12 +224,9 @@ gridst.setAttribute('style',`width:${clientwidth}`);
       } else if (grid.width > 1250) {
         grid.column(8);
       } 
-      
     };
-
     
     var items = [
-     
       {x: 0, y: 0, width: 4, height: 3},
       {x: 1, y: 0, width: 4, height: 3},
       {x: 2, y: 0, width: 4, height: 3},

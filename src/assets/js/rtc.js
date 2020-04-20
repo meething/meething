@@ -32,7 +32,7 @@ var socketId;
 var damSocket;
 
 function initSocket() {
-  var roomPeer = "https://livecodestream-us.herokuapp.com/gun";
+  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
   if (room) {
     roomPeer = "https://gundb-multiserver.glitch.me/" + room;
     offGrid();
@@ -66,8 +66,7 @@ function initSocket() {
 
 function initUser(r) {
   var peers = [
-    "https://livecodestream-us.herokuapp.com/gun",
-    "https://livecodestream-eu.herokuapp.com/gun"
+    "https://gundb-multiserver.glitch.me/lobby"
   ];
   var opt = { peers: peers, localStorage: false, radisk: false };
   var gun = Gun(opt);

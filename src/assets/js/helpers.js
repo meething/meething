@@ -220,13 +220,11 @@ export default {
     cardDiv.style = "color:#FFF";
     cardDiv.appendChild(newVid);
     cardDiv.appendChild(videoToolbox);
-
     //create a new div for everything
     let div = document.createElement("div");
     //div.className = "col-sm-12 col-md-6";
     div.id = partnerName;
     div.appendChild(cardDiv);
-
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
     ogrid.setAttribute('data-gs-width','4');
@@ -260,6 +258,7 @@ export default {
     gridster.resize_widget( $widget/*widgets[i]*/, [size_x], [size_y], [reposition], [callback] )
     }
   },
+
 
   toggleChatNotificationBadge() {
     if (
