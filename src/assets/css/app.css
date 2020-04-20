@@ -270,3 +270,18 @@ cursor: crosshair
   text-align: center;
   background-color: #c2c2c222;
 }
+.col-select{
+  font-size:13px;
+}
+
+.room-comm{
+  width:500px;
+}
+.colselector {
+  font-size: 10px;
+  background: grey;
+  color: white;
+  padding: 3px;
+  border-radius: 3px;
+  height: 30px;
+}
