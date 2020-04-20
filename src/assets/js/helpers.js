@@ -222,16 +222,22 @@ export default {
     cardDiv.appendChild(videoToolbox);
     //create a new div for everything
     let div = document.createElement("div");
-    div.className = "col-sm-12 col-md-6";
+    //div.className = "col-sm-12 col-md-6";
     div.id = partnerName;
     div.appendChild(cardDiv);
     let ogrid = document.createElement("div");
+    ogrid.className ="grid-stack-item";
+    ogrid.setAttribute('data-gs-width','4');
+    ogrid.setAttribute('data-gs-height','3');
     let xgrid = document.createElement("div");
     xgrid.className = "grid-stack-item-content";
+    //xgrid.setAttribute('data-gs-width',4);
+    //xgrid.setAttribute('data-gs-height',3);
     xgrid.appendChild(cardDiv);
+
     ogrid.appendChild(xgrid);
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 3, 4, true);
+    grid.addWidget(ogrid, 0, 0, 4, 3, true);
     grid.compact();
     resizeGrid();
 
