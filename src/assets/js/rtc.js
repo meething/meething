@@ -4,10 +4,13 @@
  */
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
+import Presence from "./presence.js";
+
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
 
+var root;
 var room;
 var username;
 var title = "ChatRoom";
@@ -18,7 +21,6 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/_(.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
-  initUser();
   initRTC();
 });
 
@@ -30,27 +32,22 @@ var myStream;
 var screenStream;
 var socketId;
 var damSocket;
+var presence;
 
 function initSocket() {
-  var roomPeer = "https://livecodestream-us.herokuapp.com/gun";
+  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
   if (room) {
     roomPeer = "https://gundb-multiserver.glitch.me/" + room;
-    offGrid();
-    onGrid(roomPeer);
   }
 
+  var peers = [roomPeer];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  var opt_out = { peers: [], localStorage: false, radisk: false };
-
-  var root = Gun(opt);
+  root = Gun(opt);
 
   socket = root
     .get("rtcmeeting")
     .get(room)
     .get("socket");
-
-  const pid = root._.opt.pid;
-  damSocket = new EventEmitter(root, room);
 
   // Custom Emit Function - move to Emitter?
   socket.emit = function (key, value) {
@@ -62,21 +59,6 @@ function initSocket() {
     if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
     socket.get(key).put(value);
   };
-}
-
-function initUser(r) {
-  var peers = [
-    "https://livecodestream-us.herokuapp.com/gun",
-    "https://livecodestream-eu.herokuapp.com/gun"
-  ];
-  var opt = { peers: peers, localStorage: false, radisk: false };
-  var gun = Gun(opt);
-
-  var pid = sessionStorage.getItem("pid");
-  if (pid == null || pid == undefined) {
-    pid = gun._.opt.pid;
-    sessionStorage.setItem("pid", pid);
-  }
 }
 
 function sendMsg(msg, local) {
@@ -93,7 +75,7 @@ function sendMsg(msg, local) {
 }
 
 window.onbeforeunload = function () {
-  // Cleanup peerconnections
+  presence.leave();
   pcmap.forEach((pc, id) => {
     if (pcmap.has(id)) {
       pcmap.get(id).close();
@@ -101,6 +83,12 @@ window.onbeforeunload = function () {
     }
   });
 };
+
+function initPresence() {
+  presence = new Presence(root, room);
+  damSocket.__proto__.presence = presence;
+  presence.enter();
+}
 
 function initRTC() {
   if (!room) {
@@ -110,6 +98,8 @@ function initRTC() {
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
   } else {
+    damSocket = new EventEmitter(root, room);
+    initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
@@ -117,7 +107,8 @@ function initRTC() {
     }
 
     // Remove animated bg... to be replaced entirely with something cpu friendly
-    document.getElementById("demo").remove();
+    //document.getElementById("demo").remove();
+    document.getElementById("demo").attributes.removeNamedItem("hidden");
 
     socketId = h.uuidv4();
 
@@ -550,7 +541,14 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
-        h.closeVideo(partnerName);
+        // Peers go down here and there - let's send a Subscribe, Just in case...
+        damSocket.out("subscribe", {
+          room: room,
+          socketId: socketId,
+          name: username || socketId
+        });
+
+        //h.closeVideo(partnerName);
         break;
     }
   };
