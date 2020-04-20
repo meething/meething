@@ -139,8 +139,9 @@ body {
   }
 
   .remote-video {
-    height: 100%;
+    /*height: 100%; */
     width: 100%;
+    overflow:hidden;
   }
 
   .local-video {
@@ -229,18 +230,21 @@ cursor: crosshair
 
 /* video styles */
 .v-toolbox{
+
+  position:absolute;
+  bottom:-10px;
+  left:15px;
   padding:5px;
-  padding-top:15px;
+  
   display:flex;
-  height:40px;
-  width:auto;
-  font-size:12px;
-  background:#23153ccc;
+width:100%;
+  font-size:11px;
+  overflow:hidden;
+ 
 }
 .v-user{
   margin-left:5px;
-  letter-spacing:1px;
-  opacity:.7;
+  opacity:.45;
 }
 .v-user:hover {
   opacity: 1;
@@ -254,18 +258,6 @@ cursor: crosshair
     font-family: "Helvetica-Neue-Bold";
 }
 
-.ui-draggable-handle{
-  background:#23153ccc;
-  border-bottom:1px solid #23153c;
-  /*min-width:350px; */
-}
-/*
-.grid-stack{
-  width:100vw;
-} */
-.grid-stack-item{
-  min-width:350px;
-}
 .col-select{
   font-size:13px;
 }
@@ -278,7 +270,12 @@ cursor: crosshair
   border-radius: 3px;
   height: 30px;
 }
+.grid-stack > .grid-stack-item{
+  overflow:hidden !important;
+  
+}
 
 .grid-stack > .grid-stack-item > .grid-stack-item-content {
   overflow:hidden !important;
+  display:content-box;
 }

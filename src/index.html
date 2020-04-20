@@ -86,12 +86,13 @@
 
 
 
-      <select id="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(value);"
-        title="Grid Columns"><span class="colselector">COLUMNS</span>
-        <option value='1'>1</option>
-        <option value='4'>4</option>
-        <option value='6'>6</option>
+      <select id="grid-col" name="grid-col" onchange="changeCol()"
+        title="Grid Columns">
+        <option value="1">1</option>
+        <option value="4">4</option>
+        <option value="6">6</option>
       </select>
+      <span class="colselector">COLUMNS</span>
 
 
     </div>
@@ -199,6 +200,8 @@
       gridst.setAttribute('style', `width:${clientwidth}`);
 
     }
+   
+
     var grid = GridStack.init({
       float: true
     });
@@ -210,11 +213,11 @@
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
       if (grid.width < 300) {
-        grid.column(2);
+        grid.column(1);
       } else if (grid.width < 750) {
-        grid.column(3);
+        grid.column(4);
       } else if (grid.width < 850) {
-        grid.column(5);
+        grid.column(4);
       } else if (grid.width < 950) {
         grid.column(6);
       } else if (grid.width > 951) {
@@ -225,13 +228,19 @@
     };
 
     var items = [
-      { x: 0, y: 0, width: 4, height: 3 },
-      { x: 1, y: 0, width: 4, height: 3 },
-      { x: 2, y: 0, width: 4, height: 3 },
-      { x: 0, y: 1, width: 4, height: 3 },
-      { x: 1, y: 1, width: 4, height: 3 },
-      { x: 2, y: 1, width: 4, height: 3 }
+      { x: 0, y: 0, width: 1, height: 1 },
+      { x: 1, y: 0, width: 1, height: 1 },
+      { x: 2, y: 0, width: 1, height: 1 },
+      { x: 0, y: 1, width: 1, height: 1 },
+      { x: 1, y: 1, width: 1, height: 1 },
+      { x: 2, y: 1, width: 1, height: 1 }
     ];
+    var changeCol = function(){
+      var gridCol = document.querySelector("#grid-col").value
+      grid.column(gridCol)
+   
+
+    }
     grid.batchUpdate();
     grid.commit();
     resizeGrid();
