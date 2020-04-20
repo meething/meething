@@ -13,9 +13,7 @@ export default {
     }
   },
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
-      c
-    ) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
       var r = (Math.random() * 16) | 0,
         v = c == "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
@@ -70,7 +68,17 @@ export default {
   getUserMedia() {
     if (this.userMediaAvailable()) {
       return navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: {
+          height: {
+            ideal: 720,
+            max: 720,
+            min: 240,
+            frameRate: {
+              ideal: 15,
+              min: 10
+            }
+          }
+        },
         audio: {
           echoCancellation: true,
         },
