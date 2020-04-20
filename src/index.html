@@ -37,9 +37,9 @@
 
 <body>
   <div id="demo" class="demo" hidden>
-    <div class="grid-stack">
-    </div>
-    </div>
+	<div class="grid-stack" style="width:100%;height:100%;">
+	</div>
+  </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
     <div class="text-white" style="margin-left:-15px;">
       <a href="http://github.com/meething" target="_blank">
@@ -196,7 +196,6 @@ gridst.setAttribute('style',`width:${clientwidth}`);
 }
     var grid = GridStack.init({
       float: true
-      
     });
     grid.cellHeight(115,true)
     grid.cellWidth(350,true)
@@ -204,7 +203,6 @@ gridst.setAttribute('style',`width:${clientwidth}`);
     var text = document.querySelector('#column-text');
     
     function resizeGrid() {
-    
 
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
@@ -227,8 +225,7 @@ gridst.setAttribute('style',`width:${clientwidth}`);
     };
 
     
-    var items = [
-     
+    var items = [     
       {x: 0, y: 0, width: 4, height: 3},
       {x: 1, y: 0, width: 4, height: 3},
       {x: 2, y: 0, width: 4, height: 3},
