@@ -172,7 +172,7 @@ body {
   position: fixed;
   top: 50px;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100%;
 
 }
@@ -240,4 +240,24 @@ cursor: crosshair
 }
 .v-user:hover {
   opacity: 1;
+}
+
+.nd-logo {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: baseline;
+    color: #fff;
+    font-family: "Helvetica-Neue-Bold";
+}
+
+.ui-draggable-handle{
+  background:black;
+  min-width:350px;
+}
+/*
+.grid-stack{
+  width:100vw;
+} */
+.grid-stack-item{
+  min-width:350px;
 }
