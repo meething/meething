@@ -530,7 +530,7 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
-        h.closeVideo(partnerName);
+        //h.closeVideo(partnerName);
         break;
     }
   };
