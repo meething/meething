@@ -1,3 +1,6 @@
+/* required file for gridstack to work */
+@import "https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css";
+
 body {
   color: #FFF;
   background: url("../images/background.png")no-repeat center center fixed; 
@@ -66,8 +69,8 @@ body {
 .remote-video {
   position: relative;
   object-fit: cover !important;
-  height: auto;
-  min-height: 400px;
+  height: 100%;
+  width: 100%;
 }
 
 .clipped {
@@ -101,7 +104,7 @@ body {
 }
 
 .chat-card {
-  border-radius: 6px;
+  border-radius: 3px;
 }
 
 .btn-no-effect:focus {
@@ -135,7 +138,8 @@ body {
   }
 
   .remote-video {
-    height: 200px;
+    height: 100%;
+    width: 100%;
   }
 
   .local-video {
@@ -169,9 +173,9 @@ body {
 
 .demo {
   position: fixed;
-  top: 0;
+  top: 50px;
   left: 0;
-  width: 100%;
+  width: 100vw;
   height: 100%;
 
 }
@@ -179,7 +183,6 @@ body {
 li {
 cursor: crosshair
 }
-
 
 .icon-off {
   color: #FF0000 !important;
@@ -200,15 +203,10 @@ cursor: crosshair
 #login{
   background:#473761bb !important;
   box-shadow: 4px 0px 8px black;
-  
 }
 
-
 #room-create img{
-  
   margin-top:15px;
-  
-  
 }
 
 #room-create .create-room{
@@ -218,4 +216,64 @@ cursor: crosshair
 
 #create-room{
   margin-top:20px;
+}
+
+.nonelist {
+  list-style-type: none;
+}
+
+.gridtile {
+  background-color: #473761bb !important;
+}
+
+/* video styles */
+.v-toolbox{
+  padding:5px;
+  padding-top:15px;
+  display:flex;
+  height:40px;
+  width:auto;
+  font-size:12px;
+  background:#23153ccc;
+}
+.v-user{
+  margin-left:5px;
+  letter-spacing:1px;
+  opacity:.7;
+}
+.v-user:hover {
+  opacity: 1;
+}
+
+.nd-logo {
+    font-size: 16px;
+    display: inline-block;
+    vertical-align: baseline;
+    color: #fff;
+    font-family: "Helvetica-Neue-Bold";
+}
+
+.ui-draggable-handle{
+  background:#23153ccc;
+  border-bottom:1px solid #23153c;
+  /*min-width:350px; */
+}
+/*
+.grid-stack{
+  width:100vw;
+} */
+.grid-stack-item{
+  min-width:350px;
+}
+.col-select{
+  font-size:13px;
+}
+
+.colselector {
+  font-size: 10px;
+  background: grey;
+  color: white;
+  padding: 3px;
+  border-radius: 3px;
+  height: 30px;
 }
