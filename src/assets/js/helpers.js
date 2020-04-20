@@ -3,13 +3,15 @@ export default {
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
-
   closeVideo(elemId) {
+    var widget = document.getElementById(elemId+"-widget");
+    grid.removeWidget(widget);
+    grid.compact();
+
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
     }
   },
-
   uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
       c
@@ -28,7 +30,6 @@ export default {
       window.onblur
     );
   },
-
   getQString(url = "", keyToReturn = "") {
     url = url ? url : location.href;
     let queryStrings = decodeURIComponent(url)
@@ -48,20 +49,16 @@ export default {
             queryStringObj[keyValue[0]] = keyValue[1];
           }
         });
-
         return keyToReturn
           ? queryStringObj[keyToReturn]
             ? queryStringObj[keyToReturn]
             : null
           : queryStringObj;
       }
-
       return null;
     }
-
     return null;
   },
-
   userMediaAvailable() {
     return !!(
       navigator.getUserMedia ||
@@ -70,7 +67,6 @@ export default {
       navigator.msGetUserMedia
     );
   },
-
   getUserMedia() {
     if (this.userMediaAvailable()) {
       return navigator.mediaDevices.getUserMedia({
@@ -83,7 +79,6 @@ export default {
       throw new Error("User media not available");
     }
   },
-
   getIceServer() {
     var servers = {
       iceServers: [
@@ -117,7 +112,6 @@ export default {
       ],
     };
   },
-
   addChat(data, senderType) {
     if (data == cache) {
       cache = null;
@@ -135,25 +129,19 @@ export default {
 
       this.toggleChatNotificationBadge();
     }
-
     let infoDiv = document.createElement("div");
     infoDiv.className = "sender-info";
     infoDiv.innerHTML = `${senderName} - ${moment().format(
       "Do MMMM, YYYY h:mm a"
     )}`;
-
     let colDiv = document.createElement("div");
     colDiv.className = `col-10 card chat-card msg ${msgBg}`;
     colDiv.innerHTML = data.msg;
-
     let rowDiv = document.createElement("div");
     rowDiv.className = `row ${contentAlign} mb-2`;
-
     colDiv.appendChild(infoDiv);
     rowDiv.appendChild(colDiv);
-
-    chatMsgDiv.appendChild(rowDiv);
-
+    chatMsgDiv.appendChild(rowDiv);``
     /**
      * Move focus to the newly added message but only if:
      * 1. Page has focus
@@ -167,7 +155,7 @@ export default {
 
   addVideoElementEvent(elem, type = "pip") {
     if ("pictureInPictureEnabled" in document && type == "pip") {
-      elem.addEventListener("click", (e) => {
+      elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
           elem.requestPictureInPicture().catch((error) => {
@@ -201,35 +189,76 @@ export default {
   },
 
   addVideo(partnerName, str) {
+
     let newVid = document.createElement("video");
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = str;
     newVid.autoplay = true;
     newVid.className = "remote-video";
     this.addVideoElementEvent(newVid, "pip");
-
+    // add toolbox div for vdeo title and options
+    var videoToolbox = document.createElement("div");
+    videoToolbox.className = 'v-toolbox';
     // Video user title
     var vtitle = document.createElement("p");
+     // add user icon
+     let userIcon = document.createElement("i");
+     userIcon.className = "fas fa-user";
+     
+     // add user name
     var vuser = partnerName;
-    vtitle.innerHTML = `<center>${vuser}</center>`;
+    //vtitle.appendChild(userIcon);
+    vtitle.textContent = vuser;
+    vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
-
+    videoToolbox.appendChild(userIcon);
+    videoToolbox.appendChild(vtitle);
+    
     //create a new div for card
     let cardDiv = document.createElement("div");
     cardDiv.className = "card mb-3";
-    cardDiv.style = "color:#FFF;";
+    cardDiv.style = "color:#FFF";
     cardDiv.appendChild(newVid);
-    cardDiv.appendChild(vtitle);
-
+    cardDiv.appendChild(videoToolbox);
     //create a new div for everything
     let div = document.createElement("div");
-    div.className = "col-sm-12 col-md-6";
+    //div.className = "col-sm-12 col-md-6";
     div.id = partnerName;
     div.appendChild(cardDiv);
+    let ogrid = document.createElement("div");
+    ogrid.className ="grid-stack-item";
+    ogrid.setAttribute('data-gs-width','4');
+    ogrid.setAttribute('data-gs-height','3');
+    let xgrid = document.createElement("div");
+    xgrid.className = "grid-stack-item-content";
+    //xgrid.setAttribute('data-gs-width',4);
+    //xgrid.setAttribute('data-gs-height',3);
+    xgrid.appendChild(cardDiv);
+
+    ogrid.appendChild(xgrid);
+    ogrid.id = partnerName + "-widget";
+    grid.addWidget(ogrid, 0, 0, 2, 2, true);
+    grid.compact();
+    resizeGrid();
 
     //put div in videos elem
-    document.getElementById("videos").appendChild(div);
+    //document.getElementById("videos").appendChild(div);
   },
+  // method to resize all elements when remove or add video to grid;
+  //https://dsmorse.github.io/gridster.js/#resize_widget_method
+  resizeElements(ligrid,partnerName){
+    // array of widgets ids
+    let $widget = ligrid.className = partnerName ;
+    let widgets = [];
+    // widget max widths
+    let size_x = [4,6,8];
+    let size_y = [4,6,8]
+
+    for(let i = 0 ; i < widgets.length ; i++ ) {
+    gridster.resize_widget( $widget/*widgets[i]*/, [size_x], [size_y], [reposition], [callback] )
+    }
+  },
+
 
   toggleChatNotificationBadge() {
     if (
@@ -244,7 +273,6 @@ export default {
         .removeAttribute("hidden");
     }
   },
-
   //For screensharing
   replaceTrackForPeer(peer, track, kind) {
     return new Promise((resolve, reject) => {
@@ -259,7 +287,6 @@ export default {
       return reject("no sender");
     });
   },
-
   replaceAudioTrackForPeers(peers, track) {
     var self = this;
     let promises = [];
@@ -275,7 +302,6 @@ export default {
         console.log("there was a problem with peers", err);
       });
   },
-
   replaceVideoTrackForPeers(peers, track) {
     var self = this;
     let promises = [];
@@ -291,7 +317,6 @@ export default {
         console.log("there was a problem with peers", err);
       });
   },
-
   getDisplayMedia(opts) {
     if (navigator.mediaDevices.getDisplayMedia) {
       return navigator.mediaDevices.getDisplayMedia(opts);
