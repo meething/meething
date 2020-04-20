@@ -49,9 +49,6 @@ function initSocket() {
     .get(room)
     .get("socket");
 
-  const pid = root._.opt.pid;
-  damSocket = new EventEmitter(root, room);
-
   // Custom Emit Function - move to Emitter?
   socket.emit = function (key, value) {
     if (value.sender && value.to && value.sender == value.to) return;
@@ -101,6 +98,7 @@ function initRTC() {
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
   } else {
+    damSocket = new EventEmitter(root, room);
     initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
