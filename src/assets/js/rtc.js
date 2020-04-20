@@ -379,7 +379,11 @@ function initRTC() {
         e.preventDefault();
         //if (!myStream) return; // do I need this here?
         // TODO: can we unlock? the room as well?
+        // TODO: detect when already offlines
         offGrid();
+
+        e.srcElement.classList.toggle("fa-unlock");
+        e.srcElement.classList.toggle("fa-lock");
       });
   }
 }
