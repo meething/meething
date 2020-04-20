@@ -225,16 +225,16 @@ cursor: crosshair
 
 /* video styles */
 .v-toolbox{
-  display:grid;
+  padding:5px;
+  padding-top:15px;
+  display:flex;
   height:40px;
   width:auto;
+  font-size:12px;
   background:#23153ccc;
-  
 }
 .v-user{
-  margin-top:5px;
-  text-align:center;
-  font-size:12px;
+  margin-left:5px;
   letter-spacing:1px;
   opacity:.7;
 }
