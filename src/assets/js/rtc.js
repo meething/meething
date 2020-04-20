@@ -368,13 +368,19 @@ function initRTC() {
 
       document.getElementById("private-toggle").addEventListener("click", e => {
         e.preventDefault();
-        //if (!myStream) return; // do I need this here?
-        // TODO: can we unlock? the room as well?
-        // TODO: detect when already offlines
-        offGrid();
-
-        e.srcElement.classList.toggle("fa-unlock");
-        e.srcElement.classList.toggle("fa-lock");
+        // Detect if we are already in private mode
+        let keys = Object.keys(presence.root._.opt.peers);
+        if(keys.length == 0) {
+          //if in private mode, go public
+          presence.onGrid(presence.room);
+          e.srcElement.classList.remove("fa-lock");
+          e.srcElement.classList.add("fa-unlock");
+        } else {
+          //if public, go private
+          presence.offGrid();
+          e.srcElement.classList.remove("fa-unlock");
+          e.srcElement.classList.add("fa-lock");
+        }
       });
   }
 }
