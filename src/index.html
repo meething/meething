@@ -22,32 +22,34 @@
   <script type="module" src="assets/js/events.js"></script>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-  <!--<script
-      src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/7.3.0/adapter.min.js"
-      integrity="sha256-2qQheewaqnZlXJ3RJRghVUwD/3fD9HNqxh4C+zvgmF4="
-      crossorigin="anonymous"
-    ></script> -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
   <!-- <script src="assets/js/webrtc.js"></script> -->
-  <!-- Gridstack.js cdn ands styles -->
+
+  <!-- Gridstack -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack-extra.css" />
   <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
 
 </head>
 
 <body>
-  <div id="demo" class="demo"></div>
+  <div id="demo" class="demo" hidden>
+    <div class="grid-stack" style="width:100%;height:100%;">
+    </div>
+  </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
-    <div class="text-white">
-      GunMeeting - powered by
-      <a href="http://gun.eco" target="_blank">GunDB</a>
+    <div class="text-white" style="margin-left:-15px;">
+      <a href="http://github.com/meething" target="_blank">
+        <div class="text-white">&nbsp; <span class="fa fa-bullhorn"></span> meething</div>
+      </a>
     </div>
 
     <div class="pull-right room-comm" hidden>
+
       <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Start/Stop Screensharing">
         <i class="fa fa-desktop text-white"></i>
       </button>
@@ -78,8 +80,20 @@
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
-        Private mode
+        <span class="fa fa-lock"></span>
       </button>
+
+
+
+
+      <select id="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(value);"
+        title="Grid Columns"><span class="colselector">COLUMNS</span>
+        <option value='1'>1</option>
+        <option value='4'>4</option>
+        <option value='6'>6</option>
+      </select>
+
+
     </div>
   </nav>
 
@@ -170,16 +184,67 @@
       </div>
     </div>
   </div>
-  <div id="mydiv">
+  <div id="mydiv" style="display: none;">
     <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
     <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
     <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
   </div>
-  <script src="assets/js/presence.js"></script>
   <script src="assets/js/dragable.js"></script>
   <!-- js gridstack requirement -->
   <script type="text/javascript">
-    var grid = GridStack.init();
+
+    window.onload = function () {
+      let gridst = document.querySelector('.grid-stack');
+      let clientwidth = document.documentElement.clientWidth;
+      gridst.setAttribute('style', `width:${clientwidth}`);
+
+    }
+    var grid = GridStack.init({
+      float: true
+    });
+    grid.cellHeight(130, true)
+    grid.cellWidth(350, true)
+    //grid.enableMove(tr  ue,true)
+    var text = document.querySelector('#column-text');
+
+    function resizeGrid() {
+      grid.width = document.documentElement.clientWidth;
+      console.log(grid.width)
+      //var clientWDT = document.documentElement.clientWidth
+
+      if (grid.width < 300) {
+        grid.column(2);
+      } else if (grid.width < 750) {
+        grid.column(3);
+      } else if (grid.width < 850) {
+        grid.column(5);
+      } else if (grid.width < 950) {
+        grid.column(6);
+      } else if (grid.width > 951) {
+        grid.column(6);
+      } else if (grid.width > 1250) {
+        grid.column(8);
+      }
+    };
+
+    var items = [
+      { x: 0, y: 0, width: 4, height: 3 },
+      { x: 1, y: 0, width: 4, height: 3 },
+      { x: 2, y: 0, width: 4, height: 3 },
+      { x: 0, y: 1, width: 4, height: 3 },
+      { x: 1, y: 1, width: 4, height: 3 },
+      { x: 2, y: 1, width: 4, height: 3 }
+    ];
+    grid.batchUpdate();
+    /*
+    items.forEach(function(node, index) {
+      grid.addWidget('<div><div class="grid-stack-item-content">' + index + '</div></div>', node);
+    });
+    */
+    grid.commit();
+    resizeGrid();
+
+    window.addEventListener('resize', function () { resizeGrid() });
   </script>
 </body>
 
