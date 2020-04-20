@@ -3,7 +3,6 @@ export default {
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
-
   closeVideo(elemId) {
     var widget = document.getElementById(elemId+"-widget");
     grid.removeWidget(widget);
@@ -13,7 +12,6 @@ export default {
       document.getElementById(elemId).remove();
     }
   },
-
   uuidv4() {
     return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (
       c
@@ -32,7 +30,6 @@ export default {
       window.onblur
     );
   },
-
   getQString(url = "", keyToReturn = "") {
     url = url ? url : location.href;
     let queryStrings = decodeURIComponent(url)
@@ -52,20 +49,16 @@ export default {
             queryStringObj[keyValue[0]] = keyValue[1];
           }
         });
-
         return keyToReturn
           ? queryStringObj[keyToReturn]
             ? queryStringObj[keyToReturn]
             : null
           : queryStringObj;
       }
-
       return null;
     }
-
     return null;
   },
-
   userMediaAvailable() {
     return !!(
       navigator.getUserMedia ||
@@ -74,7 +67,6 @@ export default {
       navigator.msGetUserMedia
     );
   },
-
   getUserMedia() {
     if (this.userMediaAvailable()) {
       return navigator.mediaDevices.getUserMedia({
@@ -87,7 +79,6 @@ export default {
       throw new Error("User media not available");
     }
   },
-
   getIceServer() {
     var servers = {
       iceServers: [
@@ -121,7 +112,6 @@ export default {
       ],
     };
   },
-
   addChat(data, senderType) {
     if (data == cache) {
       cache = null;
@@ -139,25 +129,19 @@ export default {
 
       this.toggleChatNotificationBadge();
     }
-
     let infoDiv = document.createElement("div");
     infoDiv.className = "sender-info";
     infoDiv.innerHTML = `${senderName} - ${moment().format(
       "Do MMMM, YYYY h:mm a"
     )}`;
-
     let colDiv = document.createElement("div");
     colDiv.className = `col-10 card chat-card msg ${msgBg}`;
     colDiv.innerHTML = data.msg;
-
     let rowDiv = document.createElement("div");
     rowDiv.className = `row ${contentAlign} mb-2`;
-
     colDiv.appendChild(infoDiv);
     rowDiv.appendChild(colDiv);
-
-    chatMsgDiv.appendChild(rowDiv);
-
+    chatMsgDiv.appendChild(rowDiv);``
     /**
      * Move focus to the newly added message but only if:
      * 1. Page has focus
@@ -227,9 +211,9 @@ export default {
     vtitle.textContent = vuser;
     vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
+    videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     
-   
     //create a new div for card
     let cardDiv = document.createElement("div");
     cardDiv.className = "card mb-3";
@@ -243,7 +227,6 @@ export default {
     div.id = partnerName;
     div.appendChild(cardDiv);
 
-
     let ogrid = document.createElement("div");
     let xgrid = document.createElement("div");
     xgrid.className = "grid-stack-item-content";
@@ -256,6 +239,20 @@ export default {
 
     //put div in videos elem
     //document.getElementById("videos").appendChild(div);
+  },
+  // method to resize all elements when remove or add video to grid;
+  //https://dsmorse.github.io/gridster.js/#resize_widget_method
+  resizeElements(ligrid,partnerName){
+    // array of widgets ids
+    let $widget = ligrid.className = partnerName ;
+    let widgets = [];
+    // widget max widths
+    let size_x = [4,6,8];
+    let size_y = [4,6,8]
+
+    for(let i = 0 ; i < widgets.length ; i++ ) {
+    gridster.resize_widget( $widget/*widgets[i]*/, [size_x], [size_y], [reposition], [callback] )
+    }
   },
 
   toggleChatNotificationBadge() {
@@ -271,7 +268,6 @@ export default {
         .removeAttribute("hidden");
     }
   },
-
   //For screensharing
   replaceTrackForPeer(peer, track, kind) {
     return new Promise((resolve, reject) => {
@@ -286,7 +282,6 @@ export default {
       return reject("no sender");
     });
   },
-
   replaceAudioTrackForPeers(peers, track) {
     var self = this;
     let promises = [];
@@ -302,7 +297,6 @@ export default {
         console.log("there was a problem with peers", err);
       });
   },
-
   replaceVideoTrackForPeers(peers, track) {
     var self = this;
     let promises = [];
@@ -318,7 +312,6 @@ export default {
         console.log("there was a problem with peers", err);
       });
   },
-
   getDisplayMedia(opts) {
     if (navigator.mediaDevices.getDisplayMedia) {
       return navigator.mediaDevices.getDisplayMedia(opts);
