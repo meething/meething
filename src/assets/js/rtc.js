@@ -378,7 +378,7 @@ function initRTC() {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
-          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not 
+          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
           h.replaceVideoTrackForPeers(pcmap, vtrack);
           document.getElementById("local").srcObject = stream;
           vtrack.onended = function (event) {
@@ -396,6 +396,23 @@ function initRTC() {
           e.srcElement.classList.add("sharing");
           e.srcElement.classList.remove("text-white");
           e.srcElement.classList.add("text-black");
+        }
+      });
+
+      document.getElementById("private-toggle").addEventListener("click", e => {
+        e.preventDefault();
+        // Detect if we are already in private mode
+        let keys = Object.keys(presence.root._.opt.peers);
+        if(keys.length == 0) {
+          //if in private mode, go public
+          presence.onGrid(presence.room);
+          e.srcElement.classList.remove("fa-lock");
+          e.srcElement.classList.add("fa-unlock");
+        } else {
+          //if public, go private
+          presence.offGrid();
+          e.srcElement.classList.remove("fa-unlock");
+          e.srcElement.classList.add("fa-lock");
         }
       });
   }
