@@ -31,6 +31,7 @@
 
   <!-- Gridstack -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack-extra.css"/>
   <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
 
 </head>
@@ -80,13 +81,16 @@
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
         <span class="fa fa-lock"></span>
       </button>
+ 
+     
 
-     <!-- <select id ="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(value);" title="Grid Columns">
+     
+   <select id ="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(value);" title="Grid Columns"><span class="colselector">COLUMNS</span>
 	  <option value='1'>1</option>
 	  <option value='4'>4</option>
 	  <option value='6'>6</option>
       </select>
--->
+    
 
     </div>
   </nav>
@@ -197,7 +201,7 @@ gridst.setAttribute('style',`width:${clientwidth}`);
     var grid = GridStack.init({
       float: true      
     });
-    grid.cellHeight(115,true)
+    grid.cellHeight(130,true)
     grid.cellWidth(350,true)
     //grid.enableMove(tr  ue,true)
     var text = document.querySelector('#column-text');
@@ -206,8 +210,22 @@ gridst.setAttribute('style',`width:${clientwidth}`);
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
       //var clientWDT = document.documentElement.clientWidth
-    };
 
+
+    if (grid.width < 300) {
+        grid.column(2);
+      } else if (grid.width < 750) {
+        grid.column(3);
+      } else if (grid.width < 850) {
+        grid.column(5);
+      } else if (grid.width < 950) {
+        grid.column(6);
+      } else if (grid.width > 951) {
+        grid.column(6);
+      } else if (grid.width > 1250) {
+        grid.column(8);
+      } 
+    };
     
     var items = [
       {x: 0, y: 0, width: 4, height: 3},
@@ -216,7 +234,7 @@ gridst.setAttribute('style',`width:${clientwidth}`);
       {x: 0, y: 1, width: 4, height: 3},
       {x: 1, y: 1, width: 4, height: 3},
       {x: 2, y: 1, width: 4, height: 3}
-    ];
+    ]; 
     grid.batchUpdate();
     /*
     items.forEach(function(node, index) {

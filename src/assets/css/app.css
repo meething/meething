@@ -254,8 +254,9 @@ cursor: crosshair
 }
 
 .ui-draggable-handle{
-  background:black;
-  min-width:350px;
+  background:#23153ccc;
+  border-bottom:1px solid #23153c;
+  /*min-width:350px; */
 }
 /*
 .grid-stack{
@@ -263,4 +264,16 @@ cursor: crosshair
 } */
 .grid-stack-item{
   min-width:350px;
+}
+.col-select{
+  font-size:13px;
+}
+
+.colselector {
+  font-size: 10px;
+  background: grey;
+  color: white;
+  padding: 3px;
+  border-radius: 3px;
+  height: 30px;
 }
