@@ -178,7 +178,8 @@ export default {
         }
       });
     } else {
-      elem.addEventListener("click", (e) => {
+      //@TODO add click event to button on video
+      elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         elem.className = /fullscreen/.test(elem.className)
           ? "remote-video"

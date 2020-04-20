@@ -204,14 +204,11 @@
     });
     grid.cellHeight(130, true)
     grid.cellWidth(350, true)
-    //grid.enableMove(tr  ue,true)
     var text = document.querySelector('#column-text');
 
     function resizeGrid() {
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
-      //var clientWDT = document.documentElement.clientWidth
-
       if (grid.width < 300) {
         grid.column(2);
       } else if (grid.width < 750) {
@@ -236,11 +233,6 @@
       { x: 2, y: 1, width: 4, height: 3 }
     ];
     grid.batchUpdate();
-    /*
-    items.forEach(function(node, index) {
-      grid.addWidget('<div><div class="grid-stack-item-content">' + index + '</div></div>', node);
-    });
-    */
     grid.commit();
     resizeGrid();
 
