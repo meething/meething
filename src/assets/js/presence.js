@@ -83,16 +83,11 @@ export default class Presence {
   }
 
   onGrid(peer) {
-    this.root.opt({ peers: [peer] })
+    let peers = root._.opt.peers;
+    let peer = {};
+    peer.id = peerUrl;
+    peer.url = peerUrl;
+    peers[peerUrl] = peer;
+    root._.opt.peers = peers;
   }
-
-function onGrid(peerUrl) {
-  let peers = root._.opt.peers;
-  let keys = Object.keys(peers);
-  // check if peers are empty
-  let peer = {};
-  peer.id = peerUrl;
-  peer.url = peerUrl;
-  peers[peerUrl] = peer;
-  root._.opt.peers = peers;
 }
