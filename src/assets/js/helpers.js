@@ -225,7 +225,8 @@ export default {
         }
       });
     } else {
-      elem.addEventListener("click", (e) => {
+      //@TODO add click event to button on video
+      elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         elem.className = /fullscreen/.test(elem.className)
           ? "remote-video"
@@ -248,71 +249,31 @@ export default {
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = stream;
     newVid.autoplay = true;
-    newVid.className = "remote-video";
     this.addVideoElementEvent(newVid, "pip");
-    // add toolbox div for vdeo title and options
+    newVid.className = "remote-video grid-stack-item-content";
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
-    // Video user title
     var vtitle = document.createElement("p");
-     // add user icon
-     let userIcon = document.createElement("i");
-     userIcon.className = "fas fa-user";
-     
-     // add user name
+    var userIcon = document.createElement("i");
+    userIcon.className = "fas fa-user";
     var vuser = partnerName;
-    //vtitle.appendChild(userIcon);
     vtitle.textContent = vuser;
     vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
     videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
-    
-    //create a new div for card
-    let cardDiv = document.createElement("div");
-    cardDiv.className = "card mb-3";
-    cardDiv.style = "color:#FFF";
-    cardDiv.appendChild(newVid);
-    cardDiv.appendChild(videoToolbox);
-    //create a new div for everything
-    let div = document.createElement("div");
-    //div.className = "col-sm-12 col-md-6";
-    div.id = partnerName;
-    div.appendChild(cardDiv);
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
+    //proposrtion constrint on grid
     ogrid.setAttribute('data-gs-width','4');
     ogrid.setAttribute('data-gs-height','3');
-    let xgrid = document.createElement("div");
-    xgrid.className = "grid-stack-item-content";
-    //xgrid.setAttribute('data-gs-width',4);
-    //xgrid.setAttribute('data-gs-height',3);
-    xgrid.appendChild(cardDiv);
-
-    ogrid.appendChild(xgrid);
+    ogrid.appendChild(newVid);
+    ogrid.appendChild(videoToolbox)
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 2, 2, true);
+    grid.addWidget(ogrid, 0, 0, 1, 1, true);
     grid.compact();
     resizeGrid();
-
-    //put div in videos elem
-    //document.getElementById("videos").appendChild(div);
   },
-  // method to resize all elements when remove or add video to grid;
-  //https://dsmorse.github.io/gridster.js/#resize_widget_method
-  resizeElements(ligrid,partnerName){
-    // array of widgets ids
-    let $widget = ligrid.className = partnerName ;
-    let widgets = [];
-    // widget max widths
-    let size_x = [4,6,8];
-    let size_y = [4,6,8]
-
-    for(let i = 0 ; i < widgets.length ; i++ ) {
-    gridster.resize_widget( $widget/*widgets[i]*/, [size_x], [size_y], [reposition], [callback] )
-    }
-  },
-
 
   toggleChatNotificationBadge() {
     if (
