@@ -579,7 +579,6 @@ function init(createOffer, partnerName) {
         if (partnerName == socketId) {
           return;
         } // retry catch needed
-        //h.closeVideo(partnerName);
         break;
       case "closed":
         h.closeVideo(partnerName);
