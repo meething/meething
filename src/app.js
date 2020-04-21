@@ -11,8 +11,8 @@ let path = require('path');
 var config = {};
 
 config.options = {
-   key: process.env.SSLKEY,
-   cert: process.env.SSLCERT 
+   key: process.env.SSLKEY ? fs.readFileSync(process.env.SSLKEY) : fs.readFileSync('src/assets/server.key'),
+   cert: process.env.SSLCERT ? fs.readFileSync(process.env.SSLCERT) : fs.readFileSync('src/assets/server.cert')
 }
 
 config.port = process.env.PORT || 443;
