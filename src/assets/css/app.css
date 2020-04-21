@@ -75,7 +75,7 @@ body {
 }
 
 .clipped {
-  clip-path: circle(40%);
+  clip-path: circle(30%);
 }
 
 .main {
