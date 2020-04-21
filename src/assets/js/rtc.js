@@ -5,7 +5,7 @@
 import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
 import Presence from "./presence.js";
-
+import MetaData from "./metadata.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -22,7 +22,7 @@ window.addEventListener('DOMContentLoaded', function () {
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
   title = room.replace(/_(.*)/, '');
   localVideo = document.getElementById("local");
-  if(title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
+  if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
   initRTC();
 });
@@ -39,6 +39,7 @@ var mutedStream,
 var socketId;
 var damSocket;
 var presence;
+var metaData;
 
 function initSocket() {
   var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
@@ -54,17 +55,6 @@ function initSocket() {
     .get("rtcmeeting")
     .get(room)
     .get("socket");
-
-  // Custom Emit Function - move to Emitter?
-  socket.emit = function (key, value) {
-    if (value.sender && value.to && value.sender == value.to) return;
-    console.log("debug emit key", key, "value", value);
-    if (!key || !value) return;
-    if (!value.ts) value.ts = Date.now();
-    // Legacy send through GUN JSON
-    if (key == "sdp" || key == "icecandidates") value = JSON.stringify(value);
-    socket.get(key).put(value);
-  };
 }
 
 function sendMsg(msg, local) {
@@ -75,7 +65,11 @@ function sendMsg(msg, local) {
   };
 
   //emit chat message
-  if (!local) socket.emit("chat", data);
+  if (!local) {
+    if (data.sender && data.to && data.sender == data.to) return;
+    if (!data.ts) data.ts = Date.now();
+    metaData.sentChatData(data);
+  }
   //add localchat
   h.addChat(data, "local");
 }
@@ -96,6 +90,21 @@ function initPresence() {
   presence.enter();
 }
 
+function metaDataReceived(data) {
+  if (data.event == "chat") {
+    if (data.ts && Date.now() - data.ts > 5000) return;
+    if (data.socketId == socketId || data.sender == socketId) return;
+    if (data.sender == username) return;
+    console.log("got chat", data);
+    h.addChat(data, "remote");
+  } else {
+    console.log("META::" + JSON.stringify(data));
+    //TODO @Jabis do stuff here with the data
+    //data.socketId and data.pid should give you what you want
+    //Probably want to filter but didnt know if you wanted it filter on socketId or PID
+  }
+}
+
 function initRTC() {
   if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
@@ -112,12 +121,14 @@ function initRTC() {
       commElem[i].attributes.removeNamedItem("hidden");
     }
 
-    if(localVideo) 
+    if (localVideo)
       mutedStream = h.setMutedStream(localVideo);
 
     document.getElementById("demo").attributes.removeNamedItem("hidden");
 
     socketId = h.uuidv4();
+    metaData = new MetaData(root, room, socketId, metaDataReceived)
+    metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
 
@@ -227,14 +238,14 @@ function initRTC() {
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
-              new RTCSessionDescription(data.description)
-            )
+            new RTCSessionDescription(data.description)
+          )
           : "";
 
         h.getUserMedia()
           .then(async stream => {
-            if(localVideo) localVideo.srcObject = stream;
-            
+            if (localVideo) localVideo.srcObject = stream;
+
             //save my stream
             myStream = stream;
 
@@ -279,14 +290,6 @@ function initRTC() {
       }
     };
 
-    socket.get("chat").on(function (data, key) {
-      if (data.ts && Date.now() - data.ts > 5000) return;
-      if (data.socketId == socketId || data.sender == socketId) return;
-      if (data.sender == username) return;
-      console.log("got chat", key, data);
-      h.addChat(data, "remote");
-    });
-
     document.getElementById("chat-input").addEventListener("keypress", e => {
       if (e.which === 13 && e.target.value.trim()) {
         e.preventDefault();
@@ -304,17 +307,17 @@ function initRTC() {
       var muted = mutedStream ? mutedStream : h.getMutedStream();
       var mine = myStream ? myStream : muted;
       if (!mine) {
-        return; 
+        return;
       }
-      if(!videoMuted){
-        h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r=>{
+      if (!videoMuted) {
+        h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           localVideo.srcObject = muted;
           e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
         });
       } else {
-        h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r=>{
+        h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
           localVideo.srcObject = mine;
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
@@ -329,25 +332,26 @@ function initRTC() {
       var muted = mutedStream ? mutedStream : h.getMutedStream();
       var mine = myStream ? myStream : muted;
       if (!mine) {
-        return; 
+        return;
       }
       //console.log("muted",audioMuted);
-      if(!audioMuted){
-        h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r=>{
-          audioMuted = true;     
+      if (!audioMuted) {
+        h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r => {
+          audioMuted = true;
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
+          metaData.sentControlData({ muted: audioMuted });
         });
       } else {
-        h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r=>{
-          audioMuted = false;     
+        h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r => {
+          audioMuted = false;
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
+          metaData.sentControlData({ muted: audioMuted });
         });
       }
-
 
     });
 
@@ -399,37 +403,37 @@ function initRTC() {
         }
       });
 
-      document.getElementById("private-toggle").addEventListener("click", e => {
-        e.preventDefault();
-        // Detect if we are already in private mode
-        let keys = Object.keys(presence.root._.opt.peers);
-        if(keys.length == 0) {
-          //if in private mode, go public
-          presence.onGrid(presence.room);
-          e.srcElement.classList.remove("fa-lock");
-          e.srcElement.classList.add("fa-unlock");
-        } else {
-          //if public, go private
-          presence.offGrid();
-          e.srcElement.classList.remove("fa-unlock");
-          e.srcElement.classList.add("fa-lock");
-        }
-      });
+    document.getElementById("private-toggle").addEventListener("click", e => {
+      e.preventDefault();
+      // Detect if we are already in private mode
+      let keys = Object.keys(presence.root._.opt.peers);
+      if (keys.length == 0) {
+        //if in private mode, go public
+        presence.onGrid(presence.room);
+        e.srcElement.classList.remove("fa-lock");
+        e.srcElement.classList.add("fa-unlock");
+      } else {
+        //if public, go private
+        presence.offGrid();
+        e.srcElement.classList.remove("fa-unlock");
+        e.srcElement.classList.add("fa-lock");
+      }
+    });
   }
 }
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if(pcmap.has(partnerName)) return pcmap.get(partnerName);
+  if (pcmap.has(partnerName)) return pcmap.get(partnerName);
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
-  h.addVideo(partnerName,false);
+  h.addVideo(partnerName, false);
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
-    var tracks ={}; 
+    var tracks = {};
     tracks['audio'] = screenStream.getAudioTracks();
-    tracks['video'] = screenStream.getVideoTracks(); 
+    tracks['video'] = screenStream.getVideoTracks();
     if (myStream) {
       tracks['audio'] = myStream.getAudioTracks(); //We want sounds from myStream if there is such
       if (!tracks.video.length) tracks['video'] = myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
@@ -440,15 +444,15 @@ function init(createOffer, partnerName) {
       });
     });
   } else if (!screenStream && myStream) {
-    var tracks ={}; 
+    var tracks = {};
     tracks['audio'] = myStream.getAudioTracks();
-    tracks['video'] = myStream.getVideoTracks(); 
-    if(audioMuted || videoMuted){ 
+    tracks['video'] = myStream.getVideoTracks();
+    if (audioMuted || videoMuted) {
       var mutedStream = mutedStream ? mutedStream : h.getMutedStream();
-      if(videoMuted) tracks['video'] = mutedStream.getVideoTracks();
-      if(audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
-    } 
-    ['audio','video'].map(tracklist=>{
+      if (videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+      if (audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+    }
+    ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
         pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
       });
@@ -462,15 +466,15 @@ function init(createOffer, partnerName) {
         var mixstream = new MediaStream();
         window.myStream = myStream;
         window.mixstream = mixstream;
-        var tracks ={}; 
+        var tracks = {};
         tracks['audio'] = myStream.getAudioTracks();
-        tracks['video'] = myStream.getVideoTracks(); 
-        if (audioMuted || videoMuted){ 
+        tracks['video'] = myStream.getVideoTracks();
+        if (audioMuted || videoMuted) {
           var mutedStream = mutedStream ? mutedStream : h.getMutedStream();
           if (videoMuted) tracks['video'] = mutedStream.getVideoTracks();
           if (audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
-        } 
-        ['audio', 'video'].map(tracklist=>{
+        }
+        ['audio', 'video'].map(tracklist => {
           tracks[tracklist].forEach(track => {
             mixstream.addTrack(track);
             pc[partnerName].addTrack(track, mixstream); //should trigger negotiationneeded event
@@ -535,8 +539,8 @@ function init(createOffer, partnerName) {
     });
   };
 
-   //add
-   pc[partnerName].ontrack = e => {
+  //add
+  pc[partnerName].ontrack = e => {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
