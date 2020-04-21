@@ -218,17 +218,16 @@ export default {
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
-    ogrid.setAttribute('data-gs-width','3');
-    ogrid.setAttribute('data-gs-height','4');
+    //proposrtion constrint on grid
+    ogrid.setAttribute('data-gs-width','4');
+    ogrid.setAttribute('data-gs-height','3');
     ogrid.appendChild(newVid);
     ogrid.appendChild(videoToolbox)
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 2, 2, true);
+    grid.addWidget(ogrid, 0, 0, 1, 1, true);
     grid.compact();
     resizeGrid();
   },
-
-
 
   toggleChatNotificationBadge() {
     if (

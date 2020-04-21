@@ -138,11 +138,6 @@ body {
     display: none;
   }
 
-  .remote-video {
-    /*height: 100%; */
-    width: 100%;
-    overflow:hidden;
-  }
 
   .local-video {
     height: 80px;
@@ -242,6 +237,7 @@ width:100%;
   overflow:hidden;
  
 }
+
 .v-user{
   margin-left:5px;
   opacity:.45;
@@ -271,11 +267,21 @@ width:100%;
   height: 30px;
 }
 .grid-stack > .grid-stack-item{
-  overflow:hidden !important;
+ overflow:hidden !important;
+  text-align:center;
+  
   
 }
 
 .grid-stack > .grid-stack-item > .grid-stack-item-content {
+  /*overflow:hidden !important;*/
   overflow:hidden !important;
-  display:content-box;
+ display:inline-block;
+  width:100%;
+}
+
+/* main toolbar styles .. */
+
+.hidden{
+  display:none;
 }

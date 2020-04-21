@@ -89,7 +89,7 @@
       <select id="grid-col" name="grid-col" onchange="changeCol()"
         title="Grid Columns">
         <option value="1">1</option>
-        <option value="4">4</option>
+        <option value="4">3</option>
         <option value="6">6</option>
       </select>
       <span class="colselector">COLUMNS</span>
@@ -205,21 +205,24 @@
     var grid = GridStack.init({
       float: true
     });
-    grid.cellHeight(130, true)
-    grid.cellWidth(350, true)
+    grid.cellHeight(135, true)
+    grid.cellWidth(230, true)
     var text = document.querySelector('#column-text');
 
     function resizeGrid() {
+      mainToolbar = document.querySelector('.room-comm')
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
-      if (grid.width < 300) {
+      if (grid.width < 380) {
         grid.column(1);
+        mainToolbar.className ='hidden';
       } else if (grid.width < 750) {
-        grid.column(4);
+        grid.column(2);
+       
       } else if (grid.width < 850) {
-        grid.column(4);
+        grid.column(3);
       } else if (grid.width < 950) {
-        grid.column(6);
+        grid.column(3);
       } else if (grid.width > 951) {
         grid.column(6);
       } else if (grid.width > 1250) {
