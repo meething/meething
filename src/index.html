@@ -80,18 +80,19 @@
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
-        <span class="fa fa-lock"></span>
+        <i class="fa fa-unlock text-white"></i>
       </button>
 
 
 
 
-      <select id="grid-col" name="grid-col" onmousedown="this.value='';" onchange="grid.column(value);"
-        title="Grid Columns"><span class="colselector">COLUMNS</span>
-        <option value='1'>1</option>
-        <option value='4'>4</option>
-        <option value='6'>6</option>
+      <select id="grid-col" name="grid-col" onchange="changeCol()"
+        title="Grid Columns">
+        <option value="1">1</option>
+        <option value="4">3</option>
+        <option value="6">6</option>
       </select>
+      <span class="colselector">COLUMNS</span>
 
 
     </div>
@@ -199,27 +200,29 @@
       gridst.setAttribute('style', `width:${clientwidth}`);
 
     }
+   
+
     var grid = GridStack.init({
       float: true
     });
-    grid.cellHeight(130, true)
-    grid.cellWidth(350, true)
-    //grid.enableMove(tr  ue,true)
+    grid.cellHeight(135, true)
+    grid.cellWidth(230, true)
     var text = document.querySelector('#column-text');
 
     function resizeGrid() {
+      mainToolbar = document.querySelector('.room-comm')
       grid.width = document.documentElement.clientWidth;
       console.log(grid.width)
-      //var clientWDT = document.documentElement.clientWidth
-
-      if (grid.width < 300) {
-        grid.column(2);
+      if (grid.width < 380) {
+        grid.column(1);
+        mainToolbar.className ='hidden';
       } else if (grid.width < 750) {
-        grid.column(3);
+        grid.column(2);
+       
       } else if (grid.width < 850) {
-        grid.column(5);
+        grid.column(3);
       } else if (grid.width < 950) {
-        grid.column(6);
+        grid.column(3);
       } else if (grid.width > 951) {
         grid.column(6);
       } else if (grid.width > 1250) {
@@ -228,19 +231,20 @@
     };
 
     var items = [
-      { x: 0, y: 0, width: 4, height: 3 },
-      { x: 1, y: 0, width: 4, height: 3 },
-      { x: 2, y: 0, width: 4, height: 3 },
-      { x: 0, y: 1, width: 4, height: 3 },
-      { x: 1, y: 1, width: 4, height: 3 },
-      { x: 2, y: 1, width: 4, height: 3 }
+      { x: 0, y: 0, width: 1, height: 1 },
+      { x: 1, y: 0, width: 1, height: 1 },
+      { x: 2, y: 0, width: 1, height: 1 },
+      { x: 0, y: 1, width: 1, height: 1 },
+      { x: 1, y: 1, width: 1, height: 1 },
+      { x: 2, y: 1, width: 1, height: 1 }
     ];
+    var changeCol = function(){
+      var gridCol = document.querySelector("#grid-col").value
+      grid.column(gridCol)
+   
+
+    }
     grid.batchUpdate();
-    /*
-    items.forEach(function(node, index) {
-      grid.addWidget('<div><div class="grid-stack-item-content">' + index + '</div></div>', node);
-    });
-    */
     grid.commit();
     resizeGrid();
 
