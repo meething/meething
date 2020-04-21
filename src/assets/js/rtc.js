@@ -9,17 +9,20 @@ import Presence from "./presence.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
+var meethrix = window.meethrix = false;
 
 var root;
 var room;
 var username;
 var title = "ChatRoom";
+var localVideo;
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
   title = room.replace(/_(.*)/, '');
-  if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
+  localVideo = document.getElementById("local");
+  if(title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
   initRTC();
 });
@@ -30,6 +33,9 @@ var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream;
 var screenStream;
+var mutedStream,
+  audioMuted = false,
+  videoMuted = false;
 var socketId;
 var damSocket;
 var presence;
@@ -106,8 +112,9 @@ function initRTC() {
       commElem[i].attributes.removeNamedItem("hidden");
     }
 
-    // Remove animated bg... to be replaced entirely with something cpu friendly
-    //document.getElementById("demo").remove();
+    if(localVideo) 
+      mutedStream = h.setMutedStream(localVideo);
+
     document.getElementById("demo").attributes.removeNamedItem("hidden");
 
     socketId = h.uuidv4();
@@ -220,16 +227,14 @@ function initRTC() {
       if (data.description.type === "offer") {
         data.description
           ? pc[data.sender].setRemoteDescription(
-            new RTCSessionDescription(data.description)
-          )
+              new RTCSessionDescription(data.description)
+            )
           : "";
 
         h.getUserMedia()
           .then(async stream => {
-            if (!document.getElementById("local").srcObject) {
-              document.getElementById("local").srcObject = stream;
-            }
-
+            if(localVideo) localVideo.srcObject = stream;
+            
             //save my stream
             myStream = stream;
 
@@ -296,25 +301,54 @@ function initRTC() {
 
     document.getElementById("toggle-video").addEventListener("click", e => {
       e.preventDefault();
-      if (!myStream) return;
-      const videoTrack = myStream.getVideoTracks()[0];
-      videoTrack.enabled = !videoTrack.enabled;
-      console.log("local video enable: ", myStream.getVideoTracks()[0].enabled);
-      //toggle video icon
-      e.srcElement.classList.toggle("fa-video");
-      e.srcElement.classList.toggle("fa-video-slash");
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return; 
+      }
+      if(!videoMuted){
+        h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r=>{
+          videoMuted = true;
+          localVideo.srcObject = muted;
+          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.add("fa-video-slash");
+        });
+      } else {
+        h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r=>{
+          localVideo.srcObject = mine;
+          videoMuted = false;
+          e.srcElement.classList.add("fa-video");
+          e.srcElement.classList.remove("fa-video-slash");
+        });
+      }
+
     });
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
-      if (!myStream) return;
-      //myStream.getAudioTracks()[0].enabled = !myStream.getAudioTracks()[0].enabled;
-      const audioTrack = myStream.getAudioTracks()[0];
-      audioTrack.enabled = !audioTrack.enabled;
-      console.log("local audio enable: ", myStream.getAudioTracks()[0].enabled);
-      //toggle audio icon
-      e.srcElement.classList.toggle("fa-volume-up");
-      e.srcElement.classList.toggle("fa-volume-mute");
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return; 
+      }
+      //console.log("muted",audioMuted);
+      if(!audioMuted){
+        h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r=>{
+          audioMuted = true;     
+          //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+          e.srcElement.classList.remove("fa-volume-up");
+          e.srcElement.classList.add("fa-volume-mute");
+        });
+      } else {
+        h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r=>{
+          audioMuted = false;     
+          //localVideo.srcObject = mine; 
+          e.srcElement.classList.add("fa-volume-up");
+          e.srcElement.classList.remove("fa-volume-mute");
+        });
+      }
+
+
     });
 
     document.getElementById("toggle-invite").addEventListener("click", e => {
@@ -344,7 +378,7 @@ function initRTC() {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
-          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not 
+          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
           h.replaceVideoTrackForPeers(pcmap, vtrack);
           document.getElementById("local").srcObject = stream;
           vtrack.onended = function (event) {
@@ -352,8 +386,7 @@ function initRTC() {
             screenStream = null;
             if (myStream) {
               document.getElementById("local").srcObject = myStream;
-              h.replaceVideoTrackForPeers(pcmap, myStream.getVideoTracks()[0]);
-              h.replaceAudioTrackForPeers(pcmap, myStream.getAudioTracks()[0]);
+              h.replaceStreamForPeers(pcmap, myStream);
             }
             e.srcElement.classList.remove("sharing");
             e.srcElement.classList.add("text-white");
@@ -365,34 +398,60 @@ function initRTC() {
           e.srcElement.classList.add("text-black");
         }
       });
+
+      document.getElementById("private-toggle").addEventListener("click", e => {
+        e.preventDefault();
+        // Detect if we are already in private mode
+        let keys = Object.keys(presence.root._.opt.peers);
+        if(keys.length == 0) {
+          //if in private mode, go public
+          presence.onGrid(presence.room);
+          e.srcElement.classList.remove("fa-lock");
+          e.srcElement.classList.add("fa-unlock");
+        } else {
+          //if public, go private
+          presence.offGrid();
+          e.srcElement.classList.remove("fa-unlock");
+          e.srcElement.classList.add("fa-lock");
+        }
+      });
   }
 }
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if (pcmap.has(partnerName)) return pcmap.get(partnerName); // DO NOT overwrite existing peer connections with new listeners - many malformed iceCandidates resulted from this
+  if(pcmap.has(partnerName)) return pcmap.get(partnerName);
   pc[partnerName] = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
-
+  h.addVideo(partnerName,false);
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
-    var tracks = {};
+    var tracks ={}; 
     tracks['audio'] = screenStream.getAudioTracks();
-    tracks['video'] = screenStream.getVideoTracks();
+    tracks['video'] = screenStream.getVideoTracks(); 
     if (myStream) {
       tracks['audio'] = myStream.getAudioTracks(); //We want sounds from myStream if there is such
       if (!tracks.video.length) tracks['video'] = myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
     }
-
     ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
         pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
       });
     });
   } else if (!screenStream && myStream) {
-    myStream.getTracks().forEach(track => {
-      pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+    var tracks ={}; 
+    tracks['audio'] = myStream.getAudioTracks();
+    tracks['video'] = myStream.getVideoTracks(); 
+    if(audioMuted || videoMuted){ 
+      var mutedStream = mutedStream ? mutedStream : h.getMutedStream();
+      if(videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+      if(audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+    } 
+    ['audio','video'].map(tracklist=>{
+      tracks[tracklist].forEach(track => {
+        pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+      });
     });
   } else {
     h.getUserMedia()
@@ -400,12 +459,24 @@ function init(createOffer, partnerName) {
         //save my stream
         myStream = stream;
         //provide access to window for debug
+        var mixstream = new MediaStream();
         window.myStream = myStream;
-        stream.getTracks().forEach(track => {
-          pc[partnerName].addTrack(track, stream); //should trigger negotiationneeded event
+        window.mixstream = mixstream;
+        var tracks ={}; 
+        tracks['audio'] = myStream.getAudioTracks();
+        tracks['video'] = myStream.getVideoTracks(); 
+        if(audioMuted || videoMuted){ 
+          var mutedStream = mutedStream ? mutedStream : h.getMutedStream();
+          if(videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+          if(audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+        } 
+        ['audio','video'].map(tracklist=>{
+          tracks[tracklist].forEach(track => {
+            pc[partnerName].addTrack(track, mixstream); //should trigger negotiationneeded event
+          });
         });
 
-        document.getElementById("local").srcObject = stream;
+        if(!localVideo.srcObject) localVideo.srcObject = mixstream;
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);
@@ -463,8 +534,8 @@ function init(createOffer, partnerName) {
     });
   };
 
-  //add
-  pc[partnerName].ontrack = e => {
+   //add
+   pc[partnerName].ontrack = e => {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
@@ -502,13 +573,13 @@ function init(createOffer, partnerName) {
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
-        h.closeVideo(partnerName);
+        //h.closeVideo(partnerName);
         break;
       case "failed":
         if (partnerName == socketId) {
           return;
         } // retry catch needed
-        h.closeVideo(partnerName);
+        //h.closeVideo(partnerName);
         break;
       case "closed":
         h.closeVideo(partnerName);

@@ -266,10 +266,10 @@ width:100%;
   border-radius: 3px;
   height: 30px;
 }
+
 .grid-stack > .grid-stack-item{
  overflow:hidden !important;
   text-align:center;
-  
   
 }
 
@@ -284,4 +284,5 @@ width:100%;
 
 .hidden{
   display:none;
+
 }
