@@ -196,7 +196,7 @@ export default {
     rowDiv.className = `row ${contentAlign} mb-2`;
     colDiv.appendChild(infoDiv);
     rowDiv.appendChild(colDiv);
-    chatMsgDiv.appendChild(rowDiv);``
+    chatMsgDiv.appendChild(rowDiv);
     /**
      * Move focus to the newly added message but only if:
      * 1. Page has focus

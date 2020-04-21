@@ -256,7 +256,7 @@ function initRTC() {
             if (!enableHacks) return;
             // start crazy mode lets answer anyhow
             console.log(
-              ">>>>>>>>>>>> no media devices! answering receive only"
+              "no media devices! answering receive only"
             );
             var answerConstraints = {
               OfferToReceiveAudio: true,
@@ -380,12 +380,12 @@ function initRTC() {
           var vtrack = stream.getVideoTracks()[0];
           if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
           h.replaceVideoTrackForPeers(pcmap, vtrack);
-          document.getElementById("local").srcObject = stream;
+          localVideo.srcObject = stream;
           vtrack.onended = function (event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
-              document.getElementById("local").srcObject = myStream;
+              localVideo.srcObject = myStream;
               h.replaceStreamForPeers(pcmap, myStream);
             }
             e.srcElement.classList.remove("sharing");
@@ -465,24 +465,25 @@ function init(createOffer, partnerName) {
         var tracks ={}; 
         tracks['audio'] = myStream.getAudioTracks();
         tracks['video'] = myStream.getVideoTracks(); 
-        if(audioMuted || videoMuted){ 
+        if (audioMuted || videoMuted){ 
           var mutedStream = mutedStream ? mutedStream : h.getMutedStream();
-          if(videoMuted) tracks['video'] = mutedStream.getVideoTracks();
-          if(audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+          if (videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+          if (audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
         } 
-        ['audio','video'].map(tracklist=>{
+        ['audio', 'video'].map(tracklist=>{
           tracks[tracklist].forEach(track => {
+            mixstream.addTrack(track);
             pc[partnerName].addTrack(track, mixstream); //should trigger negotiationneeded event
           });
         });
 
-        if(!localVideo.srcObject) localVideo.srcObject = mixstream;
+        localVideo.srcObject = mixstream;
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);
         if (!enableHacks) return;
         // start crazy mode - lets offer anyway
-        console.log(">>>>>>>>>>>> no media devices! offering receive only");
+        console.log("no media devices! offering receive only");
         var offerConstraints = {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
