@@ -203,41 +203,34 @@
    
 
     var grid = GridStack.init({
+      disableColumnMode: true,
       float: true
     });
     grid.cellHeight(135, true)
     grid.cellWidth(230, true)
-    var text = document.querySelector('#column-text');
+  
 
     function resizeGrid() {
       mainToolbar = document.querySelector('.room-comm')
-      grid.width = document.documentElement.clientWidth;
-      console.log(grid.width)
-      if (grid.width < 380) {
+      var width = document.body.clientWidth;
+      if (width < 700) {
         grid.column(1);
-        mainToolbar.className ='hidden';
-      } else if (grid.width < 750) {
-        grid.column(2);
-       
-      } else if (grid.width < 850) {
+    
+      } else if (width < 850) {
         grid.column(3);
-      } else if (grid.width < 950) {
-        grid.column(3);
-      } else if (grid.width > 951) {
+      
+      } else if (width < 950) {
         grid.column(6);
-      } else if (grid.width > 1250) {
+        
+      } else if (width < 1100) {
         grid.column(8);
+       
+      } else {
+        grid.column(8);
+        
       }
     };
 
-    var items = [
-      { x: 0, y: 0, width: 1, height: 1 },
-      { x: 1, y: 0, width: 1, height: 1 },
-      { x: 2, y: 0, width: 1, height: 1 },
-      { x: 0, y: 1, width: 1, height: 1 },
-      { x: 1, y: 1, width: 1, height: 1 },
-      { x: 2, y: 1, width: 1, height: 1 }
-    ];
     var changeCol = function(){
       var gridCol = document.querySelector("#grid-col").value
       grid.column(gridCol)
