@@ -1,57 +1,55 @@
-var cache,
-  mutedStream;
-const MutedAudioTrack = ({elevatorJingle = false} = {}) => {
+var cache, mutedStream, ac, mediaStreamDestination, mediaRecorder;
+const MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
   // TODO: if elevatorJingle, add some random track of annoying music instead :D
-  let audio = new AudioContext(); 
+  let audio = new AudioContext();
   let oscillator = audio.createOscillator();
   let destination = oscillator.connect(audio.createMediaStreamDestination());
   oscillator.start();
-  return Object.assign(destination.stream.getAudioTracks()[0], {enabled: false});
-}  
+  return Object.assign(destination.stream.getAudioTracks()[0], { enabled: false });
+}
 
-const MutedVideoTrack = ({width = 320, height = 240} = {}) => {
-  let c = Object.assign(document.createElement("canvas"), {width, height});
+const MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
+  let c = Object.assign(document.createElement("canvas"), { width, height });
   let ctx = c.getContext('2d');
   let stream = c.captureStream();
-  ctx.fillRect(0, 0, width, height);  
-  if(window && window.meethrix==true) { //EASTER EGG
+  ctx.fillRect(0, 0, width, height);
+  if (window && window.meethrix == true) { //EASTER EGG
     var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
     chars = chars.split("");
     var font_size = 10;
-    var columns = c.width/font_size; //number of columns for the rain
+    var columns = c.width / font_size; //number of columns for the rain
     var drops = [];
-    for(var x = 0; x < columns; x++)
-      drops[x] = 1; 
+    for (var x = 0; x < columns; x++)
+      drops[x] = 1;
 
     function draw() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, c.width, c.height);
       ctx.fillStyle = "#0F0";
       ctx.font = font_size + "px arial";
-      for(var i = 0; i < drops.length; i++)
-      {
-        var text = chars[Math.floor(Math.random()*chars.length)];
-        ctx.fillText(text, i*font_size, drops[i]*font_size);
-        if(drops[i]*font_size > c.height && Math.random() > 0.975)
+      for (var i = 0; i < drops.length; i++) {
+        var text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * font_size, drops[i] * font_size);
+        if (drops[i] * font_size > c.height && Math.random() > 0.975)
           drops[i] = 0;
         drops[i]++;
       }
-      if(window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
+      if (window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
       //else 
       //  setTimeout(draw,33);
     }
     draw();
   }
-  return Object.assign(stream.getVideoTracks()[0], {enabled: true});
+  return Object.assign(stream.getVideoTracks()[0], { enabled: true });
 }
-const MutedStream = (videoOpts,audioOpts) => new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
+const MutedStream = (videoOpts, audioOpts) => new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
 
 export default {
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
   closeVideo(elemId) {
-    var widget = document.getElementById(elemId+"-widget");
+    var widget = document.getElementById(elemId + "-widget");
     grid.removeWidget(widget);
     grid.compact();
 
@@ -243,10 +241,52 @@ export default {
       });
     }
   },
+  addAudio(stream) {
+    if (ac == undefined) {
+      this.collectAudio();
+    }
+    if (ac !== undefined) {
+      var mediaElementSource = ac.createMediaStreamSource(stream);
+      mediaElementSource.connect(mediaStreamDestination);
+    }
+  },
+  collectAudio() {
+    ac = new AudioContext();
+    mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
+  },
+  recordAudio() {
+    mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+    console.log(mediaRecorder.state);
+    console.log("recorder started");
+    var chunks = [];
+    mediaRecorder.onstop = function (e) {
+      var blob = new Blob(chunks, {
+        type: "video/webm"
+      });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      document.body.appendChild(a);
+      a.style = "display: none";
+      a.href = url;
+      a.download = "test.webm";
+      a.click();
+      window.URL.revokeObjectURL(url);
+      chunks = [];
+    }
+    mediaRecorder.ondataavailable = function (e) {
+      chunks.push(e.data);
+    }
+    mediaRecorder.start();
+  },
+  stopRecordAudio() {
+    mediaRecorder.stop();
+    console.log(mediaRecorder.state);
+    console.log("recorder stopped");
+  },
   addVideo(partnerName, stream) {
     stream = stream ? stream : this.getMutedStream();
     // video element
-    let newVid = document.getElementById(partnerName+'-video') || document.createElement("video");
+    let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = stream;
     newVid.autoplay = true;
@@ -279,9 +319,9 @@ export default {
     videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
-    ogrid.className ="grid-stack-item";
-    ogrid.setAttribute('data-gs-width','1');
-    ogrid.setAttribute('data-gs-height','1');
+    ogrid.className = "grid-stack-item";
+    ogrid.setAttribute('data-gs-width', '1');
+    ogrid.setAttribute('data-gs-height', '1');
     ogrid.appendChild(videoDiv);
     ogrid.appendChild(videoToolbox);
     ogrid.appendChild(topToolbox);
@@ -304,30 +344,30 @@ export default {
         .removeAttribute("hidden");
     }
   },
-  
-  getMutedStream(){
+
+  getMutedStream() {
     let stream = mutedStream ? mutedStream : MutedStream();
     mutedStream = stream;
     return stream;
   },
 
-  setMutedStream(elem){
+  setMutedStream(elem) {
     let stream = this.getMutedStream();
-    if(elem) elem.srcObject = stream;
+    if (elem) elem.srcObject = stream;
     return stream;
   },
 
-  replaceStreamForPeer(peer,stream){
-    if(peer && peer.getSenders) 
+  replaceStreamForPeer(peer, stream) {
+    if (peer && peer.getSenders)
       return Promise.all(peer.getSenders().map(
         sender => sender.replaceTrack(stream.getTracks().find(t => t.kind == sender.track.kind), stream)
       ));
-    else return Promise.reject({error:"no sender in peer",peer:peer});
+    else return Promise.reject({ error: "no sender in peer", peer: peer });
   },
 
   replaceMutedStreamForPeer(peer) {
     let stream = this.getMutedStream();
-    return this.replaceStreamForPeer(peer,stream);
+    return this.replaceStreamForPeer(peer, stream);
   },
 
   replaceTrackForPeer(peer, track, kind) {
@@ -340,14 +380,14 @@ export default {
         sender.replaceTrack(track);
         resolve(sender);
       }
-      return reject({error:"no sender in peer",peer:peer});
+      return reject({ error: "no sender in peer", peer: peer });
     });
   },
 
-  replaceMutedStreamForPeers(peers){
+  replaceMutedStreamForPeers(peers) {
     var self = this;
     var promises = [];
-    peers.forEach((peer,id)=>{
+    peers.forEach((peer, id) => {
       console.log("trying to send muted Stream to peer`" + id + "`");
       promises.push(self.replaceMutedStreamForPeer(peer));
     });
@@ -360,12 +400,12 @@ export default {
       });
   },
 
-  replaceStreamForPeers(peers, stream){
+  replaceStreamForPeers(peers, stream) {
     var self = this;
     var promises = [];
-    peers.forEach((peer,id)=>{
+    peers.forEach((peer, id) => {
       console.log("trying to send Stream to peer`" + id + "`");
-      promises.push(self.replaceStreamForPeer(peer,stream));
+      promises.push(self.replaceStreamForPeer(peer, stream));
     });
     return Promise.all(promises)
       .then((results) => {
