@@ -206,8 +206,7 @@
       disableColumnMode: true,
       float: true
     });
-    grid.cellHeight(135, true)
-    grid.cellWidth(230, true)
+  
   
 
     function resizeGrid() {
@@ -220,16 +219,21 @@
         grid.column(3);
       
       } else if (width < 950) {
-        grid.column(6);
+        grid.column(3);
         
       } else if (width < 1100) {
-        grid.column(8);
+        grid.column(3);
        
       } else {
-        grid.column(8);
+        grid.column(3);
         
       }
+      
     };
+    let clientWidth = document.body.clientWidth;
+    let cWidth = clientWidth / grid.column();
+    grid.cellHeight(cWidth*2, true)
+    grid.cellWidth(cWidth, true)
 
     var changeCol = function(){
       var gridCol = document.querySelector("#grid-col").value

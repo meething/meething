@@ -269,12 +269,12 @@ export default {
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
     //proposrtion constrint on grid
-    ogrid.setAttribute('data-gs-width','4');
-    ogrid.setAttribute('data-gs-height','3');
+    ogrid.setAttribute('data-gs-width','1');
+    ogrid.setAttribute('data-gs-height','1');
     ogrid.appendChild(videoDiv);
     ogrid.appendChild(videoToolbox)
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 2, 2, true);
+    grid.addWidget(ogrid, 0, 0, 1, 1, true);
     grid.compact();
     resizeGrid();
   },
