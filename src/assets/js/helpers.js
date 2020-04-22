@@ -250,7 +250,11 @@ export default {
     newVid.srcObject = stream;
     newVid.autoplay = true;
     this.addVideoElementEvent(newVid, "pip");
-    newVid.className = "remote-video grid-stack-item-content";
+    newVid.className = "remote-video";
+    var videoDiv = document.createElement('div');
+    videoDiv.className = 'grid-stack-item-content'
+    videoDiv.id = partnerName
+    videoDiv.appendChild(newVid);
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
     var vtitle = document.createElement("p");
@@ -265,9 +269,9 @@ export default {
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
     //proposrtion constrint on grid
-    ogrid.setAttribute('data-gs-width','4');
-    ogrid.setAttribute('data-gs-height','3');
-    ogrid.appendChild(newVid);
+    ogrid.setAttribute('data-gs-width','1');
+    ogrid.setAttribute('data-gs-height','1');
+    ogrid.appendChild(videoDiv);
     ogrid.appendChild(videoToolbox)
     ogrid.id = partnerName + "-widget";
     grid.addWidget(ogrid, 0, 0, 1, 1, true);
