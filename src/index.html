@@ -75,13 +75,15 @@
         <i class="fa fa-recycle text-white"></i>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white">
-        <a href="/" class="text-white text-decoration-none">Leave Room</a>
-      </button>
-
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
         <i class="fa fa-unlock text-white"></i>
       </button>
+
+      <button class="btn btn-sm rounded-0 btn-no-effect text-white">
+        <a href="/" class="text-danger text-decoration-none" alt="Leave Room"><i class="fas fa-sign-out-alt"></i></a>
+      </button>
+
+    
 
 
 
@@ -89,10 +91,10 @@
       <select id="grid-col" name="grid-col" onchange="changeCol()"
         title="Grid Columns">
         <option value="1">1</option>
-        <option value="4">3</option>
+        <option value="3">3</option>
         <option value="6">6</option>
       </select>
-      <span class="colselector">COLUMNS</span>
+ 
 
 
     </div>
@@ -212,8 +214,16 @@
     function resizeGrid() {
       mainToolbar = document.querySelector('.room-comm')
       var width = document.body.clientWidth;
+      var fullscreen = function(){
+        if(grid.column === 1 ){
+        grid.cellHeight = document.body.clientHeight;
+        grid.cellWidth = document.body.clientWidth;
+      }
+      }
+      
       if (width < 700) {
         grid.column(1);
+        fullscreen()
     
       } else if (width < 850) {
         grid.column(3);
@@ -236,9 +246,10 @@
     grid.cellWidth(cWidth, true)
 
     var changeCol = function(){
+    
       var gridCol = document.querySelector("#grid-col").value
       grid.column(gridCol)
-   
+      
 
     }
     grid.batchUpdate();

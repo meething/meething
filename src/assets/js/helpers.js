@@ -268,7 +268,6 @@ export default {
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
     ogrid.className ="grid-stack-item";
-    //proposrtion constrint on grid
     ogrid.setAttribute('data-gs-width','1');
     ogrid.setAttribute('data-gs-height','1');
     ogrid.appendChild(videoDiv);
