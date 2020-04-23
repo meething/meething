@@ -72,6 +72,7 @@ body {
   object-fit: cover !important;
   height: 100%;
   width: 100%;
+  border-radius: 6px;
 }
 
 .clipped {

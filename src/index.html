@@ -80,24 +80,26 @@
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white">
-        <a href="/" class="text-danger text-decoration-none" alt="Leave Room"><i class="fas fa-sign-out-alt"></i></a>
+        <a href="/" class="text-danger text-decoration-none">
+           <i class="fas fa-sign-out-alt text-white"></i>
+        </a>
       </button>
-
-    
-
-
-
-
+      
+      <!-- grid columns --> 
+      <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
       <select id="grid-col" name="grid-col" onchange="changeCol()"
-        title="Grid Columns">
+        style="border-radius: 6px;" 
+        title="Grid Column(s)">
         <option value="1">1</option>
-        <option value="3">3</option>
+        <option value="2" selected>2</option>
+        <option value="4">4</option>
         <option value="6">6</option>
       </select>
- 
-
+      </div>
 
     </div>
+    
+    
   </nav>
 
   <div class="container" id="room-create" hidden>

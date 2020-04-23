@@ -245,16 +245,28 @@ export default {
   },
   addVideo(partnerName, stream) {
     stream = stream ? stream : this.getMutedStream();
+    // video element
     let newVid = document.getElementById(partnerName+'-video') || document.createElement("video");
     newVid.id = `${partnerName}-video`;
     newVid.srcObject = stream;
     newVid.autoplay = true;
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
+    //video div
     var videoDiv = document.createElement('div');
     videoDiv.className = 'grid-stack-item-content'
     videoDiv.id = partnerName
     videoDiv.appendChild(newVid);
+    //Top toolbox
+    var topToolbox = document.createElement("div");
+    topToolbox.className = "top-widget-toolbox"
+    var fullscreenBtn = document.createElement("button");
+    fullscreenBtn.className = "widget-fullscreen-button"
+    fullscreenIcon = document.createElement("i")
+    fullscreenIcon.className = "fas fa-share-square"
+    fullscreenBtn.appendChild(fullscreenIcon);
+    topToolbox.appendChild(fullscreenBtn);
+    // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
     var vtitle = document.createElement("p");
@@ -271,7 +283,8 @@ export default {
     ogrid.setAttribute('data-gs-width','1');
     ogrid.setAttribute('data-gs-height','1');
     ogrid.appendChild(videoDiv);
-    ogrid.appendChild(videoToolbox)
+    ogrid.appendChild(videoToolbox);
+    ogrid.appendChild(topToolbox);
     ogrid.id = partnerName + "-widget";
     grid.addWidget(ogrid, 0, 0, 1, 1, true);
     grid.compact();
