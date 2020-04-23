@@ -80,8 +80,9 @@
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white">
-        <a href="/" class="text-white text-decoration-none">Leave Room 
-           <i class="fa fa-sign-out-alt text-white"></i>
+
+        <a href="/" class="text-danger text-decoration-none">
+           <i class="fas fa-sign-out-alt text-white"></i>
         </a>
       </button>
       
@@ -92,8 +93,7 @@
         title="Grid Column(s)">
         <option value="1">1</option>
         <option value="2" selected>2</option>
-        <option value="4">4</option>
-        <option value="6">6</option>
+        <option value="3">3</option>
       </select>
       </div>
 
@@ -216,8 +216,16 @@
     function resizeGrid() {
       mainToolbar = document.querySelector('.room-comm')
       var width = document.body.clientWidth;
+      var fullscreen = function(){
+        if(grid.column === 1 ){
+        grid.cellHeight = document.body.clientHeight;
+        grid.cellWidth = document.body.clientWidth;
+      }
+      }
+      
       if (width < 700) {
         grid.column(1);
+        fullscreen()
     
       } else if (width < 850) {
         grid.column(3);
@@ -240,9 +248,10 @@
     grid.cellWidth(cWidth, true)
 
     var changeCol = function(){
+    
       var gridCol = document.querySelector("#grid-col").value
       grid.column(gridCol)
-   
+      
 
     }
     grid.batchUpdate();
