@@ -262,7 +262,7 @@ export default {
     topToolbox.className = "top-widget-toolbox"
     var fullscreenBtn = document.createElement("button");
     fullscreenBtn.className = "widget-fullscreen-button"
-    fullscreenIcon = document.createElement("i")
+    var fullscreenIcon = document.createElement("i")
     fullscreenIcon.className = "fas fa-share-square"
     fullscreenBtn.appendChild(fullscreenIcon);
     topToolbox.appendChild(fullscreenBtn);
