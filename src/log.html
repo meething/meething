@@ -1,0 +1,33 @@
+<html>
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+</head>
+
+<body>
+    <script>
+        const GUNLogger = "GUNLogger";
+        var peers = ["https://livecodestream-eu.herokuapp.com/gun"];
+        var opt = { peers: peers, localStorage: false, radisk: false };
+        const root = Gun(opt);
+
+        root.get(GUNLogger).map().on(function (data, id) {
+            if (!data) {
+                return
+            } else if (data.event == "log") {
+                var text = '<p style="color:black">' + data.message + '</p>'
+                if (data.level == "warn") {
+                    text = '<p style="color:yellow">' + data.message + '</p>'
+                } else if (data.level == "error") {
+                    text = '<p style="color:red">' + data.message + '</p>'
+                }
+
+                document.body.innerHTML = document.body.innerHTML + text;
+                window.scrollTo(0, document.body.scrollHeight);
+            }
+        });
+    </script>
+    <!-- document.body.innerHTML = document.body.innerHTML + "bla bla"; -->
+</body>
+
+</html>
