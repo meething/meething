@@ -5,7 +5,7 @@
 
 Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and NodeJS
 
-<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=600>
+<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=400>
 
 ## Status
 * Working Status, _still dWeb-x-perimental!_
@@ -32,7 +32,12 @@ The Meething  application will connect to community Gun nodes for user discovery
 
 
 ### SuperPeers
-SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features.
+SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features. For more details, check out the Project Wiki.
+
+--------------
+
+## Screenshots
+
 
 #### Isolation Test @qxip @amark @qvdev
 <img src="https://user-images.githubusercontent.com/1423657/77968595-04661700-72e8-11ea-8226-b90fbe8011c8.png" width=500 />
