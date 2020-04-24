@@ -1,12 +1,15 @@
 <img src="https://i.imgur.com/XS79fTC.png" width=300>
 
-# webRTC Gun Meeting
-A semi-decentralized conference bridge using WebRTC, [GunDB](http://gun.eco) and Node
+# Meething
+###### WebRTC Video Meetings
+Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and NodeJS
 
 <img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=600>
 
 ## Status
-* Experimental!
+* Quite Experimental
+* All Contributors Welcome
+* Supported by Mozilla
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
 
@@ -18,9 +21,15 @@ npm start
 
 ## Usage
 * Browse to the configured HTTPS port _(default 8443)_
-* Accept the self-signed certificates if needed
+* Accept the self-signed certificates _(if needed)_
 * Choose a Room and User name
 * Share link with other participants
+
+The Meething  application will connect to community Gun nodes for user discovery. All room data/audio/video is p2p.
+
+
+### SuperPeers
+SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features.
 
 #### Isolation Test @qxip @amark @qvdev
 <img src="https://user-images.githubusercontent.com/1423657/77968595-04661700-72e8-11ea-8226-b90fbe8011c8.png" width=500 />
