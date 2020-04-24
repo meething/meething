@@ -297,12 +297,28 @@ export default {
     //Top toolbox
     var topToolbox = document.createElement("div");
     topToolbox.className = "top-widget-toolbox"
+    // close window button // should include close video method
+    var closeWidgetBtn = document.createElement("button")
+    closeWidgetBtn.className = "widget-button"
+    var closeWidgetIcon = document.createElement("i")
+    closeWidgetIcon.className = "far fa-window-close"
+    closeWidgetBtn.appendChild(closeWidgetIcon)
+    // full screen button
     var fullscreenBtn = document.createElement("button");
-    fullscreenBtn.className = "widget-fullscreen-button"
+    fullscreenBtn.className = "widget-button"
     var fullscreenIcon = document.createElement("i")
     fullscreenIcon.className = "fas fa-share-square"
     fullscreenBtn.appendChild(fullscreenIcon);
+    // autopilot button
+    var autopilotBtn = document.createElement("button");
+    autopilotBtn.className = "widget-button"
+    var autopilotIcon = document.createElement("i")
+    autopilotIcon.className = "fas fa-bullhorn"
+    autopilotBtn.appendChild(autopilotIcon);
+   
+    topToolbox.appendChild(closeWidgetBtn);
     topToolbox.appendChild(fullscreenBtn);
+    topToolbox.appendChild(autopilotBtn);
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';

@@ -317,3 +317,30 @@ width:100%;
   display:none;
 
 }
+.top-widget-toolbox{
+  margin: 0 auto;
+  position:absolute;
+  top:0px;
+  right:10px;
+  width:100%;
+  z-index:100000;
+  display:grid;
+  grid-template-columns:auto;
+  justify-content: right;
+}
+.widget-button{
+  width:30px;
+  border-radius:15px;
+  background:none;
+ 
+  margin-right:10px;
+  border:none;
+  color: #666;
+  opacity:.75;
+  transition:.3s all;
+  margin:5px;
+ 
+}
+.widget-button:hover{
+  color:rgb(168, 22, 83);
+}
