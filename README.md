@@ -1,15 +1,18 @@
-<img src="https://i.imgur.com/XS79fTC.png" width=300>
+<img src="https://i.imgur.com/XS79fTC.png" width=200>
 
-# Meething
-###### WebRTC Video Meetings
+
+# Meething : dWebRTC
+
 Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and NodeJS
 
 <img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=600>
 
 ## Status
-* Quite Experimental
-* All Contributors Welcome
-* Supported by Mozilla
+* Working Status, _still dWeb-x-perimental!_
+* Project Selected by [Mozilla Spring Builders MVP Lab](https://builders.mozilla.community/springlab/index.html) :heart:
+* Contributors and Testers welcome! Join or open an [issue](https://github.com/meething/webrtc-gun/issues) for more!
+
+Ready to try Meething? 
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
 
@@ -40,8 +43,12 @@ SuperPeers can provide the network with services such as STUN/TURN/RELAY and in 
 
 -------------
 
-## Todo
-* see project [issues](https://github.com/meething/webrtc-gun/issues)
 
-## Credits
-This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni
+
+
+<!--
+##### Credits & Thanks
+* Mozilla for supporting our idea!
+* Mark Nadal + Gun Community
+* Amir Sanni for sharing his ideas from [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS)
+-->
