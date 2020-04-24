@@ -1,11 +1,13 @@
-export default Graph (webworker) {
+export default Graph () {
 
   let nodes = [];
   let edges = [];
 
-  // assume webworker is initiated
+  // initiate webworker here
+  var worker = new Worker('workerGraph.js');
   // create listeners for results
-  function workWeb () {
+  function updateGraph () {
+    console.log('sending update to webworker')
     worker.postMessage({
       nodes: nodes,
       links: edges
@@ -18,26 +20,11 @@ export default Graph (webworker) {
       case "tick": return ticked(event.data);
       case "end": return ended(event.data);
     }
-  };
-
-  function findPid (pid) {
-    //iterate over nodes to find pid , return index of nodes array
   }
-
 
   function add (msg) {
 
-    /* Example of message
-    {
-     "pid":"VPlanzWWs", //pid of event, well
-     "event":"presence",
-     "data":"[ // data in json
-       ["VPlanzWWs",null],
-       ["3CkR1nfjW",{"pid":"3CkR1nfjW","event":"enter","data":null,"#":"aatAqvIZm"}] //pid of arriving
-     ]",
-     "#":"5ISuD9Sls"
-   }
-   */
+    // TODO: handle different events, add should only execute if event is presence or enter
 
     // build graph nodes and edges from metadata
 
@@ -45,28 +32,42 @@ export default Graph (webworker) {
     let data = JSON.parse(msg.data);
     data = data[0];
     //find each PID and see if it already there
-    let indexPid = findPid(msg.pid);
+    let indexPid = nodes.findIndex(msg.pid);
     // if not found
-    if(!indexPid) {
-      // add myself and check if there is any edges needed
-      nodes.push(msg.pid);
-      for(let index in data) {
-        console.log(data[index])
-        if(data[index][0] !== msg.pid) {
+    if(indexPid<0) {
+      nodes.push(msg.pid); //if it's me and I am not here push me in
+      for(let peer of data) {
+        console.log(peer)
+        //if this isn't the the client building the graph
+        if(peer[0] !== msg.pid) {
           // build an edge
           let edge = {};
           edge.source = msg.pid;
-          edge.target = data[index][0];
+          edge.target = peer[0];
           edges.push(edge);
         }
       }
     }
-
+    updateGraph();
   }
 
   function remove(msg) {
+    //TODO: remove should only execute if event is 'leave'
+
     // remove graph nodes and edges from metadata
-    let indexPid = findPid(msg.pid);
+    let indexPid = nodes.findIndex(msg.pid);
+    // actually in nodes
+    if(indexPid >= 0) {
+      // remove from nodes
+      nodes.splice(indexPid, 1);
+    }
+    //iterate over edges objects and remove any edges that are either from or to this pid
+    edges.forEach((edge, index, edges) => {
+      if(edge.source == msg.pid || edge.target == msg.pid) {
+        edges.splice(index, 1);
+      }
+    })
+    updateGraph()
   }
 
 }
