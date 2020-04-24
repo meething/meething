@@ -80,7 +80,8 @@
         <i class="fa fa-unlock text-white"></i>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle" title="Toggle Recording">
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+        title="Toggle Recording">
       </button>
 
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
@@ -89,6 +90,8 @@
           <i class="fas fa-sign-out-alt text-white"></i>
         </a>
       </button>
+
+      <canvas id="canvas" width="770" height="535" hidden="true"></canvas>
 
       <!-- grid columns -->
       <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
@@ -263,7 +266,6 @@
 
     window.addEventListener('resize', function () { resizeGrid() });
   </script>
-  
 </body>
 
 </html>

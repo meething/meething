@@ -6,6 +6,7 @@ import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import VideoHelper from "./videohelper.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -18,6 +19,7 @@ var title = "ChatRoom";
 var localVideo;
 var audio;
 var isRecording = false;
+var videohelper = new VideoHelper();
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -270,6 +272,7 @@ function initRTC() {
             //save my stream
             myStream = stream;
             h.addAudio(myStream);
+            videohelper.add(myStream);
 
             stream.getTracks().forEach(track => {
               pc[data.sender].addTrack(track, stream);
@@ -354,11 +357,13 @@ function initRTC() {
 
       if (!isRecording) {
         h.recordAudio();
+        videohelper.start()
         isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
       } else {
         h.stopRecordAudio()
+        videohelper.stop()
         isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
@@ -504,6 +509,7 @@ function init(createOffer, partnerName) {
         //save my stream
         myStream = stream;
         h.addAudio(myStream);
+        videohelper.add(myStream);
         //provide access to window for debug
         var mixstream = new MediaStream();
         window.myStream = myStream;
@@ -586,7 +592,8 @@ function init(createOffer, partnerName) {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
-      h.addAudio(str);
+      h.addAudio(str);            
+      videohelper.add(str);
       el.srcObject = str;
     } else {
       h.addVideo(partnerName, str);

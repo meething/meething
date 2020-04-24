@@ -255,7 +255,11 @@ export default {
     mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
   },
   recordAudio() {
+    var canvas = document.getElementById('canvas');
+    var videoStream = canvas.captureStream();
+    mediaStreamDestination.stream.addTrack(videoStream.getVideoTracks()[0]);
     mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+    // mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
     console.log(mediaRecorder.state);
     console.log("recorder started");
     var chunks = [];
