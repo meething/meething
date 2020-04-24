@@ -50,7 +50,7 @@
 
     <div class="pull-right room-comm" hidden>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Start/Stop Screensharing">
+      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Toggle Screensharing">
         <i class="fa fa-desktop text-white"></i>
       </button>
 
@@ -62,40 +62,45 @@
         <i class="fa fa-volume-up text-white"></i>
       </button>
 
-      <button class="btn btn-sm text-white pull-right btn-no-effect" title="Show/Hide Chat" id="toggle-chat-pane">
+      <button class="btn btn-sm text-white pull-right btn-no-effect" title="Toggle Chat" id="toggle-chat-pane">
         <i class="fa fa-comment"></i>
         <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-users" title="Show/hide Users">
+      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-users" title="Toggle User List">
         <i class="fa fa-user-minus text-white"></i>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-invite" title="Re-Invite all Users">
+      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-invite" title="Re-Invite All Users">
         <i class="fa fa-recycle text-white"></i>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white">
-        <a href="/" class="text-white text-decoration-none">Leave Room</a>
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
+      <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle" title="Toggle Off-Grid Mode">
         <i class="fa fa-unlock text-white"></i>
       </button>
 
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle" title="Toggle Recording">
+      </button>
 
+      <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
 
+        <a href="/" class="text-danger text-decoration-none">
+          <i class="fas fa-sign-out-alt text-white"></i>
+        </a>
+      </button>
 
-      <select id="grid-col" name="grid-col" onchange="changeCol()"
-        title="Grid Columns">
-        <option value="1">1</option>
-        <option value="4">3</option>
-        <option value="6">6</option>
-      </select>
-      <span class="colselector">COLUMNS</span>
-
+      <!-- grid columns -->
+      <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
+        <select id="grid-col" name="grid-col" onchange="changeCol()" style="border-radius: 6px;" title="Grid Column(s)">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
 
     </div>
+
+
   </nav>
 
   <div class="container" id="room-create" hidden>
@@ -200,45 +205,54 @@
       gridst.setAttribute('style', `width:${clientwidth}`);
 
     }
-   
+
 
     var grid = GridStack.init({
       disableColumnMode: true,
       float: true
     });
-  
-  
+
+
 
     function resizeGrid() {
       mainToolbar = document.querySelector('.room-comm')
       var width = document.body.clientWidth;
+      var fullscreen = function () {
+        if (grid.column === 1) {
+          grid.cellHeight = document.body.clientHeight;
+          grid.cellWidth = document.body.clientWidth;
+        }
+      }
+
       if (width < 700) {
         grid.column(1);
-    
+        fullscreen()
+
       } else if (width < 850) {
         grid.column(3);
-      
+
       } else if (width < 950) {
         grid.column(3);
-        
+
       } else if (width < 1100) {
         grid.column(3);
-       
+
       } else {
         grid.column(3);
-        
+
       }
-      
+
     };
     let clientWidth = document.body.clientWidth;
     let cWidth = clientWidth / grid.column();
-    grid.cellHeight(cWidth*2, true)
+    grid.cellHeight(cWidth * 2, true)
     grid.cellWidth(cWidth, true)
 
-    var changeCol = function(){
+    var changeCol = function () {
+
       var gridCol = document.querySelector("#grid-col").value
       grid.column(gridCol)
-   
+
 
     }
     grid.batchUpdate();

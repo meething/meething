@@ -72,6 +72,7 @@ body {
   object-fit: cover !important;
   height: 100%;
   width: 100%;
+  border-radius: 6px;
 }
 
 .clipped {
@@ -116,6 +117,43 @@ body {
   font-size: 6px !important;
 }
 
+@media only screen and (min-width: 1767px) {
+  .chat-col {
+    right: -70vw;
+    width: 70vw;
+    z-index: 99999;
+    transition: 0.3s;
+    top: 47px;
+  }
+
+  .chat-col.chat-opened {
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: all 0.3s ease !important;
+    -webkit-transition: all 0.3s ease !important;
+    -moz-transition: all 0.3s ease !important;
+  }
+
+  .chat-opened::-webkit-scrollbar {
+    display: none;
+  }
+
+
+  .local-video {
+    height: 80px;
+    width: 100px;
+  }
+
+  #chat-messages {
+    height: 60vh;
+  }
+
+  .chat-box {
+    bottom: 90px;
+    margin-bottom: 0px;
+  }
+} 
 @media only screen and (max-width: 1767px) {
   .chat-col {
     right: -100vw;
@@ -152,7 +190,7 @@ body {
     bottom: 90px;
     margin-bottom: 0px;
   }
-}
+} 
 
 .bg-info {
   background-color: #c2c2c222 !important;
@@ -258,14 +296,7 @@ width:100%;
   font-size:13px;
 }
 
-.colselector {
-  font-size: 10px;
-  background: grey;
-  color: white;
-  padding: 3px;
-  border-radius: 3px;
-  height: 30px;
-}
+
 
 .grid-stack > .grid-stack-item{
  overflow:hidden !important;
