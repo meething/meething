@@ -43,6 +43,7 @@ export default class MetaData {
     }
 
     sentNotificationData(data) {
+        data.ts = Date.now();
         data.event = "notification";
         this.sent(data);
     }
