@@ -1,4 +1,4 @@
-export default Graph () {
+export default class Graph {
 
   let nodes = [];
   let edges = [];
