@@ -100,15 +100,22 @@ function metaDataReceived(data) {
     console.log("got chat", data);
     h.addChat(data, "remote");
   } else if (data.event == "notification") {
+    if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == username) return;
     if (data.subEvent == "recording") {
       if (data.isRecording) {
-        var notification = data.username + " is recording this meething";
-        //TODO show on toast
-        sendMsg(notification, true);
+        var notification = data.username + " started recording this meething";
+        h.showNotification(notification);
       } else {
-        var notification = data.username + " is has stopped recording this meething"
-        //TODO show on toast
-        sendMsg(notification, true);
+        var notification = data.username + " stopped recording this meething"
+        h.showNotification(notification);
+      }
+    } else if (data.subEvent == "grid") {
+      if (data.isOngrid) {
+        var notification = data.username + " is going off the grid";
+        h.showNotification(notification);
+      } else {
+        var notification = data.username + " is back on the grid"
+        h.showNotification(notification);
       }
     }
   } else {
@@ -444,8 +451,10 @@ function initRTC() {
         presence.onGrid(presence.room);
         e.srcElement.classList.remove("fa-lock");
         e.srcElement.classList.add("fa-unlock");
+        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: false })
       } else {
         //if public, go private
+        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: true })
         presence.offGrid();
         e.srcElement.classList.remove("fa-unlock");
         e.srcElement.classList.add("fa-lock");

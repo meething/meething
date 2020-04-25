@@ -148,18 +148,15 @@ export default {
     //return servers;
     return {
       iceServers: [
-        { urls: ["stun:eu-turn4.xirsys.com"] },
+        { urls: ["stun:turn.hepic.tel"] },
+        { urls: ["stun:stun.l.google.com:19302"] },
         {
           username:
-            "ml0jh0qMKZKd9P_9C0UIBY2G0nSQMCFBUXGlk6IXDJf8G2uiCymg9WwbEJTMwVeiAAAAAF2__hNSaW5vbGVl",
-          credential: "4dd454a6-feee-11e9-b185-6adcafebbb45",
+            "meething",
+          credential: "b0756813573c0e7f95b2ef667c75ace3",
           urls: [
-            "turn:eu-turn4.xirsys.com:80?transport=udp",
-            "turn:eu-turn4.xirsys.com:3478?transport=udp",
-            "turn:eu-turn4.xirsys.com:80?transport=tcp",
-            "turn:eu-turn4.xirsys.com:3478?transport=tcp",
-            "turns:eu-turn4.xirsys.com:443?transport=tcp",
-            "turns:eu-turn4.xirsys.com:5349?transport=tcp",
+            "turn:turn.hepic.tel",
+            "turns:turn.hepic.tel?transport=tcp",
           ],
         }
       ],
@@ -300,12 +297,28 @@ export default {
     //Top toolbox
     var topToolbox = document.createElement("div");
     topToolbox.className = "top-widget-toolbox"
+    // close window button // should include close video method
+    var closeWidgetBtn = document.createElement("button")
+    closeWidgetBtn.className = "widget-button"
+    var closeWidgetIcon = document.createElement("i")
+    closeWidgetIcon.className = "far fa-window-close"
+    closeWidgetBtn.appendChild(closeWidgetIcon)
+    // full screen button
     var fullscreenBtn = document.createElement("button");
-    fullscreenBtn.className = "widget-fullscreen-button"
+    fullscreenBtn.className = "widget-button"
     var fullscreenIcon = document.createElement("i")
     fullscreenIcon.className = "fas fa-share-square"
     fullscreenBtn.appendChild(fullscreenIcon);
+    // autopilot button
+    var autopilotBtn = document.createElement("button");
+    autopilotBtn.className = "widget-button"
+    var autopilotIcon = document.createElement("i")
+    autopilotIcon.className = "fas fa-bullhorn"
+    autopilotBtn.appendChild(autopilotIcon);
+   
+    topToolbox.appendChild(closeWidgetBtn);
     topToolbox.appendChild(fullscreenBtn);
+    topToolbox.appendChild(autopilotBtn);
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
@@ -454,4 +467,10 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
+  showNotification(msg) {//Snackbar notification
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerHTML = msg;
+    snackbar.className = "show";
+    setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  },
 };
