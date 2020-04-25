@@ -5,6 +5,12 @@ export default class Graph {
 
     // initiate webworker here
     this.worker = new Worker('workerGraph.js');
+    this.worker.onmessage = function(event) {
+      switch (event.data.type) {
+        case "tick": return ticked(event.data);
+        case "end": return ended(event.data);
+      }
+    }
   }
 
   // create listeners for results
@@ -17,12 +23,7 @@ export default class Graph {
   }
 
 
-  this.worker.onmessage = function(event) {
-    switch (event.data.type) {
-      case "tick": return ticked(event.data);
-      case "end": return ended(event.data);
-    }
-  }
+
 
   add(msg) {
 
