@@ -9,6 +9,7 @@ var cache,
   isEdge = /Edge\/(\d+)(\d+)/.test(navigator.userAgent),
   isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
+  isMobile = (window.orientation > -1) ? true :false,
   typeOf = function(o) {
     return Object.prototype.toString
       .call(o).match(/(\w+)\]/)[1].toLowerCase();
@@ -117,6 +118,12 @@ export default {
   },
   isiOS(){
     return isiOS;
+  },
+  isMobile(){
+    return isMobile;
+  },
+  isMobileOriOS(){
+    return (this.isMobile() || this.isiOS())?true:false;
   },
   canCreateMediaStream(){
     return canCreateMediaStream;
