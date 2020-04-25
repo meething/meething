@@ -270,7 +270,7 @@ cursor: crosshair
   padding:5px;
   
   display:flex;
-width:100%;
+  width:100%;
   font-size:11px;
   overflow:hidden;
  
@@ -315,5 +315,46 @@ width:100%;
 
 .hidden{
   display:none;
+
+}
+.top-widget-toolbox{
+  margin: 0 auto;
+  position:absolute;
+  top:0px;
+  right:10px;
+  width:100%;
+  z-index:100000;
+  display:grid;
+  grid-template-columns:auto;
+  justify-content: right;
+}
+.widget-button{
+  width:30px;
+  border-radius:15px;
+  background:none;
+ 
+  margin-right:10px;
+  border:none;
+  color: #666;
+  opacity:.75;
+  transition:.3s all;
+  margin:5px;
+ 
+}
+.widget-button:hover{
+  color:rgb(255, 255, 255);
+}
+
+/* mobile overrides */
+@media only screen and (max-width: 600px) {
+
+  .grid-stack-item[data-gs-height="1"] {
+    min-height: 200px !important;
+    top: 10px !important;
+    margin-bottom: 15px !important;
+  }
+  .grid-stack>.grid-stack-item {
+    position: relative !important;
+  }
 
 }
