@@ -20,8 +20,11 @@ config.gunport = process.env.GUNPORT || 8765;
 
 var staticOptions = {
   setHeaders: function (res, path, stat) {
-    let url = res.req.url.split(".");
-    if(url[1] == "js"){
+    var inUrl = res.req.url,
+    clean = (inUrl.indexOf("?") > 0) ? inUrl.substring(0, inUrl.indexOf("?")) : inUrl,
+    last = clean.lastIndexOf('.'),
+    ext = clean.substring(last + 1);
+    if(ext == "js"){
     res.set('Content-Type', 'application/javascript')
     }
   }
