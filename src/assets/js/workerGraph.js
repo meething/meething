@@ -1,4 +1,4 @@
-importScripts("https://d3js.org/d3.v5.min.js");
+self.importScripts("//d3js.org/d3.v5.min.js");
 
 
 self.onmessage= function (data) {

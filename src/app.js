@@ -18,6 +18,16 @@ config.options = {
 config.port = process.env.PORT || 443;
 config.gunport = process.env.GUNPORT || 8765;
 
+var staticOptions = {
+  setHeaders: function (res, path, stat) {
+    let url = res.url;
+    let file = (url.split("."));
+    if(file[1] == "js"){
+    res.setHeaders('Content-Type', 'application/json')
+    }
+  }
+}
+
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 app.get('/', (req, res) => {
