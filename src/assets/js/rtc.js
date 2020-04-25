@@ -88,7 +88,7 @@ window.addEventListener(_ev,function () {
 
 function initPresence() {
   presence = new Presence(root, room);
-  damSocket.__proto__.presence = presence;
+  damSocket.setPresence(presence);
   presence.enter();
 }
 
