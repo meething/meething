@@ -141,7 +141,7 @@ function initRTC() {
     document.getElementById("demo").attributes.removeNamedItem("hidden");
 
     socketId = h.uuidv4();
-    metaData = new MetaData(root, room, socketId, metaDataReceived)
+    metaData = new MetaData(root, room, socketId, metaDataReceived);
     metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
@@ -154,7 +154,7 @@ function initRTC() {
     });
 
     //Do we do this here this is now triggered from DAM?
-    EventEmitter.prototype.onSubscribe = function (data) {
+    damSocket.on('Subscribe', function (data) {
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
         console.log("discarding old sub", data);
@@ -191,9 +191,9 @@ function initRTC() {
       });
       pc.push(data.socketId);
       init(true, data.socketId);
-    };
+    });
 
-    EventEmitter.prototype.onNewUserStart = function (data) {
+    damSocket.on('NewUserStart', function (data) {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -205,9 +205,9 @@ function initRTC() {
       }
       pc.push(data.sender);
       init(false, data.sender);
-    };
+    });
 
-    EventEmitter.prototype.onIceCandidates = function (data) {
+    damSocket.on('IceCandidates', function (data) {
       try {
         if (
           (data.ts && Date.now() - data.ts > TIMEGAP) ||
@@ -228,9 +228,9 @@ function initRTC() {
       console.log("ice candidate", data);
       //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
-    };
+    });
 
-    EventEmitter.prototype.onSdp = function (data) {
+    damSocket.on('SDP', function (data) {
       try {
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         if (
@@ -258,7 +258,7 @@ function initRTC() {
 
         h.getUserMedia()
           .then(async stream => {
-            if (localVideo) localVideo.srcObject = stream;
+            if (localVideo) h.setVideoSrc(localVideo, stream);
 
             //save my stream
             myStream = stream;
@@ -303,7 +303,7 @@ function initRTC() {
           new RTCSessionDescription(data.description)
         );
       }
-    };
+    });
 
     document.getElementById("chat-input").addEventListener("keypress", e => {
       if (e.which === 13 && e.target.value.trim()) {
@@ -327,13 +327,13 @@ function initRTC() {
       if (!videoMuted) {
         h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
-          localVideo.srcObject = muted;
+          h.setVideoSrc(localVideo,muted);
           e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
         });
       } else {
         h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
-          localVideo.srcObject = mine;
+          h.setVideoSrc(localVideo,mine);
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
           e.srcElement.classList.remove("fa-video-slash");
@@ -416,12 +416,12 @@ function initRTC() {
           var vtrack = stream.getVideoTracks()[0];
           if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
           h.replaceVideoTrackForPeers(pcmap, vtrack);
-          localVideo.srcObject = stream;
+          h.setVideoSrc(localVideo,stream);
           vtrack.onended = function (event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
-              localVideo.srcObject = myStream;
+              h.setVideoSrc(localVideo, myStream);
               h.replaceStreamForPeers(pcmap, myStream);
             }
             e.srcElement.classList.remove("sharing");
@@ -495,8 +495,17 @@ function init(createOffer, partnerName) {
         //save my stream
         myStream = stream;
         h.addAudio(myStream);
+        var mixstream = null;
         //provide access to window for debug
-        var mixstream = new MediaStream();
+        if(h.canCreateMediaStream()){
+          mixstream = new MediaStream();
+        } else {
+          //Safari trickery
+          mixstream = myStream.clone();
+          mixstream.getTracks().forEach(track=>{
+            mixstream.removeTrack(track);
+          });
+        }
         window.myStream = myStream;
         window.mixstream = mixstream;
         var tracks = {};
@@ -514,7 +523,7 @@ function init(createOffer, partnerName) {
           });
         });
 
-        localVideo.srcObject = mixstream;
+        h.setVideoSrc(localVideo, mixstream);
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);
@@ -578,7 +587,7 @@ function init(createOffer, partnerName) {
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
       h.addAudio(str);
-      el.srcObject = str;
+      h.setVideoSrc(el,str);
     } else {
       h.addVideo(partnerName, str);
     }

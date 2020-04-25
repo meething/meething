@@ -1,50 +1,151 @@
-var cache, mutedStream, ac, mediaStreamDestination, mediaRecorder;
-const MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
-  // TODO: if elevatorJingle, add some random track of annoying music instead :D
-  let audio = new AudioContext();
-  let oscillator = audio.createOscillator();
-  let destination = oscillator.connect(audio.createMediaStreamDestination());
-  oscillator.start();
-  return Object.assign(destination.stream.getAudioTracks()[0], { enabled: false });
-}
+var cache, 
+  mutedStream, 
+  ac, 
+  mediaStreamDestination, 
+  mediaRecorder,
+  MutedAudioTrack,
+  MutedVideoTrack,
+  MutedStream,
+  isEdge = /Edge\/(\d+)(\d+)/.test(navigator.userAgent),
+  isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
+  canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
+  canCreateMediaStream = ('MediaStream' in window) ? true : false,
+  canPlayType = document.createElement("video").canPlayType,canplaymp4,canplayogv,canplaywebm;
+  try {
+    canplaymp4 = canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
+  } catch (err){ }
+  try {
+    canplayogv = canPlayType('video/ogg; codecs="theora,vorbis"'); 
+  } catch (err){ }
+  try { 
+    canplaywebm = canPlayType('video/webm; codecs="vp8,vorbis"'); 
+  } catch (err){ }
+if (canCreateMediaStream && canCaptureStream) {
+  MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
+    // TODO: if elevatorJingle, add some random track of annoying music instead :D
+    let audio = new AudioContext();
+    let oscillator = audio.createOscillator();
+    let destination = oscillator.connect(audio.createMediaStreamDestination());
+    oscillator.start();
+    return Object.assign(destination.stream.getAudioTracks()[0], {
+      enabled: false,
+    });
+  };
 
-const MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
-  let c = Object.assign(document.createElement("canvas"), { width, height });
-  let ctx = c.getContext('2d');
-  let stream = c.captureStream();
-  ctx.fillRect(0, 0, width, height);
-  if (window && window.meethrix == true) { //EASTER EGG
-    var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
-    chars = chars.split("");
-    var font_size = 10;
-    var columns = c.width / font_size; //number of columns for the rain
-    var drops = [];
-    for (var x = 0; x < columns; x++)
-      drops[x] = 1;
+  MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
+    let c = Object.assign(document.createElement("canvas"), { width, height });
+    let ctx = c.getContext("2d");
+    let stream = c.captureStream();
+    ctx.fillRect(0, 0, width, height);
+    if (window && window.meethrix == true) {
+      //EASTER EGG
+      var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
+      chars = chars.split("");
+      var font_size = 10;
+      var columns = c.width / font_size; //number of columns for the rain
+      var drops = [];
+      for (var x = 0; x < columns; x++) drops[x] = 1;
 
-    function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, c.width, c.height);
-      ctx.fillStyle = "#0F0";
-      ctx.font = font_size + "px arial";
-      for (var i = 0; i < drops.length; i++) {
-        var text = chars[Math.floor(Math.random() * chars.length)];
-        ctx.fillText(text, i * font_size, drops[i] * font_size);
-        if (drops[i] * font_size > c.height && Math.random() > 0.975)
-          drops[i] = 0;
-        drops[i]++;
+      function draw() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.fillStyle = "#0F0";
+        ctx.font = font_size + "px arial";
+        for (var i = 0; i < drops.length; i++) {
+          var text = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillText(text, i * font_size, drops[i] * font_size);
+          if (drops[i] * font_size > c.height && Math.random() > 0.975)
+            drops[i] = 0;
+          drops[i]++;
+        }
+        if (window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
+        //else
+        //  setTimeout(draw,33);
       }
-      if (window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
-      //else 
-      //  setTimeout(draw,33);
+      draw();
     }
-    draw();
+    return Object.assign(stream.getVideoTracks()[0], { enabled: true });
+  };
+  MutedStream = (videoOpts, audioOpts) =>
+    new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
+} else {
+  console.warn("no MediaStream constructor, we're IE/Edge/Safari");
+  // LOAD VIDEO
+  var mediaSource = new MediaSource(), 
+    source,
+    tmp = document.createElement("video");
+  if(isOldEdge){
+    source = URL.createObjectURL(mediaSource);
+    tmp.src = source;
+  } else {
+  if ("srcObject" in tmp) {
+    try {
+      source = mediaSource;
+      tmp.srcObject = source;
+    } catch (err) {
+      console.warn("error setting mediaSource",err);
+      source = URL.createObjectURL(mediaSource);
+      // Try to set mediaSource src instead
+      tmp.src = source;
+    }
+  } else {
+    source = URL.createObjectURL(mediaSource)
+    tmp.src = source;
   }
-  return Object.assign(stream.getVideoTracks()[0], { enabled: true });
-}
-const MutedStream = (videoOpts, audioOpts) => new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
+  //	tmp.src=  /*(cpmp4) ? '/video/blank.mp4' : (cpogv) ? '/video/blank.ogg' : (cpwebm) ? '/video/blank.webm' : */  URL.createObjectURL(mediaSource);
+  }
+  mutedStream = source;
 
+  MutedStream = () => {
+    return mutedStream;
+  };
+}
 export default {
+  isEdge() {
+    return isEdge;
+  },
+  isOldEdge(){
+    return isOldEdge;
+  },
+  canCreateMediaStream(){
+    return canUseMediaStream;
+  },
+  canCaptureStream(){
+    return canCaptureStream;
+  },
+  canplaymp4(){
+    return canplaymp4;
+  },
+  canplayogv(){
+    return canplayogv;
+  },
+  canplaywebm(){
+    return canplaywebm;
+  },
+  setVideoSrc(video,mediaSource){
+    let source;
+    if(isOldEdge){
+      source = mediaSource;
+      video.src = source;
+      return {video,source};
+    } else {
+    if ("srcObject" in video) {
+      try {
+        source = mediaSource;
+        video.srcObject = source;
+      } catch (err) {
+        console.warn("error setting mediaSource",err);
+        source = URL.createObjectURL(mediaSource);
+        // Try to set mediaSource src instead
+        video.src = source;
+      }
+    } else {
+      source = URL.createObjectURL(mediaSource)
+      video.src = source;
+    }
+    return {video, source}
+    }
+  },
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
@@ -148,6 +249,7 @@ export default {
     //return servers;
     return {
       iceServers: [
+        
         { urls: ["stun:eu-turn4.xirsys.com"] },
         {
           username:
@@ -161,7 +263,7 @@ export default {
             "turns:eu-turn4.xirsys.com:443?transport=tcp",
             "turns:eu-turn4.xirsys.com:5349?transport=tcp",
           ],
-        }
+        } 
       ],
     };
   },
@@ -207,7 +309,9 @@ export default {
   },
 
   addVideoElementEvent(elem, type = "pip") {
-    if ("pictureInPictureEnabled" in document && type == "pip") {
+    if ("pictureInPictureEnabled" in document 
+      && typeof elem.requestPictureInPicture === 'function' 
+      && type == "pip") {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
@@ -288,7 +392,7 @@ export default {
     // video element
     let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
     newVid.id = `${partnerName}-video`;
-    newVid.srcObject = stream;
+    this.setVideoSrc(newVid, stream);
     newVid.autoplay = true;
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
@@ -353,7 +457,7 @@ export default {
 
   setMutedStream(elem) {
     let stream = this.getMutedStream();
-    if (elem) elem.srcObject = stream;
+    if (elem) this.setVideoSrc(elem, stream);
     return stream;
   },
 

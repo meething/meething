@@ -1,6 +1,6 @@
 import helpers from './helpers.js';
 
-window.addEventListener('load', () => {
+window.addEventListener('DOMContentLoaded', () => {
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
@@ -26,24 +26,27 @@ window.addEventListener('load', () => {
 
 
     //When the video frame is clicked. This will enable picture-in-picture
-    document.getElementById('local').addEventListener('click', () => {
-        if (!document.pictureInPictureElement) {
-            document.getElementById('local').requestPictureInPicture()
-                .catch(error => {
-                    // Video failed to enter Picture-in-Picture mode.
-                    console.error(error);
-                });
-        }
+    if ("pictureInPictureEnabled" in document 
+      && typeof document.getElementById('local').requestPictureInPicture === 'function' ) 
+      {
+        document.getElementById('local').addEventListener('click', () => {
+            if (!document.pictureInPictureElement) {
+                document.getElementById('local').requestPictureInPicture()
+                    .catch(error => {
+                        // Video failed to enter Picture-in-Picture mode.
+                        console.error(error);
+                    });
+            }
 
-        else {
-            document.exitPictureInPicture()
-                .catch(error => {
-                    // Video failed to leave Picture-in-Picture mode.
-                    console.error(error);
-                });
-        }
-    });
-
+            else {
+                document.exitPictureInPicture()
+                    .catch(error => {
+                        // Video failed to leave Picture-in-Picture mode.
+                        console.error(error);
+                    });
+            }
+        });
+      }
 
     //When the 'Create room" is button is clicked
     document.getElementById('create-room').addEventListener('click', (e) => {
