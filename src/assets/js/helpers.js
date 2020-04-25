@@ -8,6 +8,7 @@ var cache,
   MutedStream,
   isEdge = /Edge\/(\d+)(\d+)/.test(navigator.userAgent),
   isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
+  isTouchScreen = () => "ontouchstart" in document.documentElement ? true : false,
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
   isMobile = (window.orientation > -1) ? true :false,
   typeOf = function(o) {
@@ -115,6 +116,9 @@ export default {
   },
   isOldEdge(){
     return isOldEdge;
+  },
+  isTouchScreen(){
+    return isTouchScreen;
   },
   isiOS(){
     return isiOS;
