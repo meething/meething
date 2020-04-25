@@ -1,4 +1,3 @@
-
 import h from "./helpers";
 export default class Presence {
   constructor(gun, room) {
