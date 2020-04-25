@@ -18,7 +18,7 @@ export default class EventEmitter {
     this.presence = presence;
   }
   getPresence(){
-    return this.presence ? this.precense : false;
+    return this.presence ? this.presence : false;
   }
   emit(event,data){
     console.log("emitting event",event,"with data",data);
