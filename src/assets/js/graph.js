@@ -4,7 +4,7 @@ export default class Graph {
     this.edges = [];
 
     // initiate webworker here
-    this.worker = new Worker('workerGraph.js');
+    this.worker = new Worker('./workerGraph.js');
 
   }
 

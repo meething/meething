@@ -1,4 +1,4 @@
-import * as Graph from './graph.js'
+import Graph from './graph.js'
 
 export default class Presence {
   constructor(gun, room) {
