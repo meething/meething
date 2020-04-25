@@ -7,7 +7,9 @@ export default class Presence {
     this.pid = this.root._.opt.pid;
     this.users = new Map();
     var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
-    window.addEventListener(_ev, this.leave);
+    var self = this;
+    window.addEventListener(_ev, function(){self.leave();});
+    return this;
   }
 
   handleADamEvents(msg) {
