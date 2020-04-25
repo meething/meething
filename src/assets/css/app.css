@@ -270,7 +270,7 @@ cursor: crosshair
   padding:5px;
   
   display:flex;
-width:100%;
+  width:100%;
   font-size:11px;
   overflow:hidden;
  
@@ -342,5 +342,19 @@ width:100%;
  
 }
 .widget-button:hover{
-  color:rgb(168, 22, 83);
+  color:rgb(255, 255, 255);
+}
+
+/* mobile overrides */
+@media only screen and (max-width: 600px) {
+
+  .grid-stack-item[data-gs-height="1"] {
+    min-height: 200px !important;
+    top: 10px !important;
+    margin-bottom: 15px !important;
+  }
+  .grid-stack>.grid-stack-item {
+    position: relative !important;
+  }
+
 }
