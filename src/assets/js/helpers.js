@@ -8,6 +8,7 @@ var cache,
   MutedStream,
   isEdge = /Edge\/(\d+)(\d+)/.test(navigator.userAgent),
   isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
+  isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
   canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
   canCreateMediaStream = ('MediaStream' in window) ? true : false,
   canPlayType = document.createElement("video").canPlayType,canplaymp4,canplayogv,canplaywebm;
@@ -106,6 +107,9 @@ export default {
   },
   isOldEdge(){
     return isOldEdge;
+  },
+  isiOS(){
+    return isiOS;
   },
   canCreateMediaStream(){
     return canCreateMediaStream;

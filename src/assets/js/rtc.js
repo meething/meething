@@ -75,8 +75,8 @@ function sendMsg(msg, local) {
   //add localchat
   h.addChat(data, "local");
 }
-
-window.onbeforeunload = function () {
+var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
+window.addEventListener(_ev,function () {
   presence.leave();
   pcmap.forEach((pc, id) => {
     if (pcmap.has(id)) {
@@ -84,7 +84,7 @@ window.onbeforeunload = function () {
       pcmap.delete(id);
     }
   });
-};
+});
 
 function initPresence() {
   presence = new Presence(root, room);
