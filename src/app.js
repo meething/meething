@@ -20,15 +20,14 @@ config.gunport = process.env.GUNPORT || 8765;
 
 var staticOptions = {
   setHeaders: function (res, path, stat) {
-    let url = res.url;
-    let file = (url.split("."));
-    if(file[1] == "js"){
-    res.setHeaders('Content-Type', 'application/json')
+    let url = res.req.url.split(".");
+    if(url[1] == "js"){
+    res.set('Content-Type', 'application/javascript')
     }
   }
 }
 
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use('/assets', express.static(path.join(__dirname, 'assets'), staticOptions));
 
 app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
