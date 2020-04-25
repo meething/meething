@@ -1,6 +1,7 @@
 export default class EventEmitter {
   constructor(gun, room) {
     this.listeners = {};
+    this.presence = null;
     this.room = room;
     this.root = gun;
     this.init();
@@ -12,6 +13,12 @@ export default class EventEmitter {
     //Object.assign(this,{[event]:this.listeners[event]});
     console.log("added on event",event,"callback",cb,this);
     return this;
+  }
+  setPresence(presence){
+    this.presence = presence;
+  }
+  getPresence(){
+    return this.presence ? this.precense : false;
   }
   emit(event,data){
     console.log("emitting event",event,"with data",data);
@@ -33,11 +40,11 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function (msg) {
-      /*if (msg && msg.event && self.presence && self.presence.handleADamEvents) {
-        self.presence.handleADamEvents(msg);
+      if (msg && msg.event && self.getPresence()) {
+        let presence = self.getPresence();
+        if(presence) presence.handleADamEvents(msg);
       }
-      else */
-      if (msg && msg.signaling) {
+      else if (msg && msg.signaling) {
         console.log(
           "DAM: handle inbound signaling!",
           msg.signaling + " for room " + msg.data.room
