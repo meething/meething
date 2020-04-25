@@ -9,7 +9,12 @@ var cache,
   isEdge = /Edge\/(\d+)(\d+)/.test(navigator.userAgent),
   isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
+  typeOf = function(o) {
+    return Object.prototype.toString
+      .call(o).match(/(\w+)\]/)[1].toLowerCase();
+  },
   canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
+  canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
   canCreateMediaStream = ('MediaStream' in window) ? true : false,
   canPlayType = document.createElement("video").canPlayType,canplaymp4,canplayogv,canplaywebm;
   try {
@@ -76,8 +81,10 @@ if (canCreateMediaStream && canCaptureStream) {
     source,
     tmp = document.createElement("video");
   if(isOldEdge){
-    source = URL.createObjectURL(mediaSource);
-    tmp.src = source;
+    console.log("typeOf mediasource",typeOf(mediaSource));
+    var tof = typeOf(mediaSource);
+    source = tof == "mediasource" ? URL.createObjectURL(mediaSource) : tof == "mediastream" ? mediaSource : null;
+    tmp[tof=="mediasource" ? "src" : "srcObject"] = source;
   } else {
   if ("srcObject" in tmp) {
     try {
@@ -117,6 +124,9 @@ export default {
   canCaptureStream(){
     return canCaptureStream;
   },
+  canCaptureAudio(){
+    return canCaptureAudio;
+  },
   canplaymp4(){
     return canplaymp4;
   },
@@ -126,11 +136,16 @@ export default {
   canplaywebm(){
     return canplaywebm;
   },
+  typeOf(...args){
+    return typeOf(...args);
+  },
   setVideoSrc(video,mediaSource){
     let source;
     if(isOldEdge){
-      source = mediaSource;
-      video.src = source;
+      //console.log("typeOf mediasource",typeOf(mediaSource));
+      if(!mediaSource) mediaSource = this.getMutedStream();
+      source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
+      video[tof=="mediastream"?"srcObject":"src"] = source;
       return {video,source};
     } else {
     if ("srcObject" in video) {
@@ -139,12 +154,12 @@ export default {
         video.srcObject = source;
       } catch (err) {
         console.warn("error setting mediaSource",err);
-        source = URL.createObjectURL(mediaSource);
+        source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
         // Try to set mediaSource src instead
         video.src = source;
       }
     } else {
-      source = URL.createObjectURL(mediaSource)
+      source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
       video.src = source;
     }
     return {video, source}
@@ -267,7 +282,7 @@ export default {
             "turns:eu-turn4.xirsys.com:443?transport=tcp",
             "turns:eu-turn4.xirsys.com:5349?transport=tcp",
           ],
-        } 
+        }
       ],
     };
   },
@@ -349,18 +364,20 @@ export default {
       });
     }
   },
+  collectAudio() {
+    if(!this.canCaptureAudio()) return false;
+    ac = new AudioContext();
+    mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
+    return {ac,mediaStreamDestination};
+  },
   addAudio(stream) {
-    if (ac == undefined) {
-      this.collectAudio();
-    }
-    if (ac !== undefined) {
+    if(!this.canCaptureAudio()) return stream;
+    let audioCtx = this.collectAudio();
+    if (audioCtx) {
       var mediaElementSource = ac.createMediaStreamSource(stream);
       mediaElementSource.connect(mediaStreamDestination);
     }
-  },
-  collectAudio() {
-    ac = new AudioContext();
-    mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
+    return {audioCtx,mediaElementSource};
   },
   recordAudio() {
     mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
