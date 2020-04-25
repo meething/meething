@@ -4,16 +4,16 @@ export default class Graph {
     this.edges = [];
 
     // initiate webworker here
-    this.worker = (new Worker('./workerGraph.js')).onError = console.log;
+    this.worker = new Worker('assets/js/workerGraph.js');
 
   }
 
   initiate() {
     this.worker.onmessage = function(event) {
-      switch (event.data.type) {
+      /*switch (event.data.type) {
         case "tick": return ticked(event.data);
         case "end": return ended(event.data);
-      }
+      }*/
     }
   }
 
