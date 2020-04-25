@@ -467,4 +467,10 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
+  showNotification(msg) {//Snackbar notification
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerHTML = msg;
+    snackbar.className = "show";
+    setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  },
 };
