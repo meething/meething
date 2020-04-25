@@ -108,7 +108,7 @@ export default {
     return isOldEdge;
   },
   canCreateMediaStream(){
-    return canUseMediaStream;
+    return canCreateMediaStream;
   },
   canCaptureStream(){
     return canCaptureStream;
