@@ -8,6 +8,7 @@ export default class Presence {
     this.users = new Map();
     window.onunload = this.leave;
     this.graph = new Graph();
+    this.graph.initiate();
   }
 
   handleADamEvents(msg) {

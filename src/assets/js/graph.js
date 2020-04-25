@@ -5,6 +5,10 @@ export default class Graph {
 
     // initiate webworker here
     this.worker = new Worker('workerGraph.js');
+
+  }
+
+  initiate() {
     this.worker.onmessage = function(event) {
       switch (event.data.type) {
         case "tick": return ticked(event.data);
@@ -21,9 +25,6 @@ export default class Graph {
       links: this.edges
     });
   }
-
-
-
 
   add(msg) {
 
