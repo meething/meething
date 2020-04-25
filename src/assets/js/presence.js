@@ -1,3 +1,5 @@
+import * as Graph from 'graph.js'
+
 export default class Presence {
   constructor(gun, room) {
     this.root = gun;
@@ -5,6 +7,7 @@ export default class Presence {
     this.pid = this.root._.opt.pid;
     this.users = new Map();
     window.onunload = this.leave;
+    this.graph = new Graph();
   }
 
   handleADamEvents(msg) {
@@ -13,12 +16,14 @@ export default class Presence {
         case "enter":
           this.users.set(msg.pid, msg);
           this.addItem(msg.pid);
-          this.distrubutePresence();
+          this.distributePresence();
+          this.graph.add(msg);
           break;
         case "leave":
           this.users.delete(msg.pid);
           this.removeItem(msg.pid);
-          this.distrubutePresence();
+          this.distributePresence();
+          this.graph.remove(msg);
           break;
         case "presence":
           this.addReceivedUsers(msg.data);
@@ -54,7 +59,7 @@ export default class Presence {
     this.send("leave", null);
   }
 
-  distrubutePresence() {
+  distributePresence() {
     this.send("presence", JSON.stringify([...this.users]));
   }
 
