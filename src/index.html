@@ -229,7 +229,7 @@
 
       if (width < 700) {
         grid.column(1);
-        fullscreen()
+       // fullscreen()
 
       } else if (width < 850) {
         grid.column(3);
@@ -261,7 +261,7 @@
     grid.batchUpdate();
     grid.commit();
     resizeGrid();
-
+    window.onorientationchange = resizeGrid;
     window.addEventListener('resize', function () { resizeGrid() });
   </script>
   
