@@ -21,6 +21,9 @@
   <script type="module" src="assets/js/rtc.js"></script>
   <script type="module" src="assets/js/events.js"></script>
 
+  <script defer src="assets/js/face-api.min.js"></script>
+  <script defer src="assets/js/faceDetection.js"></script>
+
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -82,24 +85,22 @@
       <button class="btn btn-sm rounded-0 btn-no-effect text-white">
 
         <a href="/" class="text-danger text-decoration-none">
-           <i class="fas fa-sign-out-alt text-white"></i>
+          <i class="fas fa-sign-out-alt text-white"></i>
         </a>
       </button>
-      
-      <!-- grid columns --> 
+
+      <!-- grid columns -->
       <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
-      <select id="grid-col" name="grid-col" onchange="changeCol()"
-        style="border-radius: 6px;" 
-        title="Grid Column(s)">
-        <option value="1">1</option>
-        <option value="2" selected>2</option>
-        <option value="3">3</option>
-      </select>
+        <select id="grid-col" name="grid-col" onchange="changeCol()" style="border-radius: 6px;" title="Grid Column(s)">
+          <option value="1">1</option>
+          <option value="2" selected>2</option>
+          <option value="3">3</option>
+        </select>
       </div>
 
     </div>
-    
-    
+
+
   </nav>
 
   <div class="container" id="room-create" hidden>
@@ -197,68 +198,69 @@
   <script src="assets/js/dragable.js"></script>
   <!-- js gridstack requirement -->
   <script type="text/javascript">
-
     window.onload = function () {
       let gridst = document.querySelector('.grid-stack');
       let clientwidth = document.documentElement.clientWidth;
       gridst.setAttribute('style', `width:${clientwidth}`);
 
     }
-   
+
 
     var grid = GridStack.init({
       disableColumnMode: true,
       float: true
     });
-  
-  
+
+
 
     function resizeGrid() {
       mainToolbar = document.querySelector('.room-comm')
       var width = document.body.clientWidth;
-      var fullscreen = function(){
-        if(grid.column === 1 ){
-        grid.cellHeight = document.body.clientHeight;
-        grid.cellWidth = document.body.clientWidth;
+      var fullscreen = function () {
+        if (grid.column === 1) {
+          grid.cellHeight = document.body.clientHeight;
+          grid.cellWidth = document.body.clientWidth;
+        }
       }
-      }
-      
+
       if (width < 700) {
         grid.column(1);
         fullscreen()
-    
+
       } else if (width < 850) {
         grid.column(3);
-      
+
       } else if (width < 950) {
         grid.column(3);
-        
+
       } else if (width < 1100) {
         grid.column(3);
-       
+
       } else {
         grid.column(3);
-        
+
       }
-      
+
     };
     let clientWidth = document.body.clientWidth;
     let cWidth = clientWidth / grid.column();
-    grid.cellHeight(cWidth*2, true)
+    grid.cellHeight(cWidth * 2, true)
     grid.cellWidth(cWidth, true)
 
-    var changeCol = function(){
-    
+    var changeCol = function () {
+
       var gridCol = document.querySelector("#grid-col").value
       grid.column(gridCol)
-      
+
 
     }
     grid.batchUpdate();
     grid.commit();
     resizeGrid();
 
-    window.addEventListener('resize', function () { resizeGrid() });
+    window.addEventListener('resize', function () {
+      resizeGrid()
+    });
   </script>
 </body>
 
