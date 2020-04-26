@@ -10,6 +10,7 @@ var cache,
   isOldEdge = /Edge\/1(\d)/.test(navigator.userAgent),
   isTouchScreen = ("ontouchstart" in document.documentElement) ? true : false,
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
+  isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
   isMobile = (window.orientation > -1) ? true :false,
   typeOf = function(o) {
     return Object.prototype.toString
@@ -119,6 +120,9 @@ export default {
   },
   isTouchScreen(){
     return isTouchScreen;
+  },
+  isSafari(){
+    return isSafari;
   },
   isiOS(){
     return isiOS;
