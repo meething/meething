@@ -273,6 +273,10 @@ cursor: crosshair
   width:100%;
   font-size:11px;
   overflow:hidden;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+  user-select: none;          /* Likely future */    
  
 }
 
