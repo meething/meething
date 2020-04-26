@@ -470,6 +470,7 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
   h.addVideo(partnerName, false);
+
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};
@@ -533,6 +534,23 @@ function init(createOffer, partnerName) {
         });
 
         h.setVideoSrc(localVideo, mixstream);
+
+	// SoundMeter for Local Stream
+	if (myStream) {
+  	    // Soundmeter
+	    console.log('Init Soundmeter.........');
+	    const slowMeter = document.getElementById('audiometer');
+	    const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
+ 	    soundMeter.connectToSource(myStream).then(function() {
+		setInterval(() => {
+		      if(soundMeter.instant.toFixed(2) > 0.5) console.log('Imm Speaking!');
+		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
+		}, 300);
+	    });
+  	}
+
+
+
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);

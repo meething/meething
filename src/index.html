@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
 
+  <script type="text/javascript" src="assets/js/soundmeter.js"></script>
+
   <script type="module" src="assets/js/rtc.js"></script>
   <script type="module" src="assets/js/events.js"></script>
 
@@ -50,6 +52,8 @@
     </div>
 
     <div class="pull-right room-comm" hidden>
+
+      <meter high="0.25" max="1" value="0" id="audiometer"></meter>
 
       <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Toggle Screensharing">
         <i class="fa fa-desktop text-white"></i>
@@ -264,6 +268,7 @@
     window.onorientationchange = resizeGrid;
     window.addEventListener('resize', function () { resizeGrid() });
   </script>
+
   
 </body>
 
