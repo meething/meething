@@ -1,10 +1,14 @@
+import h from "./helpers.js";
 export default class Presence {
   constructor(gun, room) {
     this.root = gun;
     this.room = room;
     this.pid = this.root._.opt.pid;
     this.users = new Map();
-    window.onunload = this.leave;
+    var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
+    var self = this;
+    window.addEventListener(_ev, function(){self.leave();});
+    return this;
   }
 
   handleADamEvents(msg) {

@@ -1,10 +1,33 @@
 export default class EventEmitter {
   constructor(gun, room) {
+    this.listeners = {};
+    this.presence = null;
     this.room = room;
     this.root = gun;
     this.init();
+    return this;
   }
-
+  on(event,cb){
+    if(!this.listeners[event]) this.listeners[event] = [];
+    this.listeners[event].push(cb);
+    //Object.assign(this,{[event]:this.listeners[event]});
+    //console.log("added on event",event,"callback",cb,this);
+    return this;
+  }
+  setPresence(presence){
+    this.presence = presence;
+  }
+  getPresence(){
+    return this.presence ? this.presence : false;
+  }
+  emit(event,data){
+    //console.log("emitting event",event,"with data",data);
+    let cbs = this.listeners[event];
+    if(cbs){
+      cbs.forEach(cb => cb(data))
+    }
+    return this;
+  }
   //Posible signaling events
   /*
   subscribe
@@ -17,46 +40,48 @@ export default class EventEmitter {
     this.pid = this.root._.opt.pid;
 
     this.root.on("in", function (msg) {
-      if (msg && msg.event && self.presence) {
-        self.presence.handleADamEvents(msg);
+      if (msg && msg.event && self.getPresence()) {
+        let presence = self.getPresence();
+        if(presence) presence.handleADamEvents(msg);
       }
       else if (msg && msg.signaling) {
-        console.log(
+        /*console.log(
           "DAM: handle inbound signaling!",
           msg.signaling + " for room " + msg.data.room
-        );
+        );*/
         if (msg.data.room == self.room) {
           switch (msg.signaling) {
             case "subscribe":
               if (msg.data.socketId) {
-                console.log("DAM: subscribe from", msg.data.socketId);
-                self.onSubscribe(msg.data);
+               // console.log("DAM: subscribe from", msg.data.socketId);
+                self.emit('Subscribe',msg.data);
               }
               break;
             case "newUserStart":
-              console.log("DAM: newUserStart " + msg.data);
-              self.onNewUserStart(msg.data);
+             // console.log("DAM: newUserStart " + msg.data);
+              self.emit('NewUserStart',msg.data);
               break;
             case "icecandidates":
-              console.log("DAM: icecandidates");
-              self.onIceCandidates(msg.data);
+            //  console.log("DAM: icecandidates");
+              self.emit('IceCandidates', msg.data);
               break;
             case "sdp":
-              console.log("DAM: sdp");
-              self.onSdp(msg.data);
+            //  console.log("DAM: sdp");
+              self.emit('SDP',msg.data);
               break;
             default:
-              console.log("DAM: Unknown signaling " + msg.signaling);
+           //   console.log("DAM: Unknown signaling " + msg.signaling);
               break;
           }
         } else {
           console.error("Should never happen privacy issue we got msg for other room " + msg.data.room);
         }
         if (msg.to && msg.to == this.pid) {
-          console.log("DAM: signaling for our local peer!", msg.data);
+        //  console.log("DAM: signaling for our local peer!", msg.data);
         }
       }
     });
+    return this;
   }
 
   out(key, value) {
