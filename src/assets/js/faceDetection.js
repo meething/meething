@@ -78,7 +78,7 @@ video.addEventListener('play', () => {
 
     Promise.all([
       faceapi.nets.tinyFaceDetector.loadFromUri('/models')
-    ]).then(detectAndCrop())
+    ]).then(detectAndCrop)  
   }
 
 )
