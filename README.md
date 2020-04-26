@@ -16,13 +16,20 @@ Ready to try Meething?
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
 
-## Installation
+### Installation
+* Clone the repository and install using `npm`
 ```
 npm install
-npm start
+```
+#### Configuration
+* Copy the example `meething.config.js` to `custom.config.js`
+* Configure your SSL certificates
+* Run using pm2
+```
+pm2 start custom.config.js
 ```
 
-## Usage
+### Usage
 * Browse to the configured HTTPS port _(default 8443)_
 * Accept the self-signed certificates _(if needed)_
 * Choose a Room and User name
@@ -31,7 +38,7 @@ npm start
 The Meething  application will connect to community Gun nodes for user discovery. All room data/audio/video is p2p.
 
 
-### SuperPeers
+#### SuperPeers
 SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features. For more details, check out the Project Wiki.
 
 --------------
