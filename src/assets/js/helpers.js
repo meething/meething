@@ -160,7 +160,7 @@ export default {
       if(mql && mql.matches) return "portrait";
       else return "landscape";
     } else {
-      return "unknown";
+      return "landscape";
     }
   },
   typeOf(...args){
