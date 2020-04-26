@@ -1,4 +1,4 @@
-import h from "./helpers";
+import h from "./helpers.js";
 export default class Presence {
   constructor(gun, room) {
     this.root = gun;
