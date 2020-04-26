@@ -151,6 +151,16 @@ export default {
   canplaywebm(){
     return canplaywebm;
   },
+  getOrientation(){
+    if(window.innerHeight && window.innerWidth){
+      if(window.innerHeight > window.innerWidth ) return "portrait"; 
+      else return "landscape"; 
+    } else { // we shouldn't reach here but if we do, let's have matchMedia do the work
+      var mql = window.matchMedia("(orientation: portrait)");
+      if(mql && mql.matches) return "portrait";
+      else return "landscape";
+    }
+  }, 
   typeOf(...args){
     return typeOf(...args);
   },
