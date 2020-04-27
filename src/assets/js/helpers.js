@@ -442,7 +442,7 @@ export default {
     newVid.style.zIndex = -1;
     //video div
     var videoDiv = document.createElement('div');
-    videoDiv.className = 'grid-stack-item-content'
+    //videoDiv.className = 'grid-stack-item-content'
     videoDiv.id = partnerName
     videoDiv.appendChild(newVid);
     //Top toolbox
@@ -486,9 +486,9 @@ export default {
     videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
-    ogrid.className = "grid-stack-item";
-    ogrid.setAttribute('data-gs-width', '1');
-    ogrid.setAttribute('data-gs-height', '1');
+    //ogrid.className = "grid-stack-item";
+    //ogrid.setAttribute('data-gs-width', '1');
+    //ogrid.setAttribute('data-gs-height', '1');
     ogrid.appendChild(videoDiv);
     ogrid.appendChild(videoToolbox);
     ogrid.appendChild(topToolbox);

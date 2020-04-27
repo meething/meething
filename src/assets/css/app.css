@@ -1,5 +1,4 @@
 /* required file for gridstack to work */
-@import "https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css";
 
 body {
   color: #FFF;
@@ -301,20 +300,6 @@ cursor: crosshair
 }
 
 
-
-.grid-stack > .grid-stack-item{
- overflow:hidden !important;
-  text-align:center;
-  
-}
-
-.grid-stack > .grid-stack-item > .grid-stack-item-content {
-  /*overflow:hidden !important;*/
-  overflow:hidden !important;
- display:inline-block;
-  width:100%;
-}
-
 /* main toolbar styles .. */
 
 .hidden{
@@ -352,14 +337,6 @@ cursor: crosshair
 /* mobile overrides */
 @media only screen and (max-width: 600px) {
 
-  .grid-stack-item[data-gs-height="1"] {
-    min-height: 200px !important;
-    top: 10px !important;
-    margin-bottom: 15px !important;
-  }
-  .grid-stack>.grid-stack-item {
-    position: relative !important;
-  }
 }
 
 /* Audio Meter */
