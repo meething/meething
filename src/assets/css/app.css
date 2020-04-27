@@ -1,4 +1,4 @@
-/* required file for gridstack to work */
+
 
 body {
   color: #FFF;
@@ -264,24 +264,17 @@ cursor: crosshair
 .v-toolbox{
 
   position:absolute;
-  bottom:-10px;
-  left:15px;
+  bottom:10px;
+  z-index:1000;
   padding:5px;
-  
   display:flex;
-  width:100%;
   font-size:11px;
-  overflow:hidden;
-  -webkit-user-select: none;  /* Chrome all / Safari all */
-  -moz-user-select: none;     /* Firefox all */
-  -ms-user-select: none;      /* IE 10+ */
-  user-select: none;          /* Likely future */    
- 
+
 }
 
 .v-user{
   margin-left:5px;
-  opacity:.45;
+  opacity:1;
 }
 .v-user:hover {
   opacity: 1;
@@ -307,12 +300,8 @@ cursor: crosshair
 
 }
 .top-widget-toolbox{
-  margin: 0 auto;
-  position:absolute;
-  top:0px;
-  right:10px;
-  width:100%;
-  z-index:100000;
+position:absolute;
+top:35px;
   display:grid;
   grid-template-columns:auto;
   justify-content: right;
@@ -360,6 +349,7 @@ meter {
 
 .grid-container {
   display: grid;
+  grid-gap:10px;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   padding: 10px;
   height: 100%;

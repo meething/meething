@@ -439,38 +439,28 @@ export default {
     newVid.autoplay = true;
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
-    newVid.style.zIndex = -1;
+    //newVid.style.zIndex = -1;
     //video div
     var videoDiv = document.createElement('div');
-    //videoDiv.className = 'grid-stack-item-content'
     videoDiv.id = partnerName
     videoDiv.appendChild(newVid);
+    videoDiv.className = 'remote-video-div';
     //Top toolbox
     var topToolbox = document.createElement("div");
     topToolbox.className = "top-widget-toolbox"
+
     // close window button // should include close video method
-    var closeWidgetBtn = document.createElement("button")
-    closeWidgetBtn.className = "widget-button"
-    var closeWidgetIcon = document.createElement("i")
-    closeWidgetIcon.className = "far fa-window-close"
-    closeWidgetBtn.appendChild(closeWidgetIcon)
+    var closeButton = this.addButton("close-video-button","widget-button","far fa-window-close")
+
     // full screen button
-    var fullscreenBtn = document.createElement("button");
-    fullscreenBtn.className = "widget-button"
-    fullscreenBtn.id = "fullscreenBtn"
-    var fullscreenIcon = document.createElement("i")
-    fullscreenIcon.className = "fas fa-share-square"
+    var fullscreenBtn = this.addButton("full-screen-button","widget-button","fas fa-share-square")
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
-    fullscreenBtn.appendChild(fullscreenIcon);
+
     // autopilot button
-    var autopilotBtn = document.createElement("button");
-    autopilotBtn.className = "widget-button"
-    var autopilotIcon = document.createElement("i")
-    autopilotIcon.className = "fas fa-bullhorn"
-    autopilotBtn.appendChild(autopilotIcon);
+    var autopilotBtn = this.addButton("auto-pilot-button","widget-button","fas fa-bullhorn")
    // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
    
-    topToolbox.appendChild(closeWidgetBtn);
+    topToolbox.appendChild(closeButton);
     topToolbox.appendChild(fullscreenBtn);
     topToolbox.appendChild(autopilotBtn);
     // bottom toolbox
@@ -486,18 +476,14 @@ export default {
     videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
-    //ogrid.className = "grid-stack-item";
-    //ogrid.setAttribute('data-gs-width', '1');
-    //ogrid.setAttribute('data-gs-height', '1');
-    ogrid.appendChild(videoDiv);
-    ogrid.appendChild(videoToolbox);
-    ogrid.appendChild(topToolbox);
-    ogrid.id = partnerName + "-widget";
 
+    ogrid.appendChild(videoDiv);
+    
+    ogrid.appendChild(topToolbox);
+    ogrid.appendChild(videoToolbox);
+    ogrid.id = partnerName + "-widget";
     var realgrid = document.getElementById('grid');
     realgrid.appendChild(ogrid);
-
-
   },
 
   toggleChatNotificationBadge() {
@@ -628,5 +614,14 @@ export default {
     snackbar.innerHTML = msg;
     snackbar.className = "show";
     setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  },
+  addButton(id,className,iconName){
+    let button = document.createElement("button");
+    button.id = id;
+    button.className = className;
+    let icon = document.createElement("i");
+    icon.className = iconName;
+    button.appendChild(icon);
+    return button;
   },
 };
