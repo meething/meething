@@ -343,6 +343,7 @@ function initRTC() {
           h.setVideoSrc(localVideo,muted);
           e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
+	  h.showNotification("Video Disabled");
         });
       } else {
         h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
@@ -350,6 +351,7 @@ function initRTC() {
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
           e.srcElement.classList.remove("fa-video-slash");
+	  h.showNotification("Video Enabled");
         });
       }
 
@@ -363,11 +365,14 @@ function initRTC() {
         isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
+	h.showNotification("Recording Started");
+
       } else {
         h.stopRecordAudio()
         isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
+	h.showNotification("Recording Stopped");
       }
       metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
     });
@@ -387,6 +392,7 @@ function initRTC() {
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sentControlData({ muted: audioMuted });
+ 	  h.showNotification("Audio Muted");
         });
       } else {
         h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r => {
@@ -395,6 +401,7 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sentControlData({ muted: audioMuted });
+ 	  h.showNotification("Audio Unmuted");
         });
       }
 
