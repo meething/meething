@@ -360,5 +360,35 @@ cursor: crosshair
   .grid-stack>.grid-stack-item {
     position: relative !important;
   }
+}
 
+/* Audio Meter */
+
+.glow-low {
+  filter: drop-shadow(0px 0px 5px red);
+}
+.glow-mid {
+  filter: drop-shadow(0px 0px 10px red);
+}
+.glow-high {
+  filter: drop-shadow(0px 0px 15px red);
+}
+
+meter {
+  max-width: 30px;
+  border-radius: 30px !important;
+}
+
+/* CSS Grid */
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  padding: 10px;
+  height: 100%;
+}
+
+.grid-item {
+  text-align: center;
+  padding-top: 55%;
 }

@@ -73,7 +73,7 @@ export default class Presence {
   removeItem(pid) {
     var ul = document.getElementById("dynamic-list");
     var item = document.getElementById(pid);
-    ul.removeChild(item);
+    if (item && ul) ul.removeChild(item);
   }
 
   offGrid() {

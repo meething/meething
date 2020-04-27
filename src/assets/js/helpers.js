@@ -196,10 +196,9 @@ export default {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
   closeVideo(elemId) {
-    var widget = document.getElementById(elemId + "-widget");
-    grid.removeWidget(widget);
-    grid.compact();
-
+    if (document.getElementById(elemId + "-widget")) {
+      document.getElementById(elemId + "-widget").remove();
+    }
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
     }
@@ -430,43 +429,6 @@ export default {
     mediaRecorder.stop();
     console.log(mediaRecorder.state);
     console.log("recorder stopped");
-  }, /*
-  fullScreen(id){
-    let widget = document.getElementById(id);
-    widget.setAttribute("data-gs-width",grid.opts.column-1)
-    var roundCellHeight = Math.round((window.innerHeight-160)/grid.opts.cellHeight)
-    widget.setAttribute("data-gs-height",roundCellHeight);
-    grid.batchUpdate();
-    grid.commit();
-    resizeGrid();
-  }, */
-  autoPilot(id){
-    var widget = document.getElementById(id);
-    var childCount = document.querySelector(".grid-stack").children.length;
-    var gm = [
-      {n: 1, col:2, row:2, wcol:2, wrow:2},
-      {n :2, col:4, row: 2, wcol: 2, wrow: 2},
-      {n :3, col:3, row: 2, wcol: 2, wrow: 2},
-      {n :4, col:5, row: 3, wcol: 4, wrow: 3},
-      {n :5, col:6, row: 4, wcol: 5, wrow: 4},
-      {n :6, col:4, row: 4, wcol: 2, wrow: 2},
-      {n :7, col:3, row: 4, wcol: 2, wrow: 3},
-      {n :8, col:5, row: 3, wcol: 4, wrow: 2},
-      {n :9, col:3, row: 4, wcol: 2, wrow: 2},
-    ]
-    var colCount = gm[childCount - 1].col;
-    var rowCount = gm[childCount - 1].row;
-    var wColCount = gm[childCount - 1].wcol;
-    var wRowCount = gm[childCount - 1].wrow;
-    grid.opts.column(colCount)
-    grid.opts.row(rowCount)
-    widget.setAttribute("data-gs-x",colCount)
-    widget.setAttribute("data-gs-y",0);
-    widget.setAttribute("data-gs-width", wColCount)
-    widget.setAttribute("data-gs-height",wRowCount)
-    grid.batchUpdate();
-    grid.commit();
-    resizeGrid();
   },
   addVideo(partnerName, stream) {
     stream = stream ? stream : this.getMutedStream();
@@ -531,9 +493,11 @@ export default {
     ogrid.appendChild(videoToolbox);
     ogrid.appendChild(topToolbox);
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 1, 1);
-    grid.compact();
-    resizeGrid();
+
+    var realgrid = document.getElementById('grid');
+    realgrid.appendChild(ogrid);
+
+
   },
 
   toggleChatNotificationBadge() {
