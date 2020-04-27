@@ -484,6 +484,27 @@ export default {
     ogrid.id = partnerName + "-widget";
     var realgrid = document.getElementById('grid');
     realgrid.appendChild(ogrid);
+
+    // Play join notification
+    let src = 'assets/sounds/join.mp3';
+    let audio = new Audio(src);
+    audio.play();
+    // Play with Speech
+    /*
+    let synth = window.speechSynthesis;
+    let message = new SpeechSynthesisUtterance ();
+    let voices = synth.getVoices ();
+	for (let voice of voices)
+	{
+		if ((voice.lang === 'US') || (voice.name.startsWith('Google US')) )
+		{
+			message.voice = voice;
+		}
+	}
+	// message.lang = 'en';
+	message.text = "Hello!";
+	speechSynthesis.speak (message);
+     */
   },
 
   toggleChatNotificationBadge() {

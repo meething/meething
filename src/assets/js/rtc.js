@@ -6,6 +6,7 @@ import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -187,7 +188,7 @@ function initRTC() {
         pc[data.socketId] &&
         pc[data.socketId].iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer?", data.socketId);
+        console.log("already connected to peer", data.socketId);
         //return;
       }
       // New Peer, setup peerConnection
@@ -204,8 +205,9 @@ function initRTC() {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
-        pc[data.socketId] &&
-        pc[data.socketId].iceConnectionState == "connected"
+        pc[data.sender] &&
+        pc[data.sender].connectionState == "connected" &&
+        pc[data.sender].iceConnectionState == "connected"
       ) {
         console.log("already connected to peer?", data.socketId);
         return; // We don't need another round of Init for existing peers
@@ -276,6 +278,8 @@ function initRTC() {
             });
 
             let answer = await pc[data.sender].createAnswer();
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -296,6 +300,8 @@ function initRTC() {
               OfferToReceiveVideo: true
             };
             let answer = await pc[data.sender].createAnswer(answerConstraints);
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -561,6 +567,8 @@ function init(createOffer, partnerName) {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
         let offer = await pc[partnerName].createOffer(offerConstraints);
+        // SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
@@ -586,6 +594,8 @@ function init(createOffer, partnerName) {
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
+	// SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
