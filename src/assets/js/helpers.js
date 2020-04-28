@@ -651,4 +651,12 @@ export default {
     button.appendChild(icon);
     return button;
   },
+  swapDiv(id){
+    console.log('Focusing grid widget with id '+id);
+    var container = document.getElementById('grid'),
+        fresh = document.getElementById(id),
+        first = container.firstElementChild;
+    // Move speaker to first position
+    container.insertBefore(fresh, first);
+  },
 };

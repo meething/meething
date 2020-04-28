@@ -119,6 +119,9 @@ function metaDataReceived(data) {
         h.showNotification(notification);
       }
     }
+  } else if (data.subEvent == "focus") {
+	console.log('Speaker Focus on ' + data.username);
+	h.swapDiv(data.socketId+"-widget");
   } else {
     console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
@@ -556,7 +559,10 @@ function init(createOffer, partnerName) {
 	    const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
  	    soundMeter.connectToSource(myStream).then(function() {
 		setInterval(() => {
-		      if(soundMeter.instant.toFixed(2) > 0.5) console.log('Imm Speaking!');
+		      if(soundMeter.instant.toFixed(2) > 0.5) {
+			console.log('Imm Speaking! Sending metadata mesh focus...');
+			metaData.sentNotificationData({ username: username, id: socketId, subEvent: "focus" });
+		      }
 		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
 		}, 300);
 	    });
