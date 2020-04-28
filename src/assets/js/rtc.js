@@ -3,7 +3,8 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-import EventEmitter from "./emitter.js";
+import EventEmitter from "./ee.js";
+import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 var TIMEGAP = 6000;
@@ -134,7 +135,7 @@ function initRTC() {
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
   } else {
-    damSocket = new EventEmitter(root, room);
+    damSocket = new DamEventEmitter(root, room);
     initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
