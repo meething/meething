@@ -288,6 +288,9 @@ function initRTC() {
             let answer = await pc[data.sender].createAnswer();
 	    // SDP Interop
 	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+	    // SDP Bitrate Hack
+	    // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
+
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -571,7 +574,7 @@ function init(createOffer, partnerName) {
 			//metaData.sentControlData({ username: username, id: socketId, talking: false});
 		      }
 		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
-		}, 500);
+		}, 1000);
 	    });
   	}
 
@@ -616,6 +619,9 @@ function init(createOffer, partnerName) {
         let offer = await pc[partnerName].createOffer();
 	// SDP Interop
 	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+	// SDP Bitrate Hack
+	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
