@@ -444,7 +444,7 @@ export default {
     var videoDiv = document.createElement('div');
     videoDiv.id = partnerName
     videoDiv.appendChild(newVid);
-    videoDiv.className = 'remote-video-div';
+   
     //Top toolbox
     var topToolbox = document.createElement("div");
     topToolbox.className = "top-widget-toolbox"
@@ -463,24 +463,29 @@ export default {
     topToolbox.appendChild(closeButton);
     topToolbox.appendChild(fullscreenBtn);
     topToolbox.appendChild(autopilotBtn);
+    var toolbox = document.createElement("div");
+    toolbox.className="toolbox";
+ 
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
     var vtitle = document.createElement("p");
-    var userIcon = document.createElement("i");
-    userIcon.className = "fas fa-user";
     var vuser = partnerName;
-    vtitle.textContent = vuser;
+    vtitle.textContent = `● ${vuser}`;
     vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
-    videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
-
+    toolbox.appendChild(topToolbox);
+    toolbox.appendChild(videoToolbox);
+  
     ogrid.appendChild(videoDiv);
-    
-    ogrid.appendChild(topToolbox);
-    ogrid.appendChild(videoToolbox);
+    videoDiv.appendChild(toolbox);
+//ogrid.appendChild(videoToolbox);
+  
+  
+   // ogrid.appendChild(topToolbox);
+ // ogrid.appendChild(videoToolbox);
     ogrid.id = partnerName + "-widget";
     var realgrid = document.getElementById('grid');
     realgrid.appendChild(ogrid);
