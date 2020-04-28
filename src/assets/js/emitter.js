@@ -1,4 +1,4 @@
-import {EventEmitter} from './ee.js';
+import EventEmitter from './ee.js';
 export default class DamEventEmitter extends EventEmitter {
   constructor(gun, room) {
     super();
