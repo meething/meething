@@ -662,4 +662,15 @@ export default {
       if (container && fresh && first) container.insertBefore(fresh, first);
     } catch(e) { console.log(e); }
   },
+  swapUserDetails(id,metadata){
+    if(!id||!metadata) return;
+    console.log('Updating widget with id '+id);
+    try {
+      var container = document.getElementById('grid'),
+          id = document.getElementById(id);
+      	  if (metadata.username && container && id) {
+		id.textContent = metadata.username;
+ 	  }
+    } catch(e) { console.log(e); }
+  },
 };

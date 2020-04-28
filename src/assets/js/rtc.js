@@ -121,6 +121,8 @@ function metaDataReceived(data) {
         h.showNotification(notification);
       }
     }
+  } else if (data.username) {
+    	if(data.username && data.socketId) h.swapUserDetails(data.socketId+"-title", data);
   } else if (data.talking) {
 	console.log('Speaker Focus on ' + data.username);
 	h.swapDiv(data.socketId+"-widget");
@@ -129,6 +131,7 @@ function metaDataReceived(data) {
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
+
   }
 }
 
@@ -659,6 +662,7 @@ function init(createOffer, partnerName) {
           partnerName + " is " + pc[partnerName].iceConnectionState,
           true
         );
+	metaData.sentControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
         if (partnerName == socketId) {
