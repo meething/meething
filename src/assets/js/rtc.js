@@ -1,4 +1,6 @@
 /**
+ * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
+ * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
  * @date 6th January, 2020
  */
@@ -45,9 +47,11 @@ var presence;
 var metaData;
 
 function initSocket() {
-  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
+  //var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
+  var roomPeer = "https://meething.hepic.tel:8787/lobby";
   if (room) {
-    roomPeer = "https://gundb-multiserver.glitch.me/" + room;
+    //roomPeer = "https://gundb-multiserver.glitch.me/" + room;
+    roomPeer = "https://meething.hepic.tel:8787/" + room;
   }
 
   var peers = [roomPeer];
@@ -119,7 +123,7 @@ function metaDataReceived(data) {
         h.showNotification(notification);
       }
     }
-  } else if (data.subEvent == "focus") {
+  } else if (data.talking) {
 	console.log('Speaker Focus on ' + data.username);
 	h.swapDiv(data.socketId+"-widget");
   } else {
@@ -561,10 +565,12 @@ function init(createOffer, partnerName) {
 		setInterval(() => {
 		      if(soundMeter.instant.toFixed(2) > 0.5) {
 			console.log('Imm Speaking! Sending metadata mesh focus...');
-			metaData.sentNotificationData({ username: username, id: socketId, subEvent: "focus" });
+			metaData.sentControlData({ username: username, id: socketId, talking: true});
+		      } else {
+			//metaData.sentControlData({ username: username, id: socketId, talking: false});
 		      }
 		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
-		}, 300);
+		}, 500);
 	    });
   	}
 

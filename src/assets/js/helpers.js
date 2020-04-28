@@ -652,11 +652,14 @@ export default {
     return button;
   },
   swapDiv(id){
+    if(!id) return;
     console.log('Focusing grid widget with id '+id);
-    var container = document.getElementById('grid'),
-        fresh = document.getElementById(id),
-        first = container.firstElementChild;
-    // Move speaker to first position
-    container.insertBefore(fresh, first);
+    try {
+      var container = document.getElementById('grid'),
+          fresh = document.getElementById(id),
+          first = container.firstElementChild;
+      // Move speaker to first position
+      if (container && fresh && first) container.insertBefore(fresh, first);
+    } catch(e) { console.log(e); }
   },
 };
