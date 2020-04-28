@@ -47,11 +47,9 @@ var presence;
 var metaData;
 
 function initSocket() {
-  //var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
-  var roomPeer = "https://meething.hepic.tel:8787/lobby";
+  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
   if (room) {
-    //roomPeer = "https://gundb-multiserver.glitch.me/" + room;
-    roomPeer = "https://meething.hepic.tel:8787/" + room;
+    roomPeer = "https://gundb-multiserver.glitch.me/" + room;
   }
 
   var peers = [roomPeer];
