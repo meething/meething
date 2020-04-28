@@ -9,7 +9,7 @@ import MetaData from "./metadata.js";
 
 var TIMEGAP = 6000;
 var allUsers = [];
-var enableHacks = false;
+var enableHacks = true;
 var meethrix = window.meethrix = false;
 
 var root;
@@ -692,6 +692,8 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
+	// Do we have a connection? If not kill the widget
+	if (pc[partnerName].iceConnectionState !== "connected") h.closeVideo(partnerName);
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,

@@ -435,6 +435,7 @@ export default {
     // video element
     let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
     newVid.id = `${partnerName}-video`;
+    newVid.poster = "assets/images/poster.gif";
     this.setVideoSrc(newVid, stream);
     newVid.autoplay = true;
     this.addVideoElementEvent(newVid, "pip");
