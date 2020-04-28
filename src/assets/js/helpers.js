@@ -351,21 +351,25 @@ export default {
   },
 
   addVideoElementEvent(elem, type = "pip") {
-    if ("pictureInPictureEnabled" in document 
-      && typeof elem.requestPictureInPicture === 'function' 
+    if ("pictureInPictureEnabled" in document  
       && type == "pip") {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
-        if (!document.pictureInPictureElement) {
-          elem.requestPictureInPicture().catch((error) => {
-            // Video failed to enter Picture-in-Picture mode.
-            console.error(error);
-          });
-        } else {
-          document.exitPictureInPicture().catch((error) => {
-            // Video failed to leave Picture-in-Picture mode.
-            console.error(error);
-          });
+        try {
+          if (!document.pictureInPictureElement) {
+            elem.requestPictureInPicture().catch((error) => {
+              // Video failed to enter Picture-in-Picture mode.
+              console.error(error);
+            });
+          } else {
+            document.exitPictureInPicture().catch((error) => {
+              // Video failed to leave Picture-in-Picture mode.
+              console.error(error);
+            });
+          }
+        } catch (err) {
+          console.warn("pip failure?",err);
+          //noop 
         }
       });
     } else {
