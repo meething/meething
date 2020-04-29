@@ -1,17 +1,11 @@
-export default class EventEmitter {
+import EventEmitter from './ee.js';
+export default class DamEventEmitter extends EventEmitter {
   constructor(gun, room) {
-    this.listeners = {};
+    super();
     this.presence = null;
     this.room = room;
     this.root = gun;
     this.init();
-    return this;
-  }
-  on(event,cb){
-    if(!this.listeners[event]) this.listeners[event] = [];
-    this.listeners[event].push(cb);
-    //Object.assign(this,{[event]:this.listeners[event]});
-    //console.log("added on event",event,"callback",cb,this);
     return this;
   }
   setPresence(presence){
@@ -19,14 +13,6 @@ export default class EventEmitter {
   }
   getPresence(){
     return this.presence ? this.presence : false;
-  }
-  emit(event,data){
-    //console.log("emitting event",event,"with data",data);
-    let cbs = this.listeners[event];
-    if(cbs){
-      cbs.forEach(cb => cb(data))
-    }
-    return this;
   }
   //Posible signaling events
   /*
