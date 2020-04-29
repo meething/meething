@@ -123,9 +123,10 @@ function metaDataReceived(data) {
     }
   } else if (data.username) {
     	if(data.username && data.socketId) h.swapUserDetails(data.socketId+"-title", data);
-  } else if (data.talking) {
-	console.log('Speaker Focus on ' + data.username);
-	h.swapDiv(data.socketId+"-widget");
+        if (data.talking) {
+		console.log('Speaker Focus on ' + data.username);
+		h.swapDiv(data.socketId+"-widget");
+	}
   } else {
     console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
