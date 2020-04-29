@@ -11,7 +11,7 @@ import MetaData from "./metadata.js";
 
 var TIMEGAP = 6000;
 var allUsers = [];
-var enableHacks = true;
+var enableHacks = false;
 var meethrix = window.meethrix = false;
 
 var root;
