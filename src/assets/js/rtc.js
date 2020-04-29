@@ -3,17 +3,20 @@
  * @date 6th January, 2020
  */
 import h from "./helpers.js";
-import EventEmitter from "./ee.js";
+import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 var TIMEGAP = 6000;
 var allUsers = [];
-var enableHacks = false;
-var meethrix = window.meethrix = false;
-
+var enableHacks = true;
+var meethrix = window.meethrix = true;
+window.h = h;
+var ee = null,
+  modal = null;
 var root;
-var room;
+var room,
+  roompass;
 var username;
 var title = "ChatRoom";
 var localVideo;
@@ -26,12 +29,167 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/_(.*)/, '');
   localVideo = document.getElementById("local");
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
-  initSocket();
-  initRTC();
+  ee = window.ee = new EventEmitter();
+  initSocket(); // letting socket start for now
+  modal = new tingle.modal({
+    closeMethods: [],
+    footer: true,
+    stickyFooter: true,
+    onOpen:function(){
+      var cr = document.getElementById('create-room');
+      if(cr)  cr.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            let roomName = document.querySelector('#room-name').value;
+            let yourName = document.querySelector('#your-name').value;
+
+            if (roomName && yourName) {
+                //remove error message, if any
+                var errmsg = document.querySelector('#err-msg');
+                if(errmsg) document.querySelector('#err-msg').innerHTML = "";
+
+                //save the user's name in sessionStorage
+                sessionStorage.setItem('username', yourName);
+                //create room link
+                let roomgen = `${roomName.trim().replace(' ', '_')}_${h.generateRandomString()}`;
+                let roomLink = `${location.origin}?room=${roomgen}`;
+                room = roomgen;
+                username = yourName;
+                
+                //show message with link to room
+                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" href='${roomLink}'>room link[Click to copy]</a> with your partners.`;
+                var clip = document.getElementById('clipMe');
+                if(clip) clip.addEventListener('click',function(e){ e.preventDefault(); h.copyToClipboard(e.target.href); if(errmsg) { errmsg.innerHTML='Link copied to clipboard '+roomLink; } });
+                //empty the values
+                document.querySelector('#room-name').value = roomgen;
+                document.querySelector('#room-name').readonly = true;
+                document.querySelector('#your-name').readonly = true;
+                
+                document.querySelector('#room-name').disabled = true;
+                document.querySelector('#your-name').disabled = true;
+            }
+
+            else {
+                document.querySelector('#err-msg').innerHTML = "All fields are required";
+            }
+        });
+    }
+  });
+  ee.on('join:ok',function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? {value: sessionStorage.getItem('username')} : false;
+    if(!_name || !_name.value) return;
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    modal.close();
+    initRTC();
+  });
+  ee.on('setup:ok',function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#your-name');
+    let _room = document.querySelector('#room-name');
+    if(!_name || !_name.value || !_room  || !_room.value) {
+      document.querySelector('#err-msg').innerHTML = "All fields are required";
+      return;
+    }
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (_room && _room.value && history.pushState) {
+      window.history.pushState(null,'','?room='+_room.value);
+      room = _room.value;
+    }
+    modal.close();
+    initRTC();
+  });
+  ee.on('nouser:ok',function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#username');
+    if (!_name || !_name.value) { return; }
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    modal.close();
+    initRTC();
+  });
+  ee.on('noroom:ok',function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#room-name');
+    if (_name && _name.value) {
+      room = _name.value
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    modal.close();
+    initRTC();
+  });
+
+  ee.on('join:cancel',function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  });
+
+  ee.on('nouser:cancel',function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  });
+
+  ee.on('noroom:cancel',function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  });
+  ee.on('setup:cancel',function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  });
+  var modalContent="";
+  var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+  var roominput = '<label for="room-name">Room Name</label>\
+  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />';
+  var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
+    Create Room \
+  </button>'
+  var createnameinput = '<label for="your-name">Your Name</label> \
+  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />';
+  var roomcreated = '<div id="room-created"></div>';
+  var joinnameinput = '<label for="username">Your Name</label>\
+  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
+  if(room && username){
+    modalContent = "Welcome "+username+"!<br>You are about to join room: "+title+"<br/><br/>{ mics mutes start camera etc here }"; 
+    return loadModal(modal,modalContent,'join');
+  } else if(room && !username){
+    modalContent = "Hi, you're joining room "+title+"<br/><br/>Please enter your username!<br/><br/>"+joinnameinput;
+    return loadModal(modal,modalContent,'nouser');
+  } else if (!room && username) {
+    modalContent = "Hi "+username+"<br/><br/>Please enter the roomname you want to join or create below!<br/>"+roominput;
+    return loadModal(modal,modalContent,'noroom');
+  }else {
+    modalContent = "Hi, let's set up a new room!<br/><br/>"+roomcreated+errmsg+""+roominput+"<br/>"+createnameinput+"<br/>"+roomcreatebtn;
+    return loadModal(modal,modalContent,'setup');
+  }
 });
 
 var socket;
-var room;
 var pc = []; // hold local peerconnection statuses
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream;
@@ -43,6 +201,18 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
+
+function loadModal(modal,createOrJoin,type){
+  
+  modal.setContent('<h1>Setup your preferences</h1>'+createOrJoin);
+  modal.addFooterBtn("Let's Go", 'tingle-btn tingle-btn--primary tingle-btn--pull-right', function(e){
+    ee.emit(type+':ok',{modal,e,room,username,roompass});
+  });
+  modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--default tingle-btn--pull-right', function(e){
+    ee.emit(type+':cancel',{modal,e});
+  });
+  modal.open();
+}
 
 function initSocket() {
   var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
@@ -78,7 +248,7 @@ function sendMsg(msg, local) {
 }
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
-  presence.leave();
+  if(presence) presence.leave();
   pcmap.forEach((pc, id) => {
     if (pcmap.has(id)) {
       pcmap.get(id).close();
@@ -98,7 +268,7 @@ function metaDataReceived(data) {
     if (data.ts && Date.now() - data.ts > 5000) return;
     if (data.socketId == socketId || data.sender == socketId) return;
     if (data.sender == username) return;
-    console.log("got chat", data);
+    //console.log("got chat", data);
     h.addChat(data, "remote");
   } else if (data.event == "notification") {
     if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == username) return;
@@ -120,7 +290,7 @@ function metaDataReceived(data) {
       }
     }
   } else {
-    console.log("META::" + JSON.stringify(data));
+    //console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
@@ -128,13 +298,13 @@ function metaDataReceived(data) {
 }
 
 function initRTC() {
-  if (!room) {
+  /*if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
   } else if (!username) {
     document
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
-  } else {
+  } else { */
     damSocket = new DamEventEmitter(root, room);
     initPresence();
     let commElem = document.getElementsByClassName("room-comm");
@@ -143,8 +313,8 @@ function initRTC() {
       commElem[i].attributes.removeNamedItem("hidden");
     }
 
-    if (localVideo)
-      mutedStream = h.setMutedStream(localVideo);
+    /*if (localVideo)
+      mutedStream = h.setMutedStream(localVideo);*/
 
     document.getElementById("demo").attributes.removeNamedItem("hidden");
 
@@ -226,6 +396,9 @@ function initRTC() {
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
+        if(data.candidate && data.candidate.hasOwnProperty('candidate')){
+          if(!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
+        }
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
@@ -258,7 +431,7 @@ function initRTC() {
       }
 
       if (data.description.type === "offer") {
-        data.description
+        (data.description && data.sender && pcmap.has(data.sender))
           ? pc[data.sender].setRemoteDescription(
             new RTCSessionDescription(data.description)
           )
@@ -461,7 +634,7 @@ function initRTC() {
         e.srcElement.classList.add("fa-lock");
       }
     });
-  }
+  //} 
 }
 
 function init(createOffer, partnerName) {
@@ -599,7 +772,8 @@ function init(createOffer, partnerName) {
       h.addAudio(str);
       h.setVideoSrc(el,str);
     } else {
-      h.addVideo(partnerName, str);
+      var el = h.addVideo(partnerName);
+      h.setVideoSrc(el,str);
     }
   };
 
@@ -656,7 +830,7 @@ function init(createOffer, partnerName) {
       case "stable":
         pc[partnerName].isNegotiating = false;
         break;
-      case "closed":
+      case "closed": 
         console.log("Signalling state is 'closed'");
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {

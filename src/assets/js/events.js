@@ -47,61 +47,67 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
       }
-
+    /* MOVED TO rtc event emitter
+    var em = window.ee;
+    console.log(em,ee);
+    if(em) em.on('tingle:load',function(content){
+    console.log("we're here",content);
     //When the 'Create room" is button is clicked
-    document.getElementById('create-room').addEventListener('click', (e) => {
-        e.preventDefault();
+    var cr = document.getElementById('create-room');
+    if(cr)  cr.addEventListener('click', (e) => {
+            e.preventDefault();
 
-        let roomName = document.querySelector('#room-name').value;
-        let yourName = document.querySelector('#your-name').value;
+            let roomName = document.querySelector('#room-name').value;
+            let yourName = document.querySelector('#your-name').value;
 
-        if (roomName && yourName) {
-            //remove error message, if any
-            document.querySelector('#err-msg').innerHTML = "";
+            if (roomName && yourName) {
+                //remove error message, if any
+                document.querySelector('#err-msg').innerHTML = "";
 
-            //save the user's name in sessionStorage
-            sessionStorage.setItem('username', yourName);
+                //save the user's name in sessionStorage
+                sessionStorage.setItem('username', yourName);
 
-            //create room link
-            let roomLink = `${location.origin}?room=${roomName.trim().replace(' ', '_')}_${helpers.generateRandomString()}`;
+                //create room link
+                let roomLink = `${location.origin}?room=${roomName.trim().replace(' ', '_')}_${helpers.generateRandomString()}`;
 
-            //show message with link to room
-            document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
-                Share the <a href='${roomLink}'>room link</a> with your partners.`;
+                //show message with link to room
+                document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
+                    Share the <a href='${roomLink}'>room link</a> with your partners.`;
 
-            // add room name to chat title
-            document.querySelector('#chat-title').innerHTML = roomName;
+                // add room name to chat title
+                document.querySelector('#chat-title').innerHTML = roomName;
 
-            //empty the values
-            document.querySelector('#room-name').value = '';
-            document.querySelector('#your-name').value = '';
-        }
+                //empty the values
+                document.querySelector('#room-name').value = '';
+                document.querySelector('#your-name').value = '';
+            }
 
-        else {
-            document.querySelector('#err-msg').innerHTML = "All fields are required";
-        }
-    });
+            else {
+                document.querySelector('#err-msg').innerHTML = "All fields are required";
+            }
+        });
 
+        var er = document.getElementById('enter-room');
+        if(cr)  document.getElementById('enter-room').addEventListener('click', (e) => {
+            e.preventDefault();
 
-    //When the 'Enter room' button is clicked.
-    document.getElementById('enter-room').addEventListener('click', (e) => {
-        e.preventDefault();
+            let name = document.querySelector('#username').value;
 
-        let name = document.querySelector('#username').value;
+            if (name) {
+                //remove error message, if any
+                document.querySelector('#err-msg-username').innerHTML = "";
 
-        if (name) {
-            //remove error message, if any
-            document.querySelector('#err-msg-username').innerHTML = "";
+                //save the user's name in sessionStorage
+                sessionStorage.setItem('username', name);
 
-            //save the user's name in sessionStorage
-            sessionStorage.setItem('username', name);
+                //reload room
+                location.reload();
+            }
 
-            //reload room
-            location.reload();
-        }
-
-        else {
-            document.querySelector('#err-msg-username').innerHTML = "Please input your name";
-        }
-    });
+            else {
+                document.querySelector('#err-msg-username').innerHTML = "Please input your name";
+            }
+        });
+       
+    }); */
 })

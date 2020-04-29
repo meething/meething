@@ -18,17 +18,35 @@ var cache,
   },
   canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
-  canCreateMediaStream = ('MediaStream' in window) ? true : false,
-  canPlayType = document.createElement("video").canPlayType,canplaymp4,canplayogv,canplaywebm;
-  try {
-    canplaymp4 = canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
-  } catch (err){ }
-  try {
-    canplayogv = canPlayType('video/ogg; codecs="theora,vorbis"'); 
-  } catch (err){ }
-  try { 
-    canplaywebm = canPlayType('video/webm; codecs="vp8,vorbis"'); 
-  } catch (err){ }
+  canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  function removeElement(elementId) {
+    // Removes an element from the document
+    var element = document.getElementById(elementId);
+    if(element) element.parentNode.removeChild(element);
+  }
+  var copyToClipboard =  function copyToClipboard(text) {
+    if (window.clipboardData && window.clipboardData.setData) {
+        // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+        return clipboardData.setData("Text", text);
+    }
+    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+        var textarea = document.createElement("textarea");
+        textarea.textContent = text;
+        textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+        }
+        catch (ex) {
+            console.warn("Copy to clipboard failed.", ex);
+            return false;
+        }
+        finally {
+            document.body.removeChild(textarea);
+        }
+    }
+  };
 if (canCreateMediaStream && canCaptureStream) {
   MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
     // TODO: if elevatorJingle, add some random track of annoying music instead :D
@@ -112,6 +130,8 @@ if (canCreateMediaStream && canCaptureStream) {
   };
 }
 export default {
+  copyToClipboard,
+  removeElement,
   isEdge() {
     return isEdge;
   },
@@ -142,14 +162,17 @@ export default {
   canCaptureAudio(){
     return canCaptureAudio;
   },
-  canplaymp4(){
-    return canplaymp4;
+  canPlayType(type){
+    return document.createElement("video").canPlayType(type);
   },
-  canplayogv(){
-    return canplayogv;
+  canPlayMP4(){
+    return this.canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
   },
-  canplaywebm(){
-    return canplaywebm;
+  canPlayOGG(){
+    return this.canPlayType('video/ogg; codecs="theora,vorbis"');
+  },
+  canPlayWEBM(){
+    return this.canPlayType('video/webm; codecs="vp8,vorbis"');
   },
   getOrientation(){
     if(window.innerHeight && window.innerWidth){
@@ -257,9 +280,9 @@ export default {
       navigator.msGetUserMedia
     );
   },
-  getUserMedia() {
+  getUserMedia(opts) {
     if (this.userMediaAvailable()) {
-      return navigator.mediaDevices.getUserMedia({
+      opts = opts && this.typeOf(opts) == "object" ? opts : {
         video: {
           height: {
             ideal: 720,
@@ -274,7 +297,8 @@ export default {
         audio: {
           echoCancellation: true,
         },
-      });
+      }
+      return navigator.mediaDevices.getUserMedia(opts);
     } else {
       throw new Error("User media not available");
     }
@@ -352,7 +376,6 @@ export default {
 
   addVideoElementEvent(elem, type = "pip") {
     if ("pictureInPictureEnabled" in document 
-      && typeof elem.requestPictureInPicture === 'function' 
       && type == "pip") {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
@@ -432,12 +455,22 @@ export default {
     console.log("recorder stopped");
   },
   addVideo(partnerName, stream) {
-    stream = stream ? stream : this.getMutedStream();
     // video element
+    var videohtml = `<video id="${partnerName}-video" muted autoplay playsinline>
+    <source src="/assets/video/muted.webm" type="video/webm">
+    <source src="/assets/video/muted.mp4" type="video/mp4">  
+    <source src="/assets/video/muted.ogg" type="video/ogv">
+    </video>`;
+    var videoParent = document.createElement('div.offscreen'); 
+    videoParent.innerHTML = videohtml;
+    document.body.appendChild(videoParent);
     let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
-    newVid.id = `${partnerName}-video`;
-    this.setVideoSrc(newVid, stream);
-    newVid.autoplay = true;
+    //newVid.id = `${partnerName}-video`;
+    //stream = stream ? stream : (canCaptureStream) ? newVid.srcObject : this.getMutedStream();
+    //this.setVideoSrc(newVid, stream);
+    //newVid.autoplay = true;
+    //newVid.playsinline = true;
+    //newVid.muted=false;
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
     //video div
@@ -493,6 +526,7 @@ export default {
     grid.addWidget(ogrid, 0, 0, 1, 1, true);
     grid.compact();
     resizeGrid();
+    return newVid;
   },
 
   toggleChatNotificationBadge() {
