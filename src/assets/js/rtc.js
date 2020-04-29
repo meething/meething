@@ -1,4 +1,6 @@
 /**
+ * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
+ * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
  * @date 6th January, 2020
  */
@@ -6,6 +8,7 @@ import h from "./helpers.js";
 import EventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -118,11 +121,18 @@ function metaDataReceived(data) {
         h.showNotification(notification);
       }
     }
+  } else if (data.username) {
+    	if(data.username && data.socketId) h.swapUserDetails(data.socketId+"-title", data);
+        if (data.talking) {
+		console.log('Speaker Focus on ' + data.username);
+		h.swapDiv(data.socketId+"-widget");
+	}
   } else {
     console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
+
   }
 }
 
@@ -187,7 +197,7 @@ function initRTC() {
         pc[data.socketId] &&
         pc[data.socketId].iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer?", data.socketId);
+        console.log("already connected to peer", data.socketId);
         //return;
       }
       // New Peer, setup peerConnection
@@ -204,8 +214,9 @@ function initRTC() {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
-        pc[data.socketId] &&
-        pc[data.socketId].iceConnectionState == "connected"
+        pc[data.sender] &&
+        pc[data.sender].connectionState == "connected" &&
+        pc[data.sender].iceConnectionState == "connected"
       ) {
         console.log("already connected to peer?", data.socketId);
         return; // We don't need another round of Init for existing peers
@@ -276,6 +287,11 @@ function initRTC() {
             });
 
             let answer = await pc[data.sender].createAnswer();
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+	    // SDP Bitrate Hack
+	    // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
+
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -296,6 +312,8 @@ function initRTC() {
               OfferToReceiveVideo: true
             };
             let answer = await pc[data.sender].createAnswer(answerConstraints);
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
             await pc[data.sender].setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -337,6 +355,7 @@ function initRTC() {
           h.setVideoSrc(localVideo,muted);
           e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
+	  h.showNotification("Video Disabled");
         });
       } else {
         h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
@@ -344,6 +363,7 @@ function initRTC() {
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
           e.srcElement.classList.remove("fa-video-slash");
+	  h.showNotification("Video Enabled");
         });
       }
 
@@ -357,11 +377,14 @@ function initRTC() {
         isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
+	h.showNotification("Recording Started");
+
       } else {
         h.stopRecordAudio()
         isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
+	h.showNotification("Recording Stopped");
       }
       metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
     });
@@ -381,6 +404,7 @@ function initRTC() {
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sentControlData({ muted: audioMuted });
+ 	  h.showNotification("Audio Muted");
         });
       } else {
         h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r => {
@@ -389,6 +413,7 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sentControlData({ muted: audioMuted });
+ 	  h.showNotification("Audio Unmuted");
         });
       }
 
@@ -470,6 +495,7 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
   h.addVideo(partnerName, false);
+
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};
@@ -533,6 +559,28 @@ function init(createOffer, partnerName) {
         });
 
         h.setVideoSrc(localVideo, mixstream);
+
+	// SoundMeter for Local Stream
+	if (myStream) {
+  	    // Soundmeter
+	    console.log('Init Soundmeter.........');
+	    const slowMeter = document.getElementById('audiometer');
+	    const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
+ 	    soundMeter.connectToSource(myStream).then(function() {
+		setInterval(() => {
+		      if(soundMeter.instant.toFixed(2) > 0.5) {
+			console.log('Imm Speaking! Sending metadata mesh focus...');
+			metaData.sentControlData({ username: username, id: socketId, talking: true});
+		      } else {
+			//metaData.sentControlData({ username: username, id: socketId, talking: false});
+		      }
+		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
+		}, 1000);
+	    });
+  	}
+
+
+
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);
@@ -543,6 +591,8 @@ function init(createOffer, partnerName) {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
         let offer = await pc[partnerName].createOffer(offerConstraints);
+        // SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
@@ -568,6 +618,11 @@ function init(createOffer, partnerName) {
         }
         pc[partnerName].isNegotiating = true;
         let offer = await pc[partnerName].createOffer();
+	// SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+	// SDP Bitrate Hack
+	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+
         await pc[partnerName].setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pc[partnerName].localDescription,
@@ -614,6 +669,7 @@ function init(createOffer, partnerName) {
           partnerName + " is " + pc[partnerName].iceConnectionState,
           true
         );
+	metaData.sentControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
         if (partnerName == socketId) {
@@ -657,6 +713,8 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
+	// Do we have a connection? If not kill the widget
+	if (pc[partnerName].iceConnectionState !== "connected") h.closeVideo(partnerName);
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,

@@ -19,6 +19,8 @@
   <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
 
+  <script type="text/javascript" src="assets/js/soundmeter.js"></script>
+
   <script type="module" src="assets/js/rtc.js"></script>
   <script type="module" src="assets/js/events.js"></script>
 
@@ -30,16 +32,17 @@
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
   <!-- <script src="assets/js/webrtc.js"></script> -->
 
-  <!-- Gridstack -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack-extra.css" />
-  <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
-
 </head>
 
 <body>
   <div id="demo" class="demo" hidden>
-    <div class="grid-stack" style="width:100%;height:100%;">
+​    <div class="grid-box">
+      <div id="emptyroom" style="width: 50%; margin: 0 auto;">
+	<center>
+		<span class="fa fa-restroom fa-2x"></span><br><span class="loading">Waiting for Participants</span></div>
+	</center>
+      <div class="grid-container" id="grid">
+      </div>
     </div>
   </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
@@ -50,6 +53,8 @@
     </div>
 
     <div class="pull-right room-comm" hidden>
+
+      <meter high="0.25" max="1" value="0" id="audiometer"></meter>
 
       <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Toggle Screensharing">
         <i class="fa fa-desktop text-white"></i>
@@ -89,15 +94,6 @@
           <i class="fas fa-sign-out-alt text-white"></i>
         </a>
       </button>
-
-      <!-- grid columns -->
-      <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
-        <select id="grid-col" name="grid-col" onchange="changeCol()" style="border-radius: 6px;" title="Grid Column(s)">
-          <option value="1">1</option>
-          <option value="2" selected>2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
 
     </div>
 
@@ -167,7 +163,10 @@
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-      <video class="local-video clipped" id="local" volume="0" autoplay muted></video>
+      <div id="localstream">
+        <video class="local-video clipped" id="local" volume="0" poster="assets/images/poster.png" autoplay muted></video>
+      </div>
+      <div id="localshadow"></div>
     </div>
 
     <div class="row">
@@ -198,72 +197,55 @@
   </div>
   <div id="snackbar"></div>
   <script src="assets/js/dragable.js"></script>
-  <!-- js gridstack requirement -->
   <script type="text/javascript">
-
     window.onload = function () {
-      let gridst = document.querySelector('.grid-stack');
-      let clientwidth = document.documentElement.clientWidth;
-      gridst.setAttribute('style', `width:${clientwidth}`);
+	console.log('DOM Ready');
 
-    }
+	var targetNode = document.getElementById('grid');
+
+	// Options for the observer (which mutations to observe)
+	var config = { childList: true };
+
+	// Callback function to execute when mutations are observed
+	var callback = function(mutationsList, observer) {
+	    for(var mutation of mutationsList) {
+	        if (mutation.type == 'childList') {
+	          // console.log('watch grid has changed or child has been added/removed');
+		  
+		  document.getElementById('emptyroom').hidden = true;
+
+		  var count = document.getElementById('grid').childElementCount;
+		  var container = document.getElementById('grid');
+		  // console.log('Resize Grid! New Element Count:',count);
+		  if(count > 7) {
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(200px, 1fr))"
+		  } else if(count > 3) {
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(400px, 1fr))"
+		  } else if(count > 1) {
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+		  } else if (count == 1) {
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+		  } else if (count == 0) {
+			 console.log('no participants');
+			 document.getElementById('emptyroom').hidden = false;
+		  }
 
 
-    var grid = GridStack.init({
-      disableColumnMode: true,
-      disableOneColumnMode: true,
-      float: true
-    });
+	        }
+	    }
+	};
 
+	// Create an observer instance linked to the callback function
+	var observer = new MutationObserver(callback);
 
+	// Start observing the target node for configured mutations
+	observer.observe(targetNode, config);
 
-    function resizeGrid() {
-      mainToolbar = document.querySelector('.room-comm')
-      var width = document.body.clientWidth;
-      var fullscreen = function () {
-        if (grid.column === 1) {
-          grid.cellHeight = document.body.clientHeight;
-          grid.cellWidth = document.body.clientWidth;
-        }
-      }
-
-      if (width < 700) {
-        grid.column(1);
-        fullscreen()
-
-      } else if (width < 850) {
-        grid.column(3);
-
-      } else if (width < 950) {
-        grid.column(3);
-
-      } else if (width < 1100) {
-        grid.column(3);
-
-      } else {
-        grid.column(3);
-
-      }
-
-    };
-    let clientWidth = document.body.clientWidth;
-    let cWidth = clientWidth / grid.column();
-    grid.cellHeight(cWidth * 2, true)
-    grid.cellWidth(cWidth, true)
-
-    var changeCol = function () {
-
-      var gridCol = document.querySelector("#grid-col").value
-      grid.column(gridCol)
 
 
     }
-    grid.batchUpdate();
-    grid.commit();
-    resizeGrid();
-
-    window.addEventListener('resize', function () { resizeGrid() });
   </script>
+
   
 </body>
 
