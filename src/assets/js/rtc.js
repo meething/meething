@@ -57,7 +57,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 username = yourName;
                 
                 //show message with link to room
-                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" href='${roomLink}'>room link[Click to copy]</a> with your partners.`;
+                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
                 var clip = document.getElementById('clipMe');
                 if(clip) clip.addEventListener('click',function(e){ e.preventDefault(); h.copyToClipboard(e.target.href); if(errmsg) { errmsg.innerHTML='Link copied to clipboard '+roomLink; } });
                 //empty the values
@@ -181,10 +181,26 @@ window.addEventListener('DOMContentLoaded', function () {
     modalContent = "Hi, you're joining room "+title+"<br/><br/>Please enter your username!<br/><br/>"+joinnameinput;
     return loadModal(modal,modalContent,'nouser');
   } else if (!room && username) {
-    modalContent = "Hi "+username+"<br/><br/>Please enter the roomname you want to join or create below!<br/>"+roominput;
+    modalContent = `<div class="speech-bubble-user"><p>Hi ${username}:</p></div>Please enter the roomname you want to join or create below! <br>${roominput}`;
     return loadModal(modal,modalContent,'noroom');
   }else {
-    modalContent = "Hi, let's set up a new room!<br/><br/>"+roomcreated+errmsg+""+roominput+"<br/>"+createnameinput+"<br/>"+roomcreatebtn;
+    modalContent = `
+    <div class='speech-bubble'>
+      <p class='font-weight-bold'>
+      Hey, let\'s set up a new room!</p>
+      <button class="btn btn-lg btn-outline-light" id="toggle-mute" title="Mute/Unmute Audio">
+      <i class="fa fa-volume-up"></i>
+    </button>
+    <button class="btn btn-lg btn btn-outline-light" id="toggle-video" title="Mute/Unmute Video">
+    <i class="fa fa-video"></i>
+    </button>
+      </div>
+      <p> ${roomcreated}</p>
+      ${errmsg} <br>
+      ${roominput} <br>
+      ${createnameinput} <br>
+      ${roomcreatebtn}
+      `;
     return loadModal(modal,modalContent,'setup');
   }
 });
@@ -204,8 +220,8 @@ var metaData;
 
 function loadModal(modal,createOrJoin,type){
   
-  modal.setContent('<h1>Setup your preferences</h1>'+createOrJoin);
-  modal.addFooterBtn("Let's Go", 'tingle-btn tingle-btn--primary tingle-btn--pull-right', function(e){
+  modal.setContent('<h1 style="font-weight:lighter; font-family:Helvetica, sans-serif">Setup your preferences</h1>'+createOrJoin);
+  modal.addFooterBtn("Let's Go!", 'tingle-btn tingle-btn--primary tingle-btn--pull-right', function(e){
     ee.emit(type+':ok',{modal,e,room,username,roompass});
   });
   modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--default tingle-btn--pull-right', function(e){
@@ -223,7 +239,6 @@ function initSocket() {
   var peers = [roomPeer];
   var opt = { peers: peers, localStorage: false, radisk: false };
   root = Gun(opt);
-
   socket = root
     .get("rtcmeeting")
     .get(room)
