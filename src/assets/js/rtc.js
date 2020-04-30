@@ -10,7 +10,8 @@ import MetaData from "./metadata.js";
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
-var meethrix = window.meethrix = true;
+var meethrix = window.meethrix = true,
+  autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD 
 window.h = h;
 var ee = null,
   modal = null;
@@ -21,28 +22,66 @@ var username;
 var title = "ChatRoom";
 var localVideo;
 var audio;
-var isRecording = false;
+var myStream;
+var screenStream;
+var mutedStream,
+  audioMuted = false,
+  videoMuted = false,
+  isRecording = false,
+  inited = false,
+  devices = {};
+var socket;
+var pc = []; // hold local peerconnection statuses
+const pcmap = new Map(); // A map of all peer ids to their peerconnections.
+var socketId;
+var damSocket;
+var presence;
+var metaData;
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
   title = room.replace(/_(.*)/, '');
-  localVideo = document.getElementById("local");
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
-  initSocket(); // letting socket start for now
-  modal = new tingle.modal({
+  //initSocket(); // letting socket start for now
+  modal = window.modal = new tingle.modal({
     closeMethods: [],
     footer: true,
     stickyFooter: true,
     onOpen:function(){
+      let setupBtn = document.getElementById('tingleSetupBtn');
+      if(setupBtn){
+        let deviceSelection = document.getElementById('deviceSelection');
+        let preview = document.getElementById('preview');
+        let local = document.getElementById('local');
+        if(h.isOldEdge() || !autoload){
+          setupBtn.addEventListener('click',function(e){
+            e.preventDefault();
+            setupBtn.hidden = true;
+            if(deviceSelection.hidden) {
+              deviceSelection.hidden=false;
+              resetDevices();
+              ee.emit('modal:filled',modal);   
+            }
+          })
+        } else {
+          setupBtn.hidden = true;
+          resetDevices();
+          ee.emit('modal:filled',modal);
+        }
+        if(preview && local) {
+          preview.appendChild(local);
+          local.className = "";
+        }
+      }
       var cr = document.getElementById('create-room');
       if(cr)  cr.addEventListener('click', (e) => {
             e.preventDefault();
-
+            cr.hidden=true;
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
-
+            let romp = document.querySelector('#room-pass').value;
             if (roomName && yourName) {
                 //remove error message, if any
                 var errmsg = document.querySelector('#err-msg');
@@ -55,30 +94,56 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
-                
+                if(romp) roompass=romp;
                 //show message with link to room
                 document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
                 var clip = document.getElementById('clipMe');
-                if(clip) clip.addEventListener('click',function(e){ e.preventDefault(); h.copyToClipboard(e.target.href); if(errmsg) { errmsg.innerHTML='Link copied to clipboard '+roomLink; } });
+                if(clip) clip.addEventListener('click',function(e){ 
+                  e.preventDefault(); 
+                  h.copyToClipboard(e.target.href); 
+                  if(errmsg) { 
+                    errmsg.innerHTML='Link copied to clipboard '+roomLink; 
+                  } 
+                });
                 //empty the values
                 document.querySelector('#room-name').value = roomgen;
                 document.querySelector('#room-name').readonly = true;
                 document.querySelector('#your-name').readonly = true;
-                
+                document.querySelector('#room-pass').readonly = true;
                 document.querySelector('#room-name').disabled = true;
                 document.querySelector('#your-name').disabled = true;
+                document.querySelector('#room-pass').disabled = true;
             }
 
             else {
+                roomName.focus();
                 document.querySelector('#err-msg').innerHTML = "All fields are required";
             }
         });
     }
   });
-  ee.on('join:ok',function(){
+  var toggleModal = document.getElementById('toggle-modal');
+  if(toggleModal) toggleModal.addEventListener('click',e=>{
+    e.preventDefault();
+    modal.open();
+  })
+  async function storePass(pval,creator){
+    return new Promise(async (res,rej)=>{
+      let it = await SEA.work({room:room,secret:pval},pval,null,{name:'SHA-256'});
+      console.log("hash",it);
+      roompass = pval;
+      ee.set('rooms.'+room+'.pwal',pval);
+      ee.set('rooms.'+room+'.hash',it);
+      if(creator) ee.set('rooms.'+room+'.creator',creator);
+      return res(it);
+    });
+  }
+  ee.on('join:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
     console.log('Arguments are ', args);
     let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? {value: sessionStorage.getItem('username')} : false;
+    let _pass = document.querySelector('#room-pass');
+    
     if(!_name || !_name.value) return;
     if (_name && _name.value) {
       sessionStorage.setItem('username', _name.value);
@@ -86,16 +151,26 @@ window.addEventListener('DOMContentLoaded', function () {
     if (room && history.pushState) {
       window.history.pushState(null,'','?room='+room);
     }
-    modal.close();
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket();
     initRTC();
+    modal.close();
   });
-  ee.on('setup:ok',function(){
+  ee.on('setup:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
-    console.log('Arguments are ', args);
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
+    let _pass = document.querySelector('#room-pass');
+    
     if(!_name || !_name.value || !_room  || !_room.value) {
-      document.querySelector('#err-msg').innerHTML = "All fields are required";
+      document.querySelector('#err-msg').innerHTML = "Room and username fields are required";
       return;
     }
     if (_name && _name.value) {
@@ -105,13 +180,24 @@ window.addEventListener('DOMContentLoaded', function () {
       window.history.pushState(null,'','?room='+_room.value);
       room = _room.value;
     }
-    modal.close();
-    initRTC();
-  });
-  ee.on('nouser:ok',function(){
-    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval,_name.value);
     console.log('Arguments are ', args);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket();
+    initRTC();
+    modal.close();
+  });
+  ee.on('nouser:ok',async function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
     let _name = document.querySelector('#username');
+    let _pass = document.querySelector('#room-pass');
+    
     if (!_name || !_name.value) { return; }
     if (_name && _name.value) {
       sessionStorage.setItem('username', _name.value);
@@ -119,51 +205,167 @@ window.addEventListener('DOMContentLoaded', function () {
     if (room && history.pushState) {
       window.history.pushState(null,'','?room='+room);
     }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    console.log('Arguments are ', args);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
     modal.close();
+    initSocket();
     initRTC();
   });
-  ee.on('noroom:ok',function(){
+  ee.on('noroom:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
     console.log('Arguments are ', args);
     let _name = document.querySelector('#room-name');
+    let _pass = document.querySelector('#room-pass');
+    
     if (_name && _name.value) {
       room = _name.value
     }
     if (room && history.pushState) {
       window.history.pushState(null,'','?room='+room);
     }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
     modal.close();
+    initSocket();
     initRTC();
   });
+  ee.on('modal:filled',function(modal){
+    let type = modal.__type;
+    setTimeout(function(){ modal.checkOverflow() },300);
+    var letsgo = document.querySelectorAll('.letsgo');
+    if(!letsgo.length){
+      modal.addFooterBtn("Let's Go", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
+        ee.emit(type+':ok',{modal,e});
+      });
+    }
+  })
+  var cancelFn = function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  }
+  ee.on('join:cancel',cancelFn);
+  ee.on('nouser:cancel',cancelFn);
+  ee.on('noroom:cancel',cancelFn);
+  ee.on('setup:cancel',cancelFn);
+  
+  function resetDevices() {
+    var as = document.getElementById('as');
+    var ao = document.getElementById('ao');
+    var vs = document.getElementById('vs');
+    var ve = document.getElementById('local');
+    if(ve) localVideo=ve;
+    if (myStream) {
+      myStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
+    if(!h.canSelectAudioDevices()) { //Firefox springs to mind ;(
+      ao.disabled = true;
+      ao.readonly = true;
+    }
+    var aoListener = function(e){
+      return h.setAudioToVideo(ao,ve);
+    }
+    ao.removeEventListener('change',aoListener);
+    ao.addEventListener('change',aoListener)
+    as.removeEventListener('change',resetDevices);
+    as.addEventListener('change',resetDevices);
+    vs.removeEventListener('change',resetDevices);
+    vs.addEventListener('change',resetDevices);
+    const asv = as.value;
+    const vsv = vs.value;
+    const constraints = {
+      audio: {deviceId: asv ? {exact: asv} : undefined},
+      video: {deviceId: vsv ? {exact: vsv} : undefined}
+    };
+    h.getUserMedia(constraints).then(async stream=>{
+      myStream = stream;
+      h.setVideoSrc(ve,stream);
+      h.replaceStreamForPeers(pcmap,stream);
+      ve.oncanplay = function(){ modal.checkOverflow(); }
+      return Object.keys(devices).length>0 ? devices : h.getDevices();
+    }).then(devices=>{
+      ee.emit('navigator:gotDevices',devices);
+    }).catch(err=>{
+      console.warn('something fishy in devices',err);
+    });
 
-  ee.on('join:cancel',function(why){
-    room=null;
-    sessionStorage.clear();
-    modal.close();
-    window.location = '/';
-  });
-
-  ee.on('nouser:cancel',function(why){
-    room=null;
-    sessionStorage.clear();
-    modal.close();
-    window.location = '/';
-  });
-
-  ee.on('noroom:cancel',function(why){
-    room=null;
-    sessionStorage.clear();
-    modal.close();
-    window.location = '/';
-  });
-  ee.on('setup:cancel',function(why){
-    room=null;
-    sessionStorage.clear();
-    modal.close();
-    window.location = '/';
-  });
+  }
   var modalContent="";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+  var cammicsetc = (h.isOldEdge() || !autoload) ? `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+  <div id="deviceSelection" hidden>
+    <label for="as">Mic:</label><br/>
+    <select id="as"></select><br/>
+    <label for="ao">Speakers: </label><br/>
+    <select id="ao"></select><br/>
+    <label for="vs">Camera:</label><br/>
+    <select id="vs"></select><br/>
+    <button class="btn btn-lg btn-outline-light" id="startAudioMuted" title="Mute/Unmute Audio">
+      <i class="fa fa-volume-up"></i>
+    </button>
+    <button class="btn btn-lg btn btn-outline-light" id="startVideoMuted" title="Mute/Unmute Video">
+      <i class="fa fa-video"></i>
+    </button><br/>
+    <div id="preview"><video id="local" playsinline autoplay muted></video></div>
+  </div>
+` : `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+    <div id="deviceSelection">
+      <label for="as">Mic:</label><br/>
+      <select id="as"></select><br/>
+      <label for="ao">Speakers: </label><br/>
+      <select id="ao"></select><br/>
+      <label for="vs">Camera:</label><br/>
+      <select id="vs"></select><br/>
+      <button class="btn btn-lg btn-outline-light" id="startAudioMuted" title="Mute/Unmute Audio">
+        <i class="fa fa-volume-up"></i>
+      </button>
+      <button class="btn btn-lg btn btn-outline-light" id="startVideoMuted" title="Mute/Unmute Video">
+        <i class="fa fa-video"></i>
+      </button><br/>
+      <div id="preview"><video id="local" playsinline autoplay muted></video></div>
+    </div>
+  `;
+   
+  ee.on('navigator:gotDevices',function(devices){
+    console.log('hello',devices);
+    ["as","ao","vs"].map(function(group){
+      let devs = devices[group];
+      var str = "";
+      var qs = document.getElementById(group);
+      h.each(devs,function(label,device){
+        console.log(label,device);
+        var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
+        if(!opt) { 
+          opt = document.createElement('option'); 
+          opt.id= label.replace(/[^a-zA-Z0-9]/g,''); 
+        }
+        opt.value = device.deviceId;
+        opt.text = label;
+        if(qs) qs.appendChild(opt);
+      })
+      modal.checkOverflow();
+    })
+  })
+  h.getDevices().then(devices=>{
+    devices = window.devices = devices;
+    ee.emit('navigator:gotDevices',devices);
+  });
   var roominput = '<label for="room-name">Room Name</label>\
   <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />';
   var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
@@ -171,60 +373,43 @@ window.addEventListener('DOMContentLoaded', function () {
   </button>'
   var createnameinput = '<label for="your-name">Your Name</label> \
   <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />';
+  var passwinput = '<label for="your-name">Room password</label> \
+  <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />';
   var roomcreated = '<div id="room-created"></div>';
   var joinnameinput = '<label for="username">Your Name</label>\
   <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
   if(room && username){
-    modalContent = "Welcome "+username+"!<br>You are about to join room: "+title+"<br/><br/>{ mics mutes start camera etc here }"; 
+    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"!<br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+"<br/>"+passwinput+"<br/>"+cammicsetc; 
     return loadModal(modal,modalContent,'join');
   } else if(room && !username){
-    modalContent = "Hi, you're joining room "+title+"<br/><br/>Please enter your username!<br/><br/>"+joinnameinput;
+    modalContent = "Welcome, you're joining room <input type='hidden' id='room-name' value='"+room+"'/>"+title+"<br/><br/>Please enter your username and set up your camera options!<br/>"+passwinput+"<br/>"+joinnameinput+"<br/>"+cammicsetc;
     return loadModal(modal,modalContent,'nouser');
   } else if (!room && username) {
-    modalContent = `<div class="speech-bubble-user"><p>Hi ${username}:</p></div>Please enter the roomname you want to join or create below! <br>${roominput}`;
+    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"<br/><br/>Please enter the room name you want to join or create below!<br/>"+roominput+"<br/>"+passwinput+"<br/>"+cammicsetc;
     return loadModal(modal,modalContent,'noroom');
   }else {
-    modalContent = `
-    <div class='speech-bubble'>
-      <p class='font-weight-bold'>
-      Hey, let\'s set up a new room!</p>
-      <button class="btn btn-lg btn-outline-light" id="toggle-mute" title="Mute/Unmute Audio">
-      <i class="fa fa-volume-up"></i>
-    </button>
-    <button class="btn btn-lg btn btn-outline-light" id="toggle-video" title="Mute/Unmute Video">
-    <i class="fa fa-video"></i>
-    </button>
-      </div>
-      <p> ${roomcreated}</p>
-      ${errmsg} <br>
-      ${roominput} <br>
-      ${createnameinput} <br>
-      ${roomcreatebtn}
-      `;
+    modalContent = " \
+      <div class='speech-bubble'> \
+        <p class='font-weight-bold'> \
+        Hey, let\'s set up a new room!</p> \
+      </div> \
+      <p>"+roomcreated+"</p> \
+      "+errmsg+"<br> \
+      "+createnameinput+"<br> \
+      "+roominput+"<br> \
+      "+passwinput+"<br> \
+      "+roomcreatebtn+"<br> \
+      "+cammicsetc+" \
+    ";
     return loadModal(modal,modalContent,'setup');
   }
+
 });
 
-var socket;
-var pc = []; // hold local peerconnection statuses
-const pcmap = new Map(); // A map of all peer ids to their peerconnections.
-var myStream;
-var screenStream;
-var mutedStream,
-  audioMuted = false,
-  videoMuted = false;
-var socketId;
-var damSocket;
-var presence;
-var metaData;
-
 function loadModal(modal,createOrJoin,type){
-  
-  modal.setContent('<h1 style="font-weight:lighter; font-family:Helvetica, sans-serif">Setup your preferences</h1>'+createOrJoin);
-  modal.addFooterBtn("Let's Go!", 'tingle-btn tingle-btn--primary tingle-btn--pull-right', function(e){
-    ee.emit(type+':ok',{modal,e,room,username,roompass});
-  });
-  modal.addFooterBtn('Cancel', 'tingle-btn tingle-btn--default tingle-btn--pull-right', function(e){
+  Object.assign(modal,{__type:type}); 
+  modal.setContent('<h1>Setup your preferences</h1>'+createOrJoin);
+  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
     ee.emit(type+':cancel',{modal,e});
   });
   modal.open();
@@ -232,14 +417,31 @@ function loadModal(modal,createOrJoin,type){
 
 function initSocket() {
   var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
+  var hash = null,
+    creator=null;
   if (room) {
-    roomPeer = "https://gundb-multiserver.glitch.me/" + room;
+    hash = ee.get('rooms.'+room+'.hash');
+    creator = ee.get('rooms.'+room+'.creator');
+    var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash) : room;
+    console.log(r);
+    roomPeer = "https://gundb-multiserver.glitch.me/" +r; //"https://gundb-multiserver.glitch.me/" + room;
   }
 
   var peers = [roomPeer];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  root = Gun(opt);
-  socket = root
+  if(hash) Gun.on('opt', function (ctx) {
+    if (ctx.once) return;
+    ctx.on('out', function (msg) {
+      var to = this.to
+      msg.headers = {
+        token: JSON.stringify(hash)
+      }
+      to.next(msg);
+    });
+  });
+  root = window.root = Gun(opt);
+  
+  socket = window.socket = root
     .get("rtcmeeting")
     .get(room)
     .get("socket");
@@ -313,6 +515,8 @@ function metaDataReceived(data) {
 }
 
 function initRTC() {
+  if(inited) return;
+  inited = true;
   /*if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
   } else if (!username) {
@@ -325,13 +529,13 @@ function initRTC() {
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
-      commElem[i].attributes.removeNamedItem("hidden");
+      commElem[i].hidden=false;
     }
 
     /*if (localVideo)
       mutedStream = h.setMutedStream(localVideo);*/
 
-    document.getElementById("demo").attributes.removeNamedItem("hidden");
+    document.getElementById("demo").hidden = false;
 
     socketId = h.uuidv4();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
@@ -411,7 +615,7 @@ function initRTC() {
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
-        if(data.candidate && data.candidate.hasOwnProperty('candidate')){
+        if(data.candidate && data.candidate.hasOwnProperty('candidate'))){
           if(!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
         }
         data.candidate = new RTCIceCandidate(data.candidate);
@@ -659,6 +863,10 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
   h.addVideo(partnerName, false);
+
+  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE! 
+  //TODO: KNOWN REGRESSION IN THIS BRANCH IS MUTING DOES NOT WORK!
+
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};

@@ -12,13 +12,114 @@ var cache,
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
   isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
   isMobile = (window.orientation > -1) ? true :false,
-  typeOf = function(o) {
+  userMediaAvailable = function userMediaAvailable() {
+    return !!(
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia
+    );
+  },
+  
+  typeOf = function typeOf(o) {
     return Object.prototype.toString
       .call(o).match(/(\w+)\]/)[1].toLowerCase();
   },
-  canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
+  t = function t(i,r){
+    return r.test(i);
+  },
+  fromPath = function fromPath(obj, path) {
+    path = path.replace(/\[(\w+)\]/g, '.$1');
+    path = path.replace(/^\./, '');
+    var a = path.split('.');
+    //console.log(obj,path);
+    while (a.length) {
+      var n = a.shift();
+      if (obj && n in obj)
+        obj = obj[n];
+      else
+        return;
+    }
+    return obj;
+  },
+  toPath = function toPath(obj, path, value) {
+    if (typeOf(path) == "string")
+      var path = path.replace(/\[(\w+)\]/g, '.$1').replace(/^\./, '').split('.');
+    if (path.length > 1) {
+      var p = path.shift();
+      //console.log("p",p,"path",path,"objp",obj[p]);
+      if (fromPath(obj,p) == null) {
+        //console.log("were in","typeof p is",typeOf(p),"p is",p);
+        var r = /^\d$/;
+        if (t(p,r) || (path.length > 0 && t(path[0],r))) {
+          obj[p] = [];
+        } else if (!t(p,r) && typeOf(obj[p]) != 'object') {
+          obj[p] = {};
+        }
+      }
+      toPath(obj[p], path, value);
+    } else {
+      var p = path.shift();
+      var r = /^\d$/;
+      if (t(p,r) || typeOf(obj[p]) == "array") {
+        if (!obj[p] && typeOf(value) == "array") obj[p] = value;
+        else if (!obj[p] && typeOf(value) == "string") obj[p] = [value];
+        else obj[p] = value;
+      } else {
+        obj[p] = value;
+      }
+    }
+  },
+  canCaptureCanvas = ('captureStream' in HTMLCanvasElement.prototype) ? true : false,
+  canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true :false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
+  canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
   canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  
+  function getDevices() {
+    return new Promise(async(resolve,reject)=>{
+      if(!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices != "function") return reject('no mediaDevices');
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      let grouped = {};
+      for (let i = 0; i !== Object.keys(devices).length; ++i) {
+        let asLength=0,aoLength=0,vsLength=0,oLength=0; 
+        const deviceInfo = devices[i];
+        if (deviceInfo.kind === 'audioinput') {
+          if(!grouped['as']) { 
+            grouped['as'] = {};
+          } 
+          let label = deviceInfo.label || `Mic ${asLength + 1}`;
+          grouped['as'][label] = deviceInfo;
+          asLength++;
+        } else if (deviceInfo.kind === 'audiooutput') {
+          if(!grouped['ao']) { 
+            grouped['ao'] = {};
+          } 
+          let label = deviceInfo.label || `Speaker ${aoLength + 1}`;
+          grouped['ao'][label] = deviceInfo;
+          aoLength++;
+        } else if (deviceInfo.kind === 'videoinput') {
+          if(!grouped['vs']) { 
+            grouped['vs'] = {};
+          } 
+          let label = deviceInfo.label || `Cam ${vsLength + 1}`;
+          grouped['vs'][label] = deviceInfo;
+          vsLength++;
+        } else {
+          if(!grouped['other']){
+            grouped['other'] = {}
+          }
+          let label = deviceInfo.label || `Other ${oLength + 1}`;
+          grouped['other']=deviceInfo;
+          oLength++;
+        }
+      }
+      return resolve(grouped);
+    });
+  }
+  var each = function each(o, fn) {
+    for (var i in o) fn(i, o[i]);
+  };
   function removeElement(elementId) {
     // Removes an element from the document
     var element = document.getElementById(elementId);
@@ -47,7 +148,7 @@ var cache,
         }
     }
   };
-if (canCreateMediaStream && canCaptureStream) {
+if (canCreateMediaStream && canCaptureCanvas) {
   MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
     // TODO: if elevatorJingle, add some random track of annoying music instead :D
     let audio = new AudioContext();
@@ -96,6 +197,7 @@ if (canCreateMediaStream && canCaptureStream) {
   MutedStream = (videoOpts, audioOpts) =>
     new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
 } else {
+  
   console.warn("no MediaStream constructor, we're IE/Edge/Safari");
   // LOAD VIDEO
   var mediaSource = new MediaSource(), 
@@ -132,6 +234,11 @@ if (canCreateMediaStream && canCaptureStream) {
 export default {
   copyToClipboard,
   removeElement,
+  fromPath,
+  toPath,
+  typeOf,
+  each,
+  getDevices,
   isEdge() {
     return isEdge;
   },
@@ -162,6 +269,9 @@ export default {
   canCaptureAudio(){
     return canCaptureAudio;
   },
+  canSelectAudioDevices(){
+    return canSelectAudioDevices;
+  },
   canPlayType(type){
     return document.createElement("video").canPlayType(type);
   },
@@ -186,17 +296,38 @@ export default {
       return "landscape";
     }
   },
-  typeOf(...args){
-    return typeOf(...args);
+  attachSinkToVideo(video, sinkId, select) {
+    if (typeof video.sinkId !== 'undefined') {
+      return video.setSinkId(sinkId)
+          .then(() => {
+            console.log(`Success, audio output device attached: ${sinkId}`);
+          })
+          .catch(error => {
+            let errorMessage = error;
+            if (error.name === 'SecurityError') {
+              errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+            }
+            console.error(errorMessage);
+            // Jump back to first output device in the list as it's the default.
+            select.selectedIndex = 0;
+          });
+    } else {
+      console.warn('Browser does not support output device selection.');
+    }
+  },
+  setAudioToVideo(audio,video) {
+    const sink = audio.value;
+    return this.attachSinkToVideo(video, sink, audio);
   },
   setVideoSrc(video,mediaSource){
-    let source;
+    let source,tof="";
     if(isOldEdge){
+      //if(video.id=="local") return;
       //console.log("typeOf mediasource",typeOf(mediaSource));
       if(!mediaSource) mediaSource = this.getMutedStream();
       source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
       video[tof=="mediastream"?"srcObject":"src"] = source;
-      return {video,source};
+        return {video,source};
     } else {
     if ("srcObject" in video) {
       try {
@@ -272,14 +403,7 @@ export default {
     }
     return null;
   },
-  userMediaAvailable() {
-    return !!(
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.msGetUserMedia
-    );
-  },
+  userMediaAvailable,
   getUserMedia(opts) {
     if (this.userMediaAvailable()) {
       opts = opts && this.typeOf(opts) == "object" ? opts : {

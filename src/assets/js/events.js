@@ -1,4 +1,5 @@
 import helpers from './helpers.js';
+import EventEmitter from './ee.js';
 
 window.addEventListener('DOMContentLoaded', () => {
     //When the chat icon is clicked
@@ -47,7 +48,7 @@ window.addEventListener('DOMContentLoaded', () => {
             }
         });
       }
-    /* MOVED TO rtc event emitter
+    /*MOVED TO rtc event emitter
     var em = window.ee;
     console.log(em,ee);
     if(em) em.on('tingle:load',function(content){
