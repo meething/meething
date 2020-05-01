@@ -123,19 +123,29 @@ function metaDataReceived(data) {
         var notification = data.username + " is back on the grid"
         h.showNotification(notification);
       }
+    } else if (data.subEvent == "mute") {
+      if (data.muted) {
+        var notification = data.username + " is going silence";
+        h.showNotification(notification);
+      } else {
+        var notification = data.username + " is on speaking terms"
+        h.showNotification(notification);
+      }
     }
-  } else if (data.username) {
-    	if(data.username && data.socketId) h.swapUserDetails(data.socketId+"-title", data);
-        if (data.talking) {
-		if (DEBUG) console.log('Speaker Focus on ' + data.username);
-		h.swapDiv(data.socketId+"-widget");
-	}
-  } else {
+  } else if (data.event == "control") {
+    if (data.username && data.socketId) {
+      h.swapUserDetails(data.socketId + "-title", data);
+    }
+    if (data.talking) {
+      console.log('Speaker Focus on ' + data.username);
+      h.swapDiv(data.socketId + "-widget");
+    }
+  }
+  else {
     console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
-
   }
 }
 
@@ -162,6 +172,7 @@ function initRTC() {
 
     socketId = h.uuidv4();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
+    damSocket.setMetaData(metaData);
     metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
@@ -405,7 +416,7 @@ function initRTC() {
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
-          metaData.sentControlData({ muted: audioMuted });
+          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Muted");
         });
       } else {
@@ -414,7 +425,7 @@ function initRTC() {
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
-          metaData.sentControlData({ muted: audioMuted });
+          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Unmuted");
         });
       }
