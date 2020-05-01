@@ -188,6 +188,7 @@ function initRTC() {
       socketId: socketId,
       name: username || socketId
     });
+    presence.update(username, socketId);
 
     //Do we do this here this is now triggered from DAM?
     damSocket.on('Subscribe', function (data) {

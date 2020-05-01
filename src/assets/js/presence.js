@@ -7,7 +7,7 @@ export default class Presence {
     this.users = new Map();
     var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
     var self = this;
-    window.addEventListener(_ev, function(){self.leave();});
+    window.addEventListener(_ev, function () { self.leave(); });
     return this;
   }
 
@@ -26,6 +26,9 @@ export default class Presence {
           break;
         case "presence":
           this.addReceivedUsers(msg.data);
+          break;
+        case "update":
+          self.users.set(msg.pid, msg.data);
           break;
         default:
           console.log(msg);
@@ -46,6 +49,11 @@ export default class Presence {
 
   send(event, data) {
     this.root.on("out", { pid: this.pid, event: event, data: data });
+  }
+
+  update(username, socketId) {
+    var data = { username: username, socketId: socketId }
+    this.send("update", data)
   }
 
   enter() {
