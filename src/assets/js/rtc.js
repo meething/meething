@@ -294,7 +294,6 @@ function initRTC() {
 
             //save my stream
             myStream = stream;
-            h.addAudio(myStream);
 
             stream.getTracks().forEach(track => {
               pc[data.sender].addTrack(track, stream);
@@ -543,7 +542,6 @@ function init(createOffer, partnerName) {
       .then(stream => {
         //save my stream
         myStream = stream;
-        h.addAudio(myStream);
         var mixstream = null;
         //provide access to window for debug
         if(h.canCreateMediaStream()){
@@ -654,7 +652,6 @@ function init(createOffer, partnerName) {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
-      h.addAudio(str);
       h.setVideoSrc(el,str);
     } else {
       h.addVideo(partnerName, str);
