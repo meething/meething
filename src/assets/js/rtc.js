@@ -492,9 +492,10 @@ function initRTC() {
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
   if (pcmap.has(partnerName)) return pcmap.get(partnerName);
-  pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+   var pcPartnerName = new RTCPeerConnection(h.getIceServer());
+   pc[partnerName] = pcPartnerName;
   // DAM: replace with local map keeping tack of users/peerconnections
-  pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
+  pcmap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -508,7 +509,7 @@ function init(createOffer, partnerName) {
     }
     ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
-        pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
+        pcPartnerName.addTrack(track, screenStream); //should trigger negotiationneeded event
       });
     });
   } else if (!screenStream && myStream) {
@@ -522,7 +523,7 @@ function init(createOffer, partnerName) {
     }
     ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
-        pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+        pcPartnerName.addTrack(track, myStream); //should trigger negotiationneeded event
       });
     });
   } else {
@@ -555,32 +556,22 @@ function init(createOffer, partnerName) {
         ['audio', 'video'].map(tracklist => {
           tracks[tracklist].forEach(track => {
             mixstream.addTrack(track);
-            pc[partnerName].addTrack(track, mixstream); //should trigger negotiationneeded event
+            pcPartnerName.addTrack(track, mixstream); //should trigger negotiationneeded event
           });
         });
 
         h.setVideoSrc(localVideo, mixstream);
 
-	// SoundMeter for Local Stream
-	if (myStream) {
-  	    // Soundmeter
-	    console.log('Init Soundmeter.........');
-	    const slowMeter = document.getElementById('audiometer');
-	    const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
- 	    soundMeter.connectToSource(myStream).then(function() {
-		setInterval(() => {
-		      if(soundMeter.instant.toFixed(2) > 0.5) {
-			console.log('Imm Speaking! Sending metadata mesh focus...');
-			metaData.sentControlData({ username: username, id: socketId, talking: true});
-		      } else {
-			//metaData.sentControlData({ username: username, id: socketId, talking: false});
-		      }
-		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
-		}, 1000);
-	    });
-  	}
-
-
+        // SoundMeter for Local Stream
+        if (myStream) {
+          // Soundmeter
+          console.log('Init Soundmeter.........');
+          const soundMeter = new SoundMeter(function () {
+              console.log('Imm Speaking! Sending metadata mesh focus...');
+              metaData.sentControlData({ username: username, id: socketId, talking: true });
+          });
+          soundMeter.connectToSource(myStream)
+        }
 
       })
       .catch(async e => {
@@ -591,12 +582,12 @@ function init(createOffer, partnerName) {
         var offerConstraints = {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
-        let offer = await pc[partnerName].createOffer(offerConstraints);
+        let offer = await pcPartnerName.createOffer(offerConstraints);
         // SDP Interop
 	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
-        await pc[partnerName].setLocalDescription(offer);
+        await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
-          description: pc[partnerName].localDescription,
+          description: pcPartnerName.localDescription,
           to: partnerName,
           sender: socketId
         });
@@ -606,38 +597,38 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
-    pc[partnerName].onnegotiationneeded = async () => {
+    pcPartnerName.onnegotiationneeded = async () => {
       try {
-        if (pc[partnerName].isNegotiating) {
+        if (pcPartnerName.isNegotiating) {
           console.log(
             "negotiation needed with existing state?",
             partnerName,
-            pc[partnerName].isNegotiating,
-            pc[partnerName].signalingState
+            pcPartnerName.isNegotiating,
+            pcPartnerName.signalingState
           );
           return; // Chrome nested negotiation bug
         }
-        pc[partnerName].isNegotiating = true;
-        let offer = await pc[partnerName].createOffer();
+        pcPartnerName.isNegotiating = true;
+        let offer = await pcPartnerName.createOffer();
 	// SDP Interop
 	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
 	// SDP Bitrate Hack
 	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
 
-        await pc[partnerName].setLocalDescription(offer);
+        await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
-          description: pc[partnerName].localDescription,
+          description: pcPartnerName.localDescription,
           to: partnerName,
           sender: socketId
         });
       } finally {
-        pc[partnerName].isNegotiating = false;
+        pcPartnerName.isNegotiating = false;
       }
     };
   }
 
   //send ice candidate to partnerNames
-  pc[partnerName].onicecandidate = ({ candidate }) => {
+  pcPartnerName.onicecandidate = ({ candidate }) => {
     if (!candidate) return;
     damSocket.out("icecandidates", {
       candidate: candidate,
@@ -647,7 +638,7 @@ function init(createOffer, partnerName) {
   };
 
   //add
-  pc[partnerName].ontrack = e => {
+  pcPartnerName.ontrack = e => {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
@@ -658,16 +649,16 @@ function init(createOffer, partnerName) {
     }
   };
 
-  pc[partnerName].onconnectionstatechange = d => {
+  pcPartnerName.onconnectionstatechange = d => {
     console.log(
       "Connection State Change: " + partnerName,
-      pc[partnerName].iceConnectionState
+      pcPartnerName.iceConnectionState
     );
     // Save State
-    switch (pc[partnerName].iceConnectionState) {
+    switch (pcPartnerName.iceConnectionState) {
       case "connected":
         sendMsg(
-          partnerName + " is " + pc[partnerName].iceConnectionState,
+          partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
 	metaData.sentControlData({ username: username, id: socketId, online: true });
@@ -677,7 +668,7 @@ function init(createOffer, partnerName) {
           return;
         }
         sendMsg(
-          partnerName + " is " + pc[partnerName].iceConnectionState,
+          partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
         h.closeVideo(partnerName);
@@ -698,24 +689,24 @@ function init(createOffer, partnerName) {
         h.closeVideo(partnerName);
         break;
       default:
-        console.log("Change of state: ", pc[partnerName].iceConnectionState);
+        console.log("Change of state: ", pcPartnerName.iceConnectionState);
         break;
     }
   };
 
-  pc[partnerName].onsignalingstatechange = d => {
+  pcPartnerName.onsignalingstatechange = d => {
     console.log(
       "Signaling State Change: " + partnerName,
-      pc[partnerName].signalingState
+      pcPartnerName.signalingState
     );
-    switch (pc[partnerName].signalingState) {
+    switch (pcPartnerName.signalingState) {
       case "stable":
-        pc[partnerName].isNegotiating = false;
+        pcPartnerName.isNegotiating = false;
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
 	// Do we have a connection? If not kill the widget
-	if (pc[partnerName].iceConnectionState !== "connected") h.closeVideo(partnerName);
+	if (pcPartnerName.iceConnectionState !== "connected") h.closeVideo(partnerName);
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,
