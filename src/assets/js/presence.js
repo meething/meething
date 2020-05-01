@@ -28,11 +28,20 @@ export default class Presence {
           this.addReceivedUsers(msg.data);
           break;
         case "update":
-          self.users.set(msg.pid, msg.data);
+          this.updateUser(msg)
+          this.distrubutePresence();
           break;
         default:
           console.log(msg);
       }
+    }
+  }
+
+  updateUser(msg) {
+    if (this.users != undefined) {
+      this.users.set(msg.pid, msg.data);
+      var item = document.getElementById(msg.pid);
+      item.innerHTML = msg.data.username;
     }
   }
 
@@ -42,7 +51,11 @@ export default class Presence {
     receivedUsers.forEach(function (value, key) {
       if (!self.users.has(key)) {
         self.users.set(key, value);
-        self.addItem(key);
+        if(value != null && value.username) {
+          self.addItem(value.username);
+        } else {
+          self.addItem(key);
+        }
       }
     });
   }

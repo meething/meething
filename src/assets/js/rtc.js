@@ -181,6 +181,7 @@ function initRTC() {
     metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
+    presence.update(username, socketId);
 
     // Initialize Session
     damSocket.out("subscribe", {
@@ -188,7 +189,7 @@ function initRTC() {
       socketId: socketId,
       name: username || socketId
     });
-    presence.update(username, socketId);
+
 
     //Do we do this here this is now triggered from DAM?
     damSocket.on('Subscribe', function (data) {
