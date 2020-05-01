@@ -10,6 +10,8 @@ import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 
+var DEBUG = false; // if (DEBUG) 
+
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = false;
@@ -101,7 +103,7 @@ function metaDataReceived(data) {
     if (data.ts && Date.now() - data.ts > 5000) return;
     if (data.socketId == socketId || data.sender == socketId) return;
     if (data.sender == username) return;
-    console.log("got chat", data);
+    if (DEBUG) console.log("got chat", data);
     h.addChat(data, "remote");
   } else if (data.event == "notification") {
     if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == username) return;
@@ -125,7 +127,7 @@ function metaDataReceived(data) {
   } else if (data.username) {
     	if(data.username && data.socketId) h.swapUserDetails(data.socketId+"-title", data);
         if (data.talking) {
-		console.log('Speaker Focus on ' + data.username);
+		if (DEBUG) console.log('Speaker Focus on ' + data.username);
 		h.swapDiv(data.socketId+"-widget");
 	}
   } else {
@@ -190,7 +192,7 @@ function initRTC() {
       }
       // Ignore self-generated subscribes
       if (data.socketId == socketId || data.sender == socketId) return;
-      console.log("got subscribe!", data);
+      if (DEBUG) console.log("got subscribe!", data);
 
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
@@ -198,7 +200,7 @@ function initRTC() {
         pc[data.socketId] &&
         pc[data.socketId].iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer", data.socketId);
+        if (DEBUG) console.log("already connected to peer", data.socketId);
         //return;
       }
       // New Peer, setup peerConnection
@@ -233,8 +235,8 @@ function initRTC() {
           !data.sender ||
           !data.to
         )
-          return;
-        console.log(
+        return;
+        if (DEBUG) console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
         data.candidate = new RTCIceCandidate(data.candidate);
@@ -244,7 +246,7 @@ function initRTC() {
         return;
       }
       if (data.socketId == socketId || data.to != socketId) return;
-      console.log("ice candidate", data);
+      if (DEBUG) console.log("ice candidate", data);
       //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
       data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
     });
@@ -260,7 +262,7 @@ function initRTC() {
         )
           return;
         if (data.to !== socketId) {
-          console.log("not for us? dropping sdp");
+          if (DEBUG) console.log("not for us? dropping sdp");
           return;
         }
       } catch (e) {
@@ -397,7 +399,6 @@ function initRTC() {
       if (!mine) {
         return;
       }
-      //console.log("muted",audioMuted);
       if (!audioMuted) {
         h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r => {
           audioMuted = true;
@@ -423,7 +424,7 @@ function initRTC() {
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;
-      console.log("Re-Send presence to all users...");
+      if (DEBUG) console.log("Re-Send presence to all users...");
       var r = confirm("Re-Invite ALL room participants?");
       if (r == true) {
         damSocket.out("subscribe", {
@@ -565,9 +566,9 @@ function init(createOffer, partnerName) {
         // SoundMeter for Local Stream
         if (myStream) {
           // Soundmeter
-          console.log('Init Soundmeter.........');
+          if (DEBUG) console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
-              console.log('Imm Speaking! Sending metadata mesh focus...');
+              if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
               metaData.sentControlData({ username: username, id: socketId, talking: true });
           });
           soundMeter.connectToSource(myStream)

@@ -654,7 +654,7 @@ export default {
   },
   swapDiv(id){
     if(!id) return;
-    console.log('Focusing grid widget with id '+id);
+    // console.log('Focusing grid widget with id '+id);
     try {
       var container = document.getElementById('grid'),
           fresh = document.getElementById(id),
@@ -665,7 +665,7 @@ export default {
   },
   swapUserDetails(id,metadata){
     if(!id||!metadata) return;
-    console.log('Updating widget with id '+id);
+    // console.log('Updating widget with id '+id);
     try {
       var container = document.getElementById('grid'),
           id = document.getElementById(id);
