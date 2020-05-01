@@ -580,7 +580,7 @@ function init(createOffer, partnerName) {
           if (DEBUG) console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
               if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
-              metaData.sentControlData({ username: username, id: socketId, talking: true });
+              if (!audioMuted) metaData.sentControlData({ username: username, id: socketId, talking: true });
           });
           soundMeter.connectToSource(myStream)
         }

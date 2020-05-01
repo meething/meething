@@ -416,3 +416,11 @@ meter {
       .25em 0 0 white,
       .5em 0 0 white;}}
 
+
+.grid-box {
+  margin-top: 0px;
+}
+
+.grid-bottom {
+  margin-top: -25px;
+}
