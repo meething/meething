@@ -38,6 +38,7 @@ window.addEventListener('DOMContentLoaded', function () {
 var socket;
 var room;
 var pc = []; // hold local peerconnection statuses
+window.pc = pc;
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream;
 var screenStream;
@@ -137,7 +138,7 @@ function metaDataReceived(data) {
       h.swapUserDetails(data.socketId + "-title", data);
     }
     if (data.talking) {
-      console.log('Speaker Focus on ' + data.username);
+      if (DEBUG) console.log('Speaker Focus on ' + data.username);
       h.swapDiv(data.socketId + "-widget");
     }
   }
