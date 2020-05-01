@@ -562,26 +562,16 @@ function init(createOffer, partnerName) {
 
         h.setVideoSrc(localVideo, mixstream);
 
-	// SoundMeter for Local Stream
-	if (myStream) {
-  	    // Soundmeter
-	    console.log('Init Soundmeter.........');
-	    const slowMeter = document.getElementById('audiometer');
-	    const soundMeter = window.soundMeter = new SoundMeter(window.audioContext);
- 	    soundMeter.connectToSource(myStream).then(function() {
-		setInterval(() => {
-		      if(soundMeter.instant.toFixed(2) > 0.5) {
-			console.log('Imm Speaking! Sending metadata mesh focus...');
-			metaData.sentControlData({ username: username, id: socketId, talking: true});
-		      } else {
-			//metaData.sentControlData({ username: username, id: socketId, talking: false});
-		      }
-		      document.getElementById('audiometer').value = soundMeter.instant.toFixed(2) * 5;
-		}, 1000);
-	    });
-  	}
-
-
+        // SoundMeter for Local Stream
+        if (myStream) {
+          // Soundmeter
+          console.log('Init Soundmeter.........');
+          const soundMeter = new SoundMeter(function () {
+              console.log('Imm Speaking! Sending metadata mesh focus...');
+              metaData.sentControlData({ username: username, id: socketId, talking: true });
+          });
+          soundMeter.connectToSource(myStream)
+        }
 
       })
       .catch(async e => {
