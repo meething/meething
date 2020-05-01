@@ -322,23 +322,58 @@ window.addEventListener('DOMContentLoaded', function () {
     <button class="btn btn-lg btn btn-outline-light" id="startVideoMuted" title="Mute/Unmute Video">
       <i class="fa fa-video"></i>
     </button><br/>
-    <div id="preview"><video id="local" playsinline autoplay muted></video></div>
+    <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
   </div>
-` : `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-    <div id="deviceSelection">
-      <label for="as">Mic:</label><br/>
-      <select id="as"></select><br/>
-      <label for="ao">Speakers: </label><br/>
-      <select id="ao"></select><br/>
-      <label for="vs">Camera:</label><br/>
-      <select id="vs"></select><br/>
-      <button class="btn btn-lg btn-outline-light" id="startAudioMuted" title="Mute/Unmute Audio">
-        <i class="fa fa-volume-up"></i>
+` : `
+<div class="p-container">
+<div id="" class="preview-container">
+<div class="row">
+
+<div class="col-md-9">
+<video id="local" playsinline autoplay muted></video>
+ </div>
+
+    <div class="preview-video-buttons col-md-3">
+    <div class="row m-4">
+      <button id="startAudioMuted" class="fa fa-volume-up" title="Mute/Unmute Audio">
       </button>
-      <button class="btn btn-lg btn btn-outline-light" id="startVideoMuted" title="Mute/Unmute Video">
-        <i class="fa fa-video"></i>
-      </button><br/>
-      <div id="preview"><video id="local" playsinline autoplay muted></video></div>
+      <div class="d-block d-xs-block d-md-none text-white m-3">Sound On / Off</div>
+      </div>
+      <div class="row m-4">
+      <button id="startVideoMuted" class="fa fa-video" title="Mute/Unmute Video">
+      
+      </button>
+      <div class="d-block d-xs-block d-md-none text-white m-3">Cam On / Off</div>
+      </div>
+  </div>
+  </div>
+ 
+</div>
+
+<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+
+    <div id="deviceSelection">
+
+      <div class="form-row">
+
+        <div class="col-md-4 mb-3">
+         <label for="as" class="text-white">Mic:</label>
+           <select id="as" class="form-control btn-sm rounded-0"></select>
+         </div>
+
+       <div class="col-md-4 mb-3">
+            <label for="ao" class="text-white">Speakers: </label>
+              <select id="ao" class="form-control btn-sm rounded-0"></select>
+           </div>
+
+      <div class="col-md-4 mb-3">
+              <label for="vs" class="text-white">Camera:</label>
+            <select id="vs" class="form-control btn-sm rounded-0"></select>
+          </div>
+      </div>
+
+    </div>
+    </div>
     </div>
   `;
    
@@ -385,22 +420,21 @@ window.addEventListener('DOMContentLoaded', function () {
     modalContent = "Welcome, you're joining room <input type='hidden' id='room-name' value='"+room+"'/>"+title+"<br/><br/>Please enter your username and set up your camera options!<br/>"+passwinput+"<br/>"+joinnameinput+"<br/>"+cammicsetc;
     return loadModal(modal,modalContent,'nouser');
   } else if (!room && username) {
-    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"<br/><br/>Please enter the room name you want to join or create below!<br/>"+roominput+"<br/>"+passwinput+"<br/>"+cammicsetc;
+    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"<br/><br/>Please enter the room name you want to join or create below!<br/></br>"+roominput+"<br/>"+passwinput+"<br/>"+cammicsetc;
     return loadModal(modal,modalContent,'noroom');
   }else {
     modalContent = " \
       <div class='speech-bubble'> \
-        <p class='font-weight-bold'> \
+        <p class='speech-msg'> \
         Hey, let\'s set up a new room!</p> \
+        "+cammicsetc+" \
       </div> \
       <p>"+roomcreated+"</p> \
       "+errmsg+"<br> \
       "+createnameinput+"<br> \
       "+roominput+"<br> \
       "+passwinput+"<br> \
-      "+roomcreatebtn+"<br> \
-      "+cammicsetc+" \
-    ";
+      "+roomcreatebtn+"<br>";
     return loadModal(modal,modalContent,'setup');
   }
 
@@ -615,7 +649,7 @@ function initRTC() {
         console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
-        if(data.candidate && data.candidate.hasOwnProperty('candidate'))){
+        if(data.candidate && data.candidate.hasOwnProperty('candidate')){
           if(!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
         }
         data.candidate = new RTCIceCandidate(data.candidate);
@@ -728,7 +762,7 @@ function initRTC() {
         h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
-          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.remove("fas fa-video");
           e.srcElement.classList.add("fa-video-slash");
         });
       } else {
