@@ -37,8 +37,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
 var socket;
 var room;
-var pc = []; // hold local peerconnection statuses
-const pcmap = new Map(); // A map of all peer ids to their peerconnections.
+const pcMap = new Map(); // A map of all peer ids to their peerconnections.
 var myStream;
 var screenStream;
 var mutedStream,
@@ -84,10 +83,10 @@ function sendMsg(msg, local) {
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
   presence.leave();
-  pcmap.forEach((pc, id) => {
-    if (pcmap.has(id)) {
-      pcmap.get(id).close();
-      pcmap.delete(id);
+  pcMap.forEach((pc, id) => {
+    if (pcMap.has(id)) {
+      pcMap.get(id).close();
+      pcMap.delete(id);
     }
   });
 });
@@ -192,12 +191,12 @@ function initRTC() {
         return;
       }
       if (
-        pc[data.socketId] !== undefined &&
-        pc[data.socketId].connectionState == "connected"
+        pcMap.get(data.socketId) !== undefined &&
+        pcMap.get(data.socketId).connectionState == "connected"
       ) {
         console.log(
           "Existing peer subscribe, discarding...",
-          pc[data.socketId]
+          pcMap.get(data.socketId)
         );
         return;
       }
@@ -208,8 +207,8 @@ function initRTC() {
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
       if (
-        pc[data.socketId] &&
-        pc[data.socketId].iceConnectionState == "connected"
+        pcMap.get(data.socketId) &&
+        pcMap.get(data.socketId).iceConnectionState == "connected"
       ) {
         if (DEBUG) console.log("already connected to peer", data.socketId);
         //return;
@@ -220,7 +219,7 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
-      pc.push(data.socketId);
+
       init(true, data.socketId);
     });
 
@@ -228,14 +227,14 @@ function initRTC() {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
-        pc[data.sender] &&
-        pc[data.sender].connectionState == "connected" &&
-        pc[data.sender].iceConnectionState == "connected"
+        pcMap.get(data.sender) &&
+        pcMap.get(data.sender).connectionState == "connected" &&
+        pcMap.get(data.sender).iceConnectionState == "connected"
       ) {
         console.log("already connected to peer?", data.socketId);
         return; // We don't need another round of Init for existing peers
       }
-      pc.push(data.sender);
+
       init(false, data.sender);
     });
 
@@ -258,8 +257,8 @@ function initRTC() {
       }
       if (data.socketId == socketId || data.to != socketId) return;
       if (DEBUG) console.log("ice candidate", data);
-      //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
-      data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
+      //data.candidate ? pcMap.get(data.sender).addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
+      data.candidate ? pcMap.get(data.sender).addIceCandidate(data.candidate) : "";
     });
 
     damSocket.on('SDP', function (data) {
@@ -283,7 +282,7 @@ function initRTC() {
 
       if (data.description.type === "offer") {
         data.description
-          ? pc[data.sender].setRemoteDescription(
+          ? pcMap.get(data.sender).setRemoteDescription(
             new RTCSessionDescription(data.description)
           )
           : "";
@@ -296,19 +295,19 @@ function initRTC() {
             myStream = stream;
 
             stream.getTracks().forEach(track => {
-              pc[data.sender].addTrack(track, stream);
+              pcMap.get(data.sender).addTrack(track, stream);
             });
 
-            let answer = await pc[data.sender].createAnswer();
+            let answer = await pcMap.get(data.sender).createAnswer();
 	    // SDP Interop
 	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
 	    // SDP Bitrate Hack
 	    // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
 
-            await pc[data.sender].setLocalDescription(answer);
+            await pcMap.get(data.sender).setLocalDescription(answer);
 
             damSocket.out("sdp", {
-              description: pc[data.sender].localDescription,
+              description: pcMap.get(data.sender).localDescription,
               to: data.sender,
               sender: socketId
             });
@@ -324,20 +323,20 @@ function initRTC() {
               OfferToReceiveAudio: true,
               OfferToReceiveVideo: true
             };
-            let answer = await pc[data.sender].createAnswer(answerConstraints);
+            let answer = await pcMap.get(data.sender).createAnswer(answerConstraints);
 	    // SDP Interop
 	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
-            await pc[data.sender].setLocalDescription(answer);
+            await pcMap.get(data.sender).setLocalDescription(answer);
 
             damSocket.out("sdp", {
-              description: pc[data.sender].localDescription,
+              description: pcMap.get(data.sender).localDescription,
               to: data.sender,
               sender: socketId
             });
             // end crazy mode
           });
       } else if (data.description.type === "answer") {
-        pc[data.sender].setRemoteDescription(
+        pcMap.get(data.sender).setRemoteDescription(
           new RTCSessionDescription(data.description)
         );
       }
@@ -363,7 +362,7 @@ function initRTC() {
         return;
       }
       if (!videoMuted) {
-        h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r => {
+        h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
           e.srcElement.classList.remove("fa-video");
@@ -371,7 +370,7 @@ function initRTC() {
 	  h.showNotification("Video Disabled");
         });
       } else {
-        h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
+        h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
           h.setVideoSrc(localVideo,mine);
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
@@ -410,7 +409,7 @@ function initRTC() {
         return;
       }
       if (!audioMuted) {
-        h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r => {
+        h.replaceAudioTrackForPeers(pcMap, muted.getAudioTracks()[0]).then(r => {
           audioMuted = true;
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
@@ -419,7 +418,7 @@ function initRTC() {
  	  h.showNotification("Audio Muted");
         });
       } else {
-        h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r => {
+        h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
           audioMuted = false;
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
@@ -458,15 +457,15 @@ function initRTC() {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
-          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
-          h.replaceVideoTrackForPeers(pcmap, vtrack);
+          if (false) h.replaceAudioTrackForPeers(pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
+          h.replaceVideoTrackForPeers(pcMap, vtrack);
           h.setVideoSrc(localVideo,stream);
           vtrack.onended = function (event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
               h.setVideoSrc(localVideo, myStream);
-              h.replaceStreamForPeers(pcmap, myStream);
+              h.replaceStreamForPeers(pcMap, myStream);
             }
             e.srcElement.classList.remove("sharing");
             e.srcElement.classList.add("text-white");
@@ -502,11 +501,10 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if (pcmap.has(partnerName)) return pcmap.get(partnerName);
+  if (pcMap.has(partnerName)) return pcMap.get(partnerName);
    var pcPartnerName = new RTCPeerConnection(h.getIceServer());
-   pc[partnerName] = pcPartnerName;
   // DAM: replace with local map keeping tack of users/peerconnections
-  pcmap.set(partnerName, pcPartnerName); // MAP Tracking
+  pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -682,8 +680,8 @@ function init(createOffer, partnerName) {
         );
         h.closeVideo(partnerName);
         // PC Tracking cleanup
-        pcmap.get(partnerName).close();
-        pcmap.delete(partnerName);
+        pcMap.get(partnerName).close();
+        pcMap.delete(partnerName);
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
