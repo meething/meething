@@ -40,6 +40,7 @@ var room;
 var pc = []; // hold local peerconnection statuses
 window.pc = pc;
 const pcmap = new Map(); // A map of all peer ids to their peerconnections.
+window.pcmap = pcmap;
 var myStream;
 var screenStream;
 var mutedStream,
@@ -688,6 +689,7 @@ function init(createOffer, partnerName) {
         // PC Tracking cleanup
         pcmap.get(partnerName).close();
         pcmap.delete(partnerName);
+	delete pc[partnerName];
         break;
       case "new":
         /* why is new objserved when certain clients are disconnecting? */
@@ -700,6 +702,7 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         h.closeVideo(partnerName);
+	delete pc[partnerName];
         break;
       default:
         console.log("Change of state: ", pcPartnerName.iceConnectionState);

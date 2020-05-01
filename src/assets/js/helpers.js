@@ -293,6 +293,8 @@ export default {
     };
     //return servers;
     return {
+      sdpSemantics: 'unified-plan',
+      iceCandidatePoolSize: 2,
       iceServers: [
         { urls: ["stun:turn.hepic.tel"] },
         { urls: ["stun:stun.l.google.com:19302"] },
