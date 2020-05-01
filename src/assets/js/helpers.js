@@ -179,6 +179,7 @@ export default {
       try {
         source = mediaSource;
         video.srcObject = source;
+        this.addAudio(source);
       } catch (err) {
         console.warn("error setting mediaSource",err);
         source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
