@@ -234,7 +234,7 @@ function initRTC() {
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
         pcMap.get(data.sender) &&
-        pcMap.get(data.sender).connectionState == "connected" ||
+        pcMap.get(data.sender).connectionState == "connected" &&
         pcMap.get(data.sender).iceConnectionState == "connected"
       ) {
         if (DEBUG) console.log("already connected to peer? bypass", data.socketId);
