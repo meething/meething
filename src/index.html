@@ -16,13 +16,13 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
     integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous" />
   <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
+  <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
+
+  <script type="text/javascript" src="assets/js/soundmeter.js"></script>
 
   <script type="module" src="assets/js/rtc.js"></script>
   <script type="module" src="assets/js/events.js"></script>
-
-  <script defer src="assets/js/face-api.min.js"></script>
-  <script defer src="assets/js/faceDetection.js"></script>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
@@ -32,16 +32,18 @@
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
   <!-- <script src="assets/js/webrtc.js"></script> -->
 
-  <!-- Gridstack -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack-extra.css" />
-  <script src="https://cdn.jsdelivr.net/npm/gridstack@1.1.1/dist/gridstack.all.js"></script>
-
 </head>
 
 <body>
   <div id="demo" class="demo" hidden>
-    <div class="grid-stack" style="width:100%;height:100%;">
+    ​ <div class="grid-box" class="grid-box">
+      <div id="emptyroom" style="width: 50%; margin: 0 auto;" class="grid-bottom">
+        <center>
+          <span class="fa fa-restroom fa-2x"></span><br><span class="loading">Waiting for Participants</span>
+      </div>
+      </center>
+      <div class="grid-container" id="grid">
+      </div>
     </div>
   </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
@@ -53,50 +55,46 @@
 
     <div class="pull-right room-comm" hidden>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-screen" title="Start/Stop Screensharing">
-        <i class="fa fa-desktop text-white"></i>
+      <meter high="0.25" max="1" value="0" id="audiometer"></meter>
+
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+        title="Toggle Screensharing">
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-video" title="Mute/Unmute Video">
-        <i class="fa fa-video text-white"></i>
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-video text-white" id="toggle-video"
+        title="Mute/Unmute Video">
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-mute" title="Mute/Unmute Audio">
-        <i class="fa fa-volume-up text-white"></i>
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-volume-up text-white" id="toggle-mute"
+        title="Mute/Unmute Audio">
       </button>
 
-      <button class="btn btn-sm text-white pull-right btn-no-effect" title="Show/Hide Chat" id="toggle-chat-pane">
-        <i class="fa fa-comment"></i>
+      <button class="btn btn-sm text-white pull-right btn-no-effect fa fa-comment" title="Toggle Chat"
+        id="toggle-chat-pane">
         <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-users" title="Show/hide Users">
-        <i class="fa fa-user-minus text-white"></i>
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+        title="Toggle User List">
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-invite" title="Re-Invite all Users">
-        <i class="fa fa-recycle text-white"></i>
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+        title="Re-Invite All Users">
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white" id="private-toggle">
-        <i class="fa fa-unlock text-white"></i>
+      <button class="btn btn-sm rounded-0 btn-no-effect text-white fa fa-unlock text-white" id="private-toggle"
+        title="Toggle Off-Grid Mode">
       </button>
 
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white">
+      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+        title="Toggle Recording">
+      </button>
 
+      <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
         <a href="/" class="text-danger text-decoration-none">
           <i class="fas fa-sign-out-alt text-white"></i>
         </a>
       </button>
-
-      <!-- grid columns -->
-      <div id="grid-columns" style="position: fixed; bottom: 10px; right: 10px;">
-        <select id="grid-col" name="grid-col" onchange="changeCol()" style="border-radius: 6px;" title="Grid Column(s)">
-          <option value="1">1</option>
-          <option value="2" selected>2</option>
-          <option value="3">3</option>
-        </select>
-      </div>
 
     </div>
 
@@ -166,7 +164,11 @@
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-      <video class="local-video clipped" id="local" volume="0" autoplay muted></video>
+      <div id="localstream">
+        <video class="local-video clipped" id="local" volume="0" poster="assets/images/poster.png" autoplay
+          muted></video>
+      </div>
+      <div id="localshadow"></div>
     </div>
 
     <div class="row">
@@ -195,73 +197,60 @@
     <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
     <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
   </div>
+  <div id="snackbar"></div>
   <script src="assets/js/dragable.js"></script>
-  <!-- js gridstack requirement -->
   <script type="text/javascript">
     window.onload = function () {
-      let gridst = document.querySelector('.grid-stack');
-      let clientwidth = document.documentElement.clientWidth;
-      gridst.setAttribute('style', `width:${clientwidth}`);
+      console.log('DOM Ready');
 
-    }
+      var targetNode = document.getElementById('grid');
+
+      // Options for the observer (which mutations to observe)
+      var config = {
+        childList: true
+      };
+
+      // Callback function to execute when mutations are observed
+      var callback = function (mutationsList, observer) {
+        for (var mutation of mutationsList) {
+          if (mutation.type == 'childList') {
+            // console.log('watch grid has changed or child has been added/removed');
+
+            document.getElementById('emptyroom').hidden = true;
+
+            var count = document.getElementById('grid').childElementCount;
+            var container = document.getElementById('grid');
+            // console.log('Resize Grid! New Element Count:',count);
+            if (count > 7) {
+              container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+            } else if (count > 3) {
+              container.style["grid-template-columns"] = "repeat(auto-fit, minmax(400px, 1fr))"
+            } else if (count > 1) {
+              container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+            } else if (count == 1) {
+              container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+            } else if (count == 0) {
+              console.log('no participants');
+              document.getElementById('emptyroom').hidden = false;
+            }
 
 
-    var grid = GridStack.init({
-      disableColumnMode: true,
-      float: true
-    });
-
-
-
-    function resizeGrid() {
-      mainToolbar = document.querySelector('.room-comm')
-      var width = document.body.clientWidth;
-      var fullscreen = function () {
-        if (grid.column === 1) {
-          grid.cellHeight = document.body.clientHeight;
-          grid.cellWidth = document.body.clientWidth;
+          }
         }
-      }
+      };
 
-      if (width < 700) {
-        grid.column(1);
-        fullscreen()
+      // Create an observer instance linked to the callback function
+      var observer = new MutationObserver(callback);
 
-      } else if (width < 850) {
-        grid.column(3);
+      // Start observing the target node for configured mutations
+      observer.observe(targetNode, config);
 
-      } else if (width < 950) {
-        grid.column(3);
-
-      } else if (width < 1100) {
-        grid.column(3);
-
-      } else {
-        grid.column(3);
-
-      }
-
-    };
-    let clientWidth = document.body.clientWidth;
-    let cWidth = clientWidth / grid.column();
-    grid.cellHeight(cWidth * 2, true)
-    grid.cellWidth(cWidth, true)
-
-    var changeCol = function () {
-
-      var gridCol = document.querySelector("#grid-col").value
-      grid.column(gridCol)
 
 
     }
-    grid.batchUpdate();
-    grid.commit();
-    resizeGrid();
-
-    window.addEventListener('resize', function () {
-      resizeGrid()
-    });
   </script>
+
+
 </body>
 
 </html>
