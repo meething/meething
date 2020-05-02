@@ -1,26 +1,50 @@
-<img src="https://i.imgur.com/XS79fTC.png" width=300>
+<img src="https://i.imgur.com/XS79fTC.png" width=200>
 
-# webRTC Gun Meeting
-A semi-decentralized conference bridge using WebRTC, [GunDB](http://gun.eco) and Node
 
-<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=600>
+# Meething : dWebRTC
+
+Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and NodeJS
+
+<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=400>
 
 ## Status
-* Experimental!
+* Working Status, _still dWeb-x-perimental!_
+* Project Selected by [Mozilla Spring Builders MVP Lab](https://builders.mozilla.community/springlab/index.html) :heart:
+* Contributors and Testers welcome! Join or open an [issue](https://github.com/meething/webrtc-gun/issues) for more!
+
+Ready to try Meething? 
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
 
-## Installation
+### Installation
+* Clone the repository and install using `npm`
 ```
 npm install
-npm start
+```
+#### Configuration
+* Copy the example `meething.config.js` to `custom.config.js`
+* Configure your SSL certificates
+* Run using pm2
+```
+pm2 start custom.config.js
 ```
 
-## Usage
+### Usage
 * Browse to the configured HTTPS port _(default 8443)_
-* Accept the self-signed certificates if needed
+* Accept the self-signed certificates _(if needed)_
 * Choose a Room and User name
 * Share link with other participants
+
+The Meething  application will connect to community Gun nodes for user discovery. All room data/audio/video is p2p.
+
+
+#### SuperPeers
+SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features. For more details, check out the Project Wiki.
+
+--------------
+
+## Screenshots
+
 
 #### Isolation Test @qxip @amark @qvdev
 <img src="https://user-images.githubusercontent.com/1423657/77968595-04661700-72e8-11ea-8226-b90fbe8011c8.png" width=500 />
@@ -31,8 +55,12 @@ npm start
 
 -------------
 
-## Todo
-* see project [issues](https://github.com/meething/webrtc-gun/issues)
 
-## Credits
-This is a modified fork of [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS) of by Amir Sanni
+
+
+<!--
+##### Credits & Thanks
+* Mozilla for supporting our idea!
+* Mark Nadal + Gun Community
+* Amir Sanni for sharing his ideas from [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS)
+-->
