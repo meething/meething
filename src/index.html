@@ -24,6 +24,8 @@
   <script type="module" src="assets/js/rtc.js"></script>
   <script type="module" src="assets/js/events.js"></script>
 
+  <script defer src="assets/js/faceDetection.js"></script>
+
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -165,8 +167,10 @@
   <div class="container-fluid room-comm" hidden>
     <div class="row">
       <div id="localstream">
-        <video class="local-video clipped" id="local" volume="0" poster="assets/images/poster.png" autoplay
-          muted></video>
+        <div id="localContainer">
+          <video class="local-video clipped" id="local" volume="0" poster="assets/images/poster.png" autoplay
+            muted></video>
+        </div>
       </div>
       <div id="localshadow"></div>
     </div>
