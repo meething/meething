@@ -9,6 +9,7 @@ canvas_box.style.zIndex = "1001"; //make detection appear in front of local vide
 
 document.body.append(canvas_box);
 
+var webWorker = new Worker("/assets/js/faceDetectWorker.js");
 //console.log("Load the model");
 //faceapi.nets.tinyFaceDetector.loadFromUri("/assets/models");
 
@@ -26,7 +27,7 @@ video.addEventListener("play", () => {
   ctx.strokeStyle = "#0000FF";
   ctx.lineWidth = 7;
 
-  var webWorker = new Worker("/assets/js/faceDetectWorker.js");
+
   //Detect and crop function
   async function detectAndCrop() {
     try {
