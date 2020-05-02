@@ -214,7 +214,18 @@ body {
   left: 0;
   width: 100vw;
   height: 100%;
+  overflow-y: scroll;
+}
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.demo::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox, IE and Edge */
+.demo {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 li {

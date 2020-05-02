@@ -38,7 +38,7 @@ window.addEventListener('DOMContentLoaded', function () {
 var socket;
 var room;
 const pcMap = new Map(); // A map of all peer ids to their peerconnections.
-window.pcmap = pcmap;
+window.pcmap = pcMap;
 var myStream;
 var screenStream;
 var mutedStream,
@@ -315,7 +315,11 @@ function initRTC() {
           })
           .catch(async e => {
             console.error(`answer stream error: ${e}`);
-            if (!enableHacks) return;
+	    if (!enableHacks) {
+               var r = confirm("No Media Devices! Join as Viewer?");
+	       if (r) enableHacks = true;
+	       else return;
+	    }
             // start crazy mode lets answer anyhow
             console.log(
               "no media devices! answering receive only"
@@ -669,6 +673,7 @@ function init(createOffer, partnerName) {
           partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
+        h.hideVideo(partnerName, false);
 	metaData.sentControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
@@ -685,7 +690,8 @@ function init(createOffer, partnerName) {
         pcMap.delete(partnerName);
         break;
       case "new":
-        /* why is new objserved when certain clients are disconnecting? */
+        h.hideVideo(partnerName, true);
+        /* objserved when certain clients are disconnecting/reconnecting - do we need to trigger a new candidate? */
         //h.closeVideo(partnerName);
         break;
       case "failed":
@@ -695,7 +701,8 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         h.closeVideo(partnerName);
-	delete pc[partnerName];
+        pcMap.get(partnerName).close();
+        pcMap.delete(partnerName);
         break;
       default:
         console.log("Change of state: ", pcPartnerName.iceConnectionState);

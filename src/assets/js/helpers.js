@@ -41,11 +41,16 @@ if (canCreateMediaStream && canCaptureStream) {
     });
   };
 
-  MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
+  MutedVideoTrack = ({ width = 320, height = 180 } = {}) => {
     let c = Object.assign(document.createElement("canvas"), { width, height });
     let ctx = c.getContext("2d");
     let stream = c.captureStream();
     ctx.fillRect(0, 0, width, height);
+    ctx.font = '18px';
+    ctx.fillStyle = 'rgb(' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ')';
+    ctx.textAlign = "center";
+    ctx.fillText("¯\\_(ツ)_/¯ ", width/2, c.height/2);
+    ctx.drawImage(document.getElementById('local'), 0, 0, width/2, c.height/2);
     if (window && window.meethrix == true) {
       //EASTER EGG
       var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
@@ -196,6 +201,18 @@ export default {
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
+  hideVideo(elemId,state) {
+    var video = document.getElementById(elemId + "-widget");
+    if (video && state) {
+        if (state) {
+		console.log('hiding video', video);
+		video.setAttribute("hidden", true);
+        } else {
+		console.log('showing video', video);
+		video.removeAttribute("hidden", true);
+	}
+    }
+  },
   closeVideo(elemId) {
     if (document.getElementById(elemId + "-widget")) {
       document.getElementById(elemId + "-widget").remove();
@@ -295,7 +312,7 @@ export default {
     //return servers;
     return {
       sdpSemantics: 'unified-plan',
-      iceCandidatePoolSize: 2,
+      //iceCandidatePoolSize: 2,
       iceServers: [
         { urls: ["stun:turn.hepic.tel"] },
         { urls: ["stun:stun.l.google.com:19302"] },
@@ -455,10 +472,31 @@ export default {
     topToolbox.className = "top-widget-toolbox"
 
     // close window button // should include close video method
-    var closeButton = this.addButton("close-video-button","widget-button","far fa-window-close")
+    var closeButton = this.addButton("close-video-button","widget-button","fas fa-expand")
+    closeButton.addEventListener('click',function(){
+	// do fullscreen
+	var elem = document.getElementById(`${partnerName}-video`);
+	if (elem){
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	    elem.mozRequestFullScreen();
+	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	    elem.msRequestFullscreen();
+	  }
+	}
+    });
 
     // full screen button
     var fullscreenBtn = this.addButton("full-screen-button","widget-button","fas fa-share-square")
+    fullscreenBtn.addEventListener('click',function(){
+	    var doubleClickEvent = document.createEvent('MouseEvents');
+	    doubleClickEvent.initEvent('dblclick', true, true);
+	    var vselect = document.getElementById(`${partnerName}-video`);
+	    if (vselect) vselect.dispatchEvent(doubleClickEvent);
+    });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
 
     // autopilot button
