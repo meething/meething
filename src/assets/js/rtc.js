@@ -140,9 +140,14 @@ function metaDataReceived(data) {
       if (DEBUG) console.log('Speaker Focus on ' + data.username);
       h.swapDiv(data.socketId + "-widget");
     }
+    if (data.readonly) {
+      if (DEBUG) console.log('Read-Only Joined: ' + data.username);
+      h.showNotification("Read-Only Join by "+data.username);
+      h.hideVideo(data.socketId, true);
+    }
   }
   else {
-    console.log("META::" + JSON.stringify(data));
+    if (DEBUG) console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
@@ -229,10 +234,10 @@ function initRTC() {
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
         pcMap.get(data.sender) &&
-        pcMap.get(data.sender).connectionState == "connected" &&
+        pcMap.get(data.sender).connectionState == "connected" ||
         pcMap.get(data.sender).iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer?", data.socketId);
+        if (DEBUG) console.log("already connected to peer? bypass", data.socketId);
         return; // We don't need another round of Init for existing peers
       }
 
@@ -317,8 +322,10 @@ function initRTC() {
             console.error(`answer stream error: ${e}`);
 	    if (!enableHacks) {
                var r = confirm("No Media Devices! Join as Viewer?");
-	       if (r) enableHacks = true;
-	       else return;
+	       if (r) {
+		 enableHacks = true;
+                 metaData.sentControlData({ username: username + "(readonly)", id: socketId, readonly: true });
+	       } else { return; }
 	    }
             // start crazy mode lets answer anyhow
             console.log(
@@ -466,7 +473,7 @@ function initRTC() {
           h.replaceVideoTrackForPeers(pcMap, vtrack);
           h.setVideoSrc(localVideo,stream);
           vtrack.onended = function (event) {
-            console.log("Screensharing ended via the browser UI");
+            if (DEBUG) console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
               h.setVideoSrc(localVideo, myStream);
@@ -691,13 +698,20 @@ function init(createOffer, partnerName) {
         break;
       case "new":
         h.hideVideo(partnerName, true);
-        /* objserved when certain clients are disconnecting/reconnecting - do we need to trigger a new candidate? */
-        //h.closeVideo(partnerName);
+        /* objserved when certain clients are stuck disconnecting/reconnecting - do we need to trigger a new candidate? */
+	/* GC if state is stuck */
         break;
       case "failed":
         if (partnerName == socketId) {
           return;
         } // retry catch needed
+        h.closeVideo(partnerName);
+	// Send presence to attempt a reconnection
+        damSocket.out("subscribe", {
+          room: room,
+          socketId: socketId,
+          name: username || socketId
+        });
         break;
       case "closed":
         h.closeVideo(partnerName);
@@ -716,21 +730,26 @@ function init(createOffer, partnerName) {
       pcPartnerName.signalingState
     );
     switch (pcPartnerName.signalingState) {
+      case "have-local-offer":
+        pcPartnerName.isNegotiating = true;
+	/* GC if state is stuck */
+        break;
       case "stable":
         pcPartnerName.isNegotiating = false;
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
 	// Do we have a connection? If not kill the widget
-	if (pcPartnerName.iceConnectionState !== "connected") h.closeVideo(partnerName);
+	if (pcPartnerName.iceConnectionState !== "connected") {
+		h.closeVideo(partnerName);
+	        pcMap.delete(partnerName);
+	}
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
           name: username || socketId
         });
-
-        //h.closeVideo(partnerName);
         break;
     }
   };
