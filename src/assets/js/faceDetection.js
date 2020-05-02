@@ -70,8 +70,9 @@ video.addEventListener("play", () => {
           container.style.width = croppedSquareLength + 50 + "px";
           container.style.height = croppedSquareLength + 50 + "px";
           container.style.borderRadius = "90%";
-          container.style.clip
+          container.style.clipPath = "circle(50%)";
 
+          video.style.clipPath = "none";
           console.log("detectX = ", detectX);
           console.log("detectY = ", detectY);
           video.style.marginLeft = -detectX + 20 + "px";
