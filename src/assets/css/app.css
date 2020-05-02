@@ -92,8 +92,8 @@ body {
   height: 480px;
   width: 640px;
   z-index: 1000;
-  clip-path: circle(50%)
-    /*   overflow: hidden; */
+  /*   clip-path: circle(50%); */
+  /*   overflow: hidden; */
 }
 
 .local-video {
