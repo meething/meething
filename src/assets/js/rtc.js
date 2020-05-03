@@ -24,7 +24,7 @@ var title = "ChatRoom";
 var localVideo;
 var audio;
 var isRecording = false;
-var videoBitrate = 'unlimited'
+var videoBitrate = '1000'
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
