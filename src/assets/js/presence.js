@@ -7,7 +7,7 @@ export default class Presence {
     this.users = new Map();
     var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
     var self = this;
-    window.addEventListener(_ev, function(){self.leave();});
+    window.addEventListener(_ev, function () { self.leave(); });
     return this;
   }
 
@@ -27,9 +27,21 @@ export default class Presence {
         case "presence":
           this.addReceivedUsers(msg.data);
           break;
+        case "update":
+          this.updateUser(msg)
+          this.distrubutePresence();
+          break;
         default:
           console.log(msg);
       }
+    }
+  }
+
+  updateUser(msg) {
+    if (this.users != undefined) {
+      this.users.set(msg.pid, msg.data);
+      var item = document.getElementById(msg.pid);
+      item.innerHTML = msg.data.username;
     }
   }
 
@@ -39,13 +51,22 @@ export default class Presence {
     receivedUsers.forEach(function (value, key) {
       if (!self.users.has(key)) {
         self.users.set(key, value);
-        self.addItem(key);
+        if(value != null && value.username) {
+          self.addItem(value.username);
+        } else {
+          self.addItem(key);
+        }
       }
     });
   }
 
   send(event, data) {
     this.root.on("out", { pid: this.pid, event: event, data: data });
+  }
+
+  update(username, socketId) {
+    var data = { username: username, socketId: socketId }
+    this.send("update", data)
   }
 
   enter() {
