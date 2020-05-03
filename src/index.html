@@ -247,7 +247,7 @@
 
 
     var graphWorker = new Worker("/assets/workers/workerGraph.js")
-    /* to test remove when done testing */
+    /* to test remove when done testing
     var obj = {nodes:[], edges:[]};
     var max = 10;
     for(let i=0;i<max;i++) {
@@ -263,15 +263,17 @@
         console.error('No nodes for svg')
         return;
       }
-
+      console.log('received string')
       var svgString = event.data.svgString;
 
       var parser = new DOMParser();
       var el = parser.parseFromString(svgString, "image/svg+xml");
       var svg = el.children[0];
-      document.body.style.backgroundImage = svg;
+      window.svg = svg;
+      window.svg.setAttribute('style', 'background-color:black;position:absolute;top:0px;left:0px;width:100%;height:100%;z-index:-1;')
 
     }
+    */
   </script>
 
 
