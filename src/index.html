@@ -256,9 +256,9 @@
         obj.edges.push({source:i, target:y})
       }
     }
-    workerGraph.postMessage(obj)
+    graphWorker.postMessage(obj)
 
-    workerGraph.onmessage = function (event) {
+    graphWorker.onmessage = function (event) {
       if(event.data.err){
         console.error('No nodes for svg')
         return;
