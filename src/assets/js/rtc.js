@@ -777,22 +777,16 @@ function calculateBitrate() {
     case 0:
     case 1:
     case 2:
-      videoBitrate = "2000";
+      videoBitrate = "1000";
       break;
     case 3:
-      videoBitrate = "1000";
+      videoBitrate = "750";
       break;
     case 4:
       videoBitrate = "500";
       break;
-    case 5:
-      videoBitrate = "250";
-      break;
-    case 6:
-      videoBitrate = "125";
-      break;
     default:
-      videoBitrate = "60";
+      videoBitrate = "250";
       break;
   }
 
