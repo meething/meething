@@ -160,11 +160,16 @@ if (canCreateMediaStream && canCaptureCanvas) {
     });
   };
 
-  MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
+  MutedVideoTrack = ({ width = 320, height = 180 } = {}) => {
     let c = Object.assign(document.createElement("canvas"), { width, height });
     let ctx = c.getContext("2d");
     let stream = c.captureStream();
     ctx.fillRect(0, 0, width, height);
+    ctx.font = '18px';
+    ctx.fillStyle = 'rgb(' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ')';
+    ctx.textAlign = "center";
+    ctx.fillText("¯\\_(ツ)_/¯ ", width/2, c.height/2);
+    ctx.drawImage(document.getElementById('local'), 0, 0, width/2, c.height/2);
     if (window && window.meethrix == true) {
       //EASTER EGG
       var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
@@ -333,6 +338,7 @@ export default {
       try {
         source = mediaSource;
         video.srcObject = source;
+        this.addAudio(source);
       } catch (err) {
         console.warn("error setting mediaSource",err);
         source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
@@ -349,11 +355,22 @@ export default {
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
+  hideVideo(elemId,state) {
+    var video = document.getElementById(elemId + "-widget");
+    if (video && state) {
+        if (state) {
+		console.log('hiding video', video);
+		video.setAttribute("hidden", true);
+        } else {
+		console.log('showing video', video);
+		video.removeAttribute("hidden", true);
+	}
+    }
+  },
   closeVideo(elemId) {
-    var widget = document.getElementById(elemId + "-widget");
-    grid.removeWidget(widget);
-    grid.compact();
-
+    if (document.getElementById(elemId + "-widget")) {
+      document.getElementById(elemId + "-widget").remove();
+    }
     if (document.getElementById(elemId)) {
       document.getElementById(elemId).remove();
     }
@@ -442,6 +459,8 @@ export default {
     };
     //return servers;
     return {
+      sdpSemantics: 'unified-plan',
+      //iceCandidatePoolSize: 2,
       iceServers: [
         { urls: ["stun:turn.hepic.tel"] },
         { urls: ["stun:stun.l.google.com:19302"] },
@@ -589,68 +608,100 @@ export default {
     videoParent.innerHTML = videohtml;
     document.body.appendChild(videoParent);
     let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
-    //newVid.id = `${partnerName}-video`;
-    //stream = stream ? stream : (canCaptureStream) ? newVid.srcObject : this.getMutedStream();
-    //this.setVideoSrc(newVid, stream);
-    //newVid.autoplay = true;
-    //newVid.playsinline = true;
-    //newVid.muted=false;
+
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
     //video div
     var videoDiv = document.createElement('div');
-    videoDiv.className = 'grid-stack-item-content'
     videoDiv.id = partnerName
     videoDiv.appendChild(newVid);
+   
     //Top toolbox
     var topToolbox = document.createElement("div");
     topToolbox.className = "top-widget-toolbox"
+
     // close window button // should include close video method
-    var closeWidgetBtn = document.createElement("button")
-    closeWidgetBtn.className = "widget-button"
-    var closeWidgetIcon = document.createElement("i")
-    closeWidgetIcon.className = "far fa-window-close"
-    closeWidgetBtn.appendChild(closeWidgetIcon)
+    var closeButton = this.addButton("close-video-button","widget-button","fas fa-expand")
+    closeButton.addEventListener('click',function(){
+	// do fullscreen
+	var elem = document.getElementById(`${partnerName}-video`);
+	if (elem){
+	  if (elem.requestFullscreen) {
+	    elem.requestFullscreen();
+	  } else if (elem.mozRequestFullScreen) { /* Firefox */
+	    elem.mozRequestFullScreen();
+	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+	    elem.webkitRequestFullscreen();
+	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
+	    elem.msRequestFullscreen();
+	  }
+	}
+    });
+
     // full screen button
-    var fullscreenBtn = document.createElement("button");
-    fullscreenBtn.className = "widget-button"
-    var fullscreenIcon = document.createElement("i")
-    fullscreenIcon.className = "fas fa-share-square"
-    fullscreenBtn.appendChild(fullscreenIcon);
+    var fullscreenBtn = this.addButton("full-screen-button","widget-button","fas fa-share-square")
+    fullscreenBtn.addEventListener('click',function(){
+	    var doubleClickEvent = document.createEvent('MouseEvents');
+	    doubleClickEvent.initEvent('dblclick', true, true);
+	    var vselect = document.getElementById(`${partnerName}-video`);
+	    if (vselect) vselect.dispatchEvent(doubleClickEvent);
+    });
+    //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
+
     // autopilot button
-    var autopilotBtn = document.createElement("button");
-    autopilotBtn.className = "widget-button"
-    var autopilotIcon = document.createElement("i")
-    autopilotIcon.className = "fas fa-bullhorn"
-    autopilotBtn.appendChild(autopilotIcon);
+    var autopilotBtn = this.addButton("auto-pilot-button","widget-button","fas fa-bullhorn")
+   // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
    
-    topToolbox.appendChild(closeWidgetBtn);
+    topToolbox.appendChild(closeButton);
     topToolbox.appendChild(fullscreenBtn);
     topToolbox.appendChild(autopilotBtn);
+    var toolbox = document.createElement("div");
+    toolbox.className="toolbox";
+ 
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = 'v-toolbox';
     var vtitle = document.createElement("p");
-    var userIcon = document.createElement("i");
-    userIcon.className = "fas fa-user";
     var vuser = partnerName;
-    vtitle.textContent = vuser;
+    vtitle.textContent = `● ${vuser}`;
     vtitle.className = 'v-user';
     vtitle.id = `${partnerName}-title`;
-    videoToolbox.appendChild(userIcon);
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
-    ogrid.className = "grid-stack-item";
-    ogrid.setAttribute('data-gs-width', '1');
-    ogrid.setAttribute('data-gs-height', '1');
+    toolbox.appendChild(topToolbox);
+    toolbox.appendChild(videoToolbox);
+  
     ogrid.appendChild(videoDiv);
-    ogrid.appendChild(videoToolbox);
-    ogrid.appendChild(topToolbox);
+    videoDiv.appendChild(toolbox);
+//ogrid.appendChild(videoToolbox);
+  
+  
+   // ogrid.appendChild(topToolbox);
+ // ogrid.appendChild(videoToolbox);
     ogrid.id = partnerName + "-widget";
-    grid.addWidget(ogrid, 0, 0, 1, 1, true);
-    grid.compact();
-    resizeGrid();
-    return newVid;
+    var realgrid = document.getElementById('grid');
+    realgrid.appendChild(ogrid);
+
+    // Play join notification
+    let src = 'assets/sounds/join.mp3';
+    let audio = new Audio(src);
+    audio.play();
+    // Play with Speech
+    /*
+    let synth = window.speechSynthesis;
+    let message = new SpeechSynthesisUtterance ();
+    let voices = synth.getVoices ();
+	for (let voice of voices)
+	{
+		if ((voice.lang === 'US') || (voice.name.startsWith('Google US')) )
+		{
+			message.voice = voice;
+		}
+	}
+	// message.lang = 'en';
+	message.text = "Hello!";
+	speechSynthesis.speak (message);
+     */
   },
 
   toggleChatNotificationBadge() {
@@ -781,5 +832,81 @@ export default {
     snackbar.innerHTML = msg;
     snackbar.className = "show";
     setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+  },
+  addButton(id,className,iconName){
+    let button = document.createElement("button");
+    button.id = id;
+    button.className = className;
+    let icon = document.createElement("i");
+    icon.className = iconName;
+    button.appendChild(icon);
+    return button;
+  },
+  swapDiv(id){
+    if(!id) return;
+    // console.log('Focusing grid widget with id '+id);
+    try {
+      var container = document.getElementById('grid'),
+          fresh = document.getElementById(id),
+          first = container.firstElementChild;
+      // Move speaker to first position
+      if (container && fresh && first) container.insertBefore(fresh, first);
+    } catch(e) { console.log(e); }
+  },
+  swapUserDetails(id,metadata){
+    if(!id||!metadata) return;
+    // console.log('Updating widget with id '+id);
+    try {
+      var container = document.getElementById('grid'),
+          id = document.getElementById(id);
+      	  if (metadata.username && container && id) {
+		id.textContent = metadata.username;
+ 	  }
+    } catch(e) { console.log(e); }
+  },
+  // adjust audio or video rates, ie: setMediaBitRate(sdp, 'video', 500);
+  setMediaBitrate(sdp, mediaType, bitrate) {
+      var sdpLines = sdp.split('\n'),
+  	  mediaLineIndex = -1,
+  	  mediaLine = 'm=' + mediaType,
+  	  bitrateLineIndex = -1,
+  	  bitrateLine = 'b=AS:' + bitrate,
+  	  mediaLineIndex = sdpLines.findIndex(line => line.startsWith(mediaLine));
+	  // If we find a line matching “m={mediaType}”
+	  if (mediaLineIndex && mediaLineIndex < sdpLines.length) {
+	  // Skip the media line
+	  bitrateLineIndex = mediaLineIndex + 1;
+	  // Skip both i=* and c=* lines (bandwidths limiters have to come afterwards)
+	  while (sdpLines[bitrateLineIndex].startsWith('i=') || sdpLines[bitrateLineIndex].startsWith('c=')) {
+	    bitrateLineIndex++;
+	  }
+	    if (sdpLines[bitrateLineIndex].startsWith('b=')) {
+	      // If the next line is a b=* line, replace it with our new bandwidth
+	      sdpLines[bitrateLineIndex] = bitrateLine;
+	    } else {
+	      // Otherwise insert a new bitrate line.
+	      sdpLines.splice(bitrateLineIndex, 0, bitrateLine);
+	    }
+	  }
+	  // Then return the updated sdp content as a string
+	  return sdpLines.join('\n');
+  },
+  updateBandwidthRestriction(sdp, bandwidth) {
+	  let modifier = 'AS';
+	  if (adapter.browserDetails.browser === 'firefox') {
+	    bandwidth = (bandwidth >>> 0) * 1000;
+	    modifier = 'TIAS';
+	  }
+	  if (sdp.indexOf('b=' + modifier + ':') === -1) {
+	    // insert b= after c= line.
+	    sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
+	  } else {
+	    sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
+	  }
+	  return sdp;
+  },
+
+  removeBandwidthRestriction(sdp) {
+   return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
   },
 };

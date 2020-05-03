@@ -1,4 +1,6 @@
 /**
+ * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
+ * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
  * @date 6th January, 2020
  */
@@ -7,11 +9,13 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+
+var DEBUG = false; // if (DEBUG) 
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
 var meethrix = window.meethrix = true,
-  autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD 
+autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD 
 window.h = h;
 var ee = null,
   modal = null;
@@ -22,6 +26,11 @@ var username;
 var title = "ChatRoom";
 var localVideo;
 var audio;
+var isRecording = false;
+var socket;
+var room;
+const pcMap = new Map(); // A map of all peer ids to their peerconnections.
+window.pcmap = pcMap;
 var myStream;
 var screenStream;
 var mutedStream,
@@ -499,11 +508,11 @@ function sendMsg(msg, local) {
 }
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
-  if(presence) presence.leave();
-  pcmap.forEach((pc, id) => {
-    if (pcmap.has(id)) {
-      pcmap.get(id).close();
-      pcmap.delete(id);
+  presence.leave();
+  pcMap.forEach((pc, id) => {
+    if (pcMap.has(id)) {
+      pcMap.get(id).close();
+      pcMap.delete(id);
     }
   });
 });
@@ -519,7 +528,7 @@ function metaDataReceived(data) {
     if (data.ts && Date.now() - data.ts > 5000) return;
     if (data.socketId == socketId || data.sender == socketId) return;
     if (data.sender == username) return;
-    //console.log("got chat", data);
+    if (DEBUG) console.log("got chat", data);
     h.addChat(data, "remote");
   } else if (data.event == "notification") {
     if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == username) return;
@@ -539,9 +548,31 @@ function metaDataReceived(data) {
         var notification = data.username + " is back on the grid"
         h.showNotification(notification);
       }
+    } else if (data.subEvent == "mute") {
+      if (data.muted) {
+        var notification = data.username + " is going silence";
+        h.showNotification(notification);
+      } else {
+        var notification = data.username + " is on speaking terms"
+        h.showNotification(notification);
+      }
     }
-  } else {
-    //console.log("META::" + JSON.stringify(data));
+  } else if (data.event == "control") {
+    if (data.username && data.socketId) {
+      h.swapUserDetails(data.socketId + "-title", data);
+    }
+    if (data.talking) {
+      if (DEBUG) console.log('Speaker Focus on ' + data.username);
+      h.swapDiv(data.socketId + "-widget");
+    }
+    if (data.readonly) {
+      if (DEBUG) console.log('Read-Only Joined: ' + data.username);
+      h.showNotification("Read-Only Join by "+data.username);
+      h.hideVideo(data.socketId, true);
+    }
+  }
+  else {
+    if (DEBUG) console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
@@ -573,6 +604,7 @@ function initRTC() {
 
     socketId = h.uuidv4();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
+    damSocket.setMetaData(metaData);
     metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
@@ -592,26 +624,26 @@ function initRTC() {
         return;
       }
       if (
-        pc[data.socketId] !== undefined &&
-        pc[data.socketId].connectionState == "connected"
+        pcMap.get(data.socketId) !== undefined &&
+        pcMap.get(data.socketId).connectionState == "connected"
       ) {
         console.log(
           "Existing peer subscribe, discarding...",
-          pc[data.socketId]
+          pcMap.get(data.socketId)
         );
         return;
       }
       // Ignore self-generated subscribes
       if (data.socketId == socketId || data.sender == socketId) return;
-      console.log("got subscribe!", data);
+      if (DEBUG) console.log("got subscribe!", data);
 
       if (data.to && data.to != socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
       /* discard new user for connected parties? */
       if (
-        pc[data.socketId] &&
-        pc[data.socketId].iceConnectionState == "connected"
+        pcMap.get(data.socketId) &&
+        pcMap.get(data.socketId).iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer?", data.socketId);
+        if (DEBUG) console.log("already connected to peer", data.socketId);
         //return;
       }
       // New Peer, setup peerConnection
@@ -620,7 +652,7 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
-      pc.push(data.socketId);
+
       init(true, data.socketId);
     });
 
@@ -628,13 +660,14 @@ function initRTC() {
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
-        pc[data.socketId] &&
-        pc[data.socketId].iceConnectionState == "connected"
+        pcMap.get(data.sender) &&
+        pcMap.get(data.sender).connectionState == "connected" &&
+        pcMap.get(data.sender).iceConnectionState == "connected"
       ) {
-        console.log("already connected to peer?", data.socketId);
+        if (DEBUG) console.log("already connected to peer? bypass", data.socketId);
         return; // We don't need another round of Init for existing peers
       }
-      pc.push(data.sender);
+
       init(false, data.sender);
     });
 
@@ -645,8 +678,8 @@ function initRTC() {
           !data.sender ||
           !data.to
         )
-          return;
-        console.log(
+        return;
+        if (DEBUG) console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
         if(data.candidate && data.candidate.hasOwnProperty('candidate')){
@@ -659,9 +692,9 @@ function initRTC() {
         return;
       }
       if (data.socketId == socketId || data.to != socketId) return;
-      console.log("ice candidate", data);
-      //data.candidate ? pc[data.sender].addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
-      data.candidate ? pc[data.sender].addIceCandidate(data.candidate) : "";
+      if (DEBUG) console.log("ice candidate", data);
+      //data.candidate ? pcMap.get(data.sender).addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
+      data.candidate ? pcMap.get(data.sender).addIceCandidate(data.candidate) : "";
     });
 
     damSocket.on('SDP', function (data) {
@@ -675,7 +708,7 @@ function initRTC() {
         )
           return;
         if (data.to !== socketId) {
-          console.log("not for us? dropping sdp");
+          if (DEBUG) console.log("not for us? dropping sdp");
           return;
         }
       } catch (e) {
@@ -684,8 +717,8 @@ function initRTC() {
       }
 
       if (data.description.type === "offer") {
-        (data.description && data.sender && pcmap.has(data.sender))
-          ? pc[data.sender].setRemoteDescription(
+        data.description
+          ? pcMap.get(data.sender).setRemoteDescription(
             new RTCSessionDescription(data.description)
           )
           : "";
@@ -696,24 +729,34 @@ function initRTC() {
 
             //save my stream
             myStream = stream;
-            h.addAudio(myStream);
 
             stream.getTracks().forEach(track => {
-              pc[data.sender].addTrack(track, stream);
+              pcMap.get(data.sender).addTrack(track, stream);
             });
 
-            let answer = await pc[data.sender].createAnswer();
-            await pc[data.sender].setLocalDescription(answer);
+            let answer = await pcMap.get(data.sender).createAnswer();
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+	    // SDP Bitrate Hack
+	    // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
+
+            await pcMap.get(data.sender).setLocalDescription(answer);
 
             damSocket.out("sdp", {
-              description: pc[data.sender].localDescription,
+              description: pcMap.get(data.sender).localDescription,
               to: data.sender,
               sender: socketId
             });
           })
           .catch(async e => {
             console.error(`answer stream error: ${e}`);
-            if (!enableHacks) return;
+	    if (!enableHacks) {
+               var r = confirm("No Media Devices! Join as Viewer?");
+	       if (r) {
+		 enableHacks = true;
+                 metaData.sentControlData({ username: username + "(readonly)", id: socketId, readonly: true });
+	       } else { return; }
+	    }
             // start crazy mode lets answer anyhow
             console.log(
               "no media devices! answering receive only"
@@ -722,18 +765,20 @@ function initRTC() {
               OfferToReceiveAudio: true,
               OfferToReceiveVideo: true
             };
-            let answer = await pc[data.sender].createAnswer(answerConstraints);
-            await pc[data.sender].setLocalDescription(answer);
+            let answer = await pcMap.get(data.sender).createAnswer(answerConstraints);
+	    // SDP Interop
+	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+            await pcMap.get(data.sender).setLocalDescription(answer);
 
             damSocket.out("sdp", {
-              description: pc[data.sender].localDescription,
+              description: pcMap.get(data.sender).localDescription,
               to: data.sender,
               sender: socketId
             });
             // end crazy mode
           });
       } else if (data.description.type === "answer") {
-        pc[data.sender].setRemoteDescription(
+        pcMap.get(data.sender).setRemoteDescription(
           new RTCSessionDescription(data.description)
         );
       }
@@ -759,18 +804,20 @@ function initRTC() {
         return;
       }
       if (!videoMuted) {
-        h.replaceVideoTrackForPeers(pcmap, muted.getVideoTracks()[0]).then(r => {
+        h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
           e.srcElement.classList.remove("fas fa-video");
           e.srcElement.classList.add("fa-video-slash");
+	  h.showNotification("Video Disabled");
         });
       } else {
-        h.replaceVideoTrackForPeers(pcmap, mine.getVideoTracks()[0]).then(r => {
+        h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
           h.setVideoSrc(localVideo,mine);
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
           e.srcElement.classList.remove("fa-video-slash");
+	  h.showNotification("Video Enabled");
         });
       }
 
@@ -784,11 +831,14 @@ function initRTC() {
         isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
+	h.showNotification("Recording Started");
+
       } else {
         h.stopRecordAudio()
         isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
+	h.showNotification("Recording Stopped");
       }
       metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
     });
@@ -800,22 +850,23 @@ function initRTC() {
       if (!mine) {
         return;
       }
-      //console.log("muted",audioMuted);
       if (!audioMuted) {
-        h.replaceAudioTrackForPeers(pcmap, muted.getAudioTracks()[0]).then(r => {
+        h.replaceAudioTrackForPeers(pcMap, muted.getAudioTracks()[0]).then(r => {
           audioMuted = true;
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
-          metaData.sentControlData({ muted: audioMuted });
+          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+ 	  h.showNotification("Audio Muted");
         });
       } else {
-        h.replaceAudioTrackForPeers(pcmap, mine.getAudioTracks()[0]).then(r => {
+        h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
           audioMuted = false;
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
-          metaData.sentControlData({ muted: audioMuted });
+          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+ 	  h.showNotification("Audio Unmuted");
         });
       }
 
@@ -824,7 +875,7 @@ function initRTC() {
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;
-      console.log("Re-Send presence to all users...");
+      if (DEBUG) console.log("Re-Send presence to all users...");
       var r = confirm("Re-Invite ALL room participants?");
       if (r == true) {
         damSocket.out("subscribe", {
@@ -848,15 +899,15 @@ function initRTC() {
           var stream = await h.getDisplayMedia({ audio: true, video: true });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
-          if (false) h.replaceAudioTrackForPeers(pcmap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
-          h.replaceVideoTrackForPeers(pcmap, vtrack);
+          if (false) h.replaceAudioTrackForPeers(pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
+          h.replaceVideoTrackForPeers(pcMap, vtrack);
           h.setVideoSrc(localVideo,stream);
           vtrack.onended = function (event) {
-            console.log("Screensharing ended via the browser UI");
+            if (DEBUG) console.log("Screensharing ended via the browser UI");
             screenStream = null;
             if (myStream) {
               h.setVideoSrc(localVideo, myStream);
-              h.replaceStreamForPeers(pcmap, myStream);
+              h.replaceStreamForPeers(pcMap, myStream);
             }
             e.srcElement.classList.remove("sharing");
             e.srcElement.classList.add("text-white");
@@ -892,10 +943,10 @@ function initRTC() {
 
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
-  if (pcmap.has(partnerName)) return pcmap.get(partnerName);
-  pc[partnerName] = new RTCPeerConnection(h.getIceServer());
+  if (pcMap.has(partnerName)) return pcMap.get(partnerName);
+   var pcPartnerName = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
-  pcmap.set(partnerName, pc[partnerName]); // MAP Tracking
+  pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
 
   //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE! 
@@ -912,7 +963,7 @@ function init(createOffer, partnerName) {
     }
     ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
-        pc[partnerName].addTrack(track, screenStream); //should trigger negotiationneeded event
+        pcPartnerName.addTrack(track, screenStream); //should trigger negotiationneeded event
       });
     });
   } else if (!screenStream && myStream) {
@@ -926,7 +977,7 @@ function init(createOffer, partnerName) {
     }
     ['audio', 'video'].map(tracklist => {
       tracks[tracklist].forEach(track => {
-        pc[partnerName].addTrack(track, myStream); //should trigger negotiationneeded event
+        pcPartnerName.addTrack(track, myStream); //should trigger negotiationneeded event
       });
     });
   } else {
@@ -934,7 +985,6 @@ function init(createOffer, partnerName) {
       .then(stream => {
         //save my stream
         myStream = stream;
-        h.addAudio(myStream);
         var mixstream = null;
         //provide access to window for debug
         if(h.canCreateMediaStream()){
@@ -959,11 +1009,23 @@ function init(createOffer, partnerName) {
         ['audio', 'video'].map(tracklist => {
           tracks[tracklist].forEach(track => {
             mixstream.addTrack(track);
-            pc[partnerName].addTrack(track, mixstream); //should trigger negotiationneeded event
+            pcPartnerName.addTrack(track, mixstream); //should trigger negotiationneeded event
           });
         });
 
         h.setVideoSrc(localVideo, mixstream);
+
+        // SoundMeter for Local Stream
+        if (myStream) {
+          // Soundmeter
+          if (DEBUG) console.log('Init Soundmeter.........');
+          const soundMeter = new SoundMeter(function () {
+              if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
+              if (!audioMuted) metaData.sentControlData({ username: username, id: socketId, talking: true });
+          });
+          soundMeter.connectToSource(myStream)
+        }
+
       })
       .catch(async e => {
         console.error(`stream error: ${e}`);
@@ -973,10 +1035,12 @@ function init(createOffer, partnerName) {
         var offerConstraints = {
           mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
         };
-        let offer = await pc[partnerName].createOffer(offerConstraints);
-        await pc[partnerName].setLocalDescription(offer);
+        let offer = await pcPartnerName.createOffer(offerConstraints);
+        // SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+        await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
-          description: pc[partnerName].localDescription,
+          description: pcPartnerName.localDescription,
           to: partnerName,
           sender: socketId
         });
@@ -986,33 +1050,38 @@ function init(createOffer, partnerName) {
 
   //create offer
   if (createOffer) {
-    pc[partnerName].onnegotiationneeded = async () => {
+    pcPartnerName.onnegotiationneeded = async () => {
       try {
-        if (pc[partnerName].isNegotiating) {
+        if (pcPartnerName.isNegotiating) {
           console.log(
             "negotiation needed with existing state?",
             partnerName,
-            pc[partnerName].isNegotiating,
-            pc[partnerName].signalingState
+            pcPartnerName.isNegotiating,
+            pcPartnerName.signalingState
           );
           return; // Chrome nested negotiation bug
         }
-        pc[partnerName].isNegotiating = true;
-        let offer = await pc[partnerName].createOffer();
-        await pc[partnerName].setLocalDescription(offer);
+        pcPartnerName.isNegotiating = true;
+        let offer = await pcPartnerName.createOffer();
+	// SDP Interop
+	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+	// SDP Bitrate Hack
+	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+
+        await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
-          description: pc[partnerName].localDescription,
+          description: pcPartnerName.localDescription,
           to: partnerName,
           sender: socketId
         });
       } finally {
-        pc[partnerName].isNegotiating = false;
+        pcPartnerName.isNegotiating = false;
       }
     };
   }
 
   //send ice candidate to partnerNames
-  pc[partnerName].onicecandidate = ({ candidate }) => {
+  pcPartnerName.onicecandidate = ({ candidate }) => {
     if (!candidate) return;
     damSocket.out("icecandidates", {
       candidate: candidate,
@@ -1022,11 +1091,10 @@ function init(createOffer, partnerName) {
   };
 
   //add
-  pc[partnerName].ontrack = e => {
+  pcPartnerName.ontrack = e => {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
-      h.addAudio(str);
       h.setVideoSrc(el,str);
     } else {
       var el = h.addVideo(partnerName);
@@ -1034,69 +1102,88 @@ function init(createOffer, partnerName) {
     }
   };
 
-  pc[partnerName].onconnectionstatechange = d => {
+  pcPartnerName.onconnectionstatechange = d => {
     console.log(
       "Connection State Change: " + partnerName,
-      pc[partnerName].iceConnectionState
+      pcPartnerName.iceConnectionState
     );
     // Save State
-    switch (pc[partnerName].iceConnectionState) {
+    switch (pcPartnerName.iceConnectionState) {
       case "connected":
         sendMsg(
-          partnerName + " is " + pc[partnerName].iceConnectionState,
+          partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
+        h.hideVideo(partnerName, false);
+	metaData.sentControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
         if (partnerName == socketId) {
           return;
         }
         sendMsg(
-          partnerName + " is " + pc[partnerName].iceConnectionState,
+          partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
         h.closeVideo(partnerName);
         // PC Tracking cleanup
-        pcmap.get(partnerName).close();
-        pcmap.delete(partnerName);
+        pcMap.get(partnerName).close();
+        pcMap.delete(partnerName);
         break;
       case "new":
-        /* why is new objserved when certain clients are disconnecting? */
-        //h.closeVideo(partnerName);
+        h.hideVideo(partnerName, true);
+        /* objserved when certain clients are stuck disconnecting/reconnecting - do we need to trigger a new candidate? */
+	/* GC if state is stuck */
         break;
       case "failed":
         if (partnerName == socketId) {
           return;
         } // retry catch needed
+        h.closeVideo(partnerName);
+	// Send presence to attempt a reconnection
+        damSocket.out("subscribe", {
+          room: room,
+          socketId: socketId,
+          name: username || socketId
+        });
         break;
       case "closed":
         h.closeVideo(partnerName);
+        pcMap.get(partnerName).close();
+        pcMap.delete(partnerName);
         break;
       default:
-        console.log("Change of state: ", pc[partnerName].iceConnectionState);
+        console.log("Change of state: ", pcPartnerName.iceConnectionState);
         break;
     }
   };
 
-  pc[partnerName].onsignalingstatechange = d => {
+  pcPartnerName.onsignalingstatechange = d => {
     console.log(
       "Signaling State Change: " + partnerName,
-      pc[partnerName].signalingState
+      pcPartnerName.signalingState
     );
-    switch (pc[partnerName].signalingState) {
+    switch (pcPartnerName.signalingState) {
+      case "have-local-offer":
+        pcPartnerName.isNegotiating = true;
+	/* GC if state is stuck */
+        break;
       case "stable":
-        pc[partnerName].isNegotiating = false;
+        pcPartnerName.isNegotiating = false;
         break;
       case "closed": 
         console.log("Signalling state is 'closed'");
+	// Do we have a connection? If not kill the widget
+	if (pcPartnerName.iceConnectionState !== "connected") {
+		h.closeVideo(partnerName);
+	        pcMap.delete(partnerName);
+	}
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
           name: username || socketId
         });
-
-        //h.closeVideo(partnerName);
         break;
     }
   };

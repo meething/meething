@@ -3,25 +3,18 @@ export default class MetaData {
         this.room = room;
         this.root = gun;
         this.socketId = socketId;
-        this.init(callback);
+        this.callback = callback;
         this.inMap = false;
     }
 
-    init(callback) {
-        this.receiveData(callback);
-        this.initMap();
-    }
-
-    receiveData(callback) {
-        this.root.get(this.room).map().on(function (data, id) {
-            if (!data) {
-                return
-            } else {
-                if (callback) {
-                    callback(data);
-                }
+    receiveData(data) {
+        if (!data) {
+            return
+        } else {
+            if (this.callback) {
+                this.callback(data);
             }
-        });
+        }
     }
 
     initMap() {
@@ -51,6 +44,9 @@ export default class MetaData {
     sent(data) {
         data.socketId = this.socketId;
         data.pid = this.root._.opt.pid;
-        this.root.get(this.root._.opt.pid).put(data);
+        data.room = this.room;
+        this.root.on("out", {
+            metaData: data
+        });
     }
 }
