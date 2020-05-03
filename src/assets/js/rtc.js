@@ -327,7 +327,7 @@ function initRTC() {
 	       if (r) {
 		 enableHacks = true;
                  metaData.sentControlData({ username: username + "(readonly)", id: socketId, readonly: true });
-	       } else { return; }
+	       } else { location.replace("/"); return; }
 	    }
             // start crazy mode lets answer anyhow
             console.log(
@@ -699,7 +699,7 @@ function init(createOffer, partnerName) {
         pcMap.delete(partnerName);
         break;
       case "new":
-        h.hideVideo(partnerName, true);
+        // h.hideVideo(partnerName, true);
         /* objserved when certain clients are stuck disconnecting/reconnecting - do we need to trigger a new candidate? */
 	/* GC if state is stuck */
         break;
@@ -731,9 +731,18 @@ function init(createOffer, partnerName) {
       "Signaling State Change: " + partnerName,
       pcPartnerName.signalingState
     );
+    //h.hideVideo(pcPartnerName, pcPartnerName.isNegotiating);
     switch (pcPartnerName.signalingState) {
       case "have-local-offer":
         pcPartnerName.isNegotiating = true;
+	setTimeout(function(){
+		console.log('set GC for',partnerName);
+		if(pcPartnerName.signalingState == "have-local-offer"){
+			console.log('GC Stuck Peer '+partnerName, pcPartnerName.signalingState);
+		        // pcMap.get(partnerName).close();
+			h.closeVideo(partnerName);
+		}
+	}, 5000, pcPartnerName, partnerName);
 	/* GC if state is stuck */
         break;
       case "stable":
