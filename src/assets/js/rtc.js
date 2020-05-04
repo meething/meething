@@ -1,5 +1,5 @@
 /**
- * @author Jabis Sevón <jabis.is@gmail.com
+ * @author Jabis Sevón <jabis.is@gmail.com>
  * @date 1st May, 2020 
  * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
  * @date 27th April, 2020
