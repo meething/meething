@@ -192,9 +192,7 @@ if (canCreateMediaStream && canCaptureCanvas) {
             drops[i] = 0;
           drops[i]++;
         }
-        if (window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
-        //else
-        //  setTimeout(draw,33);
+        if (window.requestAnimationFrame) setTimeout(draw,33);
       }
       draw();
     }
