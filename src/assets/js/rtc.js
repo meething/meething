@@ -1,9 +1,12 @@
 /**
+ * @author Jabis Sevón <jabis.is@gmail.com
+ * @date 1st May, 2020 
  * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
  * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
  * @date 6th January, 2020
  */
+import config from './config.js';
 import h from "./helpers.js";
 import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
@@ -86,7 +89,7 @@ window.addEventListener('DOMContentLoaded', function () {
         }
       }
       var cr = document.getElementById('create-room');
-      if(cr)  cr.addEventListener('click', (e) => {
+      if(cr)  cr.addEventListener('click', async (e) => {
             e.preventDefault();
             cr.hidden=true;
             let roomName = document.querySelector('#room-name').value;
@@ -104,7 +107,10 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
-                if(romp) roompass=romp;
+                if(romp) {
+                  roompass=romp;
+                  await storePass(romp,yourName);
+                }
                 //show message with link to room
                 document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
                 var clip = document.getElementById('clipMe');
@@ -258,6 +264,7 @@ window.addEventListener('DOMContentLoaded', function () {
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
       modal.addFooterBtn("Let's Go", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
+        try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
     }
@@ -297,8 +304,15 @@ window.addEventListener('DOMContentLoaded', function () {
     as.addEventListener('change',resetDevices);
     vs.removeEventListener('change',resetDevices);
     vs.addEventListener('change',resetDevices);
+    var clicked = function clicked(e){ ee.set('config['+e.target.id+']',!!this.checked); };
+    sam.removeEventListener('click',clicked);
+    svm.removeEventListener('click',clicked);
+    sam.addEventListener('click',clicked);
+    svm.addEventListener('click',clicked);
     const asv = as.value;
     const vsv = vs.value;
+    const samv = sam.checked;
+    const svmv = svm.checked;
     const constraints = {
       audio: {deviceId: asv ? {exact: asv} : undefined},
       video: {deviceId: vsv ? {exact: vsv} : undefined}
@@ -326,10 +340,10 @@ window.addEventListener('DOMContentLoaded', function () {
     <select id="ao"></select><br/>
     <label for="vs">Camera:</label><br/>
     <select id="vs"></select><br/>
-    <button class="btn btn-lg btn-outline-light" id="startAudioMuted" title="Mute/Unmute Audio">
+    <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
       <i class="fa fa-volume-up"></i>
     </button>
-    <button class="btn btn-lg btn btn-outline-light" id="startVideoMuted" title="Mute/Unmute Video">
+    <button class="btn btn-lg btn btn-outline-light" id="svm" title="Mute/Unmute Video">
       <i class="fa fa-video"></i>
     </button><br/>
     <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
@@ -345,12 +359,12 @@ window.addEventListener('DOMContentLoaded', function () {
 
     <div class="preview-video-buttons col-md-3">
     <div class="row m-4">
-      <button id="startAudioMuted" class="fa fa-volume-up" title="Mute/Unmute Audio">
+      <button id="sam" class="fa fa-volume-up" title="Mute/Unmute Audio">
       </button>
       <div class="d-block d-xs-block d-md-none text-white m-3">Sound On / Off</div>
       </div>
       <div class="row m-4">
-      <button id="startVideoMuted" class="fa fa-video" title="Mute/Unmute Video">
+      <button id="svm" class="fa fa-video" title="Mute/Unmute Video">
       
       </button>
       <div class="d-block d-xs-block d-md-none text-white m-3">Cam On / Off</div>
@@ -388,13 +402,13 @@ window.addEventListener('DOMContentLoaded', function () {
   `;
    
   ee.on('navigator:gotDevices',function(devices){
-    console.log('hello',devices);
+    //console.log('hello',devices);
     ["as","ao","vs"].map(function(group){
       let devs = devices[group];
       var str = "";
       var qs = document.getElementById(group);
       h.each(devs,function(label,device){
-        console.log(label,device);
+        //console.log(label,device);
         var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
         if(!opt) { 
           opt = document.createElement('option'); 
@@ -403,10 +417,10 @@ window.addEventListener('DOMContentLoaded', function () {
         opt.value = device.deviceId;
         opt.text = label;
         if(qs) qs.appendChild(opt);
-      })
+      });
       modal.checkOverflow();
-    })
-  })
+    });
+  });
   h.getDevices().then(devices=>{
     devices = window.devices = devices;
     ee.emit('navigator:gotDevices',devices);
@@ -454,26 +468,27 @@ function loadModal(modal,createOrJoin,type){
   Object.assign(modal,{__type:type}); 
   modal.setContent('<h1>Setup your preferences</h1>'+createOrJoin);
   modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
+    try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
   });
   modal.open();
 }
 
 function initSocket() {
-  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
+  var roomPeer = config.multigun+"gun";
   var hash = null,
     creator=null;
   if (room) {
     hash = ee.get('rooms.'+room+'.hash');
     creator = ee.get('rooms.'+room+'.creator');
-    var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash) : room;
+    var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash)+"&creator="+encodeURIComponent(creator) : room;
     console.log(r);
-    roomPeer = "https://gundb-multiserver.glitch.me/" +r; //"https://gundb-multiserver.glitch.me/" + room;
+    roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
   }
 
   var peers = [roomPeer];
   var opt = { peers: peers, localStorage: false, radisk: false };
-  if(hash) Gun.on('opt', function (ctx) {
+/*if(hash) Gun.on('opt', function (ctx) {
     if (ctx.once) return;
     ctx.on('out', function (msg) {
       var to = this.to
@@ -482,7 +497,20 @@ function initSocket() {
       }
       to.next(msg);
     });
-  });
+  });*/
+  window.room = room;
+  /*if(DEBUG){ 
+    Gun.on('opt',function(ctx){
+      ctx.on('in',function(e){
+        this.to.next(e);
+        console.log("incoming",e);
+      });
+      ctx.on('out',function(o){
+        this.to.next(o);
+        console.log("outbound",o);
+      })
+    });
+  }*/
   root = window.root = Gun(opt);
   
   socket = window.socket = root
@@ -502,14 +530,14 @@ function sendMsg(msg, local) {
   if (!local) {
     if (data.sender && data.to && data.sender == data.to) return;
     if (!data.ts) data.ts = Date.now();
-    metaData.sentChatData(data);
+    metaData.sendChatData(data);
   }
   //add localchat
   h.addChat(data, "local");
 }
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
-  presence.leave();
+  if(damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
   pcMap.forEach((pc, id) => {
     if (pcMap.has(id)) {
       pcMap.get(id).close();
@@ -521,7 +549,7 @@ window.addEventListener(_ev,function () {
 function initPresence() {
   presence = new Presence(root, room);
   damSocket.setPresence(presence);
-  presence.enter();
+  if(h.typeOf(presence.enter)=="function") presence.enter();
 }
 
 function metaDataReceived(data) {
@@ -591,7 +619,6 @@ function initRTC() {
       .attributes.removeNamedItem("hidden");
   } else { */
     damSocket = new DamEventEmitter(root, room);
-    initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
@@ -604,9 +631,11 @@ function initRTC() {
     document.getElementById("demo").hidden = false;
 
     socketId = h.uuidv4();
+  damSocket.on("postauth",function(auth){
+    initPresence();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
     damSocket.setMetaData(metaData);
-    metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
+    metaData.sendControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
     presence.update(username, socketId);
@@ -758,7 +787,7 @@ function initRTC() {
                var r = confirm("No Media Devices! Join as Viewer?");
 	       if (r) {
 		 enableHacks = true;
-                 metaData.sentControlData({ username: username + "(readonly)", id: socketId, readonly: true });
+                 metaData.sendControlData({ username: username + "(readonly)", id: socketId, readonly: true });
 	       } else { location.replace("/"); return; }
 	    }
             // start crazy mode lets answer anyhow
@@ -845,7 +874,7 @@ function initRTC() {
         e.srcElement.classList.remove("text-danger");
 	h.showNotification("Recording Stopped");
       }
-      metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
+      metaData.sendNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
     });
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
@@ -861,7 +890,7 @@ function initRTC() {
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Muted");
         });
       } else {
@@ -870,7 +899,7 @@ function initRTC() {
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Unmuted");
         });
       }
@@ -934,16 +963,16 @@ function initRTC() {
         presence.onGrid(presence.room);
         e.srcElement.classList.remove("fa-lock");
         e.srcElement.classList.add("fa-unlock");
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: false })
+        metaData.sendNotificationData({ username: username, subEvent: "grid", isOngrid: false })
       } else {
         //if public, go private
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: true })
+        metaData.sendNotificationData({ username: username, subEvent: "grid", isOngrid: true })
         presence.offGrid();
         e.srcElement.classList.remove("fa-unlock");
         e.srcElement.classList.add("fa-lock");
       }
     });
-  //} 
+  });
 }
 
 function init(createOffer, partnerName) {
@@ -1026,7 +1055,7 @@ function init(createOffer, partnerName) {
           if (DEBUG) console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
               if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
-              if (!audioMuted) metaData.sentControlData({ username: username, id: socketId, talking: true });
+              if (!audioMuted) metaData.sendControlData({ username: username, id: socketId, talking: true });
           });
           soundMeter.connectToSource(myStream)
         }
@@ -1122,7 +1151,7 @@ function init(createOffer, partnerName) {
           true
         );
         h.hideVideo(partnerName, false);
-	metaData.sentControlData({ username: username, id: socketId, online: true });
+        metaData.sendControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
         if (partnerName == socketId) {

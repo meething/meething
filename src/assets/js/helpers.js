@@ -1,3 +1,4 @@
+import config from './config.js';
 var cache, 
   mutedStream, 
   ac, 
@@ -457,8 +458,8 @@ export default {
           {urls: 'stun:stun.services.mozilla.com'}*/,
       ],
     };
-    //return servers;
-    return {
+    //return servers;    let srvs = (isEdge) ? ["turn:gamma.coder.fi"] : ["turns:gamma.coder.fi","turn:gamma.coder.fi"];
+     return {
       sdpSemantics: 'unified-plan',
       //iceCandidatePoolSize: 2,
       iceServers: [
@@ -599,7 +600,7 @@ export default {
   },
   addVideo(partnerName, stream) {
     // video element
-    var videohtml = `<video id="${partnerName}-video" muted autoplay playsinline>
+    var videohtml = `<video id="${partnerName}-video" autoplay playsinline>
     <source src="/assets/video/muted.webm" type="video/webm">
     <source src="/assets/video/muted.mp4" type="video/mp4">  
     <source src="/assets/video/muted.ogg" type="video/ogv">
@@ -623,19 +624,19 @@ export default {
     // close window button // should include close video method
     var closeButton = this.addButton("close-video-button","widget-button","fas fa-expand")
     closeButton.addEventListener('click',function(){
-	// do fullscreen
-	var elem = document.getElementById(`${partnerName}-video`);
-	if (elem){
-	  if (elem.requestFullscreen) {
-	    elem.requestFullscreen();
-	  } else if (elem.mozRequestFullScreen) { /* Firefox */
-	    elem.mozRequestFullScreen();
-	  } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
-	    elem.webkitRequestFullscreen();
-	  } else if (elem.msRequestFullscreen) { /* IE/Edge */
-	    elem.msRequestFullscreen();
-	  }
-	}
+      // do fullscreen
+      var elem = document.getElementById(`${partnerName}-video`);
+      if (elem){
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+      }
     });
 
     // full screen button
@@ -683,9 +684,11 @@ export default {
     realgrid.appendChild(ogrid);
 
     // Play join notification
-    let src = 'assets/sounds/join.mp3';
-    let audio = new Audio(src);
-    audio.play();
+    try {
+      let src = 'assets/sounds/join.mp3';
+      let audio = new Audio(src);
+      audio.play();
+    } catch(err){}
     // Play with Speech
     /*
     let synth = window.speechSynthesis;
@@ -908,5 +911,5 @@ export default {
 
   removeBandwidthRestriction(sdp) {
    return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
-  },
+  }
 };
