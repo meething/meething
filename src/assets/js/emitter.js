@@ -1,4 +1,5 @@
 import EventEmitter from './ee.js';
+import h from './helpers.js';
 export default class DamEventEmitter extends EventEmitter {
   constructor(gun, room) {
     super();
@@ -10,6 +11,21 @@ export default class DamEventEmitter extends EventEmitter {
     this.init();
     this.checkAuth();
     return this;
+  }
+  async reinit(){
+    var self = this;
+    return new Promise(async(res,rej)=>{
+      if(window.reinit) {
+        let socks = await window.reinit();
+        console.log(socks);
+        self.root = socks.root;
+        self.room = socks.room;
+        self.user = socks.root.user();
+        return res(self);
+      } else {
+        return res(self);
+      }
+    })
   }
   async checkAuth(){
     console.log("checking auth");
@@ -23,9 +39,8 @@ export default class DamEventEmitter extends EventEmitter {
         if(!data.passwordProtected) { 
           return self.emit('auth:ok',data);
         } else {
-          var one = await self.root.get("~@"+self.room).then();
-          var two = await self.root.get("~@"+self.room).then();      
-          console.log("OK searching for authentication hash",two);
+          self = await self.reinit(); // let the magic happen reconnecting gun because of reasons
+          console.log("OK searching for user hash");
           var hash = self.get('rooms['+self.room+'].hash');
           console.log("hash found?",hash);
           if(hash){

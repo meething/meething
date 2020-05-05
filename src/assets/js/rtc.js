@@ -175,9 +175,10 @@ window.addEventListener('DOMContentLoaded', function () {
       ve.className="local-video clipped";
       vs.appendChild(ve);
     }
-    initSocket();
-    initRTC();
-    modal.close();
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
   });
   ee.on('setup:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
@@ -205,9 +206,10 @@ window.addEventListener('DOMContentLoaded', function () {
       ve.className="local-video clipped";
       vs.appendChild(ve);
     }
-    initSocket();
-    initRTC();
-    modal.close();
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
   });
   ee.on('nouser:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
@@ -230,9 +232,10 @@ window.addEventListener('DOMContentLoaded', function () {
       ve.className="local-video clipped";
       vs.appendChild(ve);
     }
-    modal.close();
-    initSocket();
-    initRTC();
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
   });
   ee.on('noroom:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
@@ -254,9 +257,10 @@ window.addEventListener('DOMContentLoaded', function () {
       ve.className="local-video clipped";
       vs.appendChild(ve);
     }
-    modal.close();
-    initSocket();
-    initRTC();
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
   });
   ee.on('modal:filled',function(modal){
     let type = modal.__type;
@@ -319,6 +323,7 @@ window.addEventListener('DOMContentLoaded', function () {
     };
     h.getUserMedia(constraints).then(async stream=>{
       myStream = stream;
+      window.myStream = stream;
       h.setVideoSrc(ve,stream);
       h.replaceStreamForPeers(pcmap,stream);
       ve.oncanplay = function(){ modal.checkOverflow(); }
@@ -474,51 +479,35 @@ function loadModal(modal,createOrJoin,type){
   modal.open();
 }
 
-function initSocket() {
-  var roomPeer = config.multigun+"gun";
-  var hash = null,
-    creator=null;
-  if (room) {
-    hash = ee.get('rooms.'+room+'.hash');
-    creator = ee.get('rooms.'+room+'.creator');
-    var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash)+"&creator="+encodeURIComponent(creator) : room;
-    console.log(r);
-    roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
-  }
+async function initSocket() {
+  return new Promise((res,rej)=>{
+    var roomPeer = config.multigun+"gun";
+    var hash = null,
+      creator=null;
+    if (room) {
+      hash = ee.get('rooms.'+room+'.hash');
+      creator = ee.get('rooms.'+room+'.creator');
+      var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash)+"&creator="+encodeURIComponent(creator) : room;
+      console.log(r);
+      roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
+    }
 
-  var peers = [roomPeer];
-  var opt = { peers: peers, localStorage: false, radisk: false };
-/*if(hash) Gun.on('opt', function (ctx) {
-    if (ctx.once) return;
-    ctx.on('out', function (msg) {
-      var to = this.to
-      msg.headers = {
-        token: JSON.stringify(hash)
-      }
-      to.next(msg);
-    });
-  });*/
-  window.room = room;
-  /*if(DEBUG){ 
-    Gun.on('opt',function(ctx){
-      ctx.on('in',function(e){
-        this.to.next(e);
-        console.log("incoming",e);
-      });
-      ctx.on('out',function(o){
-        this.to.next(o);
-        console.log("outbound",o);
-      })
-    });
-  }*/
-  root = window.root = Gun(opt);
-  
-  socket = window.socket = root
-    .get("rtcmeeting")
-    .get(room)
-    .get("socket");
+    var peers = [roomPeer];
+    var opt = { peers: peers, localStorage: false, radisk: false };
+    window.room = room;
+    root = window.root = Gun(opt);
+    
+    socket = window.socket = root
+      .get("rtcmeeting")
+      .get(room)
+      .get("socket");
+    return res({root,room,socket});
+  })
 }
-
+var reinit = window.reinit = async function(){
+  let stuff = await initSocket();
+  return stuff;
+}
 function sendMsg(msg, local) {
   let data = {
     room: room,

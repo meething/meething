@@ -43,6 +43,9 @@ var cache,
     }
     return obj;
   },
+  sleep = async function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  },
   toPath = function toPath(obj, path, value) {
     if (typeOf(path) == "string")
       var path = path.replace(/\[(\w+)\]/g, '.$1').replace(/^\./, '').split('.');
@@ -192,7 +195,9 @@ if (canCreateMediaStream && canCaptureCanvas) {
             drops[i] = 0;
           drops[i]++;
         }
-        if (window.requestAnimationFrame) setTimeout(draw,33);
+        setTimeout(draw,33);
+        //else
+        //  setTimeout(draw,33);
       }
       draw();
     }
@@ -241,6 +246,7 @@ export default {
   fromPath,
   toPath,
   typeOf,
+  sleep,
   each,
   getDevices,
   isEdge() {
@@ -457,7 +463,7 @@ export default {
       ],
     };
     //return servers;    let srvs = (isEdge) ? ["turn:gamma.coder.fi"] : ["turns:gamma.coder.fi","turn:gamma.coder.fi"];
-     return {
+    return {
       sdpSemantics: 'unified-plan',
       //iceCandidatePoolSize: 2,
       iceServers: [
