@@ -10,7 +10,7 @@ import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 
-var DEBUG = false; // if (DEBUG) 
+var DEBUG = false; // if (DEBUG)
 
 var TIMEGAP = 6000;
 var allUsers = [];
@@ -24,6 +24,8 @@ var title = "ChatRoom";
 var localVideo;
 var audio;
 var isRecording = false;
+
+var graphWorker = new Worker('../workers/workerGraph.js')
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -432,7 +434,7 @@ function initRTC() {
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
           audioMuted = false;
-          //localVideo.srcObject = mine; 
+          //localVideo.srcObject = mine;
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
@@ -518,7 +520,7 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
-
+  graphWorker.postMessage({data:pcMap}) //send Update to the graph
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};
