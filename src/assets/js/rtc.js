@@ -337,7 +337,9 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   var modalContent="";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
-  var cammicsetc = (h.isOldEdge() || !autoload) ? `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+  var cammicsetc =
+    h.isOldEdge() || !autoload
+      ? `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
   <div id="deviceSelection" hidden>
     <label for="as">Mic:</label><br/>
     <select id="as"></select><br/>
@@ -353,26 +355,28 @@ window.addEventListener('DOMContentLoaded', function () {
     </button><br/>
     <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
   </div>
-` : `
+`
+      : `
 <div class="p-container">
 <div id="" class="preview-container">
-<div class="row">
+  <div class="row">
 
-<div class="col-md-9">
+    <div class="col-md-12">
 <video id="local" playsinline autoplay muted></video>
  </div>
 
-    <div class="preview-video-buttons col-md-3">
-    <div class="row m-4">
-      <button id="sam" class="fa fa-volume-up" title="Mute/Unmute Audio">
+    <div class="preview-video-buttons row col-md-12">
+
+    <div class="col-md-6 col-sm-6 col-xs-6 m-1 mb-3 mx-auto">
+      <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
-      <div class="d-block d-xs-block d-md-none text-white m-3">Sound On / Off</div>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
       </div>
-      <div class="row m-4">
-      <button id="svm" class="fa fa-video" title="Mute/Unmute Video">
+      <div class="col-md-6 col-sm-6 col-xs-6 m-1 mb-3 mx-auto">
+      <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
       
       </button>
-      <div class="d-block d-xs-block d-md-none text-white m-3">Cam On / Off</div>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
       </div>
   </div>
   </div>
@@ -403,7 +407,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
     </div>
     </div>
-    </div>
+   
   `;
    
   ee.on('navigator:gotDevices',function(devices){
@@ -453,17 +457,23 @@ window.addEventListener('DOMContentLoaded', function () {
     return loadModal(modal,modalContent,'noroom');
   }else {
     modalContent = " \
-      <div class='speech-bubble'> \
+    <div class='row'> \
+      <div class='col-md-5 speech-bubble'> \
         <p class='speech-msg'> \
         Hey, let\'s set up a new room!</p> \
         "+cammicsetc+" \
       </div> \
+      <div class='col-md-6 mx-auto'> \
       <p>"+roomcreated+"</p> \
       "+errmsg+"<br> \
       "+createnameinput+"<br> \
       "+roominput+"<br> \
       "+passwinput+"<br> \
-      "+roomcreatebtn+"<br>";
+      <br> <br> <br> \
+      "+roomcreatebtn+"<br>\
+       </div> \
+      </div> "
+      
     return loadModal(modal,modalContent,'setup');
   }
 
