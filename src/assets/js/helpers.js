@@ -331,6 +331,7 @@ export default {
   },
   setVideoSrc(video,mediaSource){
     let source,tof="";
+    this.addAudio(mediaSource);
     if(isOldEdge){
       //if(video.id=="local") return;
       //console.log("typeOf mediasource",typeOf(mediaSource));
@@ -343,7 +344,6 @@ export default {
       try {
         source = mediaSource;
         video.srcObject = source;
-        this.addAudio(source);
       } catch (err) {
         console.warn("error setting mediaSource",err);
         source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
@@ -559,21 +559,22 @@ export default {
     }
   },
   collectAudio() {
-    if(!this.canCaptureAudio()) return false;
     ac = new AudioContext();
     mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
-    return {ac,mediaStreamDestination};
   },
   addAudio(stream) {
-    if(!this.canCaptureAudio()) return stream;
-    let audioCtx = this.collectAudio();
-    if (audioCtx) {
+    if (ac != undefined && ac != null) {
       var mediaElementSource = ac.createMediaStreamSource(stream);
       mediaElementSource.connect(mediaStreamDestination);
     }
-    return {audioCtx,mediaElementSource};
   },
   recordAudio() {
+    if (!this.canCaptureAudio()) return stream;
+    this.collectAudio();
+    var all = document.getElementsByTagName("video");
+    for (var i = 0, max = all.length; i < max; i++) {
+      this.addAudio(all[i].captureStream());
+    }
     mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
     console.log(mediaRecorder.state);
     console.log("recorder started");
@@ -601,6 +602,8 @@ export default {
     mediaRecorder.stop();
     console.log(mediaRecorder.state);
     console.log("recorder stopped");
+    mediaStreamDestination = null;
+    ac = null;
   },
   addVideo(partnerName, stream) {
     // video element
