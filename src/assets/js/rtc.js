@@ -132,8 +132,9 @@ window.addEventListener('DOMContentLoaded', function () {
             }
 
             else {
-                roomName.focus();
+                
                 document.querySelector('#err-msg').innerHTML = "All fields are required";
+               // roomName.focus();
             }
         });
     }
@@ -267,7 +268,8 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
-      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-4 col', function(e){
+    
+      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
@@ -453,9 +455,9 @@ window.addEventListener('DOMContentLoaded', function () {
     <div class="col-md-4 speech-bubble mx-auto">
      ${cammicsetc}
     </div> 
-    <div class="col-md-4 mx-auto text-white"> 
+    <div class="col-md-4 mt-4 mx-auto text-white"> 
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
-    <p>You\'re joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
+    <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/>
     </div> 
     </div> 
@@ -467,13 +469,13 @@ window.addEventListener('DOMContentLoaded', function () {
     // when is room created
     modalContent = 
     ` 
-    <div class='row'> 
-    <div class='col-md-4 speech-bubble mx-auto'> 
+    <div class="row"> 
+    <div class="col-md-4 speech-bubble mx-auto"> 
       ${cammicsetc}
        </div> 
-      <div class='col-md-4 mx-auto room-form'> 
-      <h4 class='speech-msg'> 
-      Welcome, you're joining room <input type='hidden' id='room-name' value='${room}'/> ${title}</h4>
+      <div class="col-md-4 mt-4 mx-auto room-form"> 
+      <h4 class="speech-msg"> 
+      Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
@@ -494,7 +496,7 @@ window.addEventListener('DOMContentLoaded', function () {
     <div class='col-md-4 speech-bubble mx-auto'> 
       ${cammicsetc}
        </div> 
-      <div class='col-md-4 mx-auto room-form'> 
+      <div class='col-md-4 mt-4 mx-auto room-form'> 
       <h4 class='speech-msg'> 
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
@@ -517,7 +519,7 @@ window.addEventListener('DOMContentLoaded', function () {
         Hey, let\'s set up a new room!</p> 
         ${cammicsetc}
       </div> 
-      <div class='col-md-4 mx-auto room-form'> 
+      <div class='col-md-4 mx-auto mt-5 room-form'> 
         <div class='d-none d-xs-none d-md-block'> 
           <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' /> 
        </div> 
@@ -541,7 +543,7 @@ window.addEventListener('DOMContentLoaded', function () {
 function loadModal(modal,createOrJoin,type){
   Object.assign(modal,{__type:type}); 
   modal.setContent(`${createOrJoin}`);
-  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left mx-auto col-lg-4 col', function(e){
+  modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
   });
