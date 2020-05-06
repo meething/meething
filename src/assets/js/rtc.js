@@ -449,13 +449,13 @@ window.addEventListener('DOMContentLoaded', function () {
     // Welcome back xX!
     modalContent = `
     <div class="container-fluid">
-    <div class='row'>
-    <div class='col-md-4 speech-bubble mx-auto'>
+    <div class="row">
+    <div class="col-md-4 speech-bubble mx-auto">
      ${cammicsetc}
     </div> 
-    <div class='col-md-4 mx-auto'> 
-    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='${username}'/>${username}! </h4>
-    <br>You're joining room: <input type='hidden' id='room-name' value='${room}'/> ${title}
+    <div class="col-md-4 mx-auto text-white"> 
+    <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
+    <p>You\'re joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/>
     </div> 
     </div> 
@@ -540,7 +540,7 @@ window.addEventListener('DOMContentLoaded', function () {
 
 function loadModal(modal,createOrJoin,type){
   Object.assign(modal,{__type:type}); 
-  modal.setContent('<h1 class="mt-3 align-center">Setup your preferences</h1>'+createOrJoin);
+  modal.setContent(`${createOrJoin}`);
   modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left mx-auto col-lg-4 col', function(e){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
