@@ -450,17 +450,17 @@ window.addEventListener('DOMContentLoaded', function () {
   <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>';
   if(room && username){
     // Welcome back xX!
-    modalContent = "\
-    <div class='row'>\
-    <div class='col-md-4 speech-bubble mx-auto'>\
-    " +cammicsetc+ 
-    "</div> \
-    <div class='col-md-4 mx-auto'> \
-    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"! </h4>\
+    modalContent = `
+    <div class='row'>
+    <div class='col-md-4 speech-bubble mx-auto'>
+     ${cammicsetc}
+    </div> 
+    <div class='col-md-4 mx-auto'> 
+    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='${username}'/>${username}! </h4>
     <br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+ 
-    "<br/>"+passwinput+"<br/>" 
-   "</div> \
-    </div> "; 
+    <br/>${passwinput}<br/>
+   </div> 
+    </div> `; 
     return loadModal(modal,modalContent,'join');
     //
   } else if(room && !username){
@@ -507,27 +507,26 @@ window.addEventListener('DOMContentLoaded', function () {
     return loadModal(modal,modalContent,'noroom');
   }else {
     // Set up a new room
-    modalContent = "\
-    <div class='row'> \
-      <div class='col-md-4 speech-bubble mx-auto'> \
-        <p class='speech-msg'> \
-        Hey, let\'s set up a new room!</p> \
-        "+cammicsetc+" \
-      </div> \
-      <div class='col-md-4 mx-auto room-form'> \
-      <div class='d-none d-xs-none d-md-block'> \
-      <img \
-      src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67'\
-      width='200' style='filter:invert(1); opacity:.5' /> </div> \
-      <p>"+roomcreated+"</p> \
-      "+errmsg+"<br> \
-      "+createnameinput+"<br> \
-      "+roominput+"<br> \
-      "+passwinput+"<br> \
-      <br> <br>\
-      "+roomcreatebtn+"\
-       </div> \
-      </div>"
+    modalContent = `
+    <div class='row'> 
+      <div class='col-md-4 speech-bubble mx-auto'> 
+        <p class='speech-msg'> 
+        Hey, let\'s set up a new room!</p> 
+        ${cammicsetc}
+      </div> 
+      <div class='col-md-4 mx-auto room-form'> 
+        <div class='d-none d-xs-none d-md-block'> 
+          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' /> 
+       </div> 
+       <p>${roomcreated}</p> 
+        ${errmsg}<br> 
+        ${createnameinput}<br> 
+        ${roominput}<br> 
+        ${passwinput}<br> 
+        <br> <br>
+        ${roomcreatebtn}
+       </div> 
+      </div>`
       
     return loadModal(modal,modalContent,'setup');
   }
