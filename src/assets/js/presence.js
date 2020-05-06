@@ -7,7 +7,7 @@ export default class Presence {
     this.users = new Map();
     var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
     var self = this;
-    window.addEventListener(_ev, function(){self.leave();});
+    window.addEventListener(_ev, function () { self.leave(); });
     return this;
   }
 
@@ -16,7 +16,7 @@ export default class Presence {
       switch (msg.event) {
         case "enter":
           this.users.set(msg.pid, msg);
-          this.addItem(msg.pid);
+          this.addItem(msg.pid, msg.pid);
           this.distrubutePresence();
           break;
         case "leave":
@@ -27,9 +27,21 @@ export default class Presence {
         case "presence":
           this.addReceivedUsers(msg.data);
           break;
+        case "update":
+          this.updateUser(msg)
+          this.distrubutePresence();
+          break;
         default:
           console.log(msg);
       }
+    }
+  }
+
+  updateUser(msg) {
+    if (this.users != undefined) {
+      this.users.set(msg.pid, msg.data);
+      var item = document.getElementById(msg.pid);
+      item.innerHTML = msg.data.username;
     }
   }
 
@@ -37,9 +49,11 @@ export default class Presence {
     self = this;
     const receivedUsers = new Map(JSON.parse(data));
     receivedUsers.forEach(function (value, key) {
-      if (!self.users.has(key)) {
-        self.users.set(key, value);
-        self.addItem(key);
+      self.users.set(key, value);
+      if (value != null && value.username) {
+        self.addItem(key, value.username);
+      } else {
+        self.addItem(key, key);
       }
     });
   }
@@ -48,10 +62,18 @@ export default class Presence {
     this.root.on("out", { pid: this.pid, event: event, data: data });
   }
 
+  update(username, socketId) {
+    var msg = { pid: this.pid }
+    var data = { username: username, socketId: socketId }
+    msg.data = data;
+    this.updateUser(msg);
+    this.send("update", data)
+  }
+
   enter() {
     this.send("enter", null);
     this.users.set(this.pid, null);
-    this.addItem(this.pid);
+    this.addItem(this.pid, this.pid);
   }
 
   leave() {
@@ -62,12 +84,17 @@ export default class Presence {
     this.send("presence", JSON.stringify([...this.users]));
   }
 
-  addItem(pid) {
-    var ul = document.getElementById("dynamic-list");
-    var li = document.createElement("li");
-    li.setAttribute("id", pid);
-    li.appendChild(document.createTextNode(pid));
-    ul.appendChild(li);
+  addItem(pid, username) {
+    var item = document.getElementById(pid);
+    if (item != undefined) {
+      item.innerHTML = username;
+    } else {
+      var ul = document.getElementById("dynamic-list");
+      var li = document.createElement("li");
+      li.setAttribute("id", pid);
+      li.appendChild(document.createTextNode(username));
+      ul.appendChild(li);
+    }
   }
 
   removeItem(pid) {
