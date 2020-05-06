@@ -1,4 +1,4 @@
-'use strict'
+//'use strict'
 importScripts("https://d3js.org/d3.v5.min.js")
 
 self.onmessage = async function (event) {
@@ -6,12 +6,35 @@ self.onmessage = async function (event) {
   // check obj against data
   // update data
   // using new data create svg
-  var nodes = event.data.nodes;
-  var edges = event.data.edges;
-  simulate(nodes, edges);
+  if(event.data.type == 'pre-processed') {
+    var nodes = event.data.nodes;
+    var edges = event.data.edges;
 
-  console.log(nodes)
-  console.log (edges)
+  } else if (event.data.type == 'pcMap'){
+    var user = event.data.user;
+    var conn = event.data.conn;
+
+    //process pcMap to show my side of the graph
+    var nodes = [];
+    var edges = [];
+
+    nodes.push({id:nodes.length, user:user });
+    for(let i = 0; i < conn.length; i++) {
+      let currentPersonId = nodes.length;
+      nodes.push({id:currentPersonId, user:conn[i]})
+      edges.push({source:nodes[0].id, target:currentPersonId})
+    }
+    debugger
+
+
+
+
+  } else {
+    self.postMessage({err: "Not correctly fed data"});
+    self.close()
+  }
+
+  simulate(nodes, edges);
 
   /* Build the svg string */
 
@@ -34,11 +57,9 @@ function simulate (nodes, edges) {
 
   var simulation = d3.forceSimulation(nodes, (d)=>{return d.id})
     .force("charge", d3.forceCollide().radius(50))
-    .force("r", d3.forceRadial(400, 400, 450))
+    .force("r", d3.forceCenter(100, 100))
     .force('link', d3.forceLink().links(edges).id(function(d){return d.id}))
     .stop()
-
-
 
   var n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()))
   for(var i=0;i<n;i++){
@@ -51,7 +72,7 @@ function buildString (n, e) {
   var color = d3.scaleOrdinal(n, d3.schemeCategory10)
 
   // start svg string with opening clause
-  var string = '<svg xmlns="http://www.w3.org/2000/svg" width="800" height="900">';
+  var string = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">';
   // define an arrow
   string += '<defs><marker id="endarrow" viewbox="0 0 8 6" ';
   string += ' markerWidth="6" markerHeight="4" ';
@@ -64,6 +85,8 @@ function buildString (n, e) {
     // iterate over all the nodes and add a circle with the coordinates
     // for each node
     for(let node of n) {
+      node.x = Math.max(2, Math.min(200 - 2, node.x));
+      node.y = Math.max(2, Math.min(200 - 2, node.y));
       let substring = '<circle '
       substring += 'stroke="'+color(node.id)+'" ';
       substring += 'fill="'+color(node.id)+'" ';
@@ -72,7 +95,7 @@ function buildString (n, e) {
       substring += 'r="2" /> ';
       substring += '<text x="'+(node.x+5)+'" y="'+(node.y-10)+'" ';
       substring += 'fill="rgb(250,250,250)">'/*+color(node.id)+'">'*/;
-      substring += node.id;
+      substring += node.user;
       substring += '</text>';
       string += substring;
 
@@ -81,7 +104,7 @@ function buildString (n, e) {
 
 
   } else {
-    return undefinded;
+    return undefined;
   }
 
   if(e.length>0) {

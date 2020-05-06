@@ -10,7 +10,7 @@ import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 
-var DEBUG = false; // if (DEBUG)
+var DEBUG = true; // if (DEBUG)
 
 var TIMEGAP = 6000;
 var allUsers = [];
@@ -25,7 +25,7 @@ var localVideo;
 var audio;
 var isRecording = false;
 
-var graphWorker = new Worker('../workers/workerGraph.js')
+
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -58,7 +58,7 @@ function initSocket() {
   }
 
   var peers = [roomPeer];
-  var opt = { peers: peers, localStorage: false, radisk: false };
+  var opt = { peers: peers, /*localStorage: false,*/ radisk: false }; //fixes the problem?
   root = Gun(opt);
 
   socket = root
@@ -520,7 +520,6 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
-  graphWorker.postMessage({data:pcMap}) //send Update to the graph
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};
@@ -724,6 +723,8 @@ function init(createOffer, partnerName) {
         console.log("Change of state: ", pcPartnerName.iceConnectionState);
         break;
     }
+    //whatever happened let's update the Graph
+    updateGraph();
   };
 
   pcPartnerName.onsignalingstatechange = d => {
@@ -754,5 +755,64 @@ function init(createOffer, partnerName) {
         });
         break;
     }
+    //whatever happened, let's make sure the we update the graph
+    updateGraph();
   };
+}
+
+async function updateGraph () { //async because I will use promises to build the graph traversal
+
+  //initialize web worker
+  var graphWorker = new Worker('/assets/workers/workerGraph.js');
+
+  /* Version 1 - will use pcmap to only show my side of the graph */
+
+  if(DEBUG) { console.log('Worker Version 1', window.self, Array.from(pcMap.keys()))}
+  graphWorker.postMessage({type:'pcMap', user:socketId,conn:Array.from(pcMap.keys())});
+  //graphWorker.postMessaget
+  graphWorker.onmessage = function (event) {
+    if(DEBUG) {console.log('worker returned', event.data.svgString)}
+    //parse result into an element
+    var parser = new DOMParser();
+    var el = parser.parseFromString(event.data.svgString, "image/svg+xml");
+    var svg = el.children[0];
+    // if we are 'renewing' empty the div
+    var div = document.getElementById('graphDiv');
+    if(div){
+      div.innerHTML = "";
+    } else {
+      // otherwise create
+      var div = document.createElement('div');
+    }
+    // add style to make it float on bottom right
+    div.style.position = 'absolute';
+    div.style.right = '0px';
+    div.style.bottom = '0px';
+    div.style.width = "200px";
+    div.style.height = "200px";
+    div.style.zIndex = '100000';
+    div.style.borderRadius = '15%';
+    div.style.backgroundColor = "rgba(200,200,200,0.2)"
+    div.setAttribute('id','graphDiv')
+    // append the svg to floating div
+    div.appendChild(svg)
+    // append floating div to body
+    document.body.appendChild(div)
+
+    // Joel? new widget?
+  }
+
+  /* Version 2 - traverse the room and all of its children
+      enumerate into nodes and edges array as you go */
+
+  /*
+    // Breadth First Search
+
+
+
+
+
+
+
+  */
 }
