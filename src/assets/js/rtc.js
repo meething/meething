@@ -477,8 +477,9 @@ window.addEventListener('DOMContentLoaded', function () {
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
-      ${passwinput} <br/>
       ${joinnameinput} <br/>
+      ${passwinput} <br/>
+     
       </div> 
     </div>
     `;
@@ -664,22 +665,13 @@ function metaDataReceived(data) {
 function initRTC() {
   if(inited) return;
   inited = true;
-  /*if (!room) {
-    document.querySelector("#room-create").attributes.removeNamedItem("hidden");
-  } else if (!username) {
-    document
-      .querySelector("#username-set")
-      .attributes.removeNamedItem("hidden");
-  } else { */
+
     damSocket = new DamEventEmitter(root, room);
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
       commElem[i].hidden=false;
     }
-
-    /*if (localVideo)
-      mutedStream = h.setMutedStream(localVideo);*/
 
     document.getElementById("demo").hidden = false;
 
