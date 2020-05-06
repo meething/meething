@@ -10,21 +10,18 @@
 .tingle-modal {
   font-family: Helvetica, Arial, Helvetica, sans-serif;
   position: fixed;
-  top: 0;
+  top: 50px;
+  margin: 0 auto;
   right: 0;
   bottom: 0;
   left: 0;
   z-index: 1000;
-  display: flex;
   visibility: hidden;
-  flex-direction: column;
-  align-items: center;
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
   background: rgba(68, 0, 255, 0.15);
   opacity: 0;
   user-select: none;
-  
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: pointer;
@@ -76,42 +73,35 @@
 
 .tingle-modal-box {
   position: relative;
-  flex-shrink: 0;
   margin-top: auto;
   margin-bottom: auto;
-  border-radius: 4px;
-  background: #fafafa;
+  background: none;
   opacity: 1;
   cursor: auto;
   will-change: transform, opacity;
-  box-shadow:3px 3px 12px black;
+  
 }
 
 .tingle-modal-box__content {
   color:  #3f2d5f;
-  padding: 30px 20px;
-  max-width:550px;
+
 }
 
 .tingle-modal-box__content > h1{
-  margin-top:15px;
-  margin-bottom:20px;
+  margin-bottom:10px;
 font-family: Helvetica, sans-serif;
 font-size:2em;
   color:rgb(192, 191, 191);
   font-weight:lighter;
+  margin-left:2em;
   
   
 }
 
 .tingle-modal-box__footer {
-  padding: 1rem 2rem;
-  width: auto;
-  border-bottom-right-radius: 4px;
-  border-bottom-left-radius: 4px;
-  background-color:#473761;
+  padding: 1rem 1rem;
   cursor: auto;
-  border-top:2px solid rgb(31, 0, 66);
+  
 }
 
 .tingle-modal-box__footer::after {
@@ -122,7 +112,7 @@ font-size:2em;
 
 .tingle-modal-box__footer--sticky {
   position: fixed;
-  bottom: -200px; /* TODO : find a better way */
+  bottom: 70px; /* TODO : find a better way */
   z-index: 10001;
   opacity: 1;
   transition: bottom .3s ease-in-out .3s;
@@ -132,9 +122,9 @@ font-size:2em;
 -------------------------------------------------------------- */
 
 .tingle-enabled {
-  position: fixed;
+  /*position: fixed;
   right: 0;
-  left: 0;
+  left: 0; */
   overflow: hidden;
 }
 
@@ -178,11 +168,9 @@ font-size:2em;
   line-height: normal;
   cursor: pointer;
   transition: background-color .4s ease;
- border-radius:3px;
- 
- box-shadow:1px 1px 8px rgb(34, 25, 49);
- border:1px solid rgb(169, 156, 192);
-  
+  border-radius:3px;
+  box-shadow:2px 2px 4px #14101bbb;
+  margin:5px;
 
 }
 
@@ -226,21 +214,23 @@ font-size:2em;
 -------------------------------------------------------------- */
 
 @media (max-width : 540px) {
+  .container, .container-fluid{
+    margin:20px !important;
+  }
   .tingle-modal {
-    top: 0px;
-    display: block;
-    padding-top: 60px;
-    width: 100%;
+    top: 50px;
+  
+   
   }
 
   .tingle-modal-box {
-    width: auto;
+  
     border-radius: 0;
   }
 
   .tingle-modal-box__content {
     overflow-y: scroll;
-    max-width:450px;
+   
   }
 
   .tingle-modal--noClose {
@@ -287,7 +277,7 @@ font-size:2em;
   }
 }
 
-@supports ((-webkit-backdrop-filter: blur(12px)) or (backdrop-filter: blur(12px))) {
+@supports ((-webkit-backdrop-filter: blur(2px)) or (backdrop-filter: blur(2px))) {
   .tingle-modal:before {
     position: fixed;
     top: 0;
@@ -295,9 +285,9 @@ font-size:2em;
     bottom: 0;
     left: 0;
     content: "";
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(2px);
 
-    -webkit-backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(2px);
   }
 
   .tingle-enabled .tingle-content-wrapper {
@@ -329,8 +319,7 @@ background:#473761bb;
   align-items: center;
   margin-bottom:10px;
   margin-top:20px;
-  box-shadow:3px 3px 8px rgb(196, 196, 196);
- 
+  box-shadow:2px 2px 4px #14101bbb;
 }
 
 .speech-bubble p {
@@ -353,7 +342,7 @@ background:#473761bb;
 
   margin-bottom:20px;
   margin-top:20px;
-  box-shadow:3px 3px 8px rgb(196, 196, 196);
+
  
 }
 .speech-bubble-user p{
@@ -366,29 +355,32 @@ background:#473761bb;
 }
 
 .preview-container{
-  background:rgb(43, 43, 43);
-  box-shadow:inset 3px 3px 6px balck;
-  padding:20px;
-  border-radius:5px;
+  background:rgb(22, 22, 22);
+  padding:0px;
+  border-radius:3px 3px 3px 3px;
   margin-bottom:10px;
+  box-shadow:2px 2px 4px #14101bbb;
 
 }
 .preview-container video {
 max-width: 100%;
 border-radius:3px;
-border:3px solid black;
-box-shadow:3px 3px 6px black;
+border:3px solid rgb(22,22,22)
+
 
 }
 
 .preview-video-buttons button {
 display:block;
 border-radius:3px;
-box-shadow:1px 1px 4px black;
+
   height:50px;
   width:50px;
   background:none;
   transition: .5s all;
+  position:relative;
+  z-index:1000;
+  border:3px solid black;
 }
 .preview-video-buttons button {
   color : white;
@@ -399,5 +391,21 @@ box-shadow:1px 1px 4px black;
 } 
 
 .form-control{
-  font-size:.85em !important;
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-size:.9em !important;
+  font-weight:lighter;
+  color:grey;
+  border:none;
+  box-shadow:2px 2px 4px #14101bbb;
+}
+.form-control label {
+  font-size: .6em !important;
+}
+.room-form {
+  color:white;
+}
+.speech-msg {
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-weight: lighter !important;
+  line-height:2em;
 }

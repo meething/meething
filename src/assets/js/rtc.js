@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
-      modal.addFooterBtn("Let's Go", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
+      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-3 col', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
@@ -337,7 +337,11 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   var modalContent="";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
-  var cammicsetc = (h.isOldEdge() || !autoload) ? `<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+  var cammicsetc =
+    h.isOldEdge() || !autoload
+      ? `
+      <div class="col-md-12">
+      <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
   <div id="deviceSelection" hidden>
     <label for="as">Mic:</label><br/>
     <select id="as"></select><br/>
@@ -353,26 +357,29 @@ window.addEventListener('DOMContentLoaded', function () {
     </button><br/>
     <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
   </div>
-` : `
+  </div>
+`
+      : `
 <div class="p-container">
 <div id="" class="preview-container">
-<div class="row">
+  <div class="row">
 
-<div class="col-md-9">
-<video id="local" playsinline autoplay muted></video>
+    <div class="col-md-12 mx-auto">
+<video id="local" class="mx-auto" playsinline autoplay muted></video>
  </div>
 
-    <div class="preview-video-buttons col-md-3">
-    <div class="row m-4">
-      <button id="sam" class="fa fa-volume-up" title="Mute/Unmute Audio">
+    <div class="preview-video-buttons row col-md-12">
+
+    <div class="col m-1 mb-3 mx-auto">
+      <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
-      <div class="d-block d-xs-block d-md-none text-white m-3">Sound On / Off</div>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
       </div>
-      <div class="row m-4">
-      <button id="svm" class="fa fa-video" title="Mute/Unmute Video">
+      <div class="col m-1 mb-3 mx-auto">
+      <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
       
       </button>
-      <div class="d-block d-xs-block d-md-none text-white m-3">Cam On / Off</div>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
       </div>
   </div>
   </div>
@@ -400,10 +407,9 @@ window.addEventListener('DOMContentLoaded', function () {
             <select id="vs" class="form-control btn-sm rounded-0"></select>
           </div>
       </div>
-
     </div>
     </div>
-    </div>
+   
   `;
    
   ee.on('navigator:gotDevices',function(devices){
@@ -443,27 +449,85 @@ window.addEventListener('DOMContentLoaded', function () {
   var joinnameinput = '<label for="username">Your Name</label>\
   <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
   if(room && username){
-    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"!<br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+"<br/>"+passwinput+"<br/>"+cammicsetc; 
+    // Welcome back xX!
+    modalContent = "\
+    <div class='row'>\
+    <div class='col-md-4 speech-bubble mx-auto'>\
+    " +cammicsetc+ 
+    "</div> \
+    <div class='col-md-4 mx-auto'> \
+    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"! </h4>\
+    <br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+ 
+    "<br/>"+passwinput+"<br/>" 
+   "</div> \
+    </div> "; 
     return loadModal(modal,modalContent,'join');
+    //
   } else if(room && !username){
-    modalContent = "Welcome, you're joining room <input type='hidden' id='room-name' value='"+room+"'/>"+title+"<br/><br/>Please enter your username and set up your camera options!<br/>"+passwinput+"<br/>"+joinnameinput+"<br/>"+cammicsetc;
+    // set username and camera options 
+    modalContent = 
+    ` 
+    <div class='row'> 
+    <div class='col-md-4 speech-bubble mx-auto'> 
+      ${cammicsetc}
+       </div> 
+      <div class='col-md-4 mx-auto room-form'> 
+      <h4 class='speech-msg'> 
+      Welcome, you're joining room <input type='hidden' id='room-name' value='${room}'/> ${title}</h4>
+      <p>
+      Please enter your username and set up your camera options! </p>
+      <br/>
+      ${passwinput} <br/>
+      ${joinnameinput} <br/>
+      </div> 
+    </div>
+    `;
     return loadModal(modal,modalContent,'nouser');
+    //
   } else if (!room && username) {
-    modalContent = "Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"<br/><br/>Please enter the room name you want to join or create below!<br/></br>"+roominput+"<br/>"+passwinput+"<br/>"+cammicsetc;
+    // enter room name to join
+    modalContent = ` 
+  
+    <div class='row'> 
+    <div class='col-md-4 speech-bubble mx-auto'> 
+      ${cammicsetc}
+       </div> 
+      <div class='col-md-4 mx-auto room-form'> 
+      <h4 class='speech-msg'> 
+      Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
+      <p>
+      Please enter the room name you want to join or create below! </p>
+      <br/>
+    ${roominput}<br/>
+    ${passwinput}<br/>
+      </div> 
+    </div> `;
+
     return loadModal(modal,modalContent,'noroom');
   }else {
-    modalContent = " \
-      <div class='speech-bubble'> \
+    // Set up a new room
+    modalContent = "\
+    <div class='row'> \
+      <div class='col-md-4 speech-bubble mx-auto'> \
         <p class='speech-msg'> \
         Hey, let\'s set up a new room!</p> \
         "+cammicsetc+" \
       </div> \
+      <div class='col-md-4 mx-auto room-form'> \
+      <div class='d-none d-xs-none d-md-block'> \
+      <img \
+      src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67'\
+      width='200' style='filter:invert(1); opacity:.5' /> </div> \
       <p>"+roomcreated+"</p> \
       "+errmsg+"<br> \
       "+createnameinput+"<br> \
       "+roominput+"<br> \
       "+passwinput+"<br> \
-      "+roomcreatebtn+"<br>";
+      <br> <br>\
+      "+roomcreatebtn+"\
+       </div> \
+      </div>"
+      
     return loadModal(modal,modalContent,'setup');
   }
 
@@ -471,8 +535,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
 function loadModal(modal,createOrJoin,type){
   Object.assign(modal,{__type:type}); 
-  modal.setContent('<h1>Setup your preferences</h1>'+createOrJoin);
-  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
+  modal.setContent('<h1 class="mt-3 align-center">Setup your preferences</h1>'+createOrJoin);
+  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left mx-auto col-lg-4 col', function(e){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
   });
