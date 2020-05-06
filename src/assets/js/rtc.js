@@ -342,7 +342,7 @@ window.addEventListener('DOMContentLoaded', function () {
       ? `
       <div class="col-md-12">
       <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-  <div id="deviceSelection" hidden>
+    <div id="deviceSelection" hidden>
     <label for="as">Mic:</label><br/>
     <select id="as"></select><br/>
     <label for="ao">Speakers: </label><br/>
@@ -436,35 +436,35 @@ window.addEventListener('DOMContentLoaded', function () {
     devices = window.devices = devices;
     ee.emit('navigator:gotDevices',devices);
   });
-  var roominput = '<label for="room-name">Room Name</label>\
-  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/>';
-  var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
-    Create Room \
-  </button>'
-  var createnameinput = '<label for="your-name">Your Name</label> \
-  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>';
-  var passwinput = '<label for="your-name">Room password</label> \
-  <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />';
-  var roomcreated = '<div id="room-created"></div>';
-  var joinnameinput = '<label for="username">Your Name</label>\
-  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>';
+  // default inputs
+  var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
+  var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
+  var passwinput = `<label for="your-name">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
+  var roominput = `<label for="room-name">Room Name</label><input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/> `;
+  // @TODO disable roomcreate button when errors
+  var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
+  var roomcreated = `<div id="room-created"></div>`;
+ 
   if(room && username){
     // Welcome back xX!
     modalContent = `
+    <div class="container-fluid">
     <div class='row'>
     <div class='col-md-4 speech-bubble mx-auto'>
      ${cammicsetc}
     </div> 
     <div class='col-md-4 mx-auto'> 
     <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='${username}'/>${username}! </h4>
-    <br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+ 
+    <br>You're joining room: <input type='hidden' id='room-name' value='${room}'/> ${title}
     <br/>${passwinput}<br/>
-   </div> 
-    </div> `; 
+    </div> 
+    </div> 
+    </div>`; 
     return loadModal(modal,modalContent,'join');
     //
   } else if(room && !username){
     // set username and camera options 
+    // when is room created
     modalContent = 
     ` 
     <div class='row'> 
@@ -484,11 +484,12 @@ window.addEventListener('DOMContentLoaded', function () {
     </div>
     `;
     return loadModal(modal,modalContent,'nouser');
-    //
+    
   } else if (!room && username) {
+
     // enter room name to join
     modalContent = ` 
-  
+  <div class="container-fluid">
     <div class='row'> 
     <div class='col-md-4 speech-bubble mx-auto'> 
       ${cammicsetc}
@@ -502,12 +503,14 @@ window.addEventListener('DOMContentLoaded', function () {
     ${roominput}<br/>
     ${passwinput}<br/>
       </div> 
-    </div> `;
+    </div> 
+    </div>`;
 
     return loadModal(modal,modalContent,'noroom');
   }else {
     // Set up a new room
     modalContent = `
+    <div class="container-fluid">
     <div class='row'> 
       <div class='col-md-4 speech-bubble mx-auto'> 
         <p class='speech-msg'> 
@@ -526,7 +529,9 @@ window.addEventListener('DOMContentLoaded', function () {
         <br> <br>
         ${roomcreatebtn}
        </div> 
-      </div>`
+      </div>
+      </div>
+      `
       
     return loadModal(modal,modalContent,'setup');
   }
