@@ -267,7 +267,7 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
-      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-3 col', function(e){
+      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-4 col', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
