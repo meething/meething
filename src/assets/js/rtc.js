@@ -437,17 +437,17 @@ window.addEventListener('DOMContentLoaded', function () {
     ee.emit('navigator:gotDevices',devices);
   });
   var roominput = '<label for="room-name">Room Name</label>\
-  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />';
+  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/>';
   var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
     Create Room \
   </button>'
   var createnameinput = '<label for="your-name">Your Name</label> \
-  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />';
+  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>';
   var passwinput = '<label for="your-name">Room password</label> \
   <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />';
   var roomcreated = '<div id="room-created"></div>';
   var joinnameinput = '<label for="username">Your Name</label>\
-  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
+  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>';
   if(room && username){
     // Welcome back xX!
     modalContent = "\
