@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+  <meta charset="UTF-8"/>
   <title>Gun: Multi-User Video Call</title>
 
   <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -11,26 +11,33 @@
   <link rel="icon" href="https://cdn.glitch.com/f8a2490d-9ef5-4a19-92c4-1bcb76996f85%2Ffavicon%20(1).ico"
     type="image/x-icon" />
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous" />
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css" />
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
     integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous" />
   <link rel="stylesheet" href="assets/css/app.css" type="text/css" />
+  <link rel="stylesheet" href="assets/css/tingle.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
+  <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
+  <script src="/assets/js/encoding.js" type="text/javascript"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
 
-  <script type="text/javascript" src="assets/js/soundmeter.js"></script>
-
-  <script type="module" src="assets/js/rtc.js"></script>
-  <script type="module" src="assets/js/events.js"></script>
+  <script src="/assets/js/tingle.js" type="text/javascript" />
+  <script type="module" src="/assets/js/emitter.js"></script>
+  <script type="module" src="/assets/js/soundmeter.js"></script>
+  <script type="module" src="/assets/js/emitter.js"></script>
+  <script type="module" src="/assets/js/rtc.js"></script>
+  <script type="module" src="/assets/js/events.js"></script>
 
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/gun.js"></script>
+  
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/lib/then.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
-  <!-- <script src="assets/js/webrtc.js"></script> -->
 
 </head>
 
@@ -89,6 +96,10 @@
         title="Toggle Recording">
       </button>
 
+      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-modal" title="Room Settings">
+        <i class="fa fa-cog text-white"></i>
+      </button>
+      
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
         <a href="/" class="text-danger text-decoration-none">
           <i class="fas fa-sign-out-alt text-white"></i>
@@ -100,75 +111,23 @@
 
   </nav>
 
-  <div class="container" id="room-create" hidden>
-    <div class="row">
-      <div class="col-12 h2 mt-5 text-center">
-        <img
-          src="https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67"
-          width="190" style="filter: invert(1);" />
-        <br />
-        <p class="create-room">
-          Create Room
-        </p>
-      </div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-12 text-center">
-        <span class="form-text small text-danger" id="err-msg"></span>
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3">
-        <label for="room-name">Room Name</label>
-        <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3">
-        <label for="your-name">Your Name</label>
-        <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3">
-        <button id="create-room" class="btn btn-block rounded-0 btn-info">
-          Create Room
-        </button>
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3" id="room-created"></div>
-    </div>
-  </div>
-
-  <div class="container-fluid" id="username-set" hidden>
-    <div class="row">
-      <div class="col-12 h4 mt-5 text-center">Your Name</div>
-    </div>
-
-    <div class="row mt-2">
-      <div class="col-12 text-center">
-        <span class="form-text small text-danger" id="err-msg-username"></span>
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3">
-        <label for="username">Your Name</label>
-        <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />
-      </div>
-
-      <div class="col-12 col-md-4 offset-md-4 mb-3">
-        <button id="enter-room" class="btn btn-block rounded-0 btn-info">
-          Enter Room
-        </button>
-      </div>
-    </div>
-  </div>
-
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-      <div id="localstream">
-        <video class="local-video clipped" id="local" volume="0" poster="assets/images/poster.png" autoplay muted></video>
-      </div>
-      <div id="localshadow"></div>
-    </div>
 
+   
+    <div id="localStream">
+      <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
+        <source src="/assets/video/muted.webm"
+        type="video/webm">
+        <source src="/assets/video/muted.mp4"
+        type="video/mp4">  
+        <source src="/assets/video/muted.ogg"
+        type="video/ogv">
+      </video-->
+      
+    </div>
+    <div id="localshadow"></div>
+  </div>
     <div class="row">
       <div class="col-md-10 mt-2 mb-2 main">
         <div class="row" id="videos"></div>
@@ -198,7 +157,7 @@
   <div id="snackbar"></div>
   <script src="assets/js/dragable.js"></script>
   <script type="text/javascript">
-    window.onload = function () {
+  window.addEventListener('DOMContentLoaded',function () {
 	console.log('DOM Ready');
 
 	var targetNode = document.getElementById('grid');
@@ -229,8 +188,6 @@
 			 console.log('no participants');
 			 document.getElementById('emptyroom').hidden = false;
 		  }
-
-
 	        }
 	    }
 	};
@@ -243,7 +200,7 @@
 
 
 
-    }
+    });
   </script>
 
   

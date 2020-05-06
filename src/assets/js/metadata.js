@@ -25,23 +25,23 @@ export default class MetaData {
         this.root.get(this.room).set(metaData);
     }
 
-    sentControlData(data) {
+    sendControlData(data) {
         data.event = "control";
-        this.sent(data);
+        this.send(data);
     }
 
-    sentChatData(data) {
+    sendChatData(data) {
         data.event = "chat";
-        this.sent(data);
+        this.send(data);
     }
 
-    sentNotificationData(data) {
+    sendNotificationData(data) {
         data.ts = Date.now();
         data.event = "notification";
-        this.sent(data);
+        this.send(data);
     }
 
-    sent(data) {
+    send(data) {
         data.socketId = this.socketId;
         data.pid = this.root._.opt.pid;
         data.room = this.room;

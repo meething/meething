@@ -1,5 +1,6 @@
 // Make the DIV element draggable:
-dragElement(document.getElementById("mydiv"));
+window.addEventListener('DOMContentLoaded',function(){
+  if(document.getElementById("mydiv")) dragElement(document.getElementById("mydiv"));
 
 function dragElement(elmnt) {
   var pos1 = 0,
@@ -44,3 +45,4 @@ function dragElement(elmnt) {
     document.onmousemove = null;
   }
 }
+});
