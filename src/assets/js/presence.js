@@ -17,19 +17,19 @@ export default class Presence {
         case "enter":
           this.users.set(msg.pid, msg);
           this.addItem(msg.pid, msg.pid);
-          this.distrubutePresence();
+          this.distributePresence();
           break;
         case "leave":
           this.users.delete(msg.pid);
           this.removeItem(msg.pid);
-          this.distrubutePresence();
+          this.distributePresence();
           break;
         case "presence":
           this.addReceivedUsers(msg.data);
           break;
         case "update":
           this.updateUser(msg)
-          this.distrubutePresence();
+          this.distributePresence();
           break;
         default:
           console.log(msg);
@@ -80,7 +80,7 @@ export default class Presence {
     this.send("leave", null);
   }
 
-  distrubutePresence() {
+  distributePresence() {
     this.send("presence", JSON.stringify([...this.users]));
   }
 
@@ -116,7 +116,7 @@ export default class Presence {
   onGrid(peerUrl) {
     let peers = this.root._.opt.peers;
     let peer = {};
-    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl;
+    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl; //TODO use import config.js for this
     peer.id = peerUrl;
     peer.url = peerUrl;
     peers[peerUrl] = peer;

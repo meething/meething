@@ -1,43 +1,36 @@
 /**
+ * @author Jabis Sevón <jabis.is@gmail.com>
+ * @date 1st May, 2020
  * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
  * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
  * @date 6th January, 2020
  */
+import config from './config.js';
 import h from "./helpers.js";
-import EventEmitter from "./ee.js";
+import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 
-var DEBUG = true; // if (DEBUG)
-
+var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
-var enableHacks = false;
-var meethrix = window.meethrix = false;
-
+var enableHacks = true;
+var meethrix = window.meethrix = true,
+autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD
+window.h = h;
+var ee = null,
+  modal = null;
 var root;
-var room;
+var room,
+  roompass;
 var username;
 var title = "ChatRoom";
 var localVideo;
 var audio;
 var isRecording = false;
 var videoBitrate = '1000'
-
-
-
-window.addEventListener('DOMContentLoaded', function () {
-  room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
-  username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-  title = room.replace(/_(.*)/, '');
-  localVideo = document.getElementById("local");
-  if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
-  initSocket();
-  initRTC();
-});
-
 var socket;
 var room;
 const pcMap = new Map(); // A map of all peer ids to their peerconnections.
@@ -46,28 +39,539 @@ var myStream;
 var screenStream;
 var mutedStream,
   audioMuted = false,
-  videoMuted = false;
+  videoMuted = false,
+  isRecording = false,
+  inited = false,
+  devices = {};
+var socket;
+var pc = []; // hold local peerconnection statuses
+const pcmap = new Map(); // A map of all peer ids to their peerconnections.
 var socketId;
 var damSocket;
 var presence;
 var metaData;
 
-function initSocket() {
-  var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
-  if (room) {
-    roomPeer = "https://gundb-multiserver.glitch.me/" + room;
+window.addEventListener('DOMContentLoaded', function () {
+  room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
+  username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+  title = room.replace(/_(.*)/, '');
+  if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
+  ee = window.ee = new EventEmitter();
+  //initSocket(); // letting socket start for now
+  modal = window.modal = new tingle.modal({
+    closeMethods: [],
+    footer: true,
+    stickyFooter: true,
+    onOpen:function(){
+      let setupBtn = document.getElementById('tingleSetupBtn');
+      if(setupBtn){
+        let deviceSelection = document.getElementById('deviceSelection');
+        let preview = document.getElementById('preview');
+        let local = document.getElementById('local');
+        if(h.isOldEdge() || !autoload){
+          setupBtn.addEventListener('click',function(e){
+            e.preventDefault();
+            setupBtn.hidden = true;
+            if(deviceSelection.hidden) {
+              deviceSelection.hidden=false;
+              resetDevices();
+              ee.emit('modal:filled',modal);
+            }
+          })
+        } else {
+          setupBtn.hidden = true;
+          resetDevices();
+          ee.emit('modal:filled',modal);
+        }
+        if(preview && local) {
+          preview.appendChild(local);
+          local.className = "";
+        }
+      }
+      var cr = document.getElementById('create-room');
+      if(cr)  cr.addEventListener('click', async (e) => {
+            e.preventDefault();
+            cr.hidden=true;
+            let roomName = document.querySelector('#room-name').value;
+            let yourName = document.querySelector('#your-name').value;
+            let romp = document.querySelector('#room-pass').value;
+            if (roomName && yourName) {
+                //remove error message, if any
+                var errmsg = document.querySelector('#err-msg');
+                if(errmsg) document.querySelector('#err-msg').innerHTML = "";
+
+                //save the user's name in sessionStorage
+                sessionStorage.setItem('username', yourName);
+                //create room link
+                let roomgen = `${roomName.trim().replace(' ', '_')}_${h.generateRandomString()}`;
+                let roomLink = `${location.origin}?room=${roomgen}`;
+                room = roomgen;
+                username = yourName;
+                if(romp) {
+                  roompass=romp;
+                  await storePass(romp,yourName);
+                }
+                //show message with link to room
+                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
+                var clip = document.getElementById('clipMe');
+                if(clip) clip.addEventListener('click',function(e){
+                  e.preventDefault();
+                  h.copyToClipboard(e.target.href);
+                  if(errmsg) {
+                    errmsg.innerHTML='Link copied to clipboard '+roomLink;
+                  }
+                });
+                //empty the values
+                document.querySelector('#room-name').value = roomgen;
+                document.querySelector('#room-name').readonly = true;
+                document.querySelector('#your-name').readonly = true;
+                document.querySelector('#room-pass').readonly = true;
+                document.querySelector('#room-name').disabled = true;
+                document.querySelector('#your-name').disabled = true;
+                document.querySelector('#room-pass').disabled = true;
+            }
+
+            else {
+                roomName.focus();
+                document.querySelector('#err-msg').innerHTML = "All fields are required";
+            }
+        });
+    }
+  });
+  var toggleModal = document.getElementById('toggle-modal');
+  if(toggleModal) toggleModal.addEventListener('click',e=>{
+    e.preventDefault();
+    modal.open();
+  })
+  async function storePass(pval,creator){
+    return new Promise(async (res,rej)=>{
+      let it = await SEA.work({room:room,secret:pval},pval,null,{name:'SHA-256'});
+      console.log("hash",it);
+      roompass = pval;
+      ee.set('rooms.'+room+'.pwal',pval);
+      ee.set('rooms.'+room+'.hash',it);
+      if(creator) ee.set('rooms.'+room+'.creator',creator);
+      return res(it);
+    });
+  }
+  ee.on('join:ok',async function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? {value: sessionStorage.getItem('username')} : false;
+    let _pass = document.querySelector('#room-pass');
+
+    if(!_name || !_name.value) return;
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
+  });
+  ee.on('setup:ok',async function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    let _name = document.querySelector('#your-name');
+    let _room = document.querySelector('#room-name');
+    let _pass = document.querySelector('#room-pass');
+
+    if(!_name || !_name.value || !_room  || !_room.value) {
+      document.querySelector('#err-msg').innerHTML = "Room and username fields are required";
+      return;
+    }
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (_room && _room.value && history.pushState) {
+      window.history.pushState(null,'','?room='+_room.value);
+      room = _room.value;
+    }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval,_name.value);
+    console.log('Arguments are ', args);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
+  });
+  ee.on('nouser:ok',async function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    let _name = document.querySelector('#username');
+    let _pass = document.querySelector('#room-pass');
+
+    if (!_name || !_name.value) { return; }
+    if (_name && _name.value) {
+      sessionStorage.setItem('username', _name.value);
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    console.log('Arguments are ', args);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
+  });
+  ee.on('noroom:ok',async function(){
+    var args = Array.from(arguments); // no spread here, because of Edge crapping
+    console.log('Arguments are ', args);
+    let _name = document.querySelector('#room-name');
+    let _pass = document.querySelector('#room-pass');
+
+    if (_name && _name.value) {
+      room = _name.value
+    }
+    if (room && history.pushState) {
+      window.history.pushState(null,'','?room='+room);
+    }
+    var pval = _pass && _pass.value ? _pass.value : false;
+    if(pval) await storePass(pval);
+    var ve = document.getElementById('local');
+    var vs = document.getElementById('localStream');
+    if(ve && vs){
+      ve.className="local-video clipped";
+      vs.appendChild(ve);
+    }
+    initSocket().then(sock=>{
+      initRTC();
+      modal.close();
+    })
+  });
+  ee.on('modal:filled',function(modal){
+    let type = modal.__type;
+    setTimeout(function(){ modal.checkOverflow() },300);
+    var letsgo = document.querySelectorAll('.letsgo');
+    if(!letsgo.length){
+      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-3 col', function(e){
+        try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
+        ee.emit(type+':ok',{modal,e});
+      });
+    }
+  })
+  var cancelFn = function(why){
+    room=null;
+    sessionStorage.clear();
+    modal.close();
+    window.location = '/';
+  }
+  ee.on('join:cancel',cancelFn);
+  ee.on('nouser:cancel',cancelFn);
+  ee.on('noroom:cancel',cancelFn);
+  ee.on('setup:cancel',cancelFn);
+
+  function resetDevices() {
+    var as = document.getElementById('as');
+    var ao = document.getElementById('ao');
+    var vs = document.getElementById('vs');
+    var ve = document.getElementById('local');
+    if(ve) localVideo=ve;
+    if (myStream) {
+      myStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
+    if(!h.canSelectAudioDevices()) { //Firefox springs to mind ;(
+      ao.disabled = true;
+      ao.readonly = true;
+    }
+    var aoListener = function(e){
+      return h.setAudioToVideo(ao,ve);
+    }
+    ao.removeEventListener('change',aoListener);
+    ao.addEventListener('change',aoListener)
+    as.removeEventListener('change',resetDevices);
+    as.addEventListener('change',resetDevices);
+    vs.removeEventListener('change',resetDevices);
+    vs.addEventListener('change',resetDevices);
+    var clicked = function clicked(e){ ee.set('config['+e.target.id+']',!!this.checked); };
+    sam.removeEventListener('click',clicked);
+    svm.removeEventListener('click',clicked);
+    sam.addEventListener('click',clicked);
+    svm.addEventListener('click',clicked);
+    const asv = as.value;
+    const vsv = vs.value;
+    const samv = sam.checked;
+    const svmv = svm.checked;
+    const constraints = {
+      audio: {deviceId: asv ? {exact: asv} : undefined},
+      video: {deviceId: vsv ? {exact: vsv} : undefined}
+    };
+    h.getUserMedia(constraints).then(async stream=>{
+      myStream = stream;
+      window.myStream = stream;
+      h.setVideoSrc(ve,stream);
+      h.replaceStreamForPeers(pcmap,stream);
+      ve.oncanplay = function(){ modal.checkOverflow(); }
+      return Object.keys(devices).length>0 ? devices : h.getDevices();
+    }).then(devices=>{
+      ee.emit('navigator:gotDevices',devices);
+    }).catch(err=>{
+      console.warn('something fishy in devices',err);
+    });
+
+  }
+  var modalContent="";
+  var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+  var cammicsetc =
+    h.isOldEdge() || !autoload
+      ? `
+      <div class="col-md-12">
+      <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+  <div id="deviceSelection" hidden>
+    <label for="as">Mic:</label><br/>
+    <select id="as"></select><br/>
+    <label for="ao">Speakers: </label><br/>
+    <select id="ao"></select><br/>
+    <label for="vs">Camera:</label><br/>
+    <select id="vs"></select><br/>
+    <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
+      <i class="fa fa-volume-up"></i>
+    </button>
+    <button class="btn btn-lg btn btn-outline-light" id="svm" title="Mute/Unmute Video">
+      <i class="fa fa-video"></i>
+    </button><br/>
+    <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
+  </div>
+  </div>
+`
+      : `
+<div class="p-container">
+<div id="" class="preview-container">
+  <div class="row">
+
+    <div class="col-md-12 mx-auto">
+<video id="local" class="mx-auto" playsinline autoplay muted></video>
+ </div>
+
+    <div class="preview-video-buttons row col-md-12">
+
+    <div class="col m-1 mb-3 mx-auto">
+      <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
+      </button>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
+      </div>
+      <div class="col m-1 mb-3 mx-auto">
+      <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
+
+      </button>
+      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
+      </div>
+  </div>
+  </div>
+
+</div>
+
+<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+
+    <div id="deviceSelection">
+
+      <div class="form-row">
+
+        <div class="col-md-4 mb-3">
+         <label for="as" class="text-white">Mic:</label>
+           <select id="as" class="form-control btn-sm rounded-0"></select>
+         </div>
+
+       <div class="col-md-4 mb-3">
+            <label for="ao" class="text-white">Speakers: </label>
+              <select id="ao" class="form-control btn-sm rounded-0"></select>
+           </div>
+
+      <div class="col-md-4 mb-3">
+              <label for="vs" class="text-white">Camera:</label>
+            <select id="vs" class="form-control btn-sm rounded-0"></select>
+          </div>
+      </div>
+    </div>
+    </div>
+
+  `;
+
+  ee.on('navigator:gotDevices',function(devices){
+    //console.log('hello',devices);
+    ["as","ao","vs"].map(function(group){
+      let devs = devices[group];
+      var str = "";
+      var qs = document.getElementById(group);
+      h.each(devs,function(label,device){
+        //console.log(label,device);
+        var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
+        if(!opt) {
+          opt = document.createElement('option');
+          opt.id= label.replace(/[^a-zA-Z0-9]/g,'');
+        }
+        opt.value = device.deviceId;
+        opt.text = label;
+        if(qs) qs.appendChild(opt);
+      });
+      modal.checkOverflow();
+    });
+  });
+  h.getDevices().then(devices=>{
+    devices = window.devices = devices;
+    ee.emit('navigator:gotDevices',devices);
+  });
+  var roominput = '<label for="room-name">Room Name</label>\
+  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />';
+  var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
+    Create Room \
+  </button>'
+  var createnameinput = '<label for="your-name">Your Name</label> \
+  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />';
+  var passwinput = '<label for="your-name">Room password</label> \
+  <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />';
+  var roomcreated = '<div id="room-created"></div>';
+  var joinnameinput = '<label for="username">Your Name</label>\
+  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
+  if(room && username){
+    // Welcome back xX!
+    modalContent = "\
+    <div class='row'>\
+    <div class='col-md-4 speech-bubble mx-auto'>\
+    " +cammicsetc+
+    "</div> \
+    <div class='col-md-4 mx-auto'> \
+    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"! </h4>\
+    <br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+
+    "<br/>"+passwinput+"<br/>"
+   "</div> \
+    </div> ";
+    return loadModal(modal,modalContent,'join');
+    //
+  } else if(room && !username){
+    // set username and camera options
+    modalContent =
+    `
+    <div class='row'>
+    <div class='col-md-4 speech-bubble mx-auto'>
+      ${cammicsetc}
+       </div>
+      <div class='col-md-4 mx-auto room-form'>
+      <h4 class='speech-msg'>
+      Welcome, you're joining room <input type='hidden' id='room-name' value='${room}'/> ${title}</h4>
+      <p>
+      Please enter your username and set up your camera options! </p>
+      <br/>
+      ${passwinput} <br/>
+      ${joinnameinput} <br/>
+      </div>
+    </div>
+    `;
+    return loadModal(modal,modalContent,'nouser');
+    //
+  } else if (!room && username) {
+    // enter room name to join
+    modalContent = `
+
+    <div class='row'>
+    <div class='col-md-4 speech-bubble mx-auto'>
+      ${cammicsetc}
+       </div>
+      <div class='col-md-4 mx-auto room-form'>
+      <h4 class='speech-msg'>
+      Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
+      <p>
+      Please enter the room name you want to join or create below! </p>
+      <br/>
+    ${roominput}<br/>
+    ${passwinput}<br/>
+      </div>
+    </div> `;
+
+    return loadModal(modal,modalContent,'noroom');
+  }else {
+    // Set up a new room
+    modalContent = "\
+    <div class='row'> \
+      <div class='col-md-4 speech-bubble mx-auto'> \
+        <p class='speech-msg'> \
+        Hey, let\'s set up a new room!</p> \
+        "+cammicsetc+" \
+      </div> \
+      <div class='col-md-4 mx-auto room-form'> \
+      <div class='d-none d-xs-none d-md-block'> \
+      <img \
+      src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67'\
+      width='200' style='filter:invert(1); opacity:.5' /> </div> \
+      <p>"+roomcreated+"</p> \
+      "+errmsg+"<br> \
+      "+createnameinput+"<br> \
+      "+roominput+"<br> \
+      "+passwinput+"<br> \
+      <br> <br>\
+      "+roomcreatebtn+"\
+       </div> \
+      </div>"
+
+    return loadModal(modal,modalContent,'setup');
   }
 
-  var peers = [roomPeer];
-  var opt = { peers: peers, /*localStorage: false,*/ radisk: false }; //fixes the problem?
-  root = Gun(opt);
+});
 
-  socket = root
-    .get("rtcmeeting")
-    .get(room)
-    .get("socket");
+function loadModal(modal,createOrJoin,type){
+  Object.assign(modal,{__type:type});
+  modal.setContent('<h1 class="mt-3 align-center">Setup your preferences</h1>'+createOrJoin);
+  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left mx-auto col-lg-4 col', function(e){
+    try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
+    ee.emit(type+':cancel',{modal,e});
+  });
+  modal.open();
 }
 
+async function initSocket() {
+  return new Promise((res,rej)=>{
+    var roomPeer = config.multigun+"gun";
+    var hash = null,
+      creator=null;
+    if (room) {
+      hash = ee.get('rooms.'+room+'.hash');
+      creator = ee.get('rooms.'+room+'.creator');
+      var r = (hash && creator) ? room+'?sig='+encodeURIComponent(hash)+"&creator="+encodeURIComponent(creator) : room;
+      console.log(r);
+      roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
+    }
+
+    var peers = [roomPeer];
+    var opt = { peers: peers, localStorage: false, radisk: false };
+    window.room = room;
+    root = window.root = Gun(opt);
+
+    socket = window.socket = root
+      .get("rtcmeeting")
+      .get(room)
+      .get("socket");
+    return res({root,room,socket});
+  })
+}
+var reinit = window.reinit = async function(){
+  let stuff = await initSocket();
+  return stuff;
+}
 function sendMsg(msg, local) {
   let data = {
     room: room,
@@ -79,14 +583,14 @@ function sendMsg(msg, local) {
   if (!local) {
     if (data.sender && data.to && data.sender == data.to) return;
     if (!data.ts) data.ts = Date.now();
-    metaData.sentChatData(data);
+    metaData.sendChatData(data);
   }
   //add localchat
   h.addChat(data, "local");
 }
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
-  presence.leave();
+  if(damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
   pcMap.forEach((pc, id) => {
     if (pcMap.has(id)) {
       pcMap.get(id).close();
@@ -98,7 +602,7 @@ window.addEventListener(_ev,function () {
 function initPresence() {
   presence = new Presence(root, room);
   damSocket.setPresence(presence);
-  presence.enter();
+  if(h.typeOf(presence.enter)=="function") presence.enter();
 }
 
 function metaDataReceived(data) {
@@ -158,30 +662,33 @@ function metaDataReceived(data) {
 }
 
 function initRTC() {
-  if (!room) {
+  if(inited) return;
+  inited = true;
+  /*if (!room) {
     document.querySelector("#room-create").attributes.removeNamedItem("hidden");
   } else if (!username) {
     document
       .querySelector("#username-set")
       .attributes.removeNamedItem("hidden");
-  } else {
+  } else { */
     damSocket = new DamEventEmitter(root, room);
-    initPresence();
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
-      commElem[i].attributes.removeNamedItem("hidden");
+      commElem[i].hidden=false;
     }
 
-    if (localVideo)
-      mutedStream = h.setMutedStream(localVideo);
+    /*if (localVideo)
+      mutedStream = h.setMutedStream(localVideo);*/
 
-    document.getElementById("demo").attributes.removeNamedItem("hidden");
+    document.getElementById("demo").hidden = false;
 
     socketId = h.uuidv4();
+  damSocket.on("postauth",function(auth){
+    initPresence();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
     damSocket.setMetaData(metaData);
-    metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
+    metaData.sendControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
 
     console.log("Starting! you are", socketId);
     presence.update(username, socketId);
@@ -260,6 +767,9 @@ function initRTC() {
         if (DEBUG) console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
+        if(data.candidate && data.candidate.hasOwnProperty('candidate')){
+          if(!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
+        }
         data.candidate = new RTCIceCandidate(data.candidate);
         if (!data.candidate) return;
       } catch (e) {
@@ -330,7 +840,7 @@ function initRTC() {
                var r = confirm("No Media Devices! Join as Viewer?");
 	       if (r) {
 		 enableHacks = true;
-                 metaData.sentControlData({ username: username + "(readonly)", id: socketId, readonly: true });
+                 metaData.sendControlData({ username: username + "(readonly)", id: socketId, readonly: true });
 	       } else { location.replace("/"); return; }
 	    }
             // start crazy mode lets answer anyhow
@@ -384,7 +894,7 @@ function initRTC() {
         h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
-          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.remove("fas fa-video");
           e.srcElement.classList.add("fa-video-slash");
 	  h.showNotification("Video Disabled");
         });
@@ -417,7 +927,7 @@ function initRTC() {
         e.srcElement.classList.remove("text-danger");
 	h.showNotification("Recording Stopped");
       }
-      metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
+      metaData.sendNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
     });
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
@@ -433,7 +943,7 @@ function initRTC() {
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Muted");
         });
       } else {
@@ -442,7 +952,7 @@ function initRTC() {
           //localVideo.srcObject = mine;
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
  	  h.showNotification("Audio Unmuted");
         });
       }
@@ -506,16 +1016,16 @@ function initRTC() {
         presence.onGrid(presence.room);
         e.srcElement.classList.remove("fa-lock");
         e.srcElement.classList.add("fa-unlock");
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: false })
+        metaData.sendNotificationData({ username: username, subEvent: "grid", isOngrid: false })
       } else {
         //if public, go private
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: true })
+        metaData.sendNotificationData({ username: username, subEvent: "grid", isOngrid: true })
         presence.offGrid();
         e.srcElement.classList.remove("fa-unlock");
         e.srcElement.classList.add("fa-lock");
       }
     });
-  }
+  });
 }
 
 function init(createOffer, partnerName) {
@@ -525,6 +1035,10 @@ function init(createOffer, partnerName) {
   // DAM: replace with local map keeping tack of users/peerconnections
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
+
+  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE!
+  //TODO: KNOWN REGRESSION IN THIS BRANCH IS MUTING DOES NOT WORK!
+
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
   if (screenStream) {
     var tracks = {};
@@ -594,7 +1108,7 @@ function init(createOffer, partnerName) {
           if (DEBUG) console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
               if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
-              if (!audioMuted) metaData.sentControlData({ username: username, id: socketId, talking: true });
+              if (!audioMuted) metaData.sendControlData({ username: username, id: socketId, talking: true });
           });
           soundMeter.connectToSource(myStream)
         }
@@ -672,7 +1186,8 @@ function init(createOffer, partnerName) {
     if (el) {
       h.setVideoSrc(el,str);
     } else {
-      h.addVideo(partnerName, str);
+      var el = h.addVideo(partnerName);
+      h.setVideoSrc(el,str);
     }
   };
 
@@ -689,7 +1204,7 @@ function init(createOffer, partnerName) {
           true
         );
         h.hideVideo(partnerName, false);
-	metaData.sentControlData({ username: username, id: socketId, online: true });
+        metaData.sendControlData({ username: username, id: socketId, online: true });
         break;
       case "disconnected":
         if (partnerName == socketId) {
