@@ -944,7 +944,8 @@ function initRTC() {
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Muted");
+          h.showNotification("Audio Muted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted; 
         });
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
@@ -953,7 +954,8 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Unmuted");
+          h.showNotification("Audio Unmuted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
         });
       }
 
