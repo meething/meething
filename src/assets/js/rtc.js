@@ -50,7 +50,6 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
-var graphWorker = new Worker('/assets/workers/workerGraph.js');
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -108,7 +107,6 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
-                debugger
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
@@ -557,9 +555,9 @@ async function initSocket() {
       console.log(r);
       roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
     }
-
+    localStorage.clear();
     var peers = [roomPeer];
-    var opt = { peers: peers, localStorage: false, radisk: false };
+    var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
     window.room = room;
     root = window.root = Gun(opt);
 
@@ -661,6 +659,7 @@ function metaDataReceived(data) {
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
   }
+  updateGraph();
 }
 
 function initRTC() {
@@ -694,6 +693,7 @@ function initRTC() {
 
     console.log("Starting! you are", socketId);
     presence.update(username, socketId);
+
 
     // Initialize Session
     damSocket.out("subscribe", {
@@ -1414,7 +1414,7 @@ async function delay(ms) {
 async function updateGraph () { //async because I will use promises to build the graph traversal
 
   //initialize web worker in upper scope
-
+  var graphWorker = new Worker('/assets/workers/workerGraph.js');
   /* Version 1 - will use pcmap to only show my side of the graph */
 
   //if(DEBUG) { console.log('Worker Version 1', window.self, Array.from(pcMap.keys()))}
@@ -1438,8 +1438,8 @@ async function updateGraph () { //async because I will use promises to build the
     div.style.position = 'absolute';
     div.style.right = '0px';
     div.style.bottom = '0px';
-    div.style.width = "200px";
-    div.style.height = "200px";
+    div.style.width = "300px";
+    div.style.height = "300px";
     div.style.zIndex = '100000';
     div.style.borderRadius = '15%';
     div.style.backgroundColor = "rgba(200,200,200,0.2)"
@@ -1474,7 +1474,7 @@ async function updateGraph () { //async because I will use promises to build the
   stack = [];
   nodes = new Map();
   edges = new Map();
-  start = await gun.get(start).promOnce();
+  start = await root.get(start).promOnce();
   nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
   u = start;
   stack.push(u);
@@ -1483,14 +1483,14 @@ async function updateGraph () { //async because I will use promises to build the
       // release control on each loop for ui
       await delay(20); //play with this value
       var edge = exhausted(u.data, edges, true);
-      var v = await gun.get(edge).promOnce();
+      var v = await root.get(edge).promOnce();
       nodes.set(v.key, {id:v.key, label:v.data.label, data:v.data});
       edges.set(u.key+v.key, {source:u.key, target:v.key});
       stack.push(v);
     }
     while(!(stack.length==0)){
       await delay(20);
-      y = stack.shift();
+      var y = stack.shift();
       if(!exhausted(y.data,edges)){
         stack.push(y)
         u = y;
