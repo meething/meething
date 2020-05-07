@@ -31,7 +31,7 @@ export default class DamEventEmitter extends EventEmitter {
     console.log("checking auth");
     var self = this;
     if(self.user.is) self.user.leave();
-    this.root.get("rtcmeeting").get(this.room).on(async function(data,key,g,events){
+    this.root.get("meething").get(this.room).on(async function(data,key,g,events){
       events.off();
       console.log('data',data,key);
       if(data && data.hasOwnProperty('passwordProtected')){

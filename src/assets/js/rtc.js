@@ -54,7 +54,7 @@ var metaData;
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-  title = room.replace(/_(.*)/, '');
+  title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
   //initSocket(); // letting socket start for now
@@ -562,7 +562,7 @@ async function initSocket() {
     root = window.root = Gun(opt);
     
     socket = window.socket = root
-      .get("rtcmeeting")
+      .get("meething")
       .get(room)
       .get("socket");
     return res({root,room,socket});
