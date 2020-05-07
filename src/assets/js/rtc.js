@@ -894,7 +894,7 @@ function initRTC() {
         h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
-          e.srcElement.classList.remove("fas fa-video");
+          e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
 	  h.showNotification("Video Disabled");
         });
