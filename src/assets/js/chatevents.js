@@ -17,7 +17,7 @@ export default class ChatEvents {
         this.eventEmitter.on("tourist", function (data) {
             if (!self.executeCommand(data)) {
                 if (data.sender && data.to && data.sender == data.to) return;
-                if (!data.ts) data.ts = Date.now();                
+                if (!data.ts) data.ts = Date.now();
                 self.eventEmitter.emit("Chat-Message", data);
                 self.showInChat(data);
             }
@@ -33,6 +33,10 @@ export default class ChatEvents {
                         "/help - this will trigger this information";
                     this.showInChat(data);
                     return true;
+                case "qxip":
+                case "qvdev":
+                    this.showTime("Europe/Amsterdam", data)
+                    return true;
                 default:
                     return false;
             }
@@ -43,5 +47,14 @@ export default class ChatEvents {
 
     showInChat(data) {
         uihelper.addChat(data, "local");
+    }
+
+    async showTime(timezone, data) {
+        let response = await fetch("http://worldtimeapi.org/api/timezone/" + timezone);
+        if (response.ok) {
+            let json = await response.json();
+            data.msg = json.datetime;
+            this.showInChat(data);
+        }
     }
 }
