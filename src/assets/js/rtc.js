@@ -354,8 +354,7 @@ window.addEventListener('DOMContentLoaded', function () {
     <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
       <i class="fa fa-volume-up"></i>
     </button>
-    <button class="btn btn-lg btn btn-outline-light" id="svm" title="Mute/Unmute Video">
-      <i class="fa fa-video"></i>
+    <button class="btn btn-lg btn btn-outline-light fas fa-video" id="svm" title="Mute/Unmute Video">
     </button><br/>
     <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
   </div>
