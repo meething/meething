@@ -50,6 +50,7 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
+var graphWorker = new Worker('/assets/workers/workerGraph.js');
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -107,6 +108,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
+                debugger
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
@@ -1245,8 +1247,6 @@ function init(createOffer, partnerName) {
         console.log("Change of state: ", pcPartnerName.iceConnectionState);
         break;
     }
-    //whatever happened let's update the Graph
-    updateGraph();
   };
 
   pcPartnerName.onsignalingstatechange = d => {
@@ -1286,8 +1286,6 @@ function init(createOffer, partnerName) {
         });
         break;
     }
-    //whatever happened, let's make sure the we update the graph
-    updateGraph();
   };
 }
 
@@ -1406,16 +1404,22 @@ function setMediaBitrate(sdp, media, bitrate) {
   return newLines.join("\n")
 }
 
+// to release control for ui not to block
+async function delay(ms) {
+  return new Promise((res,rej)=>{
+    setTimeout(res, ms);
+  })
+}
+
 async function updateGraph () { //async because I will use promises to build the graph traversal
 
-  //initialize web worker
-  var graphWorker = new Worker('/assets/workers/workerGraph.js');
+  //initialize web worker in upper scope
 
   /* Version 1 - will use pcmap to only show my side of the graph */
 
-  if(DEBUG) { console.log('Worker Version 1', window.self, Array.from(pcMap.keys()))}
-  graphWorker.postMessage({type:'pcMap', user:socketId,conn:Array.from(pcMap.keys())});
-  //graphWorker.postMessaget
+  //if(DEBUG) { console.log('Worker Version 1', window.self, Array.from(pcMap.keys()))}
+  //graphWorker.postMessage({type:'pcMap', user:socketId,conn:Array.from(pcMap.keys())});
+
   graphWorker.onmessage = function (event) {
     if(DEBUG) {console.log('worker returned', event.data.svgString)}
     //parse result into an element
@@ -1451,14 +1455,90 @@ async function updateGraph () { //async because I will use promises to build the
   /* Version 2 - traverse the room and all of its children
       enumerate into nodes and edges array as you go */
 
-  /*
+  if(DEBUG) { console.log('Worker Version 2')}
     // Breadth First Search
+  var stack;
+  var nodes;
+  var edges;
+  var start;
+  var u;
+  var label;
+  var opt = true;
 
+  if(DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
+  console.log('Starting with: rtcmeeting');
 
+  label = 'label';
+  start = 'rtcmeeting';
+  stack = [];
+  nodes = new Map();
+  edges = new Map();
+  start = await gun.get(start).promOnce();
+  nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
+  u = start;
+  stack.push(u);
+  do{
+    while(!exhausted(u.data, edges)){
+      // release control on each loop for ui
+      await delay(20); //play with this value
+      var edge = exhausted(u.data, edges, true);
+      var v = await gun.get(edge).promOnce();
+      nodes.set(v.key, {id:v.key, label:v.data.label, data:v.data});
+      edges.set(u.key+v.key, {source:u.key, target:v.key});
+      stack.push(v);
+    }
+    while(!(stack.length==0)){
+      await delay(20);
+      y = stack.shift();
+      if(!exhausted(y.data,edges)){
+        stack.push(y)
+        u = y;
+        break;
+      }
+    }
+  }while(!(stack.length==0))
 
+  graphWorker.postMessage({
+    type:'pre-processed',
+    nodes:transformMap(nodes),
+    edges:transformMap(edges)});
 
+  function exhausted(node,edges,opt) {
+    var soul = Gun.node.soul(node);
+    var arr = Object.keys(node);
+    var i = 1;
+    var l = arr.length;
+    for(;i<l;i++){
+      if(typeof(node[arr[i]]) == 'object' && node[arr[i]] != null){
+        if(!edges.has(soul+node[arr[i]]['#'])){
+          var temp = node[arr[i]]['#'];
+          break;
+        }
+      }
+    }
+    if(!opt) {
+      if(temp){
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      if(temp){
+        return temp;
+      }
+    }
+  };
 
+  function transformMap (map) {
+    var array = Array.from(map);
+    var result = [];
+    var i =0;
+    var l = array.length;
+    for(;i<l;i++){
+      result.push(array[i][1])
+    }
+    return result;
+  }
 
-  */
 }
