@@ -1,25 +1,24 @@
-import EventEmitter from './ee.js';
 import uihelper from './helpers.js';
 
-export default class ChatEvents extends EventEmitter {
-    constructor() {
-        super();
+export default class ChatEvents {
+    constructor(eventEmitter) {
+        this.eventEmitter = eventEmitter;
         this.init();
     }
 
     init() {
         var self = this;
-        this.on("local", function (data) {
+        this.eventEmitter.on("local", function (data) {
             if (!self.executeCommand(data)) {
                 self.showInChat(data);
             }
         });
 
-        this.on("tourist", function (data) {
+        this.eventEmitter.on("tourist", function (data) {
             if (!self.executeCommand(data)) {
                 if (data.sender && data.to && data.sender == data.to) return;
                 if (!data.ts) data.ts = Date.now();                
-                self.emit("Chat-Message", data);
+                self.eventEmitter.emit("Chat-Message", data);
                 self.showInChat(data);
             }
         });
@@ -43,6 +42,6 @@ export default class ChatEvents extends EventEmitter {
     }
 
     showInChat(data) {
-        h.addChat(data, "local");
+        uihelper.addChat(data, "local");
     }
 }

@@ -51,7 +51,7 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
-var chatEvents = new ChatEvents()
+var chatEvents;
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -59,6 +59,7 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
+  chatEvents = new ChatEvents(ee);
   //initSocket(); // letting socket start for now
   modal = window.modal = new tingle.modal({
     closeMethods: [],
@@ -285,6 +286,9 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on('nouser:cancel',cancelFn);
   ee.on('noroom:cancel',cancelFn);
   ee.on('setup:cancel',cancelFn);
+  ee.on("Chat-Message", function (data) {
+    metaData.sendChatData(data);
+  });
   
   function resetDevices() {
     var as = document.getElementById('as');
@@ -575,10 +579,6 @@ var reinit = window.reinit = async function(){
   return stuff;
 }
 
-chatEvents.on("Chat-Message", function (data) {
-  metaData.sendChatData(data);
-});
-
 function sendMsg(msg, local) {
   let data = {
       room: room,
@@ -587,9 +587,9 @@ function sendMsg(msg, local) {
   };
 
   if (local) {
-      chatEvents.emit("local", data)
+      ee.emit("local", data)
   } else {
-      chatEvents.emit("tourist", data)
+      ee.emit("tourist", data)
   }
 }
 
