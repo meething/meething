@@ -12,6 +12,7 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import ChatEvents from "./chatevents.js"
 
 var DEBUG = false; // if (DEBUG) 
 var TIMEGAP = 6000;
@@ -50,6 +51,7 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
+var chatEvents = new ChatEvents()
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -572,22 +574,25 @@ var reinit = window.reinit = async function(){
   let stuff = await initSocket();
   return stuff;
 }
+
+chatEvents.on("Chat-Message", function (data) {
+  metaData.sendChatData(data);
+});
+
 function sendMsg(msg, local) {
   let data = {
-    room: room,
-    msg: msg,
-    sender: username || socketId
+      room: room,
+      msg: msg,
+      sender: username || socketId
   };
 
-  //emit chat message
-  if (!local) {
-    if (data.sender && data.to && data.sender == data.to) return;
-    if (!data.ts) data.ts = Date.now();
-    metaData.sendChatData(data);
+  if (local) {
+      chatEvents.emit("local", data)
+  } else {
+      chatEvents.emit("tourist", data)
   }
-  //add localchat
-  h.addChat(data, "local");
 }
+
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
   if(damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
