@@ -12,7 +12,7 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
-import Graph from "./graphInterface.js";
+import Graph from "./graphThing.js";
 
 var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
