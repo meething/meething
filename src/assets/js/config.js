@@ -1,5 +1,5 @@
 const config = {
-  multigun: "https://gundb-multiserver.glitch.me/",
+  multigun: "https://mg.rig.airfaas.com/",
   iceServers:{
     
   }

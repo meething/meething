@@ -714,6 +714,8 @@ export default {
 	message.text = "Hello!";
 	speechSynthesis.speak (message);
      */
+
+     return newVid;
   },
 
   toggleChatNotificationBadge() {
