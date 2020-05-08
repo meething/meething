@@ -56,7 +56,7 @@ var graph;
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-  title = room.replace(/_(.*)/, '');
+  title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
   //initSocket(); // letting socket start for now
@@ -565,7 +565,7 @@ async function initSocket() {
     graph = new Graph(root, ee)
 
     socket = window.socket = root
-      .get("rtcmeeting")
+      .get("meething")
       .get(room)
       .get("socket");
     return res({root,room,socket});
@@ -899,7 +899,7 @@ function initRTC() {
         h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
-          e.srcElement.classList.remove("fas fa-video");
+          e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
 	  h.showNotification("Video Disabled");
         });
@@ -949,7 +949,8 @@ function initRTC() {
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Muted");
+          h.showNotification("Audio Muted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted; 
         });
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
@@ -958,7 +959,8 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Unmuted");
+          h.showNotification("Audio Unmuted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
         });
       }
 
