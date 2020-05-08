@@ -57,10 +57,10 @@ export default class Graph {
 
       if(DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
-      if(DEBUG) {console.log('Starting with: rtcmeeting')}
+      if(DEBUG) {console.log('Starting with: meething')}
 
       label = 'label';
-      start = 'rtcmeeting';
+      start = 'meething';
       stack = [];
       nodes = new Map();
       edges = new Map();
