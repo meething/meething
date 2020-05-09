@@ -91,7 +91,6 @@ window.addEventListener('DOMContentLoaded', function () {
       var cr = document.getElementById('create-room');
       if(cr)  cr.addEventListener('click', async (e) => {
             e.preventDefault();
-         
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
@@ -441,7 +440,7 @@ window.addEventListener('DOMContentLoaded', function () {
   // default inputs
   var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
-  var passwinput = `<label for="your-name">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
+  var passwinput = `<label for="room-pass">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
   var roominput = `<label for="room-name">Room Name</label><input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/> `;
   // @TODO disable roomcreate button when errors
   var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
