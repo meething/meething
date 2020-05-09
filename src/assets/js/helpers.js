@@ -29,6 +29,7 @@ var cache,
   t = function t(i,r){
     return r.test(i);
   },
+  getWindowResolution = () => { return {width: window.innerWidth, height: window.innerHeight, pixelRatio: window.devicePixelRatio } },
   fromPath = function fromPath(obj, path) {
     path = path.replace(/\[(\w+)\]/g, '.$1');
     path = path.replace(/^\./, '');
@@ -248,6 +249,7 @@ export default {
   typeOf,
   sleep,
   each,
+  getWindowResolution,
   getDevices,
   isEdge() {
     return isEdge;
