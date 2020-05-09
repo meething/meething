@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', function () {
       var cr = document.getElementById('create-room');
       if(cr)  cr.addEventListener('click', async (e) => {
             e.preventDefault();
-            cr.hidden=true;
+         
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
@@ -107,6 +107,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
+                cr.hidden=true;
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
