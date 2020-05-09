@@ -622,16 +622,6 @@ window.addEventListener(_ev, function () {
   });
 });
 
-function sentFaceData(faceMeta) {
-  if (metaData != null && metaData != undefined) {
-    metaData.sentControlData({
-      username: username,
-      id: socketId,
-      face: faceMeta
-    });
-  }
-}
-
 function initPresence() {
   presence = new Presence(root, room);
   damSocket.setPresence(presence);
