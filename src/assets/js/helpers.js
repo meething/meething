@@ -681,11 +681,6 @@ export default {
   
     ogrid.appendChild(videoDiv);
     videoDiv.appendChild(toolbox);
-//ogrid.appendChild(videoToolbox);
-  
-  
-   // ogrid.appendChild(topToolbox);
- // ogrid.appendChild(videoToolbox);
     ogrid.id = partnerName + "-widget";
     var realgrid = document.getElementById('grid');
     realgrid.appendChild(ogrid);
