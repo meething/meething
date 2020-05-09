@@ -91,7 +91,6 @@ window.addEventListener('DOMContentLoaded', function () {
       var cr = document.getElementById('create-room');
       if(cr)  cr.addEventListener('click', async (e) => {
             e.preventDefault();
-         
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
@@ -892,7 +891,7 @@ function initRTC() {
         h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
           h.setVideoSrc(localVideo,muted);
-          e.srcElement.classList.remove("fas fa-video");
+          e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
 	  h.showNotification("Video Disabled");
         });
