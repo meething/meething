@@ -9,6 +9,8 @@ self.onmessage = async function (event) {
   if(event.data.type == 'pre-processed') {
     var nodes = event.data.nodes;
     var edges = event.data.edges;
+    var width = event.data.size.width;
+    var height = event.data.size.height;
 
   } else if (event.data.type == 'pcMap'){
     var user = event.data.user;
@@ -24,21 +26,17 @@ self.onmessage = async function (event) {
       nodes.push({id:currentPersonId, user:conn[i]})
       edges.push({source:nodes[0].id, target:currentPersonId})
     }
-    debugger
-
-
-
 
   } else {
     self.postMessage({err: "Not correctly fed data"});
     self.close()
   }
 
-  simulate(nodes, edges);
+  simulate(nodes, edges, width, height);
 
   /* Build the svg string */
 
-  var svgString = buildString(nodes, edges);
+  var svgString = buildString(nodes, edges, width, height);
   if(!svgString){
     self.postMessage({err: "No nodes"});
     self.close()
@@ -47,17 +45,17 @@ self.onmessage = async function (event) {
   self.close()
 }
 
-async function delay (ms) {
+function delay (ms) {
   return new Promise((res, rej) =>{
     setTimeout(res, ms)
   })
 }
 
-function simulate (nodes, edges) {
+function simulate (nodes, edges, width, height) {
 
   var simulation = d3.forceSimulation(nodes, (d)=>{return d.id})
     .force("charge", d3.forceCollide().radius(50))
-    .force("r", d3.forceCenter(150, 150))
+    .force("r", d3.forceCenter(width/2, height/2))
     .force('link', d3.forceLink().links(edges).id(function(d){return d.id}))
     .stop()
 
@@ -67,12 +65,12 @@ function simulate (nodes, edges) {
   }
 }
 
-function buildString (n, e) {
+function buildString (n, e, w, h) {
 
   var color = d3.scaleOrdinal(n, d3.schemeCategory10)
 
   // start svg string with opening clause
-  var string = '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">';
+  var string = '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">';
   // define an arrow
   string += '<defs><marker id="endarrow" viewbox="0 0 8 6" ';
   string += ' markerWidth="6" markerHeight="4" ';
@@ -85,8 +83,8 @@ function buildString (n, e) {
     // iterate over all the nodes and add a circle with the coordinates
     // for each node
     for(let node of n) {
-      node.x = Math.max(5, Math.min(300 - 5, node.x));
-      node.y = Math.max(5, Math.min(300 - 5, node.y));
+      node.x = Math.max(5, Math.min(w - 5, node.x));
+      node.y = Math.max(5, Math.min(h - 5, node.y));
       let substring = '<circle '
       substring += 'stroke="'+color(node.id)+'" ';
       substring += 'fill="'+color(node.id)+'" ';
@@ -95,13 +93,11 @@ function buildString (n, e) {
       substring += 'r="5" /> ';
       substring += '<text x="'+(node.x+5)+'" y="'+(node.y-10)+'" ';
       substring += 'fill="rgb(250,250,250)">'/*+color(node.id)+'">'*/;
-      substring += node.id + " / " + node.label;
+      substring += node.label;
       substring += '</text>';
       string += substring;
 
     }
-
-
 
   } else {
     return undefined;

@@ -1,3 +1,5 @@
+const DEBUG = true;
+
 export default class Graph {
   constructor (gun, eventEmitter) {
     this.root = gun;
@@ -26,10 +28,11 @@ export default class Graph {
         }
         // add style to make it float on bottom right
         div.style.position = 'absolute';
+        div.style.visibility = 'hidden';
         div.style.right = '0px';
         div.style.bottom = '0px';
-        div.style.width = "300px";
-        div.style.height = "300px";
+        div.style.width = window.innerWidth;
+        div.style.height = window.innerHeight;
         div.style.zIndex = '100000';
         div.style.borderRadius = '15%';
         div.style.backgroundColor = "rgba(200,200,200,0.2)"
@@ -92,7 +95,9 @@ export default class Graph {
       graphWorker.postMessage({
         type:'pre-processed',
         nodes:transformMap(nodes),
-        edges:transformMap(edges)});
+        edges:transformMap(edges),
+        size: {width:window.innerWidth, height:window.innerHeight}
+      });
 
       function exhausted(node,edges,opt) {
         var soul = Gun.node.soul(node);
@@ -129,6 +134,12 @@ export default class Graph {
           result.push(array[i][1])
         }
         return result;
+      }
+
+      function delay(ms) {
+        return new Promise((res, rej)=>{
+          setTimeout(res, ms);
+        })
       }
     });
   }
