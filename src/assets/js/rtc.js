@@ -9,6 +9,9 @@ import EventEmitter from "./ee.js";
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import {
+  FaceDetector
+} from './faceDetection.js';
 
 var DEBUG = false; // if (DEBUG) 
 
@@ -24,15 +27,24 @@ var title = "ChatRoom";
 var localVideo;
 var audio;
 var isRecording = false;
+var faceDetector;
+
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
   username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
   title = room.replace(/_(.*)/, '');
   localVideo = document.getElementById("local");
+  localVideo.addEventListener("faceDetected", e => {
+    console.log("Caught detected event. Detections : ", e.detail)
+    sentFaceData(e.detail);
+  });
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   initSocket();
   initRTC();
+  faceDetector = new FaceDetector();
+  faceDetector.sampleAndDetect(); // start sampling the video for detecting face
+
 });
 
 var socket;
@@ -48,6 +60,7 @@ var damSocket;
 var presence;
 var metaData;
 
+
 function initSocket() {
   var roomPeer = "https://gundb-multiserver.glitch.me/lobby";
   if (room) {
@@ -55,7 +68,11 @@ function initSocket() {
   }
 
   var peers = [roomPeer];
-  var opt = { peers: peers, localStorage: false, radisk: false };
+  var opt = {
+    peers: peers,
+    localStorage: false,
+    radisk: false
+  };
   root = Gun(opt);
 
   socket = root
@@ -81,7 +98,7 @@ function sendMsg(msg, local) {
   h.addChat(data, "local");
 }
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
-window.addEventListener(_ev,function () {
+window.addEventListener(_ev, function () {
   presence.leave();
   pcMap.forEach((pc, id) => {
     if (pcMap.has(id)) {
@@ -90,6 +107,16 @@ window.addEventListener(_ev,function () {
     }
   });
 });
+
+function sentFaceData(faceMeta) {
+  if (metaData != null && metaData != undefined) {
+    metaData.sentControlData({
+      username: username,
+      id: socketId,
+      face: faceMeta
+    });
+  }
+}
 
 function initPresence() {
   presence = new Presence(root, room);
@@ -139,8 +166,45 @@ function metaDataReceived(data) {
       console.log('Speaker Focus on ' + data.username);
       h.swapDiv(data.socketId + "-widget");
     }
-  }
-  else {
+    if (data.face && data.username && data.socketId) {
+      console.log("Face Detected::" + data.face + " from " + data.username);
+      var srcViewport = data.face.srcViewPort;
+      var detections = data.face.detections;
+      var remoteContainer = document.getElementById(data.socketId);
+      if (remoteContainer) {
+        remoteContainer.style.overflow = "hidden";
+        var remoteVideo = document.getElementById(data.socketId + "-video");
+        var destViewport = remoteVideo.getBoundingClientRect();
+        var vHeight = destViewport.height;
+
+        // Scale the detections for remote video
+        var sx = destViewport.width / srcViewport.width;
+        var sy = destViewport.height / srcViewport.height;
+        console.log("sx : ", sx, ", sy: ", sy);
+        var detectX = detections.x * sx;
+        var detectY = detections.y * sy;
+        var detectWidth = detections.width * sx;
+        var detectHeight = detections.height * sy;
+
+        //crop
+        var croppedSquareLength =
+          detectWidth > detectHeight ? detectWidth : detectHeight;
+        remoteContainer.style.width = croppedSquareLength + 50 + "px";
+        remoteContainer.style.height = croppedSquareLength + 50 + "px";
+        remoteContainer.style.borderRadius = "90%";
+        remoteContainer.style.clipPath = "circle(50%)";
+
+        var offsetY = 0.15 * vHeight;
+        remoteVideo.style.clipPath = "none";
+        remoteVideo.style.marginLeft = -detectX + 20 + "px";
+        remoteVideo.style.marginTop = -detectY + offsetY + "px";
+        // remoteVideo.style.marginBottom =
+        //   -(vHeight - (detectHeight + detectY)) + "px";
+
+
+      }
+    }
+  } else {
     console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
     //data.socketId and data.pid should give you what you want
@@ -172,7 +236,13 @@ function initRTC() {
     socketId = h.uuidv4();
     metaData = new MetaData(root, room, socketId, metaDataReceived);
     damSocket.setMetaData(metaData);
-    metaData.sentControlData({ username: username, sender: username, status: "online", audioMuted: audioMuted, videoMuted: videoMuted });
+    metaData.sentControlData({
+      username: username,
+      sender: username,
+      status: "online",
+      audioMuted: audioMuted,
+      videoMuted: videoMuted
+    });
 
     console.log("Starting! you are", socketId);
 
@@ -245,7 +315,7 @@ function initRTC() {
           !data.sender ||
           !data.to
         )
-        return;
+          return;
         if (DEBUG) console.log(
           data.sender.trim() + " is trying to connect with " + data.to.trim()
         );
@@ -281,11 +351,11 @@ function initRTC() {
       }
 
       if (data.description.type === "offer") {
-        data.description
-          ? pcMap.get(data.sender).setRemoteDescription(
+        data.description ?
+          pcMap.get(data.sender).setRemoteDescription(
             new RTCSessionDescription(data.description)
-          )
-          : "";
+          ) :
+          "";
 
         h.getUserMedia()
           .then(async stream => {
@@ -293,16 +363,15 @@ function initRTC() {
 
             //save my stream
             myStream = stream;
-
             stream.getTracks().forEach(track => {
               pcMap.get(data.sender).addTrack(track, stream);
             });
 
             let answer = await pcMap.get(data.sender).createAnswer();
-	    // SDP Interop
-	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
-	    // SDP Bitrate Hack
-	    // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
+            // SDP Interop
+            // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+            // SDP Bitrate Hack
+            // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
 
             await pcMap.get(data.sender).setLocalDescription(answer);
 
@@ -324,8 +393,8 @@ function initRTC() {
               OfferToReceiveVideo: true
             };
             let answer = await pcMap.get(data.sender).createAnswer(answerConstraints);
-	    // SDP Interop
-	    // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+            // SDP Interop
+            // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
             await pcMap.get(data.sender).setLocalDescription(answer);
 
             damSocket.out("sdp", {
@@ -364,18 +433,18 @@ function initRTC() {
       if (!videoMuted) {
         h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
           videoMuted = true;
-          h.setVideoSrc(localVideo,muted);
+          h.setVideoSrc(localVideo, muted);
           e.srcElement.classList.remove("fa-video");
           e.srcElement.classList.add("fa-video-slash");
-	  h.showNotification("Video Disabled");
+          h.showNotification("Video Disabled");
         });
       } else {
         h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
-          h.setVideoSrc(localVideo,mine);
+          h.setVideoSrc(localVideo, mine);
           videoMuted = false;
           e.srcElement.classList.add("fa-video");
           e.srcElement.classList.remove("fa-video-slash");
-	  h.showNotification("Video Enabled");
+          h.showNotification("Video Enabled");
         });
       }
 
@@ -389,16 +458,20 @@ function initRTC() {
         isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
-	h.showNotification("Recording Started");
+        h.showNotification("Recording Started");
 
       } else {
         h.stopRecordAudio()
         isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
-	h.showNotification("Recording Stopped");
+        h.showNotification("Recording Stopped");
       }
-      metaData.sentNotificationData({ username: username, subEvent: "recording", isRecording: isRecording })
+      metaData.sentNotificationData({
+        username: username,
+        subEvent: "recording",
+        isRecording: isRecording
+      })
     });
 
     document.getElementById("toggle-mute").addEventListener("click", e => {
@@ -414,8 +487,12 @@ function initRTC() {
           //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
           e.srcElement.classList.remove("fa-volume-up");
           e.srcElement.classList.add("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Muted");
+          metaData.sentNotificationData({
+            username: username,
+            subEvent: "mute",
+            muted: audioMuted
+          });
+          h.showNotification("Audio Muted");
         });
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
@@ -423,8 +500,12 @@ function initRTC() {
           //localVideo.srcObject = mine; 
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
-          metaData.sentNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
- 	  h.showNotification("Audio Unmuted");
+          metaData.sentNotificationData({
+            username: username,
+            subEvent: "mute",
+            muted: audioMuted
+          });
+          h.showNotification("Audio Unmuted");
         });
       }
 
@@ -454,12 +535,15 @@ function initRTC() {
             t.onended();
           });
         } else {
-          var stream = await h.getDisplayMedia({ audio: true, video: true });
+          var stream = await h.getDisplayMedia({
+            audio: true,
+            video: true
+          });
           var atrack = stream.getAudioTracks()[0];
           var vtrack = stream.getVideoTracks()[0];
           if (false) h.replaceAudioTrackForPeers(pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
           h.replaceVideoTrackForPeers(pcMap, vtrack);
-          h.setVideoSrc(localVideo,stream);
+          h.setVideoSrc(localVideo, stream);
           vtrack.onended = function (event) {
             console.log("Screensharing ended via the browser UI");
             screenStream = null;
@@ -487,10 +571,18 @@ function initRTC() {
         presence.onGrid(presence.room);
         e.srcElement.classList.remove("fa-lock");
         e.srcElement.classList.add("fa-unlock");
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: false })
+        metaData.sentNotificationData({
+          username: username,
+          subEvent: "grid",
+          isOngrid: false
+        })
       } else {
         //if public, go private
-        metaData.sentNotificationData({ username: username, subEvent: "grid", isOngrid: true })
+        metaData.sentNotificationData({
+          username: username,
+          subEvent: "grid",
+          isOngrid: true
+        })
         presence.offGrid();
         e.srcElement.classList.remove("fa-unlock");
         e.srcElement.classList.add("fa-lock");
@@ -502,7 +594,7 @@ function initRTC() {
 function init(createOffer, partnerName) {
   // OLD: track peerconnections in array
   if (pcMap.has(partnerName)) return pcMap.get(partnerName);
-   var pcPartnerName = new RTCPeerConnection(h.getIceServer());
+  var pcPartnerName = new RTCPeerConnection(h.getIceServer());
   // DAM: replace with local map keeping tack of users/peerconnections
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
@@ -542,12 +634,12 @@ function init(createOffer, partnerName) {
         myStream = stream;
         var mixstream = null;
         //provide access to window for debug
-        if(h.canCreateMediaStream()){
+        if (h.canCreateMediaStream()) {
           mixstream = new MediaStream();
         } else {
           //Safari trickery
           mixstream = myStream.clone();
-          mixstream.getTracks().forEach(track=>{
+          mixstream.getTracks().forEach(track => {
             mixstream.removeTrack(track);
           });
         }
@@ -575,8 +667,12 @@ function init(createOffer, partnerName) {
           // Soundmeter
           if (DEBUG) console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
-              if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
-              if (!audioMuted) metaData.sentControlData({ username: username, id: socketId, talking: true });
+            if (DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
+            if (!audioMuted) metaData.sentControlData({
+              username: username,
+              id: socketId,
+              talking: true
+            });
           });
           soundMeter.connectToSource(myStream)
         }
@@ -588,11 +684,14 @@ function init(createOffer, partnerName) {
         // start crazy mode - lets offer anyway
         console.log("no media devices! offering receive only");
         var offerConstraints = {
-          mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
+          mandatory: {
+            OfferToReceiveAudio: true,
+            OfferToReceiveVideo: true
+          }
         };
         let offer = await pcPartnerName.createOffer(offerConstraints);
         // SDP Interop
-	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+        // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
         await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
           description: pcPartnerName.localDescription,
@@ -618,10 +717,10 @@ function init(createOffer, partnerName) {
         }
         pcPartnerName.isNegotiating = true;
         let offer = await pcPartnerName.createOffer();
-	// SDP Interop
-	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
-	// SDP Bitrate Hack
-	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+        // SDP Interop
+        // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+        // SDP Bitrate Hack
+        // if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
 
         await pcPartnerName.setLocalDescription(offer);
         damSocket.out("sdp", {
@@ -636,7 +735,9 @@ function init(createOffer, partnerName) {
   }
 
   //send ice candidate to partnerNames
-  pcPartnerName.onicecandidate = ({ candidate }) => {
+  pcPartnerName.onicecandidate = ({
+    candidate
+  }) => {
     if (!candidate) return;
     damSocket.out("icecandidates", {
       candidate: candidate,
@@ -650,7 +751,7 @@ function init(createOffer, partnerName) {
     let str = e.streams[0];
     var el = document.getElementById(`${partnerName}-video`);
     if (el) {
-      h.setVideoSrc(el,str);
+      h.setVideoSrc(el, str);
     } else {
       h.addVideo(partnerName, str);
     }
@@ -668,7 +769,11 @@ function init(createOffer, partnerName) {
           partnerName + " is " + pcPartnerName.iceConnectionState,
           true
         );
-	metaData.sentControlData({ username: username, id: socketId, online: true });
+        metaData.sentControlData({
+          username: username,
+          id: socketId,
+          online: true
+        });
         break;
       case "disconnected":
         if (partnerName == socketId) {
@@ -712,8 +817,8 @@ function init(createOffer, partnerName) {
         break;
       case "closed":
         console.log("Signalling state is 'closed'");
-	// Do we have a connection? If not kill the widget
-	if (pcPartnerName.iceConnectionState !== "connected") h.closeVideo(partnerName);
+        // Do we have a connection? If not kill the widget
+        if (pcPartnerName.iceConnectionState !== "connected") h.closeVideo(partnerName);
         // Peers go down here and there - let's send a Subscribe, Just in case...
         damSocket.out("subscribe", {
           room: room,
