@@ -65,19 +65,19 @@ class FaceDetector {
               var detectWidth = e.data.boundingBox.width;
               var detectHeight = e.data.boundingBox.height;
 
-              //Crop - TODO - cropping done on receiver side
-              var croppedSquareLength =
-                detectWidth > detectHeight ? detectWidth : detectHeight;
-              self.container.style.width = croppedSquareLength + 50 + "px";
-              self.container.style.height = croppedSquareLength + 50 + "px";
-              self.container.style.borderRadius = "90%";
-              self.container.style.clipPath = "circle(50%)";
+              //Crop 
+              // var croppedSquareLength =
+              //   detectWidth > detectHeight ? detectWidth : detectHeight;
+              // self.container.style.width = croppedSquareLength + 50 + "px";
+              // self.container.style.height = croppedSquareLength + 50 + "px";
+              // self.container.style.borderRadius = "90%";
+              // self.container.style.clipPath = "circle(50%)";
 
-              self.video.style.clipPath = "none";
-              console.log("detectX = ", detectX);
-              console.log("detectY = ", detectY);
-              self.video.style.marginLeft = -detectX + 20 + "px";
-              self.video.style.marginBottom = -(vHeight - (detectHeight + detectY)) + "px";
+              // self.video.style.clipPath = "none";
+              // console.log("detectX = ", detectX);
+              // console.log("detectY = ", detectY);
+              // self.video.style.marginLeft = -detectX + 20 + "px";
+              // self.video.style.marginBottom = -(vHeight - (detectHeight + detectY)) + "px";
               // video.style.marginTop = -detectY + 0 + "px";
 
               //Set member values for export
