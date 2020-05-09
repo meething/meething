@@ -422,7 +422,7 @@ window.addEventListener('DOMContentLoaded', function () {
     faceDetector.sampleAndDetect(); // start sampling the video for detecting face
     localVideo.addEventListener("faceDetected", e => {
       console.log("Caught detected event. Detections : ", e.detail)
-      sentFaceData(e.detail);
+      sendFaceData(e.detail);
     });
 
     //console.log('hello',devices);
@@ -560,9 +560,9 @@ function loadModal(modal, createOrJoin, type) {
   modal.open();
 }
 
-function sentFaceData(faceMeta) {
+function sendFaceData(faceMeta) {
   if (metaData != null && metaData != undefined) {
-    metaData.sentControlData({ username: username, id: socketId, face: faceMeta });
+    metaData.sendControlData({ username: username, id: socketId, face: faceMeta });
   }
 }
 
@@ -675,45 +675,45 @@ function metaDataReceived(data) {
       h.showNotification("Read-Only Join by " + data.username);
       h.hideVideo(data.socketId, true);
     }
-  } else if (data.face && data.username && data.socketId) {
-    console.log("Face Detected::" + data.face + " from " + data.username);
-    var srcViewport = data.face.srcViewPort;
-    var detections = data.face.detections;
-    var remoteContainer = document.getElementById(data.socketId);
-    if (remoteContainer) {
-      remoteContainer.style.overflow = "hidden";
-      var remoteVideo = document.getElementById(data.socketId + "-video");
-      var destViewport = remoteVideo.getBoundingClientRect();
-      var vHeight = destViewport.height;
+    if (data.face && data.username && data.socketId) {
+      console.log("Face Detected::" + data.face + " from " + data.username);
+      var srcViewport = data.face.srcViewPort;
+      var detections = data.face.detections;
+      var remoteContainer = document.getElementById(data.socketId);
+      if (remoteContainer) {
+        remoteContainer.style.overflow = "hidden";
+        var remoteVideo = document.getElementById(data.socketId + "-video");
+        var destViewport = remoteVideo.getBoundingClientRect();
+        var vHeight = destViewport.height;
 
-      // Scale the detections for remote video
-      var sx = destViewport.width / srcViewport.width;
-      var sy = destViewport.height / srcViewport.height;
-      console.log("sx : ", sx, ", sy: ", sy);
-      var detectX = detections.x * sx;
-      var detectY = detections.y * sy;
-      var detectWidth = detections.width * sx;
-      var detectHeight = detections.height * sy;
+        // Scale the detections for remote video
+        var sx = destViewport.width / srcViewport.width;
+        var sy = destViewport.height / srcViewport.height;
+        console.log("sx : ", sx, ", sy: ", sy);
+        var detectX = detections.x * sx;
+        var detectY = detections.y * sy;
+        var detectWidth = detections.width * sx;
+        var detectHeight = detections.height * sy;
 
-      //crop
-      // var croppedSquareLength =
-      //         detectWidth > detectHeight ? detectWidth : detectHeight;
-      // remoteContainer.style.width = croppedSquareLength + 50 + "px";
-      // remoteContainer.style.height = croppedSquareLength + 50 + "px";
-      // remoteContainer.style.borderRadius = "90%";
-      // remoteContainer.style.clipPath = "circle(50%)";
+        //crop
+        // var croppedSquareLength =
+        //         detectWidth > detectHeight ? detectWidth : detectHeight;
+        // remoteContainer.style.width = croppedSquareLength + 50 + "px";
+        // remoteContainer.style.height = croppedSquareLength + 50 + "px";
+        // remoteContainer.style.borderRadius = "90%";
+        // remoteContainer.style.clipPath = "circle(50%)";
 
-      // var offsetY = 0.15*vHeight;
-      // remoteVideo.style.clipPath = "none";
-      // remoteVideo.style.marginLeft = -detectX + 20 + "px";
-      // remoteVideo.style.marginTop = -detectY + offsetY + "px";
-      // remoteVideo.style.marginBottom =
-      //   -(vHeight - (detectHeight + detectY)) + "px";
+        // var offsetY = 0.15*vHeight;
+        // remoteVideo.style.clipPath = "none";
+        // remoteVideo.style.marginLeft = -detectX + 20 + "px";
+        // remoteVideo.style.marginTop = -detectY + offsetY + "px";
+        // remoteVideo.style.marginBottom =
+        //   -(vHeight - (detectHeight + detectY)) + "px";
 
 
+      }
     }
   }
-
   else {
     if (DEBUG) console.log("META::" + JSON.stringify(data));
     //TODO @Jabis do stuff here with the data
@@ -721,6 +721,7 @@ function metaDataReceived(data) {
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
   }
 }
+
 
 function initRTC() {
   if (inited) return;
