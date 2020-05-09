@@ -7,7 +7,7 @@ export default class Presence {
     this.users = new Map();
     var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
     var self = this;
-    window.addEventListener(_ev, function(){self.leave();});
+    window.addEventListener(_ev, function () { self.leave(); });
     return this;
   }
 
@@ -16,16 +16,20 @@ export default class Presence {
       switch (msg.event) {
         case "enter":
           this.users.set(msg.pid, msg);
-          this.addItem(msg.pid);
-          this.distrubutePresence();
+          this.addItem(msg.pid, msg.pid);
+          this.distributePresence();
           break;
         case "leave":
           this.users.delete(msg.pid);
           this.removeItem(msg.pid);
-          this.distrubutePresence();
+          this.distributePresence();
           break;
         case "presence":
           this.addReceivedUsers(msg.data);
+          break;
+        case "update":
+          this.updateUser(msg)
+          this.distributePresence();
           break;
         default:
           console.log(msg);
@@ -33,13 +37,23 @@ export default class Presence {
     }
   }
 
+  updateUser(msg) {
+    if (this.users != undefined) {
+      this.users.set(msg.pid, msg.data);
+      var item = document.getElementById(msg.pid);
+      item.innerHTML = msg.data.username;
+    }
+  }
+
   addReceivedUsers(data) {
     self = this;
     const receivedUsers = new Map(JSON.parse(data));
     receivedUsers.forEach(function (value, key) {
-      if (!self.users.has(key)) {
-        self.users.set(key, value);
-        self.addItem(key);
+      self.users.set(key, value);
+      if (value != null && value.username) {
+        self.addItem(key, value.username);
+      } else {
+        self.addItem(key, key);
       }
     });
   }
@@ -48,26 +62,39 @@ export default class Presence {
     this.root.on("out", { pid: this.pid, event: event, data: data });
   }
 
+  update(username, socketId) {
+    var msg = { pid: this.pid }
+    var data = { username: username, socketId: socketId }
+    msg.data = data;
+    this.updateUser(msg);
+    this.send("update", data)
+  }
+
   enter() {
     this.send("enter", null);
     this.users.set(this.pid, null);
-    this.addItem(this.pid);
+    this.addItem(this.pid, this.pid);
   }
 
   leave() {
     this.send("leave", null);
   }
 
-  distrubutePresence() {
+  distributePresence() {
     this.send("presence", JSON.stringify([...this.users]));
   }
 
-  addItem(pid) {
-    var ul = document.getElementById("dynamic-list");
-    var li = document.createElement("li");
-    li.setAttribute("id", pid);
-    li.appendChild(document.createTextNode(pid));
-    ul.appendChild(li);
+  addItem(pid, username) {
+    var item = document.getElementById(pid);
+    if (item != undefined) {
+      item.innerHTML = username;
+    } else {
+      var ul = document.getElementById("dynamic-list");
+      var li = document.createElement("li");
+      li.setAttribute("id", pid);
+      li.appendChild(document.createTextNode(username));
+      ul.appendChild(li);
+    }
   }
 
   removeItem(pid) {
@@ -89,7 +116,7 @@ export default class Presence {
   onGrid(peerUrl) {
     let peers = this.root._.opt.peers;
     let peer = {};
-    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl;
+    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl; //TODO use import config.js for this
     peer.id = peerUrl;
     peer.url = peerUrl;
     peers[peerUrl] = peer;

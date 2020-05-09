@@ -70,12 +70,13 @@ body {
 
 .remote-video {
   position: relative;
-  /*  object-fit: container !important;
+  object-fit: cover !important; 
   height: 100%;
-  width: 100%;*/
-  border-radius: 6px;
+  width: 100%;
+  border-radius: 6px 6px 0px 0px;
   max-height: 80vh;
-  background-color: black;
+  background:#14101bbb ;
+  
 }
 
 .clipped {
@@ -228,7 +229,18 @@ body {
   left: 0;
   width: 100vw;
   height: 100%;
+  overflow-y: scroll;
+}
 
+/* Hide scrollbar for Chrome, Safari and Opera */
+.demo::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for Firefox, IE and Edge */
+.demo {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 li {
@@ -251,9 +263,9 @@ li {
   margin-left: 18px;
 }
 
-#login {
-  background: #473761bb !important;
-  box-shadow: 4px 0px 8px black;
+#login{
+  background:#473761bb !important;
+  box-shadow: 4px 0px 8px #14101bbb;
 }
 
 #room-create img {
@@ -265,10 +277,25 @@ li {
   letter-spacing: 1px;
 }
 
-#create-room {
-  margin-top: 20px;
+#create-room{
+  margin-top:10px;
 }
-
+ #create-room {
+   font-family:Helvetica, Arial, sans-serif !important;
+   font-weight:lighter;
+   background-color: #3f069c;
+   border:none;
+  box-shadow:2px 2px 4px #14101bbb;
+   border-radius:6px !important;
+   transition:.5s all;
+   font-size:22px;
+   margin:0 auto;
+    width:250px;
+  
+ }
+ #create-room:hover{
+   background:#5610c5;
+ }
 .nonelist {
   list-style-type: none;
 }
@@ -313,63 +340,55 @@ li {
 .col-select {
   font-size: 13px;
 }
-
-.toolbox {
-  background: #14101bbb;
-
-  position: relative;
-  top: -10px;
-  height: 35px;
-  left: 0px;
-  display: grid;
-  grid-template-columns: 1fr 4fr;
-  align-items: center;
-  z-index: 1000;
-  width: 100%;
-  border-radius: 0px 0px 6px 6px;
-
-
-
-
+.toolbox{
+  background:#14101bbb ;
+  
+  position:relative;
+  top:-6px;
+  height:35px;
+  left:0px;
+  display:grid;
+  grid-template-columns:1fr 4fr;
+  align-items:center;
+  z-index:1000;
+  width:100%;
+  border-radius:0px 0px 6px 6px;
 }
 
 /* main toolbar styles .. */
 
-.hidden {
-  display: none;
+.hidden{
+  display:none;
 
 }
-
-.top-widget-toolbox {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-left: 10px;
+.top-widget-toolbox{
+display:flex;
+justify-content: flex-start;
+align-items: center;
+margin-left:10px;
 }
-
-.widget-button {
-  text-align: center;
-  font-size: 12px;
-  border: none;
-  padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 2px;
-  background: none;
-  margin-right: 3px;
-  box-shadow: 1px -1px 2px black;
+.widget-button{
+  text-align:center;
+  font-size:12px;
+  border:none;
+  padding:5px;
+  padding-left:10px;
+  padding-right:10px;
+  padding-bottom:2px;
+  background:none;
+  margin-right:3px;
+  box-shadow: 1px -1px 2px #14101bbb;
   color: rgb(255, 255, 255);
-
-  opacity: .5;
-  transition: .3s all;
-  margin: 5px;
-  background: #45257cbb;
-  border-radius: 10px 10px 0px 0px;
-
+  opacity:.5;
+  transition:.3s all; 
+  margin:5px;
+  background:#45257cbb;
+  border-radius:10px 10px 0px 0px;
+ 
 }
-
-.widget-button:hover {
-  color: rgb(255, 255, 255);
+.widget-button:hover{
+  color:rgb(255, 255, 255);
+  opacity:1;
 }
 
 /* mobile overrides */
@@ -400,7 +419,6 @@ meter {
   display: grid;
   grid-gap: 5px;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-
   padding: 10px;
   height: 100%;
 }

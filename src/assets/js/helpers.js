@@ -1,3 +1,4 @@
+import config from './config.js';
 var cache, 
   mutedStream, 
   ac, 
@@ -12,24 +13,146 @@ var cache,
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
   isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
   isMobile = (window.orientation > -1) ? true :false,
-  typeOf = function(o) {
+  userMediaAvailable = function userMediaAvailable() {
+    return !!(
+      navigator.getUserMedia ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia
+    );
+  },
+  
+  typeOf = function typeOf(o) {
     return Object.prototype.toString
       .call(o).match(/(\w+)\]/)[1].toLowerCase();
   },
-  canCaptureStream = (document.createElement('canvas').captureStream && typeof document.createElement('canvas').captureStream === "function") ? true : false,
+  t = function t(i,r){
+    return r.test(i);
+  },
+  fromPath = function fromPath(obj, path) {
+    path = path.replace(/\[(\w+)\]/g, '.$1');
+    path = path.replace(/^\./, '');
+    var a = path.split('.');
+    //console.log(obj,path);
+    while (a.length) {
+      var n = a.shift();
+      if (obj && n in obj)
+        obj = obj[n];
+      else
+        return;
+    }
+    return obj;
+  },
+  sleep = async function sleep (time) {
+    return new Promise((resolve) => setTimeout(resolve, time));
+  },
+  toPath = function toPath(obj, path, value) {
+    if (typeOf(path) == "string")
+      var path = path.replace(/\[(\w+)\]/g, '.$1').replace(/^\./, '').split('.');
+    if (path.length > 1) {
+      var p = path.shift();
+      //console.log("p",p,"path",path,"objp",obj[p]);
+      if (fromPath(obj,p) == null) {
+        //console.log("were in","typeof p is",typeOf(p),"p is",p);
+        var r = /^\d$/;
+        if (t(p,r) || (path.length > 0 && t(path[0],r))) {
+          obj[p] = [];
+        } else if (!t(p,r) && typeOf(obj[p]) != 'object') {
+          obj[p] = {};
+        }
+      }
+      toPath(obj[p], path, value);
+    } else {
+      var p = path.shift();
+      var r = /^\d$/;
+      if (t(p,r) || typeOf(obj[p]) == "array") {
+        if (!obj[p] && typeOf(value) == "array") obj[p] = value;
+        else if (!obj[p] && typeOf(value) == "string") obj[p] = [value];
+        else obj[p] = value;
+      } else {
+        obj[p] = value;
+      }
+    }
+  },
+  canCaptureCanvas = ('captureStream' in HTMLCanvasElement.prototype) ? true : false,
+  canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true :false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
-  canCreateMediaStream = ('MediaStream' in window) ? true : false,
-  canPlayType = document.createElement("video").canPlayType,canplaymp4,canplayogv,canplaywebm;
-  try {
-    canplaymp4 = canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
-  } catch (err){ }
-  try {
-    canplayogv = canPlayType('video/ogg; codecs="theora,vorbis"'); 
-  } catch (err){ }
-  try { 
-    canplaywebm = canPlayType('video/webm; codecs="vp8,vorbis"'); 
-  } catch (err){ }
-if (canCreateMediaStream && canCaptureStream) {
+  canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
+  canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  
+  function getDevices() {
+    return new Promise(async(resolve,reject)=>{
+      if(!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices != "function") return reject('no mediaDevices');
+      let devices = await navigator.mediaDevices.enumerateDevices();
+      let grouped = {};
+      for (let i = 0; i !== Object.keys(devices).length; ++i) {
+        let asLength=0,aoLength=0,vsLength=0,oLength=0; 
+        const deviceInfo = devices[i];
+        if (deviceInfo.kind === 'audioinput') {
+          if(!grouped['as']) { 
+            grouped['as'] = {};
+          } 
+          let label = deviceInfo.label || `Mic ${asLength + 1}`;
+          grouped['as'][label] = deviceInfo;
+          asLength++;
+        } else if (deviceInfo.kind === 'audiooutput') {
+          if(!grouped['ao']) { 
+            grouped['ao'] = {};
+          } 
+          let label = deviceInfo.label || `Speaker ${aoLength + 1}`;
+          grouped['ao'][label] = deviceInfo;
+          aoLength++;
+        } else if (deviceInfo.kind === 'videoinput') {
+          if(!grouped['vs']) { 
+            grouped['vs'] = {};
+          } 
+          let label = deviceInfo.label || `Cam ${vsLength + 1}`;
+          grouped['vs'][label] = deviceInfo;
+          vsLength++;
+        } else {
+          if(!grouped['other']){
+            grouped['other'] = {}
+          }
+          let label = deviceInfo.label || `Other ${oLength + 1}`;
+          grouped['other']=deviceInfo;
+          oLength++;
+        }
+      }
+      return resolve(grouped);
+    });
+  }
+  var each = function each(o, fn) {
+    for (var i in o) fn(i, o[i]);
+  };
+  function removeElement(elementId) {
+    // Removes an element from the document
+    var element = document.getElementById(elementId);
+    if(element) element.parentNode.removeChild(element);
+  }
+  var copyToClipboard =  function copyToClipboard(text) {
+    if (window.clipboardData && window.clipboardData.setData) {
+        // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+        return clipboardData.setData("Text", text);
+    }
+    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+        var textarea = document.createElement("textarea");
+        textarea.textContent = text;
+        textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
+        }
+        catch (ex) {
+            console.warn("Copy to clipboard failed.", ex);
+            return false;
+        }
+        finally {
+            document.body.removeChild(textarea);
+        }
+    }
+  };
+if (canCreateMediaStream && canCaptureCanvas) {
   MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
     // TODO: if elevatorJingle, add some random track of annoying music instead :D
     let audio = new AudioContext();
@@ -41,11 +164,16 @@ if (canCreateMediaStream && canCaptureStream) {
     });
   };
 
-  MutedVideoTrack = ({ width = 320, height = 240 } = {}) => {
+  MutedVideoTrack = ({ width = 320, height = 180 } = {}) => {
     let c = Object.assign(document.createElement("canvas"), { width, height });
     let ctx = c.getContext("2d");
     let stream = c.captureStream();
     ctx.fillRect(0, 0, width, height);
+    ctx.font = '18px';
+    ctx.fillStyle = 'rgb(' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ')';
+    ctx.textAlign = "center";
+    ctx.fillText("¯\\_(ツ)_/¯ ", width/2, c.height/2);
+    ctx.drawImage(document.getElementById('local'), 0, 0, width/2, c.height/2);
     if (window && window.meethrix == true) {
       //EASTER EGG
       var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
@@ -67,7 +195,7 @@ if (canCreateMediaStream && canCaptureStream) {
             drops[i] = 0;
           drops[i]++;
         }
-        if (window.requestAnimationFrame) requestAnimationFrame(draw); //too fast
+        setTimeout(draw,33);
         //else
         //  setTimeout(draw,33);
       }
@@ -78,6 +206,7 @@ if (canCreateMediaStream && canCaptureStream) {
   MutedStream = (videoOpts, audioOpts) =>
     new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
 } else {
+  
   console.warn("no MediaStream constructor, we're IE/Edge/Safari");
   // LOAD VIDEO
   var mediaSource = new MediaSource(), 
@@ -112,6 +241,14 @@ if (canCreateMediaStream && canCaptureStream) {
   };
 }
 export default {
+  copyToClipboard,
+  removeElement,
+  fromPath,
+  toPath,
+  typeOf,
+  sleep,
+  each,
+  getDevices,
   isEdge() {
     return isEdge;
   },
@@ -142,14 +279,20 @@ export default {
   canCaptureAudio(){
     return canCaptureAudio;
   },
-  canplaymp4(){
-    return canplaymp4;
+  canSelectAudioDevices(){
+    return canSelectAudioDevices;
   },
-  canplayogv(){
-    return canplayogv;
+  canPlayType(type){
+    return document.createElement("video").canPlayType(type);
   },
-  canplaywebm(){
-    return canplaywebm;
+  canPlayMP4(){
+    return this.canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
+  },
+  canPlayOGG(){
+    return this.canPlayType('video/ogg; codecs="theora,vorbis"');
+  },
+  canPlayWEBM(){
+    return this.canPlayType('video/webm; codecs="vp8,vorbis"');
   },
   getOrientation(){
     if(window.innerHeight && window.innerWidth){
@@ -163,23 +306,44 @@ export default {
       return "landscape";
     }
   },
-  typeOf(...args){
-    return typeOf(...args);
+  attachSinkToVideo(video, sinkId, select) {
+    if (typeof video.sinkId !== 'undefined') {
+      return video.setSinkId(sinkId)
+          .then(() => {
+            console.log(`Success, audio output device attached: ${sinkId}`);
+          })
+          .catch(error => {
+            let errorMessage = error;
+            if (error.name === 'SecurityError') {
+              errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+            }
+            console.error(errorMessage);
+            // Jump back to first output device in the list as it's the default.
+            select.selectedIndex = 0;
+          });
+    } else {
+      console.warn('Browser does not support output device selection.');
+    }
+  },
+  setAudioToVideo(audio,video) {
+    const sink = audio.value;
+    return this.attachSinkToVideo(video, sink, audio);
   },
   setVideoSrc(video,mediaSource){
-    let source;
+    let source,tof="";
+    this.addAudio(mediaSource);
     if(isOldEdge){
+      //if(video.id=="local") return;
       //console.log("typeOf mediasource",typeOf(mediaSource));
       if(!mediaSource) mediaSource = this.getMutedStream();
       source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
       video[tof=="mediastream"?"srcObject":"src"] = source;
-      return {video,source};
+        return {video,source};
     } else {
     if ("srcObject" in video) {
       try {
         source = mediaSource;
         video.srcObject = source;
-        this.addAudio(source);
       } catch (err) {
         console.warn("error setting mediaSource",err);
         source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
@@ -195,6 +359,18 @@ export default {
   },
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
+  },
+  hideVideo(elemId,state) {
+    var video = document.getElementById(elemId + "-widget");
+    if (video && state) {
+        if (state) {
+		console.log('hiding video', video);
+		video.setAttribute("hidden", true);
+        } else {
+		console.log('showing video', video);
+		video.removeAttribute("hidden", true);
+	}
+    }
   },
   closeVideo(elemId) {
     if (document.getElementById(elemId + "-widget")) {
@@ -249,17 +425,10 @@ export default {
     }
     return null;
   },
-  userMediaAvailable() {
-    return !!(
-      navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.msGetUserMedia
-    );
-  },
-  getUserMedia() {
+  userMediaAvailable,
+  getUserMedia(opts) {
     if (this.userMediaAvailable()) {
-      return navigator.mediaDevices.getUserMedia({
+      opts = opts && this.typeOf(opts) == "object" ? opts : {
         video: {
           height: {
             ideal: 720,
@@ -274,7 +443,8 @@ export default {
         audio: {
           echoCancellation: true,
         },
-      });
+      }
+      return navigator.mediaDevices.getUserMedia(opts);
     } else {
       throw new Error("User media not available");
     }
@@ -292,8 +462,10 @@ export default {
           {urls: 'stun:stun.services.mozilla.com'}*/,
       ],
     };
-    //return servers;
+    //return servers;    let srvs = (isEdge) ? ["turn:gamma.coder.fi"] : ["turns:gamma.coder.fi","turn:gamma.coder.fi"];
     return {
+      sdpSemantics: 'unified-plan',
+      //iceCandidatePoolSize: 2,
       iceServers: [
         { urls: ["stun:turn.hepic.tel"] },
         { urls: ["stun:stun.l.google.com:19302"] },
@@ -352,7 +524,6 @@ export default {
 
   addVideoElementEvent(elem, type = "pip") {
     if ("pictureInPictureEnabled" in document 
-      && typeof elem.requestPictureInPicture === 'function' 
       && type == "pip") {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
@@ -388,21 +559,22 @@ export default {
     }
   },
   collectAudio() {
-    if(!this.canCaptureAudio()) return false;
     ac = new AudioContext();
     mediaStreamDestination = new MediaStreamAudioDestinationNode(ac);
-    return {ac,mediaStreamDestination};
   },
   addAudio(stream) {
-    if(!this.canCaptureAudio()) return stream;
-    let audioCtx = this.collectAudio();
-    if (audioCtx) {
+    if (ac != undefined && ac != null) {
       var mediaElementSource = ac.createMediaStreamSource(stream);
       mediaElementSource.connect(mediaStreamDestination);
     }
-    return {audioCtx,mediaElementSource};
   },
   recordAudio() {
+    if (!this.canCaptureAudio()) return stream;
+    this.collectAudio();
+    var all = document.getElementsByTagName("video");
+    for (var i = 0, max = all.length; i < max; i++) {
+      this.addAudio(all[i].captureStream());
+    }
     mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
     console.log(mediaRecorder.state);
     console.log("recorder started");
@@ -430,19 +602,23 @@ export default {
     mediaRecorder.stop();
     console.log(mediaRecorder.state);
     console.log("recorder stopped");
+    mediaStreamDestination = null;
+    ac = null;
   },
   addVideo(partnerName, stream) {
-    stream = stream ? stream : this.getMutedStream();
     // video element
+    var videohtml = `<video id="${partnerName}-video" autoplay playsinline>
+    <source src="/assets/video/muted.webm" type="video/webm">
+    <source src="/assets/video/muted.mp4" type="video/mp4">  
+    <source src="/assets/video/muted.ogg" type="video/ogv">
+    </video>`;
+    var videoParent = document.createElement('div.offscreen'); 
+    videoParent.innerHTML = videohtml;
+    document.body.appendChild(videoParent);
     let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
-    newVid.id = `${partnerName}-video`;
-    newVid.poster = "assets/images/poster.gif";
-    newVid.onplay = function(){this.poster = ""};
-    this.setVideoSrc(newVid, stream);
-    newVid.autoplay = true;
+
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
-    //newVid.style.zIndex = -1;
     //video div
     var videoDiv = document.createElement('div');
     videoDiv.id = partnerName
@@ -453,10 +629,31 @@ export default {
     topToolbox.className = "top-widget-toolbox"
 
     // close window button // should include close video method
-    var closeButton = this.addButton("close-video-button","widget-button","far fa-window-close")
+    var closeButton = this.addButton("close-video-button","widget-button","fas fa-expand")
+    closeButton.addEventListener('click',function(){
+      // do fullscreen
+      var elem = document.getElementById(`${partnerName}-video`);
+      if (elem){
+        if (elem.requestFullscreen) {
+          elem.requestFullscreen();
+        } else if (elem.mozRequestFullScreen) { /* Firefox */
+          elem.mozRequestFullScreen();
+        } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+          elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE/Edge */
+          elem.msRequestFullscreen();
+        }
+      }
+    });
 
     // full screen button
     var fullscreenBtn = this.addButton("full-screen-button","widget-button","fas fa-share-square")
+    fullscreenBtn.addEventListener('click',function(){
+	    var doubleClickEvent = document.createEvent('MouseEvents');
+	    doubleClickEvent.initEvent('dblclick', true, true);
+	    var vselect = document.getElementById(`${partnerName}-video`);
+	    if (vselect) vselect.dispatchEvent(doubleClickEvent);
+    });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
 
     // autopilot button
@@ -494,9 +691,11 @@ export default {
     realgrid.appendChild(ogrid);
 
     // Play join notification
-    let src = 'assets/sounds/join.mp3';
-    let audio = new Audio(src);
-    audio.play();
+    try {
+      let src = 'assets/sounds/join.mp3';
+      let audio = new Audio(src);
+      audio.play();
+    } catch(err){}
     // Play with Speech
     /*
     let synth = window.speechSynthesis;
@@ -719,5 +918,5 @@ export default {
 
   removeBandwidthRestriction(sdp) {
    return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
-  },
+  }
 };
