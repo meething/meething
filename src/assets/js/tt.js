@@ -13,12 +13,12 @@ export default class tt {
   for adding new type: 
   add new class to templates
   add new type into ui
-// element params : 'type' , {data}          
-const saber = return new tt('button',{id:'saber',classList:['saber'],text:'saber'}).create();
-// element.create
-let sword = saber.create()
-sword.classList.add('sword')
-console.log(sword);
+// element create w / params : 'type' , {data}      
+
+const saber = return new tt('button',{id:'saber',classList:['saber','sword'],text:'saber'}).create();
+
+console.log(saber);
+// <button id="saber" class="saber sword">saber</button>
 */
 
 
