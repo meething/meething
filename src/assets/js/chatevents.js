@@ -55,7 +55,7 @@ export default class ChatEvents {
     }
 
     async showTime(timezone, data) {
-        let response = await fetch("http://worldtimeapi.org/api/timezone/" + timezone);
+        let response = await fetch("https://worldtimeapi.org/api/timezone/" + timezone);
         if (response.ok) {
             let json = await response.json();
             data.msg = json.datetime;
