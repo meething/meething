@@ -39,6 +39,9 @@ export default class ChatEvents {
                 case "qvdev":
                     this.showTime("Europe/Amsterdam", data)
                     return true;
+                case "jabis":
+                    this.showTime("Asia/Bangkok",data)
+                    return true;
                 default:
                     return false;
             }
