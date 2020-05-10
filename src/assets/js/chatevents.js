@@ -4,6 +4,7 @@ export default class ChatEvents {
     constructor(eventEmitter) {
         this.eventEmitter = eventEmitter;
         this.init();
+        return this;
     }
 
     init() {
@@ -22,6 +23,7 @@ export default class ChatEvents {
                 self.showInChat(data);
             }
         });
+        return this;
     }
 
     executeCommand(data) {
