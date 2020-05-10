@@ -12,7 +12,6 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
-
 var DEBUG = false; // if (DEBUG) 
 var TIMEGAP = 6000;
 var allUsers = [];
