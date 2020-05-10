@@ -31,11 +31,11 @@ export default class Graph {
         div.style.visibility = 'hidden';
         div.style.right = '0px';
         div.style.bottom = '0px';
+        div.style.pointerEvents = 'none';
         div.style.width = window.innerWidth;
         div.style.height = window.innerHeight;
         div.style.zIndex = '100000';
-        div.style.borderRadius = '15%';
-        div.style.backgroundColor = "rgba(200,200,200,0.2)"
+        div.style.backgroundColor = "rgba(100,100,100,0.1)"
         div.setAttribute('id','graphDiv')
         // append the svg to floating div
         div.appendChild(svg)
