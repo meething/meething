@@ -35,12 +35,15 @@ export default class ChatEvents {
                         "/help - this will trigger this information";
                     this.showInChat(data);
                     return true;
-                case "qxip":
+                case "qxip": 
                 case "qvdev":
                     this.showTime("Europe/Amsterdam", data)
                     return true;
                 case "jabis":
                     this.showTime("Asia/Bangkok",data)
+                    return true;
+                case "joe":
+                    data.msg = "&#128526;"
                     return true;
                 default:
                     return false;
