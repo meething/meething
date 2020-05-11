@@ -10,7 +10,7 @@
 .tingle-modal {
   font-family: Helvetica, Arial, Helvetica, sans-serif;
   position: fixed;
-  top: 50px;
+  top: 20px;
   margin: 0 auto;
   right: 0;
   bottom: 0;
@@ -73,13 +73,10 @@
 
 .tingle-modal-box {
   position: relative;
-  margin-top: auto;
-  margin-bottom: auto;
   background: none;
   opacity: 1;
   cursor: auto;
   will-change: transform, opacity;
-  
 }
 
 .tingle-modal-box__content {
@@ -99,23 +96,27 @@ font-size:2em;
 }
 
 .tingle-modal-box__footer {
-  padding: 1rem 1rem;
-  cursor: auto;
-  
+position:relative;
+margin:0 auto;
+display:flex;
+justify-content: space-around;
+width:100%;
+
+cursor: auto;
+
 }
 
-.tingle-modal-box__footer::after {
-  display: table;
-  clear: both;
-  content: "";
-}
 
 .tingle-modal-box__footer--sticky {
-  position: fixed;
-  bottom: 70px; /* TODO : find a better way */
-  z-index: 10001;
+  position: relative;
+
+   /* TODO : find a better way */
+  z-index: 10000;
   opacity: 1;
+  width:100%;
   transition: bottom .3s ease-in-out .3s;
+  display:flex;
+  justify-content: space-around;
 }
 
 /* state
@@ -147,20 +148,20 @@ font-size:2em;
 
 .tingle-modal--overflow {
   overflow-y: scroll;
-  padding-top: 8vh;
+  
 }
 
 /* btn
 -------------------------------------------------------------- */
 
 .tingle-btn {
+ 
   display: inline-block;
   margin: 0 .5rem;
-  padding: .5rem 2rem;
   border: none;
-  background:transparent;
+  background:#14101b;
   box-shadow: none;
-  color: #fff;
+  color: white;
   vertical-align: middle;
   text-decoration: none;
   font-size: inherit;
@@ -171,6 +172,9 @@ font-size:2em;
   border-radius:3px;
   box-shadow:2px 2px 4px #14101bbb;
   margin:5px;
+  padding:10px;
+
+
 
 }
 
@@ -214,14 +218,8 @@ font-size:2em;
 -------------------------------------------------------------- */
 
 @media (max-width : 540px) {
-  .container, .container-fluid{
-    margin:20px !important;
-  }
-  .tingle-modal {
-    top: 50px;
-  
-   
-  }
+
+
 
   .tingle-modal-box {
   
@@ -243,7 +241,7 @@ font-size:2em;
 
   .tingle-modal-box__footer .tingle-btn {
     display: block;
-    float: none;
+
     margin-bottom: 1rem;
     width: 100%;
   }
@@ -330,10 +328,7 @@ background:#473761bb;
  color:white;
  
 }
-.speech-msg {
-  
-  opacity:.75;
-}
+
 .speech-bubble-user {
 	position: relative;
   border-radius: 3px;
