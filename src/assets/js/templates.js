@@ -140,5 +140,21 @@ export class MenuItem {
   }
 }
 
+export class Text{
+  // type,classname,id,content
+  constructor(c){
+    this.c = c;
+    return this;
+  }
+  create(){
+    let {type,classList,id,content} = this.c.data;
+    let txt = document.createElement(type);
+    txt.id = id;
+    classList.forEach(c => txt.classList.add(c));
+    txt.innerHTML = content;
+    return txt;
+  }
+}
+
 export class Link{}
 

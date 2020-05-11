@@ -3,14 +3,15 @@ export default class ui  {
 
 constructor(){
     this.type = {
-        button : t.Button,
+        button : t.Button, //
         video : t.Video,
         bubble: t.Bubble,
         chat: t.Chat,
         menu: t.Menu,
         widget: t.Widget,
         link: t.Link,
-        input: t.Input,
+        text: t.Text, // 
+        input: t.Input, //
         textarea: t.Textarea
     }
 }
