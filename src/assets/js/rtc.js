@@ -12,6 +12,8 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import ChatEvents from "./chatevents.js"
+
 var DEBUG = false; // if (DEBUG) 
 var TIMEGAP = 6000;
 var allUsers = [];
@@ -49,6 +51,7 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
+var chatEvents;
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -56,6 +59,7 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
+  chatEvents = new ChatEvents(ee);
   //initSocket(); // letting socket start for now
   modal = window.modal = new tingle.modal({
     closeMethods: [],
@@ -284,6 +288,9 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on('nouser:cancel',cancelFn);
   ee.on('noroom:cancel',cancelFn);
   ee.on('setup:cancel',cancelFn);
+  ee.on("Chat-Message", function (data) {
+    metaData.sendChatData(data);
+  });
   
   function resetDevices() {
     var as = document.getElementById('as');
@@ -577,22 +584,21 @@ var reinit = window.reinit = async function(){
   let stuff = await initSocket();
   return stuff;
 }
+
 function sendMsg(msg, local) {
   let data = {
-    room: room,
-    msg: msg,
-    sender: username || socketId
+      room: room,
+      msg: msg,
+      sender: username || socketId
   };
 
-  //emit chat message
-  if (!local) {
-    if (data.sender && data.to && data.sender == data.to) return;
-    if (!data.ts) data.ts = Date.now();
-    metaData.sendChatData(data);
+  if (local) {
+      ee.emit("local", data)
+  } else {
+      ee.emit("tourist", data)
   }
-  //add localchat
-  h.addChat(data, "local");
 }
+
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
   if(damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
