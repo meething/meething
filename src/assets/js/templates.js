@@ -29,17 +29,24 @@ export class Button {
 }
 
 
-class Input {
-  constructor(type,id,classList,placeholder,active){
-    this.type = type;
-    this.id = id;
-    this.classList = classList;
-    this.placeholder = placeholder;
-    this.active = active;
+export class Input {
+  constructor(c){
+    this.c = c;
+    return this;
+  }
+  create = () => {
+    let {type,id,classList,attr,placeholder,active} = this.c.data;
+    let inp = document.createElement("input");
+    inp.type = type;
+    inp.id = id
+    classList.forEach(c => inp.classList.add(c))
+    attr.forEach(a => inp.setAttribute(a,true));
+    inp.placeholder = placeholder;
+    inp.active = active;
+    return inp;
   }
 
 }
-
 
 export  class Textarea {
   constructor(id,classList,content,text){
