@@ -3,6 +3,7 @@ export default class ui  {
 
 constructor(){
     this.type = {
+        t : t.Template,
         button : t.Button, //
         video : t.Video,
         bubble: t.Bubble,
