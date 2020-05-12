@@ -110,7 +110,8 @@ body {
 .sender-info {
   font-size: smaller;
   margin-top: 5px;
-  align-self: flex-end;
+  align-self: flex-start;
+  color:grey;
 }
 
 .msg {
