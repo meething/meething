@@ -14,11 +14,11 @@ import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 import Graph from "./graphThing.js";
 
-var DEBUG = false; // if (DEBUG)
+var DEBUG = true; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
-var meethrix = window.meethrix = true,
+var meethrix = window.meethrix = false,
 autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD
 window.h = h;
 var ee = null,
@@ -742,7 +742,8 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
-
+      root.get('meething').get(room).get(socketId).get(data.socketId).put({label:data.name});
+      ee.emit('graph:update');
       init(true, data.socketId);
     });
 
@@ -950,7 +951,7 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
           h.showNotification("Audio Muted");
-          myStream.getAudioTracks()[0].enabled = !audioMuted; 
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
         });
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
