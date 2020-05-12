@@ -49,7 +49,10 @@ export default class ChatEvents {
                     this.showTime("America/Vancouver",data)
                     return true;
                 case "graph":
-                    this.eventEmitter.emit("graph:toggle")
+                    this.eventEmitter.emit("graph:toggle", data)
+                    return true;
+                case "graphU":
+                    this.eventEmitter.emit("graph:update", data)
                     return true;
                 default:
                     return false;

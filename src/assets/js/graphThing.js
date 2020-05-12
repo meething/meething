@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 export default class Graph {
   constructor (gun, eventEmitter) {
@@ -68,7 +68,7 @@ export default class Graph {
       nodes = new Map();
       edges = new Map();
       start = await root.get(start).promOnce();
-      nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
+      nodes.set(start.key, {id:start.key, label:start.data.label || start.key, data:start.data});
       u = start;
       stack.push(u);
       do{
@@ -77,7 +77,7 @@ export default class Graph {
           await delay(20); //play with this value
           var edge = exhausted(u.data, edges, true);
           var v = await root.get(edge).promOnce();
-          nodes.set(v.key, {id:v.key, label:v.data.label, data:v.data});
+          nodes.set(v.key, {id:v.key, label:v.data.label || v.key , data:v.data});
           edges.set(u.key+v.key, {source:u.key, target:v.key});
           stack.push(v);
         }
@@ -144,10 +144,14 @@ export default class Graph {
     });
     this.eventEmitter.on('graph:toggle', function () {
       var graphDiv = document.getElementById('graphDiv');
-      if(graphDiv.style.visibility == 'hidden') {
-        graphDiv.style.visibility == 'visible';
-      } else if(graphDiv.style.visibility == 'visible'){
-        graphDiv.style.visibility == 'hidden';
+      if(graphDiv) {
+        if(graphDiv.style.visibility == 'hidden') {
+          graphDiv.style.visibility = 'visible';
+        } else if(graphDiv.style.visibility == 'visible'){
+          graphDiv.style.visibility = 'hidden';
+        } else {
+          console.error('Graph not available at this time', graphDiv);
+        }
       } else {
         console.error('Graph not available at this time', graphDiv);
       }

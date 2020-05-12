@@ -108,7 +108,7 @@ function buildString (n, e, w, h) {
       substring += 'cy="'+node.y+'" ';
       substring += 'r="5" /> ';
       substring += '<text x="'+(node.x+5)+'" y="'+(node.y-10)+'" ';
-      substring += 'fill="rgb(11,14,21)">'/*+color(node.id)+'">'*/;
+      substring += 'fill="rgb(110,140,210)">'/*+color(node.id)+'">'*/;
       substring += node.label;
       substring += '</text>';
       string += substring;

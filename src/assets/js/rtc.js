@@ -652,7 +652,7 @@ function metaDataReceived(data) {
       }
     } else if (data.subEvent == "mute") {
       if (data.muted) {
-        var notification = data.username + " is going silence";
+        var notification = data.username + " is going silent";
         h.showNotification(notification);
       } else {
         var notification = data.username + " is on speaking terms"
@@ -750,8 +750,10 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
+      // add info to grap, socketId label
       root.get('meething').get(room).get(socketId).put({label:socketId});
-      root.get('meething').get(room).get(socketId).get(data.socketId).put({label:data.name});
+      // add person we are connecting to
+      root.get('meething').get(room).get(socketId).get(data.socketId).put({label:data.name || data.socketId});
       ee.emit('graph:update');
       init(true, data.socketId);
     });
