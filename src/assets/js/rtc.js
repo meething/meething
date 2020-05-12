@@ -1,6 +1,6 @@
 /**
  * @author Jabis Sevón <jabis.is@gmail.com>
- * @date 1st May, 2020 
+ * @date 1st May, 2020
  * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
  * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
@@ -13,13 +13,15 @@ import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 import ChatEvents from "./chatevents.js"
+import Graph from "./graphThing.js";
 
-var DEBUG = false; // if (DEBUG) 
+
+var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
 var meethrix = window.meethrix = true,
-autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD 
+autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD
 window.h = h;
 var ee = null,
   modal = null;
@@ -52,6 +54,8 @@ var damSocket;
 var presence;
 var metaData;
 var chatEvents;
+var graph;
+
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -78,7 +82,7 @@ window.addEventListener('DOMContentLoaded', function () {
             if(deviceSelection.hidden) {
               deviceSelection.hidden=false;
               resetDevices();
-              ee.emit('modal:filled',modal);   
+              ee.emit('modal:filled',modal);
             }
           })
         } else {
@@ -117,12 +121,12 @@ window.addEventListener('DOMContentLoaded', function () {
                 //show message with link to room
                 document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
                 var clip = document.getElementById('clipMe');
-                if(clip) clip.addEventListener('click',function(e){ 
-                  e.preventDefault(); 
-                  h.copyToClipboard(e.target.href); 
-                  if(errmsg) { 
-                    errmsg.innerHTML='Link copied to clipboard '+roomLink; 
-                  } 
+                if(clip) clip.addEventListener('click',function(e){
+                  e.preventDefault();
+                  h.copyToClipboard(e.target.href);
+                  if(errmsg) {
+                    errmsg.innerHTML='Link copied to clipboard '+roomLink;
+                  }
                 });
                 //empty the values
                 document.querySelector('#room-name').value = roomgen;
@@ -163,7 +167,7 @@ window.addEventListener('DOMContentLoaded', function () {
     console.log('Arguments are ', args);
     let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? {value: sessionStorage.getItem('username')} : false;
     let _pass = document.querySelector('#room-pass');
-    
+
     if(!_name || !_name.value) return;
     if (_name && _name.value) {
       sessionStorage.setItem('username', _name.value);
@@ -189,7 +193,7 @@ window.addEventListener('DOMContentLoaded', function () {
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
-    
+
     if(!_name || !_name.value || !_room  || !_room.value) {
       document.querySelector('#err-msg').innerHTML = "Room and username fields are required";
       return;
@@ -219,7 +223,7 @@ window.addEventListener('DOMContentLoaded', function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
     let _name = document.querySelector('#username');
     let _pass = document.querySelector('#room-pass');
-    
+
     if (!_name || !_name.value) { return; }
     if (_name && _name.value) {
       sessionStorage.setItem('username', _name.value);
@@ -246,7 +250,7 @@ window.addEventListener('DOMContentLoaded', function () {
     console.log('Arguments are ', args);
     let _name = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
-    
+
     if (_name && _name.value) {
       room = _name.value
     }
@@ -291,7 +295,7 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on("Chat-Message", function (data) {
     metaData.sendChatData(data);
   });
-  
+
   function resetDevices() {
     var as = document.getElementById('as');
     var ao = document.getElementById('ao');
@@ -389,13 +393,13 @@ window.addEventListener('DOMContentLoaded', function () {
       </div>
       <div class="col m-1 mb-3 mx-auto">
       <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
-      
+
       </button>
       
       </div>
   </div>
   </div>
- 
+
 </div>
 
 <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
@@ -422,9 +426,9 @@ window.addEventListener('DOMContentLoaded', function () {
       </div>
     </div>
     </div>
-   
+
   `;
-   
+
   ee.on('navigator:gotDevices',function(devices){
     //console.log('hello',devices);
     ["as","ao","vs"].map(function(group){
@@ -434,9 +438,9 @@ window.addEventListener('DOMContentLoaded', function () {
       h.each(devs,function(label,device){
         //console.log(label,device);
         var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
-        if(!opt) { 
-          opt = document.createElement('option'); 
-          opt.id= label.replace(/[^a-zA-Z0-9]/g,''); 
+        if(!opt) {
+          opt = document.createElement('option');
+          opt.id= label.replace(/[^a-zA-Z0-9]/g,'');
         }
         opt.value = device.deviceId;
         opt.text = label;
@@ -487,6 +491,7 @@ window.addEventListener('DOMContentLoaded', function () {
       <div class="col-md-4 mt-4 mx-auto room-form"> 
       <h4 class="speech-msg"> 
       Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
+
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
@@ -494,6 +499,7 @@ window.addEventListener('DOMContentLoaded', function () {
       ${passwinput} <br/>
      
       </div> 
+
     </div>
     `;
     return loadModal(modal,modalContent,'nouser');
@@ -509,6 +515,7 @@ window.addEventListener('DOMContentLoaded', function () {
        </div> 
       <div class='col-md-4 mt-4 mx-auto room-form'> 
       <h4 class='speech-msg'> 
+
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
       Please enter the room name you want to join or create below! </p>
@@ -518,6 +525,7 @@ window.addEventListener('DOMContentLoaded', function () {
       </div> 
     </div> 
     </div>`;
+
 
     return loadModal(modal,modalContent,'noroom');
   }else {
@@ -545,7 +553,7 @@ window.addEventListener('DOMContentLoaded', function () {
       </div>
       </div>
       `
-      
+
     return loadModal(modal,modalContent,'setup');
   }
 
@@ -573,12 +581,13 @@ async function initSocket() {
       console.log(r);
       roomPeer = config.multigun+r; //"https://gundb-multiserver.glitch.me/" + room;
     }
-
+    localStorage.clear();
     var peers = [roomPeer];
-    var opt = { peers: peers, localStorage: false, radisk: false };
+    var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
     window.room = room;
     root = window.root = Gun(opt);
-    
+    graph = new Graph(root, ee)
+
     socket = window.socket = root
       .get("meething")
       .get(room)
@@ -676,6 +685,7 @@ function metaDataReceived(data) {
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
   }
+  ee.emit('graph:update');
 }
 
 function initRTC() {
@@ -701,6 +711,7 @@ function initRTC() {
 
     console.log("Starting! you are", socketId);
     presence.update(username, socketId);
+
 
     // Initialize Session
     damSocket.out("subscribe", {
@@ -985,7 +996,7 @@ function initRTC() {
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
           audioMuted = false;
-          //localVideo.srcObject = mine; 
+          //localVideo.srcObject = mine;
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
@@ -1102,7 +1113,7 @@ function init(createOffer, partnerName) {
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
 
-  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE! 
+  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE!
   //TODO: KNOWN REGRESSION IN THIS BRANCH IS MUTING DOES NOT WORK!
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -1335,7 +1346,7 @@ function init(createOffer, partnerName) {
       case "stable":
         pcPartnerName.isNegotiating = false;
         break;
-      case "closed": 
+      case "closed":
         console.log("Signalling state is 'closed'");
 	// Do we have a connection? If not kill the widget
 	if (pcPartnerName.iceConnectionState !== "connected") {
