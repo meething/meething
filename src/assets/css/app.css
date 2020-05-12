@@ -39,8 +39,9 @@ body {
   z-index: 1000;
 }
 #chat-messages {
-  top:90px !important;
-  height: 70vh;
+
+  top:0px;
+  height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
@@ -229,11 +230,11 @@ body {
 }
 .bg-info {
   background-color: #c2c2c222 !important;
-  
 }
 
 .bg-green {
   background-color: #d7f7c5 !important;
+ 
 }
 
 .card {
@@ -532,4 +533,9 @@ margin-bottom:10px;
   border-radius:10px 0px 0px 10px;
 
 }
-
+#toggle-cam-preview {
+  position:absolute;
+  top:40px;
+  left:20px;
+  z-index:10000;
+}
