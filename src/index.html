@@ -32,12 +32,12 @@
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-
+  
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/lib/promise.js"></script>
-  <!-- <script src="assets/js/webrtc.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/gun/lib/then.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
 
 </head>
 
@@ -100,7 +100,7 @@
       <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-modal" title="Room Settings">
         <i class="fa fa-cog text-white"></i>
       </button>
-
+      
       <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
         <a href="/" class="text-danger text-decoration-none">
           <i class="fas fa-sign-out-alt text-white"></i>
@@ -115,17 +115,17 @@
   <div class="container-fluid room-comm" hidden>
     <div class="row">
 
-
+   
     <div id="localStream">
       <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
         <source src="/assets/video/muted.webm"
         type="video/webm">
         <source src="/assets/video/muted.mp4"
-        type="video/mp4">
+        type="video/mp4">  
         <source src="/assets/video/muted.ogg"
         type="video/ogv">
       </video-->
-
+      
     </div>
     <div id="localshadow"></div>
   </div>
@@ -171,7 +171,7 @@
 	    for(var mutation of mutationsList) {
 	        if (mutation.type == 'childList') {
 	          // console.log('watch grid has changed or child has been added/removed');
-
+		  
 		  document.getElementById('emptyroom').hidden = true;
 
 		  var count = document.getElementById('grid').childElementCount;
@@ -204,7 +204,7 @@
     });
   </script>
 
-
+  
 </body>
 
 </html>
