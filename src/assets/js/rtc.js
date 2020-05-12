@@ -750,6 +750,7 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
+      root.get('meething').get(room).get(socketId).put({label:socketId});
       root.get('meething').get(room).get(socketId).get(data.socketId).put({label:data.name});
       ee.emit('graph:update');
       init(true, data.socketId);

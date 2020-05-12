@@ -142,5 +142,15 @@ export default class Graph {
         })
       }
     });
+    this.eventEmitter.on('graph:toggle', function () {
+      var graphDiv = document.getElementById('graphDiv');
+      if(graphDiv.style.visibility == 'hidden') {
+        graphDiv.style.visibility == 'visible';
+      } else if(graphDiv.style.visibility == 'visible'){
+        graphDiv.style.visibility == 'hidden';
+      } else {
+        console.error('Graph not available at this time', graphDiv);
+      }
+    });
   }
 }
