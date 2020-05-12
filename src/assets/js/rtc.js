@@ -343,8 +343,10 @@ window.addEventListener('DOMContentLoaded', function () {
     });
 
   }
+ 
   var modalContent="";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+
   var cammicsetc =
     h.isOldEdge() || !autoload
       ? `
@@ -376,17 +378,20 @@ window.addEventListener('DOMContentLoaded', function () {
  </div>
 
     <div class="preview-video-buttons row col-md-12">
-
+    <div class="col m-1 mb-3 mx-auto">
+    <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
+    
+    </div>
     <div class="col m-1 mb-3 mx-auto">
       <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
+     
       </div>
       <div class="col m-1 mb-3 mx-auto">
       <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
       
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
+      
       </div>
   </div>
   </div>
@@ -396,8 +401,9 @@ window.addEventListener('DOMContentLoaded', function () {
 <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
 
     <div id="deviceSelection">
-
-      <div class="form-row">
+      
+      
+      <div class="form-row device-select" id="devices-menu" style="display: none;">
 
         <div class="col-md-4 mb-3">
          <label for="as" class="text-white">Mic:</label>
@@ -684,6 +690,7 @@ function initRTC() {
     }
 
     document.getElementById("demo").hidden = false;
+    document.getElementById("bottom-menu").hidden = false;
 
     socketId = h.uuidv4();
   damSocket.on("postauth",function(auth){
@@ -911,6 +918,32 @@ function initRTC() {
       }
 
     });
+    document.getElementById("svm").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!videoMuted) {
+        h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
+          videoMuted = true;
+          h.setVideoSrc(localVideo,muted);
+          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.add("fa-video-slash");
+	  h.showNotification("Video Disabled");
+        });
+      } else {
+        h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
+          h.setVideoSrc(localVideo,mine);
+          videoMuted = false;
+          e.srcElement.classList.add("fa-video");
+          e.srcElement.classList.remove("fa-video-slash");
+	  h.showNotification("Video Enabled");
+        });
+      }
+
+    });
 
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
@@ -962,7 +995,36 @@ function initRTC() {
       }
 
     });
+    document.getElementById("sam").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!audioMuted) {
+        h.replaceAudioTrackForPeers(pcMap, muted.getAudioTracks()[0]).then(r => {
+          audioMuted = true;
+          //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+          e.srcElement.classList.remove("fa-volume-up");
+          e.srcElement.classList.add("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Muted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted; 
+        });
+      } else {
+        h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
+          audioMuted = false;
+          //localVideo.srcObject = mine; 
+          e.srcElement.classList.add("fa-volume-up");
+          e.srcElement.classList.remove("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Unmuted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
+        });
+      }
 
+    });
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;
