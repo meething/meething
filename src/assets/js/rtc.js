@@ -12,9 +12,11 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import ChatEvents from "./chatevents.js"
 import Graph from "./graphThing.js";
 
-var DEBUG = true; // if (DEBUG)
+
+var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
@@ -51,7 +53,9 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
+var chatEvents;
 var graph;
+
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -59,6 +63,7 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
+  chatEvents = new ChatEvents(ee);
   //initSocket(); // letting socket start for now
   modal = window.modal = new tingle.modal({
     closeMethods: [],
@@ -93,7 +98,6 @@ window.addEventListener('DOMContentLoaded', function () {
       var cr = document.getElementById('create-room');
       if(cr)  cr.addEventListener('click', async (e) => {
             e.preventDefault();
-            cr.hidden=true;
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
@@ -109,6 +113,7 @@ window.addEventListener('DOMContentLoaded', function () {
                 let roomLink = `${location.origin}?room=${roomgen}`;
                 room = roomgen;
                 username = yourName;
+                cr.hidden=true;
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
@@ -134,8 +139,9 @@ window.addEventListener('DOMContentLoaded', function () {
             }
 
             else {
-                roomName.focus();
+
                 document.querySelector('#err-msg').innerHTML = "All fields are required";
+               // roomName.focus();
             }
         });
     }
@@ -269,7 +275,8 @@ window.addEventListener('DOMContentLoaded', function () {
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
-      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right mx-auto col-lg-3 col', function(e){
+
+      modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
@@ -285,6 +292,9 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on('nouser:cancel',cancelFn);
   ee.on('noroom:cancel',cancelFn);
   ee.on('setup:cancel',cancelFn);
+  ee.on("Chat-Message", function (data) {
+    metaData.sendChatData(data);
+  });
 
   function resetDevices() {
     var as = document.getElementById('as');
@@ -344,7 +354,7 @@ window.addEventListener('DOMContentLoaded', function () {
       ? `
       <div class="col-md-12">
       <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-  <div id="deviceSelection" hidden>
+    <div id="deviceSelection" hidden>
     <label for="as">Mic:</label><br/>
     <select id="as"></select><br/>
     <label for="ao">Speakers: </label><br/>
@@ -354,8 +364,7 @@ window.addEventListener('DOMContentLoaded', function () {
     <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
       <i class="fa fa-volume-up"></i>
     </button>
-    <button class="btn btn-lg btn btn-outline-light" id="svm" title="Mute/Unmute Video">
-      <i class="fa fa-video"></i>
+    <button class="btn btn-lg btn btn-outline-light fas fa-video" id="svm" title="Mute/Unmute Video">
     </button><br/>
     <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
   </div>
@@ -438,64 +447,69 @@ window.addEventListener('DOMContentLoaded', function () {
     devices = window.devices = devices;
     ee.emit('navigator:gotDevices',devices);
   });
-  var roominput = '<label for="room-name">Room Name</label>\
-  <input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" />';
-  var roomcreatebtn = '<button id="create-room" class="btn btn-block rounded-0 btn-info"> \
-    Create Room \
-  </button>'
-  var createnameinput = '<label for="your-name">Your Name</label> \
-  <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" />';
-  var passwinput = '<label for="your-name">Room password</label> \
-  <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />';
-  var roomcreated = '<div id="room-created"></div>';
-  var joinnameinput = '<label for="username">Your Name</label>\
-  <input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" />';
+  // default inputs
+  var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
+  var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
+  var passwinput = `<label for="room-pass">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
+  var roominput = `<label for="room-name">Room Name</label><input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/> `;
+  // @TODO disable roomcreate button when errors
+  var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
+  var roomcreated = `<div id="room-created"></div>`;
+
   if(room && username){
     // Welcome back xX!
-    modalContent = "\
-    <div class='row'>\
-    <div class='col-md-4 speech-bubble mx-auto'>\
-    " +cammicsetc+
-    "</div> \
-    <div class='col-md-4 mx-auto'> \
-    <h4 class='speechmsg'>Welcome back, <input type='hidden' id='username' value='"+username+"'/>"+username+"! </h4>\
-    <br>You're joining room: <input type='hidden' id='room-name' value='"+room+"'/>"+title+
-    "<br/>"+passwinput+"<br/>"
-   "</div> \
-    </div> ";
+    modalContent = `
+    <div class="container-fluid">
+    <div class="row">
+    <div class="col-md-4 speech-bubble mx-auto">
+     ${cammicsetc}
+    </div>
+    <div class="col-md-4 mt-4 mx-auto text-white">
+    <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
+    <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
+    <br/>${passwinput}<br/>
+    </div>
+    </div>
+    </div>`;
     return loadModal(modal,modalContent,'join');
     //
   } else if(room && !username){
     // set username and camera options
+    // when is room created
     modalContent =
     `
-    <div class='row'>
-    <div class='col-md-4 speech-bubble mx-auto'>
+    <div class="row">
+    <div class="col-md-4 speech-bubble mx-auto">
       ${cammicsetc}
        </div>
-      <div class='col-md-4 mx-auto room-form'>
-      <h4 class='speech-msg'>
-      Welcome, you're joining room <input type='hidden' id='room-name' value='${room}'/> ${title}</h4>
+      <div class="col-md-4 mt-4 mx-auto room-form">
+      <h4 class="speech-msg">
+      Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
+
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
-      ${passwinput} <br/>
       ${joinnameinput} <br/>
+      ${passwinput} <br/>
+
       </div>
+
     </div>
     `;
     return loadModal(modal,modalContent,'nouser');
-    //
+
   } else if (!room && username) {
+
     // enter room name to join
     modalContent = `
-
+  <div class="container-fluid">
     <div class='row'>
     <div class='col-md-4 speech-bubble mx-auto'>
       ${cammicsetc}
        </div>
-      <div class='col-md-4 mx-auto room-form'>
+      <div class='col-md-4 mt-4 mx-auto room-form'>
       <h4 class='speech-msg'>
+
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
       Please enter the room name you want to join or create below! </p>
@@ -503,32 +517,36 @@ window.addEventListener('DOMContentLoaded', function () {
     ${roominput}<br/>
     ${passwinput}<br/>
       </div>
-    </div> `;
+    </div>
+    </div>`;
+
 
     return loadModal(modal,modalContent,'noroom');
   }else {
     // Set up a new room
-    modalContent = "\
-    <div class='row'> \
-      <div class='col-md-4 speech-bubble mx-auto'> \
-        <p class='speech-msg'> \
-        Hey, let\'s set up a new room!</p> \
-        "+cammicsetc+" \
-      </div> \
-      <div class='col-md-4 mx-auto room-form'> \
-      <div class='d-none d-xs-none d-md-block'> \
-      <img \
-      src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67'\
-      width='200' style='filter:invert(1); opacity:.5' /> </div> \
-      <p>"+roomcreated+"</p> \
-      "+errmsg+"<br> \
-      "+createnameinput+"<br> \
-      "+roominput+"<br> \
-      "+passwinput+"<br> \
-      <br> <br>\
-      "+roomcreatebtn+"\
-       </div> \
-      </div>"
+    modalContent = `
+    <div class="container-fluid">
+    <div class='row'>
+      <div class='col-md-4 speech-bubble mx-auto'>
+        <p class='speech-msg'>
+        Hey, let\'s set up a new room!</p>
+        ${cammicsetc}
+      </div>
+      <div class='col-md-4 mx-auto mt-5 room-form'>
+        <div class='d-none d-xs-none d-md-block'>
+          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' />
+       </div>
+       <p>${roomcreated}</p>
+        ${errmsg}<br>
+        ${createnameinput}<br>
+        ${roominput}<br>
+        ${passwinput}<br>
+        <br> <br>
+        ${roomcreatebtn}
+       </div>
+      </div>
+      </div>
+      `
 
     return loadModal(modal,modalContent,'setup');
   }
@@ -537,8 +555,8 @@ window.addEventListener('DOMContentLoaded', function () {
 
 function loadModal(modal,createOrJoin,type){
   Object.assign(modal,{__type:type});
-  modal.setContent('<h1 class="mt-3 align-center">Setup your preferences</h1>'+createOrJoin);
-  modal.addFooterBtn('Reset', 'tingle-btn tingle-btn--default tingle-btn--pull-left mx-auto col-lg-4 col', function(e){
+  modal.setContent(`${createOrJoin}`);
+  modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
   });
@@ -575,22 +593,21 @@ var reinit = window.reinit = async function(){
   let stuff = await initSocket();
   return stuff;
 }
+
 function sendMsg(msg, local) {
   let data = {
-    room: room,
-    msg: msg,
-    sender: username || socketId
+      room: room,
+      msg: msg,
+      sender: username || socketId
   };
 
-  //emit chat message
-  if (!local) {
-    if (data.sender && data.to && data.sender == data.to) return;
-    if (!data.ts) data.ts = Date.now();
-    metaData.sendChatData(data);
+  if (local) {
+      ee.emit("local", data)
+  } else {
+      ee.emit("tourist", data)
   }
-  //add localchat
-  h.addChat(data, "local");
 }
+
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev,function () {
   if(damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
@@ -668,22 +685,13 @@ function metaDataReceived(data) {
 function initRTC() {
   if(inited) return;
   inited = true;
-  /*if (!room) {
-    document.querySelector("#room-create").attributes.removeNamedItem("hidden");
-  } else if (!username) {
-    document
-      .querySelector("#username-set")
-      .attributes.removeNamedItem("hidden");
-  } else { */
+
     damSocket = new DamEventEmitter(root, room);
     let commElem = document.getElementsByClassName("room-comm");
 
     for (let i = 0; i < commElem.length; i++) {
       commElem[i].hidden=false;
     }
-
-    /*if (localVideo)
-      mutedStream = h.setMutedStream(localVideo);*/
 
     document.getElementById("demo").hidden = false;
 
