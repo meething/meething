@@ -49,13 +49,6 @@ function Mediator () {
 
   // welcomeMat is fired as soon as the DOM is loaded
   this.welcomeMat = function () {
-    // does the below need a module of it's own
-    this.room = this.h.getQString(location.href, "room") ? this.h.getQString(location.href, "room") : "";
-    this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-    this.title = this.room.replace(/(_.*)/, '');
-    if (this.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = this.title;
-    this.ee = window.ee = new EventEmitter();
-    this.chatEvents = new ChatEvents(ee); // chat module should combine chat events and chat ?
     mModal.createModal(); // create and display
   };
 }
