@@ -9,7 +9,7 @@ export default class Graph {
       var graphWorker = new Worker('/assets/workers/workerGraph.js');
       // handle result from graphworker
       graphWorker.onmessage = function (event) {
-        if(this.mediator.this.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
+        if(this.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
         // parse result into an element
         var parser = new DOMParser();
         var el = parser.parseFromString(event.data.svgString, "image/svg+xml");
