@@ -93,7 +93,7 @@ export default class Modal {
           });
       }
     });
-    var modal = this.mediator.modal;
+    this.mediator.modal = modal;
     var toggleModal = document.getElementById('toggle-modal');
     if(toggleModal) toggleModal.addEventListener('click',e=>{
       e.preventDefault();
@@ -571,12 +571,15 @@ export default class Modal {
 
   navigatorGotDevices (devices) {
       if(this.mediator.DEBUG){console.log('hello',devices);}
-      ["as","ao","vs"].map(function(group){
+      var DEBUG = this.mediator.DEBUG;
+      var h = this.mediator.h;
+      var modal = this.mediator.modal;
+      ["as","ao","vs"].map(function(env, group){
         let devs = devices[group];
         var str = "";
         var qs = document.getElementById(group);
         h.each(devs,function(label,device){
-          if(this.mediator.DEBUG){console.log(label,device);}
+          if(DEBUG){console.log(label,device);}
           var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
           if(!opt) {
             opt = document.createElement('option');
