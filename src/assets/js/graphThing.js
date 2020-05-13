@@ -1,10 +1,6 @@
-const DEBUG = true;
-
 export default class Graph {
-  constructor (gun, eventEmitter) {
-    this.root = gun;
-    this.eventEmitter = eventEmitter;
-    this.init();
+  constructor (mediator) {
+    this.mediator = mediator;
   }
 
   init () {
@@ -13,7 +9,7 @@ export default class Graph {
       var graphWorker = new Worker('/assets/workers/workerGraph.js');
       // handle result from graphworker
       graphWorker.onmessage = function (event) {
-        if(DEBUG) {console.log('worker returned', event.data.svgString)}
+        if(this.mediator.this.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
         // parse result into an element
         var parser = new DOMParser();
         var el = parser.parseFromString(event.data.svgString, "image/svg+xml");
@@ -48,7 +44,7 @@ export default class Graph {
       /* Version 2 - traverse the room and all of its children
           enumerate into nodes and edges array as you go */
 
-      if(DEBUG) { console.log('Worker Version 2')}
+      if(this.mediator.DEBUG) { console.log('Worker Version 2')}
         // Breadth First Search
       var stack;
       var nodes;
@@ -58,16 +54,16 @@ export default class Graph {
       var label;
       var opt = true;
 
-      if(DEBUG) { console.log('Worker Version 2: Starting traversal')}
+      if(this.mediator.DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
-      if(DEBUG) {console.log('Starting with: meething')}
+      if(this.mediator.DEBUG) {console.log('Starting with: meething')}
 
       label = 'label';
       start = 'meething';
       stack = [];
       nodes = new Map();
       edges = new Map();
-      start = await root.get(start).promOnce();
+      start = await this.mediator.root.get(start).promOnce();
       nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
       u = start;
       stack.push(u);
