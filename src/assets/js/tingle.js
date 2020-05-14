@@ -256,6 +256,18 @@
 
     return btn
   }
+  Modal.prototype.addActionBtn = function(label, cssClass, callback) {
+    var btn = document.createElement('button')
+    btn.innerHTML = label
+    btn.addEventListener('click',callback)
+    if (typeof cssClass === 'string' && casClass.length) {
+      cssClass.split(' ').forEach(function (item) {
+        btn.classList.add(item)
+      })
+    }
+    this.modalBoxAction.appendChild(btn)
+    return btn
+  }
 
   Modal.prototype.resize = function () {
     // eslint-disable-next-line no-console
@@ -362,7 +374,7 @@
   function _buildFooter () {
     this.modalBoxFooter = document.createElement('div')
     this.modalBoxFooter.classList.add('tingle-modal-box__footer')
-    this.modalBoxFooter.classList.add('row')
+    //this.modalBoxFooter.classList.add('row')
     this.modalBox.appendChild(this.modalBoxFooter)
   }
 

@@ -80,6 +80,7 @@
 }
 
 .tingle-modal-box__content {
+  padding-bottom:0px !important;
   color:  #3f2d5f;
 
 }
@@ -403,4 +404,13 @@ border-radius:3px;
   font-family: Helvetica, Arial, sans-serif !important;
   font-weight: lighter !important;
   line-height:2em;
+}
+
+
+
+#clipMe {
+  background:lightgrey;
+  font-family:Helvetica,sans-serif;
+  padding:3px;
+  color:grey
 }
