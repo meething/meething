@@ -330,7 +330,9 @@ cursor: crosshair
   display:flex;
   justify-self:right;
   margin-right:10px;
-  font-size:11px;
+ text-transform: capitalize;
+ font-weight:lighter;
+ font-size:20px;
   align-items: center;
 }
 .dot-user{
@@ -339,8 +341,10 @@ cursor: crosshair
 
 
 .v-user{
+  font-family:Helvetica,Arial,sans-serif;
+
   padding-top:5px;
-  margin-left:5px;
+  margin-left:10px;
   opacity:1;
 }
 .v-user:hover {
@@ -359,18 +363,17 @@ cursor: crosshair
   font-size:13px;
 }
 .toolbox{
-  background:#14101bbb ;
-  
+  margin: -45px 0 0 -45px;
   position:relative;
-  top:-6px;
   height:35px;
-  left:0px;
-  display:grid;
-  grid-template-columns:1fr 4fr;
+ 
+  display:flex;
+  justify-content: flex-start;
+ margin-left:15px;
   align-items:center;
-  z-index:1000;
-  width:100%;
-  border-radius:0px 0px 6px 6px;
+  z-index:1;
+ 
+ 
 }
 
 /* main toolbar styles .. */
@@ -387,7 +390,7 @@ margin-left:10px;
 }
 .widget-button{
   text-align:center;
-  font-size:12px;
+  font-size:20px;
   border:none;
   padding:5px;
   padding-left:10px;
@@ -400,6 +403,7 @@ margin-left:10px;
   opacity:.5;
   transition:.3s all; 
   margin:5px;
+  margin-bottom:0px;
   background:#45257cbb;
   border-radius:10px 10px 0px 0px;
  

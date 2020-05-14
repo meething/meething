@@ -79,7 +79,9 @@
 }
 
 .tingle-modal-box__content {
-  color: #3f2d5f;
+  padding-bottom:0px !important;
+  color:  #3f2d5f;
+
 }
 
 .tingle-modal-box__content > h1 {
