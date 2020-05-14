@@ -4,6 +4,10 @@ export default class Graph {
   }
 
   init () {
+    console.log('fix the Graph')
+  }
+
+  start () {
     this.eventEmitter.on('graph:update', async function () {
       // initialize web worker in upper scope
       var graphWorker = new Worker('/assets/workers/workerGraph.js');
@@ -56,7 +60,7 @@ export default class Graph {
 
       if(this.mediator.DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
-      if(this.mediator.DEBUG) {console.log('Starting with: meething')}
+      if(this.mediator.DEBUG) { console.log('Starting with: meething')}
 
       label = 'label';
       start = 'meething';
