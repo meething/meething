@@ -24,6 +24,7 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: pointer;
+  
 }
 
 /* confirm and alerts
@@ -92,15 +93,32 @@
   font-weight: lighter;
   margin-left: 2em;
 }
+.room-form{height:90vh;}
 
 .tingle-modal-box__footer {
   position: relative;
+  margin: -30px 0px 0px -30px;
+  bottom:0%;
   margin: 0 auto;
   display: flex;
   justify-content: space-around;
-  width: 40%;
-
   cursor: auto;
+ display:none;
+ width:100%;
+ 
+}
+
+@media (min-width: 768px) {
+  .tingle-modal-box__footer {
+    position: relative;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+    width:40%;
+    cursor: auto;
+   display:none;
+  }
+  .room-form{height:70vh;}
 }
 
 .tingle-modal-box__footer--sticky {
@@ -113,6 +131,7 @@
   transition: bottom 0.3s ease-in-out 0.3s;
   display: flex;
   justify-content: space-around;
+  display:none;
 }
 
 /* state
@@ -294,7 +313,7 @@
 }
 
 .speech-bubble {
-  z-index: 9999;
+  z-index: 999;
   height: 100vh;
   background: black;
   position: absolute;
@@ -304,7 +323,6 @@
   color: rgb(58, 58, 58);
   padding: 20px;
   display: grid;
-  align-items: center;
   margin-bottom: 10px;
   margin-top: 20px;
   width: 350px;
@@ -351,17 +369,23 @@
   border: 3px solid rgb(22, 22, 22);
 }
 
+.preview-video-buttons {
+  margin: -30px 0px 0px -30px;
+  margin-left: 0px;
+  position: relative;
+  bottom:30px;
+}
+
 .preview-video-buttons button {
   display: block;
-  border-radius: 3px;
-
+ border:none;
   height: 50px;
   width: 50px;
   background: none;
   transition: 0.5s all;
   position: relative;
   z-index: 1000;
-  border: 3px solid black;
+
 }
 .preview-video-buttons button {
   color: white;
@@ -392,13 +416,37 @@
 }
 
 .btn-circle {
-  width: 35px;
-  height: 35px;
+  position:absolute;
+  left:30px;
+  top:50px;
+  width: 45px;
+  height: 45px;
   padding: 7px 0px;
   border-radius: 15px;
   text-align: center;
   font-size: 14px;
   line-height: 1.42857;
-  background: purple;
-  color: white;
+  color: white !important;
+  z-index:10000;
+
+  background-color: #3f069c;
+  border:none;
+ box-shadow:2px 2px 4px #14101bbb;
+  border-radius:6px !important;
+  transition:.5s all;
+  font-size:18px;
+  margin:0 auto;
 }
+
+.device-select{
+  overflow:hidden;
+  height:0px;
+  
+  transition:.5s all;
+}
+
+.device-select-open{
+  
+  height:100%;
+}
+

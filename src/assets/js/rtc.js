@@ -102,6 +102,8 @@ window.addEventListener('DOMContentLoaded', function () {
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
+            let fb = document.querySelector('.tingle-modal-box__footer')
+            
             if (roomName && yourName) {
                 //remove error message, if any
                 var errmsg = document.querySelector('#err-msg');
@@ -117,7 +119,9 @@ window.addEventListener('DOMContentLoaded', function () {
                 // 
                 room = roomgen;
                 username = yourName;
-                cr.hidden=true;
+                cr.hidden= true;
+                fb.style.display = 'flex';
+                
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
@@ -166,6 +170,7 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   ee.on('join:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? {value: sessionStorage.getItem('username')} : false;
     let _pass = document.querySelector('#room-pass');
@@ -192,6 +197,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('setup:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -223,6 +229,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('nouser:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let _name = document.querySelector('#username');
     let _pass = document.querySelector('#room-pass');
 
@@ -249,6 +256,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('noroom:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -273,12 +281,13 @@ window.addEventListener('DOMContentLoaded', function () {
     })
   });
   ee.on('modal:filled',function(modal){
+   let cr = document.getElementById('create-room')
+   if(!cr) document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let type = modal.__type;
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
   
-      
       modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
@@ -353,7 +362,7 @@ window.addEventListener('DOMContentLoaded', function () {
  
   var modalContent="";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
-
+  var settingmsg = `<small class="text-white m-4 text-center" style="width:100%;" id="setting-msg">Select your audio and video devices</small>`
   var cammicsetc =
     h.isOldEdge() || !autoload
 
@@ -422,10 +431,6 @@ window.addEventListener('DOMContentLoaded', function () {
 
     <div class="preview-video-buttons row col-md-12">
     <div class="col m-1 mb-3 mx-auto">
-    <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
-    
-    </div>
-    <div class="col m-1 mb-3 mx-auto">
       <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
      
@@ -437,6 +442,10 @@ window.addEventListener('DOMContentLoaded', function () {
       
       </div>
   </div>
+  <div class="col m-1 mb-3 mx-auto d-inline">
+  ${settingmsg}<button id="toggle-devices-menu" class="btn btn-sm fas fa-ellipsis-v mx-auto text-white"></button>
+  
+  </div>  
   </div>
 
 </div>
@@ -446,19 +455,19 @@ window.addEventListener('DOMContentLoaded', function () {
     <div id="deviceSelection">
       
       
-      <div class="form-row device-select" id="devices-menu" style="display: none;">
+      <div class="form-row device-select" id="devices-menu">
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-12 mb-3">
          <label for="as" class="text-white">Mic:</label>
            <select id="as" class="form-control btn-sm rounded-0"></select>
          </div>
 
-       <div class="col-md-4 mb-3">
+       <div class="col-md-12 mb-3">
             <label for="ao" class="text-white">Speakers: </label>
               <select id="ao" class="form-control btn-sm rounded-0"></select>
            </div>
 
-      <div class="col-md-4 mb-3">
+      <div class="col-md-12 mb-3">
               <label for="vs" class="text-white">Camera:</label>
             <select id="vs" class="form-control btn-sm rounded-0"></select>
           </div>
@@ -493,6 +502,7 @@ window.addEventListener('DOMContentLoaded', function () {
     ee.emit('navigator:gotDevices',devices);
   });
   // default inputs
+  
   var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var passwinput = `<label for="room-pass">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
@@ -503,13 +513,17 @@ window.addEventListener('DOMContentLoaded', function () {
  
   if(room && username){
     // Welcome back xX!
+   
     modalContent = `
     <div class="container-fluid">
     <div class="row">
-    <div class="col-md-4 speech-bubble mx-auto">
+    <div class="col-md-4 speech-bubble mx-auto" id='devices-menu' style='display:none'>
      ${cammicsetc}
     </div> 
     <div class="col-md-4 mt-4 mx-auto text-white"> 
+    <div class='mx-auto text-center mb-4'> 
+    <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/> 
+ </div> 
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
     <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/>
@@ -524,10 +538,13 @@ window.addEventListener('DOMContentLoaded', function () {
     modalContent = 
     ` 
     <div class="row"> 
-    <div class="col-md-4 speech-bubble mx-auto"> 
+    <div class="col-md-4 speech-bubble mx-auto" id='devices-menu' style='display:none'> 
       ${cammicsetc}
        </div> 
       <div class="col-md-4 mt-4 mx-auto room-form"> 
+      <div class='mx-auto text-center mb-4'> 
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo" /> 
+   </div> 
       <h4 class="speech-msg"> 
       Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
 
@@ -549,10 +566,13 @@ window.addEventListener('DOMContentLoaded', function () {
     modalContent = ` 
   <div class="container-fluid">
     <div class='row'> 
-    <div class='col-md-4 speech-bubble mx-auto'> 
+    <div class='col-md-4 speech-bubble mx-auto' id='devices-menu' style='display:none'> 
       ${cammicsetc}
        </div> 
       <div class='col-md-4 mt-4 mx-auto room-form'> 
+      <div class='mx-auto text-center mb-4'> 
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/> 
+   </div> 
       <h4 class='speech-msg'> 
 
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
@@ -571,22 +591,21 @@ window.addEventListener('DOMContentLoaded', function () {
     // Set up a new room
     modalContent = `
     <div class="container-fluid">
+    <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
     <div class='row'> 
-      <div class='col-md-4 speech-bubble mx-auto'> 
-        <p class='speech-msg'> 
-        Hey, let\'s set up a new room!</p> 
+      <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'> 
         ${cammicsetc}
       </div> 
       <div class='col-md-4 mx-auto mt-5 room-form'> 
-        <div class='d-none d-xs-none d-md-block'> 
-          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' /> 
+        <div class='mx-auto text-center mb-4'> 
+          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/> 
        </div> 
        <p>${roomcreated}</p> 
         ${errmsg}<br> 
         ${createnameinput}<br> 
         ${roominput}<br> 
         ${passwinput}<br> 
-        <br> <br>
+        <br>
         ${roomcreatebtn}
        </div> 
       </div>

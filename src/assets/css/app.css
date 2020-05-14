@@ -31,8 +31,8 @@ body {
 
 
 .local-video {
-  left:-30px;
-  top: 10%;
+  left:0px;
+  bottom: 0%;
   position: absolute;
   height: 100px;
   width: 150px;
@@ -92,7 +92,7 @@ body {
   object-fit: cover !important; 
   height: 100%;
   width: 100%;
-  border-radius: 6px 6px 0px 0px;
+  border-radius: 6px;
   max-height: 80vh;
   background:#14101bbb ;
   
@@ -310,7 +310,8 @@ cursor: crosshair
    transition:.5s all;
    font-size:22px;
    margin:0 auto;
-    width:250px;
+ 
+   
   
  }
  #create-room:hover{
