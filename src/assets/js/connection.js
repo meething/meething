@@ -160,7 +160,7 @@ export default class Connection {
               });
 
               let answer = await this.mediator.pcMap.get(data.sender).createAnswer();
-              answer.sdp = setMediaBitrates(answer.sdp);
+              answer.sdp = this.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
         // SDP Bitrate Hack
@@ -176,13 +176,13 @@ export default class Connection {
             })
             .catch(async e => {
               console.error(`answer stream error: ${e}`);
-        if (!enableHacks) {
-                 var r = confirm("No Media Devices! Join as Viewer?");
-           if (r) {
-       enableHacks = true;
-                   metaData.sendControlData({ username: this.mediator.username + "(readonly)", id: this.mediator.socketId, readonly: true });
-           } else { location.replace("/"); return; }
-        }
+              if (!this.mediator.enableHacks) {
+                       var r = confirm("No Media Devices! Join as Viewer?");
+                 if (r) {
+                   this.mediator.enableHacks = true;
+                   this.mediator.metaData.sendControlData({ username: this.mediator.username + "(readonly)", id: this.mediator.socketId, readonly: true });
+                 } else { location.replace("/"); return; }
+              }
               // start crazy mode lets answer anyhow
               console.log(
                 "no media devices! answering receive only"
@@ -192,7 +192,7 @@ export default class Connection {
                 OfferToReceiveVideo: true
               };
               let answer = await this.mediator.pcMap.get(data.sender).createAnswer(answerConstraints);
-              answer.sdp = setMediaBitrates(answer.sdp);
+              answer.sdp = this.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
               await this.mediator.pcMap.get(data.sender).setLocalDescription(answer);
@@ -208,20 +208,18 @@ export default class Connection {
           this.mediator.pcMap.get(data.sender).setRemoteDescription(
             new RTCSessionDescription(data.description)
           );
-        }
-      }.bind(this));
+        }});
 
       document.getElementById("chat-input").addEventListener("keypress", e => {
         if (e.which === 13 && e.target.value.trim()) {
           e.preventDefault();
 
-          sendMsg(e.target.value);
+          this.sendMsg(e.target.value);
 
           setTimeout(() => {
             e.target.value = "";
           }, 50);
-        }
-      });
+        }});
 
       document.getElementById("toggle-video").addEventListener("click", e => {
         e.preventDefault();
@@ -267,7 +265,7 @@ export default class Connection {
           e.srcElement.classList.remove("text-danger");
     this.mediator.h.showNotification("Recording Stopped");
         }
-        metaData.sendNotificationData({ username: this.mediator.username, subEvent: "recording", isRecording: this.mediator.isRecording })
+        this.mediator.metaData.sendNotificationData({ username: this.mediator.username, subEvent: "recording", isRecording: this.mediator.isRecording })
       });
 
       document.getElementById("toggle-mute").addEventListener("click", e => {
@@ -283,7 +281,7 @@ export default class Connection {
             //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
             e.srcElement.classList.remove("fa-volume-up");
             e.srcElement.classList.add("fa-volume-mute");
-            metaData.sendNotificationData({ username: this.mediator.username, subEvent: "mute", muted: this.mediator.audioMuted });
+            this.mediator.metaData.sendNotificationData({ username: this.mediator.username, subEvent: "mute", muted: this.mediator.audioMuted });
             this.mediator.h.showNotification("Audio Muted");
             this.mediator.myStream.getAudioTracks()[0].enabled = !this.mediator.audioMuted;
           });
@@ -293,7 +291,7 @@ export default class Connection {
             //localVideo.srcObject = mine;
             e.srcElement.classList.add("fa-volume-up");
             e.srcElement.classList.remove("fa-volume-mute");
-            metaData.sendNotificationData({ username: this.mediator.username, subEvent: "mute", muted: this.mediator.audioMuted });
+            this.mediator.metaData.sendNotificationData({ username: this.mediator.username, subEvent: "mute", muted: this.mediator.audioMuted });
             this.mediator.h.showNotification("Audio Unmuted");
             this.mediator.myStream.getAudioTracks()[0].enabled = !this.mediator.audioMuted;
           });
@@ -308,7 +306,7 @@ export default class Connection {
         var r = confirm("Re-Invite ALL room participants?");
         if (r == true) {
           this.mediator.damSocket.out("subscribe", {
-            room: room,
+            room: this.mediator.room,
             socketId: this.mediator.socketId,
             name: this.mediator.username || this.mediator.socketId
           });
@@ -319,8 +317,8 @@ export default class Connection {
         .getElementById("toggle-screen")
         .addEventListener("click", async e => {
           e.preventDefault();
-          if (screenStream) {
-            screenStream.getTracks().forEach(t => {
+          if (this.mediator.screenStream) {
+            this.mediator.screenStream.getTracks().forEach(t => {
               t.stop();
               t.onended();
             });
@@ -333,7 +331,7 @@ export default class Connection {
             this.mediator.h.setVideoSrc(this.mediator.localVideo,stream);
             vtrack.onended = function (event) {
               if (this.mediator.DEBUG) console.log("Screensharing ended via the browser UI");
-              screenStream = null;
+              this.mediator.screenStream = null;
               if (this.mediator.myStream) {
                 this.mediator.h.setVideoSrc(this.mediator.localVideo, this.mediator.myStream);
                 this.mediator.h.replaceStreamForPeers(this.mediator.pcMap, this.mediator.myStream);
@@ -342,7 +340,7 @@ export default class Connection {
               e.srcElement.classList.add("text-white");
               e.srcElement.classList.remove("text-black");
             };
-            screenStream = stream;
+            this.mediator.screenStream = stream;
             e.srcElement.classList.add("sharing");
             e.srcElement.classList.remove("text-white");
             e.srcElement.classList.add("text-black");
@@ -358,13 +356,25 @@ export default class Connection {
           this.mediator.presence.onGrid(this.mediator.presence.room);
           e.srcElement.classList.remove("fa-lock");
           e.srcElement.classList.add("fa-unlock");
-          metaData.sendNotificationData({ username: this.mediator.username, subEvent: "grid", isOngrid: false })
+          this.mediator.metaData.sendNotificationData({ username: this.mediator.username, subEvent: "grid", isOngrid: false })
         } else {
           //if public, go private
-          metaData.sendNotificationData({ username: this.mediator.username, subEvent: "grid", isOngrid: true })
+          this.mediator.metaData.sendNotificationData({ username: this.mediator.username, subEvent: "grid", isOngrid: true })
           this.mediator.presence.offGrid();
           e.srcElement.classList.remove("fa-unlock");
           e.srcElement.classList.add("fa-lock");
+        }
+      });
+    }.bind(this));
+
+    var _ev = this.mediator.h.isiOS() ? 'pagehide' : 'beforeunload';
+
+    window.addEventListener(_ev,function () {
+      if(this.mediator.damSocket && this.mediator.damSocket.getPresence()) this.mediator.damSocket.getPresence().leave();
+      this.mediator.pcMap.forEach((pc, id) => {
+        if (this.mediator.pcMap.has(id)) {
+          this.mediator.pcMap.get(id).close();
+          this.mediator.pcMap.delete(id);
         }
       });
     }.bind(this));
@@ -435,8 +445,206 @@ export default class Connection {
   }
 
   init (createOffer, partnerName) {
-    // TODO
-    console.log('DO the init function')
+    // OLD: track peerconnections in array
+    if (this.mediator.pcMap.has(partnerName)) return this.mediator.pcMap.get(partnerName);
+     var pcPartnerName = new RTCPeerConnection(this.mediator.h.getIceServer());
+    // DAM: replace with local map keeping tack of users/peerconnections
+    this.mediator.pcMap.set(partnerName, pcPartnerName); // MAP Tracking
+    this.mediator.h.addVideo(partnerName, false);
+
+    //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE!
+    //TODO: KNOWN REGRESSION IN THIS BRANCH IS MUTING DOES NOT WORK!
+
+    // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
+    if (this.mediator.screenStream) {
+      var tracks = {};
+      tracks['audio'] = this.mediator.screenStream.getAudioTracks();
+      tracks['video'] = this.mediator.screenStream.getVideoTracks();
+      if (this.mediator.myStream) {
+        tracks['audio'] = this.mediator.myStream.getAudioTracks(); //We want sounds from myStream if there is such
+        if (!tracks.video.length) tracks['video'] = this.mediator.myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
+      }
+      var screenStream = this.mediator.screenStream;
+      ['audio', 'video'].map(tracklist => {
+        tracks[tracklist].forEach(track => {
+          pcPartnerName.addTrack(track, screenStream); //should trigger negotiationneeded event
+        });
+      });
+    } else if (!this.mediator.screenStream && this.mediator.myStream) {
+      var tracks = {};
+      tracks['audio'] = this.mediator.myStream.getAudioTracks();
+      tracks['video'] = this.mediator.myStream.getVideoTracks();
+      if (this.mediator.audioMuted || this.mediator.videoMuted) {
+        var mutedStream = mutedStream ? mutedStream : this.mediator.h.getMutedStream();
+        if (this.mediator.videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+        if (this.mediator.audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+      }
+      var myStream = this.mediator.myStream;
+      ['audio', 'video'].map(tracklist => {
+        tracks[tracklist].forEach(track => {
+          pcPartnerName.addTrack(track, myStream); //should trigger negotiationneeded event
+        });
+      });
+    } else {
+      this.mediator.h.getUserMedia()
+        .then(stream => {
+          //save my stream
+          this.mediator.myStream = stream;
+          var mixstream = null;
+          //provide access to window for debug
+          if(this.mediator.h.canCreateMediaStream()){
+            mixstream = new MediaStream();
+          } else {
+            //Safari trickery
+            mixstream = this.mediator.myStream.clone();
+            mixstream.getTracks().forEach(track=>{
+              mixstream.removeTrack(track);
+            });
+          }
+          window.myStream = this.mediator.myStream;
+          window.mixstream = mixstream;
+          var tracks = {};
+          tracks['audio'] = this.mediator.myStream.getAudioTracks();
+          tracks['video'] = this.mediator.myStream.getVideoTracks();
+          if (this.mediator.audioMuted || this.mediator.videoMuted) {
+            var mutedStream = mutedStream ? mutedStream : this.mediator.getMutedStream();
+            if (videoMuted) tracks['video'] = mutedStream.getVideoTracks();
+            if (audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+          }
+          ['audio', 'video'].map(tracklist => {
+            tracks[tracklist].forEach(track => {
+              mixstream.addTrack(track);
+              pcPartnerName.addTrack(track, mixstream); //should trigger negotiationneeded event
+            });
+          });
+
+          this.mediator.setVideoSrc(localVideo, mixstream);
+
+          // SoundMeter for Local Stream
+          if (this.mediator.myStream) {
+            // Soundmeter
+            if (this.mediator.DEBUG) console.log('Init Soundmeter.........');
+            const soundMeter = new SoundMeter(function () {
+                if (this.mediator.DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
+                if (!this.mediator.audioMuted) this.mediator.metaData.sendControlData({ username: this.mediator.username, id: this.mediator.socketId, talking: true });
+            });
+            soundMeter.connectToSource(this.mediator.myStream)
+          }
+
+        })
+        .catch(async e => {
+          console.error(`stream error: ${e}`);
+          if (!enableHacks) return;
+          // start crazy mode - lets offer anyway
+          console.log("no media devices! offering receive only");
+          var offerConstraints = {
+            mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
+          };
+          let offer = await pcPartnerName.createOffer(offerConstraints);
+          offer.sdp = this.setMediaBitrates(offer.sdp);
+          // SDP Interop
+  	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+          await pcPartnerName.setLocalDescription(offer);
+          damSocket.out("sdp", {
+            description: pcPartnerName.localDescription,
+            to: partnerName,
+            sender: this.mediator.socketId
+          });
+          // end crazy mode
+        });
+    }
+  ///////
+  }
+
+  sendMsg (msg, local) {
+    let data = {
+        room: room,
+        msg: msg,
+        sender: username || socketId
+    };
+
+    if (local) {
+      // TODO fix this message aka Chat Module
+      if(this.mediator.DEBUG) {console.log('sendMsg needs fixing still')}
+        //ee.emit("local", data)
+    } else {
+      if(this.mediator.DEBUG) {console.log('sendMsg needs fixing still')}
+        //ee.emit("tourist", data)
+    }
+  }
+
+  setMediaBitrates (sdp) {
+    if (this.mediator.videoBitrate == 'unlimited' || !this.calculateBitrate()) {
+      console.log("Not changing bitrate max is set")
+      return sdp;
+    } else {
+      return this.setMediaBitrate(this.setMediaBitrate(sdp, "video", this.mediator.videoBitrate), "audio", 50);
+    }
+  }
+
+  calculateBitrate () {
+    var oldBitrate = this.mediator.videoBitrate;
+    switch (this.mediator.presence.users.size) {
+      case 0:
+      case 1:
+      case 2:
+        this.mediator.videoBitrate = "1000";
+        break;
+      case 3:
+        this.mediator.videoBitrate = "750";
+        break;
+      case 4:
+        this.mediator.videoBitrate = "500";
+        break;
+      default:
+        this.mediator.videoBitrate = "250";
+        break;
+    }
+
+    if (oldBitrate == this.mediator.videoBitrate) {
+      return false;
+    } else {
+      this.sendMsg("Bitrate " + this.mediator.videoBitrate, true);
+      return true;
+    }
+  }
+
+  setMediaBitrate (sdp, media, bitrate) {
+    var lines = sdp.split("\n");
+    var line = -1;
+    for (var i = 0; lines.length; i++) {
+      if (lines[i].indexOf("m=" + media) === 0) {
+        line = i;
+        break;
+      }
+    }
+    if (line === -1) {
+      console.debug("Could not find the m line for", media);
+      return sdp;
+    }
+    console.debug("Found the m line for", media, "at line", line);
+
+    // Pass the m line
+    line++;
+
+    // Skip i and c lines
+    while (lines[line].indexOf("i=") === 0 || lines[line].indexOf("c=") === 0) {
+      line++;
+    }
+
+    // If we're on a b line, replace it
+    if (lines[line].indexOf("b") === 0) {
+      console.debug("Replaced b line at line", line);
+      lines[line] = "b=AS:" + bitrate;
+      return lines.join("\n");
+    }
+
+    // Add a new b line
+    console.debug("Adding new b line before line", line);
+    var newLines = lines.slice(0, line)
+    newLines.push("b=AS:" + bitrate)
+    newLines = newLines.concat(lines.slice(line, lines.length))
+    return newLines.join("\n")
   }
 
 }

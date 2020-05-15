@@ -12,12 +12,12 @@ import Modal from "./modal.js";
 function Mediator () {
   // state tracking should occur in here for global state
   // module specific state should be kept in the module (I think?)
-  this.DEBUG = false;
+  this.DEBUG = true;
   this.TIMEGAP = 6000; //RTC Module?
   this.allUsers = []; // needs to live here
   this.enableHacks = true; // @jabis what is this?
   this.meethrix = false; // lives here for now, video module?
-  this.autoload = true; // okay here
+  this.autoload = true; // okay here but likely should go to modal
   this.root; //need this initiated as soon as possible
   this.room = ''; // need a random name?
   this.roompass;
@@ -96,7 +96,7 @@ function Mediator () {
   */
 
   this.initComm = function () {
-    //call webRTC.js for now
+    // only MCU right now
     mConn.establish()
   }
 
@@ -139,7 +139,8 @@ function Mediator () {
 // Initialize Mediator
 
 var meething = new Mediator();
-
+// TODO delete this after testing
+window.meething = meething;
 // Initiate Modules with Mediator
 
 var mGraph = new Graph(meething);

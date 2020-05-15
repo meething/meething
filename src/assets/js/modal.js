@@ -229,7 +229,7 @@ export default class Modal {
             this.resetDevices();
             this.modalFilled(this.modal);
           }
-        })
+        }.bind(this))
       } else {
         setupBtn.hidden = true;
         this.resetDevices();
@@ -260,8 +260,8 @@ export default class Modal {
               this.mediator.username = yourName;
               cr.hidden=true;
               if(romp) {
-                roompass=romp;
-                await storePass(romp,yourName);
+                this.mediator.roompass=romp;
+                await this.mediator.storePass(romp,yourName);
               }
               //show message with link to room
               document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
@@ -333,11 +333,11 @@ export default class Modal {
     // TODO : move this listener out of this function
     var clicked = function clicked(e){
       var p = this.mediator.setSS('config['+e.target.id+']',!!this.checked)
-     };
-    sam.removeEventListener('click',clicked);
-    svm.removeEventListener('click',clicked);
-    sam.addEventListener('click',clicked);
-    svm.addEventListener('click',clicked);
+    };
+    sam.removeEventListener('click',clicked.bind(this));
+    svm.removeEventListener('click',clicked.bind(this));
+    sam.addEventListener('click',clicked.bind(this));
+    svm.addEventListener('click',clicked.bind(this));
     const asv = as.value;
     const vsv = vs.value;
     const samv = sam.checked;
@@ -387,6 +387,8 @@ export default class Modal {
       this.cancelFn({modal, e});
     }.bind(this));
     modal.open();
+    var sB = document.getElementById('tingleSetupBtn');
+    if(sB) { console.log("clicked It", this.simulateClick(sB))}
   }
 
   navigatorGotDevices (devices) {
@@ -394,7 +396,7 @@ export default class Modal {
       var DEBUG = this.mediator.DEBUG;
       var h = this.mediator.h;
       var modal = this.mediator.modal;
-      ["as","ao","vs"].map(function(env, group){
+      ["as","ao","vs"].map(function(group){
         let devs = devices[group];
         var str = "";
         var qs = document.getElementById(group);
@@ -461,10 +463,10 @@ export default class Modal {
         if(pval) await this.mediator.storePass(pval);
         break;
       case 'noroom':
-        var _username = document.querySelector('#room-name');
+        var _name = document.querySelector('#room-name');
         var _pass = document.querySelector('#room-pass');
-        if (_username && _username.value) {
-          this.mediator.room = _username.value
+        if (_name && _name.value) {
+          this.mediator.room = _name.value
         }
         if (this.mediator.room && history.pushState) {
           window.history.pushState(null,'','?room='+this.mediator.room);
@@ -481,9 +483,43 @@ export default class Modal {
       vs.appendChild(ve);
     }
     this.mediator.initSocket().then(sock=>{
-      this.mediator.initComm();
       info.modal.close();
+      this.mediator.initComm();
     })
   }
+  /* if autoload is false we need to simulate a click */
 
+  simulateClick (el) {
+
+    var defaultOptions = {
+      pointerX: 0,
+      pointerY: 0,
+      button: 0,
+      ctrlKey: false,
+      altKey: false,
+      shiftKey: false,
+      metaKey: false,
+      bubbles: true,
+      cancelable: true
+    }
+
+    var eventType = "click";
+    //var eventName = "MouseEvents";
+
+    if (document.createEvent)
+    {
+        var oEvent = new CustomEvent(eventType, defaultOptions);
+
+        /*oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
+        options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
+        options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
+        */
+        el.dispatchEvent(oEvent);
+        return true;
+    } else {
+      console.log('your Browser kind of sucks')
+      return false;
+    }
+  }
+////////
 }
