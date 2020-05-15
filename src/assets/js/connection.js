@@ -208,7 +208,8 @@ export default class Connection {
           this.mediator.pcMap.get(data.sender).setRemoteDescription(
             new RTCSessionDescription(data.description)
           );
-        }});
+        }
+      }.bind(this));
 
       document.getElementById("chat-input").addEventListener("keypress", e => {
         if (e.which === 13 && e.target.value.trim()) {
@@ -518,7 +519,7 @@ export default class Connection {
             });
           });
 
-          this.mediator.setVideoSrc(localVideo, mixstream);
+          this.mediator.setVideoSrc(this.mediator.localVideo, mixstream);
 
           // SoundMeter for Local Stream
           if (this.mediator.myStream) {
@@ -534,7 +535,7 @@ export default class Connection {
         })
         .catch(async e => {
           console.error(`stream error: ${e}`);
-          if (!enableHacks) return;
+          if (!this.mediator.enableHacks) return;
           // start crazy mode - lets offer anyway
           console.log("no media devices! offering receive only");
           var offerConstraints = {

@@ -66,9 +66,11 @@ function Mediator () {
       var hash = null,
         creator= null;
       if (this.room) {
+        // TODO
         // replace below logic
         hash = this.getSS('rooms.'+this.room+'.hash');
         creator = this.getSS('rooms.'+this.room+'.creator');
+
         // replace above
         var r = (hash && creator) ? this.room+'?sig='+encodeURIComponent(hash)+"&creator="+encodeURIComponent(creator) : this.room;
         console.log(r);

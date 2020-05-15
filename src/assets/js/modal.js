@@ -447,7 +447,7 @@ export default class Modal {
           this.mediator.room = _room.value;
         }
         var pval = _pass && _pass.value ? _pass.value : false;
-        if(pval) await this.mediator.storePass(pval, _username);
+        if(pval) await this.mediator.storePass(pval, _username.value);
         break;
       case 'nouser':
         var _username = document.querySelector('#username');
