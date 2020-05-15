@@ -2,14 +2,17 @@
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import EventEmitter from './ee.js';
 
 export default class Connection {
   constructor (mediator){
     this.mediator = mediator;
     this.inited = false;
+    this.ee = window.ee = new EventEmitter();
   }
   // for now MCU webRTC, soon need to make SFU here with mode switching
   establish () {
+    debugger
     if(this.inited) return;
     this.inited = true;
 
@@ -559,18 +562,18 @@ export default class Connection {
 
   sendMsg (msg, local) {
     let data = {
-        room: room,
+        room: this.mediator.room,
         msg: msg,
-        sender: username || socketId
+        sender: this.mediator.username || this.mediator.socketId
     };
 
     if (local) {
       // TODO fix this message aka Chat Module
       if(this.mediator.DEBUG) {console.log('sendMsg needs fixing still')}
-        //ee.emit("local", data)
+        this.ee.emit("local", data)
     } else {
       if(this.mediator.DEBUG) {console.log('sendMsg needs fixing still')}
-        //ee.emit("tourist", data)
+        this.ee.emit("tourist", data)
     }
   }
 
