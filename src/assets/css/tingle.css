@@ -72,6 +72,7 @@
 }
 
 .tingle-modal-box {
+
   position: relative;
   background: none;
   opacity: 1;
@@ -93,24 +94,24 @@
   font-weight: lighter;
   margin-left: 2em;
 }
-.room-form{height:90vh;}
+.room-form{overflow-y:auto}
 @media (max-height:640px){
-  room-form{
+  .room-form{
     overflow-y:scroll;
     font-size:14px;
   }
 }
 
 .tingle-modal-box__footer {
-  position: fixed;
+
   margin:0 auto;
-bottom:0px;
+  bottom:0px;
   margin-left: 0;
   display: flex;
   justify-content: space-around;
   cursor: auto;
- display:none;
- width:100%;
+  display:none;
+  width:100%;
  
 }
 #meethlogo {
@@ -127,7 +128,7 @@ bottom:0px;
     cursor: auto;
    display:none;
   }
-  .room-form{height:50vh;}
+  
   #meethlogo {
     width:200px;
   }
@@ -156,9 +157,6 @@ bottom:0px;
   overflow: hidden;
 }
 
-.tingle-modal--visible .tingle-modal-box__footer {
-  
-}
 
 .tingle-enabled .tingle-content-wrapper {
   filter: blur(1px);
@@ -170,6 +168,7 @@ bottom:0px;
 }
 
 .tingle-modal--visible .tingle-modal-box {
+
   animation: scale 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
 }
 
@@ -186,12 +185,12 @@ bottom:0px;
   font-weight:lighter;
   background-color: #3f069c;
   border:none;
- box-shadow:2px 2px 4px #14101bbb;
+  box-shadow:2px 2px 4px #14101bbb;
   border-radius:6px !important;
   transition:.5s all;
   font-size:1em;
   margin:0 auto;
-color:white;
+  color:white;
   cursor: pointer;
   transition: background-color 0.4s ease;
   border-radius: 3px;
@@ -254,7 +253,7 @@ color:white;
 
   .tingle-modal-box__footer .tingle-btn {
     display: block;
-    margin-bottom: 1rem;
+    /*margin-bottom: 1rem; */
     width: 100%;
   }
 

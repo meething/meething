@@ -506,7 +506,6 @@ window.addEventListener('DOMContentLoaded', function () {
     ee.emit('navigator:gotDevices',devices);
   });
   // default inputs
-  
   var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var passwinput = `<label for="room-pass">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
@@ -517,7 +516,6 @@ window.addEventListener('DOMContentLoaded', function () {
  
   if(room && username){
     // Welcome back xX!
-   
     modalContent = `
     <div class="container-fluid">
       <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
@@ -525,7 +523,6 @@ window.addEventListener('DOMContentLoaded', function () {
         <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'> 
           ${cammicsetc}
         </div> 
- 
     <div class="col-md-4 mt-4 mx-auto text-white room-form"> 
     <div class='mx-auto text-center mb-4'> 
     <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/> 
@@ -533,7 +530,6 @@ window.addEventListener('DOMContentLoaded', function () {
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
     <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/></br>
-   
     </div> 
     </div> 
     </div>`; 
