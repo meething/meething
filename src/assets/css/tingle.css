@@ -94,18 +94,27 @@
   margin-left: 2em;
 }
 .room-form{height:90vh;}
+@media (max-height:640px){
+  room-form{
+    overflow-y:scroll;
+    font-size:14px;
+  }
+}
 
 .tingle-modal-box__footer {
-  position: relative;
-  margin: -30px 0px 0px -30px;
-  bottom:0%;
-  margin: 0 auto;
+  position: fixed;
+  margin:0 auto;
+bottom:0px;
+  margin-left: 0;
   display: flex;
   justify-content: space-around;
   cursor: auto;
  display:none;
  width:100%;
  
+}
+#meethlogo {
+  width:150px;
 }
 
 @media (min-width: 768px) {
@@ -118,7 +127,10 @@
     cursor: auto;
    display:none;
   }
-  .room-form{height:70vh;}
+  .room-form{height:50vh;}
+  #meethlogo {
+    width:200px;
+  }
 }
 
 .tingle-modal-box__footer--sticky {
@@ -145,7 +157,7 @@
 }
 
 .tingle-modal--visible .tingle-modal-box__footer {
-  bottom: 0;
+  
 }
 
 .tingle-enabled .tingle-content-wrapper {
@@ -170,16 +182,16 @@
 
 .tingle-btn {
   display: inline-block;
-  margin: 0 0.5rem;
-  border: none;
-  background: #14101b;
-  box-shadow: none;
-  color: white;
-  vertical-align: middle;
-  text-decoration: none;
-  font-size: inherit;
-  font-family: inherit;
-  line-height: normal;
+  font-family:Helvetica, Arial, sans-serif !important;
+  font-weight:lighter;
+  background-color: #3f069c;
+  border:none;
+ box-shadow:2px 2px 4px #14101bbb;
+  border-radius:6px !important;
+  transition:.5s all;
+  font-size:1em;
+  margin:0 auto;
+color:white;
   cursor: pointer;
   transition: background-color 0.4s ease;
   border-radius: 3px;
@@ -242,7 +254,6 @@
 
   .tingle-modal-box__footer .tingle-btn {
     display: block;
-
     margin-bottom: 1rem;
     width: 100%;
   }

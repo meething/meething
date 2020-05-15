@@ -49,12 +49,13 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById("toggle-main-menu").addEventListener("click", e => {
         e.preventDefault();
-        var div = document.getElementById("top-menu");
-        if (!div.style.display || div.style.display === 'grid') div.style.display = 'none';
-        else div.style.display = 'grid';
+        let div = document.getElementById("top-menu");
+        if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
+        else div.style.display = 'block';
+        
 
-        e.srcElement.classList.toggle("fa-ellipsis-v");
         e.srcElement.classList.toggle("fa-ellipsis-h");
+        e.srcElement.classList.toggle("fa-ellipsis-v");
     })
 
     document.getElementById("toggle-device-selection").addEventListener("click", e => {

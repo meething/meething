@@ -62,16 +62,14 @@
 
     <div class="pull-right room-comm" hidden>
   
-      <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter>
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-      title="Toggle Screensharing">
-    </button>
+     <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
+  
 
-      <button class="btn btn-md text-white pull-right btn-no-effect far fa-comment-alt" title="Toggle Chat"
+      <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
       id="toggle-chat-pane">
       <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
     </button>
-    <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-h rounded-0 btn-no-effect text-white"></button>
+    <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
 
 
@@ -116,26 +114,30 @@
     </div>
   </div>
   <div id="top-menu" style="display:none">
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+    title="Toggle Screensharing"> 
+  </button>
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-    title="Re-Invite All Users">
+    title="Re-Invite All Users"> 
   </button>
   
   <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-  title="Toggle User List">
+  title="Toggle User List"> 
   
   </button>
   
   <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
-    title="Toggle Off-Grid Mode">
+    title="Toggle Off-Grid Mode"> 
 
   </button>
   
   <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-  title="Toggle Recording">
+  title="Toggle Recording"> 
   </button>
   
-  <button class="btn btn-md rounded-0 btn-no-effect text-white" id="toggle-modal" title="Room Settings">
-  <i class="fa fa-cog"></i>
+  <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog"" id="toggle-modal" title="Room Settings">
+
   </button>
   
   </div>
@@ -144,16 +146,16 @@
      
   
   
-    <button class="btn btn-lg btn-no-effect fa fa-video text-white" id="toggle-video"
+    <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
       title="Mute/Unmute Video">
     </button>
   
-    <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white" id="toggle-mute"
+    <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
       title="Mute/Unmute Audio">
     </button>
  
-  <button class="btn btn-lg btn-no-effect text-white" title="Leave Room">
-    <a href="/" class="text-decoration-none fas fa-phone text-danger">
+  <button class="btn btn-lg btn-no-effect text-white red" title="Leave Room">
+    <a class="text-decoration-none fas fa-phone text-white"  href="/" >
      
     </a>
   </button>

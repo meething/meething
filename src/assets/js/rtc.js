@@ -102,7 +102,7 @@ window.addEventListener('DOMContentLoaded', function () {
             let roomName = document.querySelector('#room-name').value;
             let yourName = document.querySelector('#your-name').value;
             let romp = document.querySelector('#room-pass').value;
-            let fb = document.querySelector('.tingle-modal-box__footer')
+           let fb = document.querySelector('.tingle-modal-box__footer')
             
             if (roomName && yourName) {
                 //remove error message, if any
@@ -120,13 +120,14 @@ window.addEventListener('DOMContentLoaded', function () {
                 room = roomgen;
                 username = yourName;
                 cr.hidden= true;
-                fb.style.display = 'flex';
+               fb.style.display = 'flex';
                 
                 if(romp) {
                   roompass=romp;
                   await storePass(romp,yourName);
                 }
                 //show message with link to room
+                document.getElementById('meethlogo').style.width = '150px'
                 document.querySelector('#room-created').innerHTML = copyLink;
                 var clip = document.getElementById('clipMe');
                 if(clip) clip.addEventListener('click',function(e){
@@ -198,6 +199,7 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on('setup:ok',async function(){
     var args = Array.from(arguments); // no spread here, because of Edge crapping
     document.querySelector('.tingle-modal-box__footer').style.display='flex';
+    
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -282,17 +284,19 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('modal:filled',function(modal){
    let cr = document.getElementById('create-room')
-   if(!cr) document.querySelector('.tingle-modal-box__footer').style.display='flex';
+  if(!cr) document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let type = modal.__type;
     setTimeout(function(){ modal.checkOverflow() },300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
-  
+
       modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { mutedStream = h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         ee.emit(type+':ok',{modal,e});
       });
+      
     }
+
   })
   var cancelFn = function(why){
     room=null;
@@ -516,17 +520,20 @@ window.addEventListener('DOMContentLoaded', function () {
    
     modalContent = `
     <div class="container-fluid">
-    <div class="row">
-    <div class="col-md-4 speech-bubble mx-auto" id='devices-menu' style='display:none'>
-     ${cammicsetc}
-    </div> 
-    <div class="col-md-4 mt-4 mx-auto text-white"> 
+      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <div class='row'> 
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'> 
+          ${cammicsetc}
+        </div> 
+ 
+    <div class="col-md-4 mt-4 mx-auto text-white room-form"> 
     <div class='mx-auto text-center mb-4'> 
     <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/> 
  </div> 
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
     <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
-    <br/>${passwinput}<br/>
+    <br/>${passwinput}<br/></br>
+   
     </div> 
     </div> 
     </div>`; 
@@ -537,10 +544,12 @@ window.addEventListener('DOMContentLoaded', function () {
     // when is room created
     modalContent = 
     ` 
-    <div class="row"> 
-    <div class="col-md-4 speech-bubble mx-auto" id='devices-menu' style='display:none'> 
-      ${cammicsetc}
-       </div> 
+    <div class="container-fluid">
+    <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <div class='row'> 
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'> 
+          ${cammicsetc}
+        </div> 
       <div class="col-md-4 mt-4 mx-auto room-form"> 
       <div class='mx-auto text-center mb-4'> 
       <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo" /> 
@@ -553,7 +562,7 @@ window.addEventListener('DOMContentLoaded', function () {
       <br/>
       ${joinnameinput} <br/>
       ${passwinput} <br/>
-     
+     </div>
       </div> 
 
     </div>
@@ -565,10 +574,11 @@ window.addEventListener('DOMContentLoaded', function () {
     // enter room name to join
     modalContent = ` 
   <div class="container-fluid">
-    <div class='row'> 
-    <div class='col-md-4 speech-bubble mx-auto' id='devices-menu' style='display:none'> 
+  <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+  <div class='row'> 
+    <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'> 
       ${cammicsetc}
-       </div> 
+    </div> 
       <div class='col-md-4 mt-4 mx-auto room-form'> 
       <div class='mx-auto text-center mb-4'> 
       <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/> 
@@ -582,6 +592,7 @@ window.addEventListener('DOMContentLoaded', function () {
     ${roominput}<br/>
     ${passwinput}<br/>
       </div> 
+      <div id="modalfooter"></div>
     </div> 
     </div>`;
 
@@ -606,6 +617,7 @@ window.addEventListener('DOMContentLoaded', function () {
         ${roominput}<br> 
         ${passwinput}<br> 
         <br>
+        <div id="modalfooter"></div>
         ${roomcreatebtn}
        </div> 
       </div>
@@ -624,7 +636,7 @@ function loadModal(modal,createOrJoin,type){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
     ee.emit(type+':cancel',{modal,e});
   });
-  modal.open();
+  modal.open(); 
 }
 
 async function initSocket() {
