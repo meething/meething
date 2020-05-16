@@ -150,7 +150,7 @@ function Mediator () {
       if(this.DEBUG) {console.log('sendMsg needs fixing still')}
         //this.damSocket.out("tourist", data)
     }
-    this.damSocket.out(med.room, data)
+    this.damSocket.out(this.room, data)
   }
 
   // End of Session Storage Helper
