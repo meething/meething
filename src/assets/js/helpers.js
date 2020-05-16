@@ -645,7 +645,7 @@ export default {
         } else if (elem.msRequestFullscreen) { /* IE/Edge */
           elem.msRequestFullscreen();
         }
-      }
+      }      
     });
 
     // full screen button
@@ -714,6 +714,7 @@ export default {
 	message.text = "Hello!";
 	speechSynthesis.speak (message);
      */
+    return newVid;
   },
 
   toggleChatNotificationBadge() {
