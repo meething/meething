@@ -467,8 +467,10 @@ export default class Modal {
         var _name = document.querySelector('#room-name');
         var _pass = document.querySelector('#room-pass');
         if (_name && _name.value) {
-          med.room = _name.value
+          let roomgen = `${_name.value.trim().replace(' ', '_')}_${med.h.generateRandomString()}`;
+          med.room = roomgen;
         }
+
         if (med.room && history.pushState) {
           window.history.pushState(null,'','?room='+med.room);
         }
