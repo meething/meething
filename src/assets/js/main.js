@@ -135,6 +135,24 @@ function Mediator () {
     return this.h.fromPath(this,key);
   }
 
+  this.sendMsg = function (msg, local) {
+    let data = {
+        room: this.room,
+        msg: msg,
+        sender: this.username || this.socketId
+    };
+
+    if (local) {
+      // TODO fix this message aka Chat Module
+      if(this.DEBUG) {console.log('sendMsg needs fixing still')}
+        //this.damSocket.out("local", data)
+    } else {
+      if(this.DEBUG) {console.log('sendMsg needs fixing still')}
+        //this.damSocket.out("tourist", data)
+    }
+    this.damSocket.out(med.room, data)
+  }
+
   // End of Session Storage Helper
 }
 

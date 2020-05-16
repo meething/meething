@@ -1,36 +1,40 @@
+var med = null;
+var _modal = null;
+
 export default class Modal {
   constructor (mediator) {
     this.mediator = mediator;
-    this.modal;
+    med = this.mediator;
+
+    return this;
   }
   // function that creates the modal and then renders it
   createModal () {
-    this.mediator.room = this.mediator.h.getQString(location.href, "room") ? this.mediator.h.getQString(location.href, "room") : "";
-    this.mediator.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-    this.mediator.title = this.mediator.room.replace(/(_.*)/, '');
-    if (this.mediator.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = this.mediator.title;
+    med.room = med.h.getQString(location.href, "room") ? med.h.getQString(location.href, "room") : "";
+    med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+    med.title = med.room.replace(/(_.*)/, '');
+    if (med.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = med.title;
     //initSocket(); // letting socket start for now
-    var modal = new tingle.modal({
+    _modal = new tingle.modal({
       closeMethods: [],
       footer: true,
       stickyFooter: true,
       onOpen: this.tingleOnOpen.bind(this)
     });
 
-    this.modal = modal;
-    this.mediator.modal = modal; //remove this later
+    med.modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
 
     if(toggleModal) toggleModal.addEventListener('click',e=>{
       e.preventDefault();
-      modal.open();
+      _modal.open();
     })
 
     var modalContent="";
     var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
     var cammicsetc =
-      this.mediator.h.isOldEdge() || !this.mediator.autoload
+      med.h.isOldEdge() || !med.autoload
         ? `
         <div class="col-md-12">
         <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
@@ -103,8 +107,8 @@ export default class Modal {
 
     `;
 
-    this.mediator.h.getDevices().then(devices=>{
-      this.mediator.devices = devices;
+    med.h.getDevices().then(devices=>{
+      med.devices = devices;
       devices = window.devices = devices;
       this.navigatorGotDevices(devices);
     });
@@ -117,7 +121,7 @@ export default class Modal {
     var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
     var roomcreated = `<div id="room-created"></div>`;
 
-    if(this.mediator.room && this.mediator.username){
+    if(med.room && med.username){
       // Welcome back xX!
       modalContent = `
       <div class="container-fluid">
@@ -126,15 +130,15 @@ export default class Modal {
        ${cammicsetc}
       </div>
       <div class="col-md-4 mt-4 mx-auto text-white">
-      <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${this.mediator.username}"/>${this.mediator.username}! </h4>
-      <p>You're joining room: <input type="hidden" id="room-name" value="${this.mediator.room}"/> ${this.mediator.title} </p>
+      <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${med.username}"/>${med.username}! </h4>
+      <p>You're joining room: <input type="hidden" id="room-name" value="${med.room}"/> ${med.title} </p>
       <br/>${passwinput}<br/>
       </div>
       </div>
       </div>`;
-      return this.loadModal(modal,modalContent,'join');
+      return this.loadModal(_modal,modalContent,'join');
       //
-    } else if(this.mediator.room && !this.mediator.username){
+    } else if(med.room && !med.username){
       // set username and camera options
       // when is room created
       modalContent =
@@ -145,7 +149,7 @@ export default class Modal {
          </div>
         <div class="col-md-4 mt-4 mx-auto room-form">
         <h4 class="speech-msg">
-        Welcome, you're joining room <input type="hidden" id="room-name" value="${this.mediator.room}"/> ${this.mediator.title}</h4>
+        Welcome, you're joining room <input type="hidden" id="room-name" value="${med.room}"/> ${med.title}</h4>
 
         <p>
         Please enter your username and set up your camera options! </p>
@@ -157,9 +161,9 @@ export default class Modal {
 
       </div>
       `;
-      return this.loadModal(modal,modalContent,'nouser');
+      return this.loadModal(_modal,modalContent,'nouser');
 
-    } else if (!this.mediator.room && this.mediator.username) {
+    } else if (!med.room && med.username) {
 
       // enter room name to join
       modalContent = `
@@ -171,7 +175,7 @@ export default class Modal {
         <div class='col-md-4 mt-4 mx-auto room-form'>
         <h4 class='speech-msg'>
 
-        Welcome back, <input type='hidden' id='username' value='${this.mediator.username}'/>${this.mediator.username}</h4>
+        Welcome back, <input type='hidden' id='username' value='${med.username}'/>${med.username}</h4>
         <p>
         Please enter the room name you want to join or create below! </p>
         <br/>
@@ -182,7 +186,7 @@ export default class Modal {
       </div>`;
 
 
-      return this.loadModal(modal,modalContent,'noroom');
+      return this.loadModal(_modal,modalContent,'noroom');
     }else {
       // Set up a new room
       modalContent = `
@@ -209,7 +213,7 @@ export default class Modal {
         </div>
         `
 
-      return this.loadModal(modal,modalContent,'setup');
+      return this.loadModal(_modal,modalContent,'setup');
     }
 
   }
@@ -220,20 +224,20 @@ export default class Modal {
       let deviceSelection = document.getElementById('deviceSelection');
       let preview = document.getElementById('preview');
       let local = document.getElementById('local');
-      if(this.mediator.h.isOldEdge() || !this.mediator.autoload){
+      if(med.h.isOldEdge() || !med.autoload){
         setupBtn.addEventListener('click',function(e){
           e.preventDefault();
           setupBtn.hidden = true;
           if(deviceSelection.hidden) {
             deviceSelection.hidden=false;
             this.resetDevices();
-            this.modalFilled(this.modal);
+            this.modalFilled(_modal);
           }
-        }.bind(this))
+        })
       } else {
         setupBtn.hidden = true;
         this.resetDevices();
-        this.modalFilled(this.modal);
+        this.modalFilled(_modal);
       }
       if(preview && local) {
         preview.appendChild(local);
@@ -254,25 +258,25 @@ export default class Modal {
               //save the user's name in sessionStorage
               sessionStorage.setItem('username', yourName);
               //create room link
-              let roomgen = `${roomName.trim().replace(' ', '_')}_${this.mediator.h.generateRandomString()}`;
+              let roomgen = `${roomName.trim().replace(' ', '_')}_${med.h.generateRandomString()}`;
               let roomLink = `${location.origin}?room=${roomgen}`;
-              this.mediator.room = roomgen;
-              this.mediator.username = yourName;
+              med.room = roomgen;
+              med.username = yourName;
               cr.hidden=true;
               if(romp) {
-                this.mediator.roompass=romp;
-                await this.mediator.storePass(romp,yourName);
+                med.roompass=romp;
+                await med.storePass(romp,yourName);
               }
               //show message with link to room
               document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
               var clip = document.getElementById('clipMe');
               if(clip) clip.addEventListener('click',function(e){
                 e.preventDefault();
-                this.mediator.h.copyToClipboard(e.target.href);
+                med.h.copyToClipboard(e.target.href);
                 if(errmsg) {
                   errmsg.innerHTML='Link copied to clipboard '+roomLink;
                 }
-              }.bind(this));
+              });
               //empty the values
               document.querySelector('#room-name').value = roomgen;
               document.querySelector('#room-name').readonly = true;
@@ -299,7 +303,7 @@ export default class Modal {
     if(!letsgo.length){
 
       modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
-        try { this.mediator.mutedStream = this.mediator.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
+        try { med.mutedStream = med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         this.handleOk({type,modal,e});
       }.bind(this));
     }
@@ -310,19 +314,19 @@ export default class Modal {
     var ao = document.getElementById('ao');
     var vs = document.getElementById('vs');
     var ve = document.getElementById('local');
-    if(ve) this.mediator.localVideo=ve;
-    if (this.mediator.myStream) {
-      this.mediator.myStream.getTracks().forEach(track => {
+    if(ve) med.localVideo=ve;
+    if (med.myStream) {
+      med.myStream.getTracks().forEach(track => {
         track.stop();
       });
     }
-    if(!this.mediator.h.canSelectAudioDevices()) { //Firefox springs to mind ;(
+    if(!med.h.canSelectAudioDevices()) { //Firefox springs to mind ;(
       ao.disabled = true;
       ao.readonly = true;
     }
     // TODO : move this listener out of this function
     var aoListener = function(e){
-      return this.mediator.h.setAudioToVideo(ao,ve);
+      return med.h.setAudioToVideo(ao,ve);
     }
     ao.removeEventListener('change',aoListener);
     ao.addEventListener('change',aoListener)
@@ -332,12 +336,12 @@ export default class Modal {
     vs.addEventListener('change',this.resetDevices);
     // TODO : move this listener out of this function
     var clicked = function clicked(e){
-      var p = this.mediator.setSS('config['+e.target.id+']',!!this.checked)
+      var p = med.setSS('config['+e.target.id+']',!!this.checked)
     };
-    sam.removeEventListener('click',clicked.bind(this));
-    svm.removeEventListener('click',clicked.bind(this));
-    sam.addEventListener('click',clicked.bind(this));
-    svm.addEventListener('click',clicked.bind(this));
+    sam.removeEventListener('click',clicked);
+    svm.removeEventListener('click',clicked);
+    sam.addEventListener('click',clicked);
+    svm.addEventListener('click',clicked);
     const asv = as.value;
     const vsv = vs.value;
     const samv = sam.checked;
@@ -346,13 +350,13 @@ export default class Modal {
       audio: {deviceId: asv ? {exact: asv} : undefined},
       video: {deviceId: vsv ? {exact: vsv} : undefined}
     };
-    this.mediator.h.getUserMedia(constraints).then(async stream=>{
-      this.mediator.myStream = stream;
+    med.h.getUserMedia(constraints).then(async stream=>{
+      med.myStream = stream;
       window.myStream = stream;
-      this.mediator.h.setVideoSrc(ve,stream);
-      this.mediator.h.replaceStreamForPeers(this.mediator.pcMap, stream);
-      ve.oncanplay = function(){ this.modal.checkOverflow(); }.bind(this)
-      return Object.keys(devices).length>0 ? devices : this.mediator.h.getDevices();
+      med.h.setVideoSrc(ve,stream);
+      med.h.replaceStreamForPeers(med.pcMap, stream);
+      ve.oncanplay = function(){ _modal.checkOverflow(); }
+      return Object.keys(devices).length>0 ? devices : med.h.getDevices();
     }).then(devices=>{
       this.navigatorGotDevices(devices);
     }).catch(err=>{
@@ -362,7 +366,7 @@ export default class Modal {
   }
 
   cancelFn (why) {
-    this.mediator.room=''; //if we null here we might ruin other stuff
+    med.room=''; //if we null here we might ruin other stuff
     sessionStorage.clear();
     why.modal.close();
     window.location = '/';
@@ -383,25 +387,22 @@ export default class Modal {
     Object.assign(modal,{__type:type});
     modal.setContent(`${createOrJoin}`);
     modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
-      try { this.mediator.mutedStream = this.mediator.mutedStream ? this.mediator.mutedStream : this.mediator.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
+      try { med.mutedStream = med.mutedStream ? med.mutedStream : med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
       this.cancelFn({modal, e});
-    }.bind(this));
+    });
     modal.open();
     var sB = document.getElementById('tingleSetupBtn');
-    if(sB) { console.log("clicked It", this.simulateClick(sB))}
+    if(sB && !med.autoload) { console.log("clicked It", this.simulateClick(sB))}
   }
 
   navigatorGotDevices (devices) {
-      if(this.mediator.DEBUG){console.log('hello',devices);}
-      var DEBUG = this.mediator.DEBUG;
-      var h = this.mediator.h;
-      var modal = this.mediator.modal;
+      if(med.DEBUG){console.log('hello',devices);}
       ["as","ao","vs"].map(function(group){
         let devs = devices[group];
         var str = "";
         var qs = document.getElementById(group);
-        h.each(devs,function(label,device){
-          if(DEBUG){console.log(label,device);}
+        med.h.each(devs,function(label,device){
+          if(med.DEBUG){console.log(label,device);}
           var opt = document.getElementById(label.replace(/[^a-zA-Z0-9]/g,''));
           if(!opt) {
             opt = document.createElement('option');
@@ -411,7 +412,7 @@ export default class Modal {
           opt.text = label;
           if(qs) qs.appendChild(opt);
         });
-        modal.checkOverflow();
+        _modal.checkOverflow();
       });
   }
 
@@ -425,11 +426,11 @@ export default class Modal {
         if (_username && _username.value) {
           sessionStorage.setItem('username', _username.value);
         }
-        if (this.mediator.room && history.pushState) {
-          window.history.pushState(null,'','?room='+this.mediator.room);
+        if (med.room && history.pushState) {
+          window.history.pushState(null,'','?room='+med.room);
         }
         var pval = _pass && _pass.value ? _pass.value : false;
-        if(pval) await this.mediator.storePass(pval);
+        if(pval) await med.storePass(pval);
         break;
       case 'setup':
         var _username = document.querySelector('#your-name');
@@ -444,10 +445,10 @@ export default class Modal {
         }
         if (_room && _room.value && history.pushState) {
           window.history.pushState(null,'','?room='+_room.value);
-          this.mediator.room = _room.value;
+          med.room = _room.value;
         }
         var pval = _pass && _pass.value ? _pass.value : false;
-        if(pval) await this.mediator.storePass(pval, _username.value);
+        if(pval) await med.storePass(pval, _username.value);
         break;
       case 'nouser':
         var _username = document.querySelector('#username');
@@ -456,23 +457,23 @@ export default class Modal {
         if (_username && _username.value) {
           sessionStorage.setItem('username', _username.value);
         }
-        if (this.mediator.room && history.pushState) {
-          window.history.pushState(null,'','?room='+this.mediator.room);
+        if (med.room && history.pushState) {
+          window.history.pushState(null,'','?room='+med.room);
         }
         var pval = _pass && _pass.value ? _pass.value : false;
-        if(pval) await this.mediator.storePass(pval);
+        if(pval) await med.storePass(pval);
         break;
       case 'noroom':
         var _name = document.querySelector('#room-name');
         var _pass = document.querySelector('#room-pass');
         if (_name && _name.value) {
-          this.mediator.room = _name.value
+          med.room = _name.value
         }
-        if (this.mediator.room && history.pushState) {
-          window.history.pushState(null,'','?room='+this.mediator.room);
+        if (med.room && history.pushState) {
+          window.history.pushState(null,'','?room='+med.room);
         }
         var pval = _pass && _pass.value ? _pass.value : false;
-        if(pval) await this.mediator.storePass(pval);
+        if(pval) await med.storePass(pval);
         break;
     }
     // stuff that is common
@@ -482,9 +483,9 @@ export default class Modal {
       ve.className="local-video clipped";
       vs.appendChild(ve);
     }
-    this.mediator.initSocket().then(sock=>{
+    med.initSocket().then(sock=>{
       info.modal.close();
-      this.mediator.initComm();
+      med.initComm();
     })
   }
   /* if autoload is false we need to simulate a click */
@@ -509,11 +510,6 @@ export default class Modal {
     if (document.createEvent)
     {
         var oEvent = new CustomEvent(eventType, defaultOptions);
-
-        /*oEvent.initMouseEvent(eventName, options.bubbles, options.cancelable, document.defaultView,
-        options.button, options.pointerX, options.pointerY, options.pointerX, options.pointerY,
-        options.ctrlKey, options.altKey, options.shiftKey, options.metaKey, options.button, element);
-        */
         el.dispatchEvent(oEvent);
         return true;
     } else {
