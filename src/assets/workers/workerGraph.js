@@ -73,35 +73,10 @@ function buildString (n, e, w, h) {
   var string = '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'">';
   // define an arrow
   string += '<defs><marker id="endarrow" viewbox="0 0 8 6" ';
-  string += ' markerWidth="6" markerHeight="4" ';
-  string += ' refX="6" refY="2" orient="auto">';
-  string += ' <path d="M 0 1 L 6 2 L 0 4" fill="rgb(200,200,200)"/> </marker>';
+  string += ' markerWidth="15" markerHeight="12" ';
+  string += ' refX="19" refY="6" orient="auto">';
+  string += ' <path d="M 0 2 L 15 6 L 0 10" fill="rgb(10,11,24)"/> </marker>';
   string += '</defs>'
-
-  // if there is nodes
-  if(n.length>0){
-    // iterate over all the nodes and add a circle with the coordinates
-    // for each node
-    for(let node of n) {
-      node.x = Math.max(5, Math.min(w - 5, node.x));
-      node.y = Math.max(5, Math.min(h - 5, node.y));
-      let substring = '<circle '
-      substring += 'stroke="'+color(node.id)+'" ';
-      substring += 'fill="'+color(node.id)+'" ';
-      substring += 'cx="'+node.x+'" ';
-      substring += 'cy="'+node.y+'" ';
-      substring += 'r="5" /> ';
-      substring += '<text x="'+(node.x+5)+'" y="'+(node.y-10)+'" ';
-      substring += 'fill="rgb(250,250,250)">'/*+color(node.id)+'">'*/;
-      substring += node.label;
-      substring += '</text>';
-      string += substring;
-
-    }
-
-  } else {
-    return undefined;
-  }
 
   if(e.length>0) {
     //iterate over each edge and create a line for it
@@ -118,6 +93,33 @@ function buildString (n, e, w, h) {
     }
 
   }
+
+  // if there is nodes
+  if(n.length>0){
+    // iterate over all the nodes and add a circle with the coordinates
+    // for each node
+    for(let node of n) {
+      node.x = Math.max(5, Math.min(w - 5, node.x));
+      node.y = Math.max(5, Math.min(h - 5, node.y));
+      let substring = '<circle '
+      substring += 'stroke="'+color(node.id)+'" ';
+      substring += 'fill="'+color(node.id)+'" ';
+      substring += 'cx="'+node.x+'" ';
+      substring += 'cy="'+node.y+'" ';
+      substring += 'r="5" /> ';
+      substring += '<text x="'+(node.x+5)+'" y="'+(node.y-10)+'" ';
+      substring += 'fill="rgb(110,140,210)">'/*+color(node.id)+'">'*/;
+      substring += node.label;
+      substring += '</text>';
+      string += substring;
+
+    }
+
+  } else {
+    return undefined;
+  }
+
+
 
 
 
