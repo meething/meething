@@ -35,7 +35,7 @@ export default class ChatEvents {
                         "/help - this will trigger this information";
                     this.showInChat(data);
                     return true;
-                case "qxip": 
+                case "qxip":
                 case "qvdev":
                     this.showTime("Europe/Amsterdam", data)
                     return true;
@@ -44,6 +44,15 @@ export default class ChatEvents {
                     return true;
                 case "joe":
                     data.msg = "&#128526;"
+                    return true;
+                case "dletta":
+                    this.showTime("America/Vancouver",data)
+                    return true;
+                case "graph":
+                    this.eventEmitter.emit("graph:toggle", data)
+                    return true;
+                case "graphU":
+                    this.eventEmitter.emit("graph:update", data)
                     return true;
                 default:
                     return false;

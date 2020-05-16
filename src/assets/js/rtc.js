@@ -20,7 +20,7 @@ var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
-var meethrix = window.meethrix = true,
+var meethrix = window.meethrix = false,
 autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD
 window.h = h;
 var ee = null,
@@ -513,7 +513,7 @@ window.addEventListener('DOMContentLoaded', function () {
   // @TODO disable roomcreate button when errors
   var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
   var roomcreated = `<div id="room-created"></div>`;
- 
+
   if(room && username){
     // Welcome back xX!
     modalContent = `
@@ -534,10 +534,10 @@ window.addEventListener('DOMContentLoaded', function () {
     </div> 
     </div>`; 
     return loadModal(modal,modalContent,'join');
-    //
   } else if(room && !username){
-    // set username and camera options 
+    // set username and camera options
     // when is room created
+
     modalContent = 
     ` 
     <div class="container-fluid">
@@ -552,7 +552,6 @@ window.addEventListener('DOMContentLoaded', function () {
    </div> 
       <h4 class="speech-msg"> 
       Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
-
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
@@ -560,15 +559,14 @@ window.addEventListener('DOMContentLoaded', function () {
       ${passwinput} <br/>
      </div>
       </div> 
-
     </div>
     `;
     return loadModal(modal,modalContent,'nouser');
-    
+
   } else if (!room && username) {
 
     // enter room name to join
-    modalContent = ` 
+    modalContent = `
   <div class="container-fluid">
   <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
   <div class='row'> 
@@ -580,16 +578,17 @@ window.addEventListener('DOMContentLoaded', function () {
       <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/> 
    </div> 
       <h4 class='speech-msg'> 
-
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
       Please enter the room name you want to join or create below! </p>
       <br/>
     ${roominput}<br/>
     ${passwinput}<br/>
+
       </div> 
-      <div id="modalfooter"></div>
+    
     </div> 
+
     </div>`;
 
 
@@ -613,9 +612,8 @@ window.addEventListener('DOMContentLoaded', function () {
         ${roominput}<br> 
         ${passwinput}<br> 
         <br>
-        <div id="modalfooter"></div>
         ${roomcreatebtn}
-       </div> 
+       </div>
       </div>
       </div>
       `
@@ -626,7 +624,7 @@ window.addEventListener('DOMContentLoaded', function () {
 });
 
 function loadModal(modal,createOrJoin,type){
-  Object.assign(modal,{__type:type}); 
+  Object.assign(modal,{__type:type});
   modal.setContent(`${createOrJoin}`);
   modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
     try { mutedStream = mutedStream ? mutedStream : h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
@@ -724,7 +722,7 @@ function metaDataReceived(data) {
       }
     } else if (data.subEvent == "mute") {
       if (data.muted) {
-        var notification = data.username + " is going silence";
+        var notification = data.username + " is going silent";
         h.showNotification(notification);
       } else {
         var notification = data.username + " is on speaking terms"
@@ -823,7 +821,11 @@ function initRTC() {
         sender: socketId,
         name: data.name || data.socketId
       });
-
+      // add info to grap, socketId label
+      root.get('meething').get(room).get(socketId).put({label:socketId});
+      // add person we are connecting to
+      root.get('meething').get(room).get(socketId).get(data.socketId).put({label:data.name || data.socketId});
+      ee.emit('graph:update');
       init(true, data.socketId);
     });
 
@@ -1057,7 +1059,7 @@ function initRTC() {
           e.srcElement.classList.add("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
           h.showNotification("Audio Muted");
-          myStream.getAudioTracks()[0].enabled = !audioMuted; 
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
         });
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {

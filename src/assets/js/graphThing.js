@@ -1,19 +1,19 @@
-const DEBUG = true;
-
 export default class Graph {
-  constructor (gun, eventEmitter) {
-    this.root = gun;
-    this.eventEmitter = eventEmitter;
-    this.init();
+  constructor (mediator) {
+    this.mediator = mediator;
   }
 
   init () {
+    console.log('fix the Graph')
+  }
+
+  start () {
     this.eventEmitter.on('graph:update', async function () {
       // initialize web worker in upper scope
       var graphWorker = new Worker('/assets/workers/workerGraph.js');
       // handle result from graphworker
       graphWorker.onmessage = function (event) {
-        if(DEBUG) {console.log('worker returned', event.data.svgString)}
+        if(this.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
         // parse result into an element
         var parser = new DOMParser();
         var el = parser.parseFromString(event.data.svgString, "image/svg+xml");
@@ -48,7 +48,7 @@ export default class Graph {
       /* Version 2 - traverse the room and all of its children
           enumerate into nodes and edges array as you go */
 
-      if(DEBUG) { console.log('Worker Version 2')}
+      if(this.mediator.DEBUG) { console.log('Worker Version 2')}
         // Breadth First Search
       var stack;
       var nodes;
@@ -58,16 +58,16 @@ export default class Graph {
       var label;
       var opt = true;
 
-      if(DEBUG) { console.log('Worker Version 2: Starting traversal')}
+      if(this.mediator.DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
-      if(DEBUG) {console.log('Starting with: meething')}
+      if(this.mediator.DEBUG) { console.log('Starting with: meething')}
 
       label = 'label';
       start = 'meething';
       stack = [];
       nodes = new Map();
       edges = new Map();
-      start = await root.get(start).promOnce();
+      start = await this.mediator.root.get(start).promOnce();
       nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
       u = start;
       stack.push(u);
@@ -77,7 +77,7 @@ export default class Graph {
           await delay(20); //play with this value
           var edge = exhausted(u.data, edges, true);
           var v = await root.get(edge).promOnce();
-          nodes.set(v.key, {id:v.key, label:v.data.label, data:v.data});
+          nodes.set(v.key, {id:v.key, label:v.data.label || v.key , data:v.data});
           edges.set(u.key+v.key, {source:u.key, target:v.key});
           stack.push(v);
         }
@@ -140,6 +140,20 @@ export default class Graph {
         return new Promise((res, rej)=>{
           setTimeout(res, ms);
         })
+      }
+    });
+    this.eventEmitter.on('graph:toggle', function () {
+      var graphDiv = document.getElementById('graphDiv');
+      if(graphDiv) {
+        if(graphDiv.style.visibility == 'hidden') {
+          graphDiv.style.visibility = 'visible';
+        } else if(graphDiv.style.visibility == 'visible'){
+          graphDiv.style.visibility = 'hidden';
+        } else {
+          console.error('Graph not available at this time', graphDiv);
+        }
+      } else {
+        console.error('Graph not available at this time', graphDiv);
       }
     });
   }
