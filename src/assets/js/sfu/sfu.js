@@ -62,7 +62,7 @@ export default class SFU extends EventEmitter {
           // console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
             console.log('Imm Speaking! Sending metadata mesh focus...');
-            // metaData.sendControlData({ username: username, id: socketId, talking: true });
+              med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
           });
           soundMeter.connectToSource(window.stream);
         } else { console.error('no soundmeter!'); }
