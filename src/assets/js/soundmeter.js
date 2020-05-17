@@ -9,7 +9,7 @@ function SoundMeter(callback) {
 	var AudioContext = window.AudioContext || window.webkitAudioContext;
 	this.context = new AudioContext();
 	this.instant = 0.0;
-	this.audioMeter = document.getElementById('audiometer');
+	this.audioMeter = document.getElementById('audiometer') || false;
 	this.start = null;
 	this.script = this.context.createScriptProcessor(2048, 1, 1);
 	this.stopped = true;
@@ -19,7 +19,7 @@ function SoundMeter(callback) {
 		if (!self.start) self.start = timestamp;
 		var progress = timestamp - self.start;
 		if (progress > 1000) {
-			self.audioMeter.value = self.instant.toFixed(2) * 5;
+			if (self.audioMeter) self.audioMeter.value = self.instant.toFixed(2) * 5;
 			self.start = null;
 		}
 		window.requestAnimationFrame(self.update);
