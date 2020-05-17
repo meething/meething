@@ -1,7 +1,9 @@
 import helpers from './helpers.js';
 import EventEmitter from './ee.js';
-
+let med = null;
 window.addEventListener('DOMContentLoaded', () => {
+    // set mediator
+    med = window.meething;
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
@@ -59,10 +61,9 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
-        e.preventDefault();
-       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
-      
-
+      e.preventDefault();
+      med.ee.emit('toggle-device-selection',e); //fire EventEmitter
+      document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
         e.srcElement.classList.toggle("fa-video");
         e.srcElement.classList.toggle("fa-times");
     })
@@ -87,7 +88,7 @@ window.addEventListener('DOMContentLoaded', () => {
                     });
             }
         });
-      }
+      } 
     /*MOVED TO rtc event emitter
     var em = window.ee;
     console.log(em,ee);
