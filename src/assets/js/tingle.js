@@ -362,7 +362,7 @@
   function _buildFooter () {
     this.modalBoxFooter = document.createElement('div')
     this.modalBoxFooter.classList.add('tingle-modal-box__footer')
-    this.modalBoxFooter.classList.add('row')
+    //this.modalBoxFooter.classList.add('row')
     this.modalBox.appendChild(this.modalBoxFooter)
   }
 

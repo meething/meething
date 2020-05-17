@@ -14,20 +14,39 @@ body {
 .chat-col {
   right: 0;
   bottom: 0;
-  top: 47.5px;
-  z-index: 1000;
+  right: -100vw;
+  width: 100vw;
+  z-index: 999;
+  transition: 0.3s;
+  top: 80px;
+  z-index: 999;
   position: fixed;
   color: #fff;
   padding-right: 5px;
   padding-left: 5px;
   padding-bottom: 40px;
   padding-top: 15px;
-  min-height: 100vh;
+  min-height: 70vh;
 }
 
+.menu-text {
+  font-family: Helvetica, Arial, sans-serif !important;
+  font-weight:light;
+  font-size:14px;
+
+}
+.local-video {
+  left:-20px;
+  bottom: 10%;
+  position: absolute;
+  height: 100px;
+  width: 150px;
+  z-index: 1000;
+}
 #chat-messages {
-  height: 70vh;
-  margin-bottom: 20px;
+
+  top:0px;
+  height: 50vh;
   overflow-x: hidden;
   overflow-y: auto;
   scrollbar-width: none; /* Firefox */
@@ -50,15 +69,22 @@ body {
 }
 
 .chat-box::placeholder {
-  font-size: small;
-  font-weight: lighter;
-  font-style: italic;
+  font-weight:bold;
+  color:white;
+  font-size:1em;
+  border-bottom:1px solid #807297;
+
 }
 
 .chat-box,
 .chat-box:focus {
+  padding:10px;
+  z-index:1000;
+  background:#473761;
+  color:white;
   resize: none !important;
   box-shadow: none !important;
+  border-bottom:2px solid orange;
 }
 
 .chat-row {
@@ -71,7 +97,7 @@ body {
   object-fit: cover !important; 
   height: 100%;
   width: 100%;
-  border-radius: 6px 6px 0px 0px;
+  border-radius: 6px;
   max-height: 80vh;
   background:#14101bbb ;
   
@@ -85,26 +111,23 @@ body {
   padding-top: 40px;
 }
 
-.local-video {
-  bottom: 0;
-  left: 0;
-  position: fixed;
-  height: 150px;
-  width: 200px;
-  z-index: 1000;
-}
+
 
 .sender-info {
   font-size: smaller;
   margin-top: 5px;
-  align-self: flex-end;
+  align-self: flex-start;
+  color:grey;
 }
 
 .msg {
+  font-family:Arial, Helvetica, sans-serif;
   font-weight: 400;
   font-size: 12px;
-  color: black;
-  background-color: wheat;
+  background:#ffffffda !important;
+  color: rgb(71, 71, 71);
+  text-shadow:1px 1px 2px rgb(185, 185, 185);
+  padding:10px;
 }
 
 .chat-card {
@@ -120,14 +143,36 @@ body {
 }
 
 @media only screen and (min-width: 1767px) {
+
   .chat-col {
     right: -70vw;
     width: 70vw;
-    z-index: 99999;
+    z-index: 999;
     transition: 0.3s;
     top: 47px;
   }
+  .local-video {
+    top: 30%;
+    right: 30px;
+    position: fixed;
+    height: 150px;
+    width: 200px;
+    z-index: 1000;
+  
+} 
+#top-menu {
+  position:absolute;
+  padding:15px;
+ 
+  right:0px;
+  z-index:100000;
+  background-color: #473761;
+  box-shadow:10px 10px 40px #14101bbb;
+  color:white;
 
+  transition:.5s all;
+  border-radius:10px 0px 0px 10px;
+}
   .chat-col.chat-opened {
     right: 0;
     overflow-y: auto;
@@ -142,10 +187,7 @@ body {
   }
 
 
-  .local-video {
-    height: 80px;
-    width: 100px;
-  }
+
 
   #chat-messages {
     height: 60vh;
@@ -160,7 +202,7 @@ body {
   .chat-col {
     right: -100vw;
     width: 100vw;
-    z-index: 99999;
+    z-index: 999;
     transition: 0.3s;
     top: 47px;
   }
@@ -179,10 +221,7 @@ body {
   }
 
 
-  .local-video {
-    height: 80px;
-    width: 100px;
-  }
+
 
   #chat-messages {
     height: 60vh;
@@ -192,15 +231,15 @@ body {
     bottom: 90px;
     margin-bottom: 0px;
   }
-} 
 
+}
 .bg-info {
   background-color: #c2c2c222 !important;
-  
 }
 
 .bg-green {
   background-color: #d7f7c5 !important;
+ 
 }
 
 .card {
@@ -211,7 +250,7 @@ body {
 .demo {
   position: fixed;
   z-index:-100;
-  top: 50px;
+  top: 20px;
   left: 0;
   width: 100vw;
   height: 100%;
@@ -276,7 +315,8 @@ cursor: crosshair
    transition:.5s all;
    font-size:22px;
    margin:0 auto;
-    width:250px;
+ 
+   
   
  }
  #create-room:hover{
@@ -292,12 +332,13 @@ cursor: crosshair
 
 /* video styles */
 .v-toolbox{
-  padding:5px;
-  display:flex;
-  justify-self:right;
+text-align:center;
   margin-right:10px;
-  font-size:11px;
-  align-items: center;
+ text-transform: capitalize;
+ font-weight:lighter;
+padding: 0px 12px;
+ 
+
 }
 .dot-user{
   color:fucsia;
@@ -305,8 +346,8 @@ cursor: crosshair
 
 
 .v-user{
-  padding-top:5px;
-  margin-left:5px;
+  font-family:Helvetica,Arial,sans-serif;
+font-size:12px !important;
   opacity:1;
 }
 .v-user:hover {
@@ -325,18 +366,17 @@ cursor: crosshair
   font-size:13px;
 }
 .toolbox{
-  background:#14101bbb ;
-  
+  margin: -45px 0 0 -45px;
   position:relative;
-  top:-6px;
-  height:35px;
-  left:0px;
-  display:grid;
-  grid-template-columns:1fr 4fr;
+
+ 
+  display:flex;
+  justify-content: flex-start;
+ margin-left:15px;
   align-items:center;
-  z-index:1000;
-  width:100%;
-  border-radius:0px 0px 6px 6px;
+  z-index:1;
+ 
+ 
 }
 
 /* main toolbar styles .. */
@@ -353,7 +393,7 @@ margin-left:10px;
 }
 .widget-button{
   text-align:center;
-  font-size:12px;
+  font-size:18px;
   border:none;
   padding:5px;
   padding-left:10px;
@@ -361,24 +401,73 @@ margin-left:10px;
   padding-bottom:2px;
   background:none;
   margin-right:3px;
-  box-shadow: 1px -1px 2px #14101bbb;
-  color: rgb(255, 255, 255);
+  color: white;
   opacity:.5;
   transition:.3s all; 
   margin:5px;
-  background:#45257cbb;
-  border-radius:10px 10px 0px 0px;
- 
+  margin-bottom:10px;
+  background:#3f069c;
+  text-shadow:1px 1px 2px black;
+  border-radius:6px 6px 0px 0px;
 }
 .widget-button:hover{
-  color:rgb(255, 255, 255);
+  
   opacity:1;
 }
 
 /* mobile overrides */
 @media only screen and (max-width: 600px) {
+ 
+  .chat-col {
+    border-top:2px solid orange;
+    right: -100vw;
+    width: 100vw;
+    z-index: 999;
+    transition: 0.3s;
+    top: 46px;
+    bottom:65px;
+  }
+
 
 }
+
+@media only screen and (max-height: 769px) {
+  .local-video {
+    top:50px;
+  }
+ 
+
+}
+@media only screen and (max-height: 330px) {
+  .local-video {
+    top:50px;
+  }
+  #meethlogo {
+    display:none;
+  }
+  .tingle-modal p {
+    text-align:center;
+  }
+  .tingle-modal input {
+    font-size:12px;
+  }
+  .tingle-modal label {
+    display:none;
+  }
+.speech-msg {
+  font-size:12px;
+  text-align:center;
+}
+#toggle-device-selection {
+  display:none;
+}
+}
+@media only screen and (min-width: 600px) {
+  .local-video {
+    bottom:5%;
+  }
+}
+
 
 /* Audio Meter */
 
@@ -442,7 +531,81 @@ meter {
 .grid-box {
   margin-top: 0px;
 }
-
+.waiting{margin-top:40px;}
 .grid-bottom {
   margin-top: -25px;
+}
+
+#bottom-menu{
+  position:absolute;
+
+  bottom:0px;
+  z-index:10000;
+ font-size:24px;
+}
+
+#bottom-menu button {
+
+display:block;
+border-radius:10px;
+
+padding:10px;
+margin:5px 10px;;
+text-shadow:1px 1px 2px black;
+transition: .5s all;
+position:relative;
+z-index:1000;
+
+box-shadow:3px 3px 8px black;
+margin-bottom:10px;
+}
+#bottom-menu button:hover{
+  border-color:orange;
+  color:orange;
+}
+.red {
+  background:#de0046;
+}
+.blue {
+  background:#3f069c;
+}
+
+.yellow {
+  background:orange;
+}
+
+#top-menu {
+  position:absolute;
+  padding:15px;
+
+  z-index:100000;
+  background-color: #473761;
+  box-shadow:10px 10px 40px #14101bbb;
+  color:white;
+  transition:.5s all;
+  border-radius:0px 0px 0px 10px;
+  justify-content: space-between;
+  transition:.5px all;
+ right:0px;
+
+}
+
+
+#top-menu button {
+  margin:5px;
+  width:100%;
+  display:flex;
+
+  background:none;
+}
+#top-menu button span {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: lighter;
+  margin-left:20px;
+}
+#toggle-cam-preview {
+  position:absolute;
+  top:40px;
+  left:20px;
+  z-index:10000;
 }

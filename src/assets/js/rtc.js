@@ -169,6 +169,7 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   ee.on('join:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? { value: sessionStorage.getItem('username') } : false;
     let _pass = document.querySelector('#room-pass');
@@ -195,6 +196,8 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('setup:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
+
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -226,6 +229,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('nouser:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let _name = document.querySelector('#username');
     let _pass = document.querySelector('#room-pass');
 
@@ -252,6 +256,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('noroom:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -286,7 +291,9 @@ window.addEventListener('DOMContentLoaded', function () {
         ee.emit(type + ':ok', { modal, e });
 
       });
+
     }
+
   })
   var cancelFn = function (why) {
     room = null;
@@ -355,26 +362,63 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   var modalContent = "";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+  var settingmsg = `<small class="text-white m-4 text-center" style="width:100%;" id="setting-msg">Select your audio and video devices</small>`
   var cammicsetc =
     h.isOldEdge() || !autoload
+
       ? `
-      <div class="col-md-12">
-      <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-    <div id="deviceSelection" hidden>
-    <label for="as">Mic:</label><br/>
-    <select id="as"></select><br/>
-    <label for="ao">Speakers: </label><br/>
-    <select id="ao"></select><br/>
-    <label for="vs">Camera:</label><br/>
-    <select id="vs"></select><br/>
-    <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
-      <i class="fa fa-volume-up"></i>
-    </button>
-    <button class="btn btn-lg btn btn-outline-light fas fa-video" id="svm" title="Mute/Unmute Video">
-    </button><br/>
-    <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
-  </div>
-  </div>
+      <div class="p-container" id="deviceSelection" hidden>
+      <div id="" class="preview-container">
+        <div class="row">
+
+          <div class="col-md-12 mx-auto">
+      <video id="local" class="mx-auto" playsinline autoplay muted></video>
+       </div>
+
+          <div class="preview-video-buttons row col-md-12">
+          <div class="col m-1 mb-3 mx-auto">
+          <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
+
+          </div>
+          <div class="col m-1 mb-3 mx-auto">
+            <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
+            </button>
+
+            </div>
+            <div class="col m-1 mb-3 mx-auto">
+            <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
+
+            </button>
+
+            </div>
+        </div>
+        </div>
+
+      </div>
+
+
+          <div id="devicesSelection">
+
+
+            <div class="form-row device-select" id="devices-menu" style="display: none;">
+
+              <div class="col-md-4 mb-3">
+               <label for="as" class="text-white">Mic:</label>
+                 <select id="as" class="form-control btn-sm rounded-0"></select>
+               </div>
+
+             <div class="col-md-4 mb-3">
+                  <label for="ao" class="text-white">Speakers: </label>
+                    <select id="ao" class="form-control btn-sm rounded-0"></select>
+                 </div>
+
+            <div class="col-md-4 mb-3">
+                    <label for="vs" class="text-white">Camera:</label>
+                  <select id="vs" class="form-control btn-sm rounded-0"></select>
+                </div>
+            </div>
+          </div>
+          </div>
 `
       : `
 <div class="p-container">
@@ -386,40 +430,44 @@ window.addEventListener('DOMContentLoaded', function () {
  </div>
 
     <div class="preview-video-buttons row col-md-12">
-
     <div class="col m-1 mb-3 mx-auto">
       <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
+
       </div>
       <div class="col m-1 mb-3 mx-auto">
       <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
 
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
+
       </div>
+  </div>
+  <div class="col m-1 mb-3 mx-auto d-inline">
+  ${settingmsg}<button id="toggle-devices-menu" class="btn btn-sm fas fa-ellipsis-v mx-auto text-white"></button>
+
   </div>
   </div>
 
 </div>
 
-<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+<button class="form-control rounded-0" id="tingleSetupBtn" hidden>Set up your devices</button>
 
     <div id="deviceSelection">
 
-      <div class="form-row">
 
-        <div class="col-md-4 mb-3">
+      <div class="form-row device-select" id="devices-menu">
+
+        <div class="col-md-12 mb-3">
          <label for="as" class="text-white">Mic:</label>
            <select id="as" class="form-control btn-sm rounded-0"></select>
          </div>
 
-       <div class="col-md-4 mb-3">
+       <div class="col-md-12 mb-3">
             <label for="ao" class="text-white">Speakers: </label>
               <select id="ao" class="form-control btn-sm rounded-0"></select>
            </div>
 
-      <div class="col-md-4 mb-3">
+      <div class="col-md-12 mb-3">
               <label for="vs" class="text-white">Camera:</label>
             <select id="vs" class="form-control btn-sm rounded-0"></select>
           </div>
@@ -466,41 +514,43 @@ window.addEventListener('DOMContentLoaded', function () {
     // Welcome back xX!
     modalContent = `
     <div class="container-fluid">
-    <div class="row">
-    <div class="col-md-4 speech-bubble mx-auto">
-     ${cammicsetc}
-    </div>
-    <div class="col-md-4 mt-4 mx-auto text-white">
+      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <div class='row'>
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
+          ${cammicsetc}
+        </div>
+    <div class="col-md-4 mt-4 mx-auto text-white room-form">
+    <div class='mx-auto text-center mb-4'>
+    <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/>
+ </div>
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
     <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/>
-    </div> 
-    </div> 
+    </div>
+    </div>
     </div>`;
     return loadModal(modal, modalContent, 'join');
     //
   } else if (room && !username) {
-    // set username and camera options 
+    // set username and camera options
     // when is room created
     modalContent =
-      ` 
-    <div class="row"> 
-    <div class="col-md-4 speech-bubble mx-auto"> 
+      `
+    <div class="row">
+    <div class="col-md-4 speech-bubble mx-auto">
 
       ${cammicsetc}
        </div>
       <div class="col-md-4 mt-4 mx-auto room-form">
       <h4 class="speech-msg">
       Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
-
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
       ${joinnameinput} <br/>
       ${passwinput} <br/>
-
+     </div>
       </div>
-
     </div>
     `;
     return loadModal(modal, modalContent, 'nouser');
@@ -510,21 +560,27 @@ window.addEventListener('DOMContentLoaded', function () {
     // enter room name to join
     modalContent = `
   <div class="container-fluid">
-    <div class='row'>
-    <div class='col-md-4 speech-bubble mx-auto'>
+  <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+  <div class='row'>
+    <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
       ${cammicsetc}
-       </div>
+    </div>
       <div class='col-md-4 mt-4 mx-auto room-form'>
+      <div class='mx-auto text-center mb-4'>
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+   </div>
       <h4 class='speech-msg'>
-
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
       Please enter the room name you want to join or create below! </p>
       <br/>
     ${roominput}<br/>
     ${passwinput}<br/>
+
       </div>
+
     </div>
+
     </div>`;
 
 
@@ -533,22 +589,21 @@ window.addEventListener('DOMContentLoaded', function () {
     // Set up a new room
     modalContent = `
     <div class="container-fluid">
+    <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
     <div class='row'>
-      <div class='col-md-4 speech-bubble mx-auto'>
-        <p class='speech-msg'>
-        Hey, let\'s set up a new room!</p>
+      <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
         ${cammicsetc}
       </div>
       <div class='col-md-4 mx-auto mt-5 room-form'>
-        <div class='d-none d-xs-none d-md-block'>
-          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' />
+        <div class='mx-auto text-center mb-4'>
+          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
        </div>
        <p>${roomcreated}</p>
         ${errmsg}<br>
         ${createnameinput}<br>
         ${roominput}<br>
         ${passwinput}<br>
-        <br> <br>
+        <br>
         ${roomcreatebtn}
        </div>
       </div>
@@ -700,7 +755,8 @@ function initRTC() {
     commElem[i].hidden = false;
   }
 
-  document.getElementById("demo").hidden = false;
+    document.getElementById("demo").hidden = false;
+    document.getElementById("bottom-menu").hidden = false;
 
   socketId = h.uuidv4();
   damSocket.on("postauth", function (auth) {
@@ -730,7 +786,7 @@ function initRTC() {
     //Do we do this here this is now triggered from DAM?
     damSocket.on('Subscribe', function (data) {
       if (data.sfu) {
-        console.log("Starting SFU Subscribe");        
+        console.log("Starting SFU Subscribe");
         damSocket.out("newUserStart", {
           to: data.socketId,
           sender: socketId,
@@ -955,6 +1011,32 @@ function initRTC() {
       }
 
     });
+    document.getElementById("svm").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!videoMuted) {
+        h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
+          videoMuted = true;
+          h.setVideoSrc(localVideo,muted);
+          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.add("fa-video-slash");
+	  h.showNotification("Video Disabled");
+        });
+      } else {
+        h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
+          h.setVideoSrc(localVideo,mine);
+          videoMuted = false;
+          e.srcElement.classList.add("fa-video");
+          e.srcElement.classList.remove("fa-video-slash");
+	  h.showNotification("Video Enabled");
+        });
+      }
+
+    });
 
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
@@ -1006,7 +1088,36 @@ function initRTC() {
       }
 
     });
+    document.getElementById("sam").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!audioMuted) {
+        h.replaceAudioTrackForPeers(pcMap, muted.getAudioTracks()[0]).then(r => {
+          audioMuted = true;
+          //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+          e.srcElement.classList.remove("fa-volume-up");
+          e.srcElement.classList.add("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Muted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
+        });
+      } else {
+        h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
+          audioMuted = false;
+          //localVideo.srcObject = mine;
+          e.srcElement.classList.add("fa-volume-up");
+          e.srcElement.classList.remove("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Unmuted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
+        });
+      }
 
+    });
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;

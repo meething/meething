@@ -61,8 +61,8 @@ function Mediator () {
   */
 
   this.initSocket = async function () {
-    return new Promise((res,rej)=>{
-      var roomPeer = config.multigun+"gun";
+    return new Promise((res, rej)=>{
+      var roomPeer = config.multigun + "gun";
       var hash = null,
         creator= null;
       if (this.room) {
@@ -81,7 +81,6 @@ function Mediator () {
       var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
       window.room = this.room;
       this.root = window.root = Gun(opt);
-
       // initiate graph
       mGraph.init();
 

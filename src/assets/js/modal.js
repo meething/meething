@@ -31,7 +31,7 @@ export default class Modal {
       _modal.open();
     })
 
-    var modalContent="";
+    var modalContent = "";
     var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
     var cammicsetc =
       med.h.isOldEdge() || !med.autoload
@@ -125,11 +125,15 @@ export default class Modal {
       // Welcome back xX!
       modalContent = `
       <div class="container-fluid">
-      <div class="row">
-      <div class="col-md-4 speech-bubble mx-auto">
-       ${cammicsetc}
-      </div>
+        <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+        <div class="row">
+          <div class="col-md-4 speech-bubble mx-auto" id='devices-selection'>
+            ${cammicsetc}
+            </div>
       <div class="col-md-4 mt-4 mx-auto text-white">
+      <div class='mx-auto text-center mb-4'>
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/>
+   </div>
       <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${med.username}"/>${med.username}! </h4>
       <p>You're joining room: <input type="hidden" id="room-name" value="${med.room}"/> ${med.title} </p>
       <br/>${passwinput}<br/>
@@ -145,12 +149,12 @@ export default class Modal {
       `
       <div class="row">
       <div class="col-md-4 speech-bubble mx-auto">
+
         ${cammicsetc}
          </div>
         <div class="col-md-4 mt-4 mx-auto room-form">
         <h4 class="speech-msg">
         Welcome, you're joining room <input type="hidden" id="room-name" value="${med.room}"/> ${med.title}</h4>
-
         <p>
         Please enter your username and set up your camera options! </p>
         <br/>
@@ -158,7 +162,7 @@ export default class Modal {
         ${passwinput} <br/>
 
         </div>
-
+       </div>
       </div>
       `;
       return this.loadModal(_modal,modalContent,'nouser');
@@ -168,13 +172,16 @@ export default class Modal {
       // enter room name to join
       modalContent = `
     <div class="container-fluid">
+      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
       <div class='row'>
-      <div class='col-md-4 speech-bubble mx-auto'>
+      <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
         ${cammicsetc}
-         </div>
+        </div>
         <div class='col-md-4 mt-4 mx-auto room-form'>
+        <div class='mx-auto text-center mb-4'>
+        <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+     </div>
         <h4 class='speech-msg'>
-
         Welcome back, <input type='hidden' id='username' value='${med.username}'/>${med.username}</h4>
         <p>
         Please enter the room name you want to join or create below! </p>
@@ -191,29 +198,28 @@ export default class Modal {
       // Set up a new room
       modalContent = `
       <div class="container-fluid">
+      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
       <div class='row'>
-        <div class='col-md-4 speech-bubble mx-auto'>
-          <p class='speech-msg'>
-          Hey, let\'s set up a new room!</p>
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
           ${cammicsetc}
         </div>
         <div class='col-md-4 mx-auto mt-5 room-form'>
-          <div class='d-none d-xs-none d-md-block'>
-            <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' />
+          <div class='mx-auto text-center mb-4'>
+            <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
          </div>
          <p>${roomcreated}</p>
           ${errmsg}<br>
           ${createnameinput}<br>
           ${roominput}<br>
           ${passwinput}<br>
-          <br> <br>
+          <br>
           ${roomcreatebtn}
          </div>
         </div>
         </div>
         `
 
-      return this.loadModal(_modal,modalContent,'setup');
+      return this.loadModal(_modal, modalContent, 'setup');
     }
 
   }
@@ -246,66 +252,66 @@ export default class Modal {
     }
     var cr = document.getElementById('create-room');
     if(cr)  cr.addEventListener('click', async (e) => {
-          e.preventDefault();
-          let roomName = document.querySelector('#room-name').value;
-          let yourName = document.querySelector('#your-name').value;
-          let romp = document.querySelector('#room-pass').value;
-          if (roomName && yourName) {
-              //remove error message, if any
-              var errmsg = document.querySelector('#err-msg');
-              if(errmsg) document.querySelector('#err-msg').innerHTML = "";
+              e.preventDefault();
+              let roomName = document.querySelector('#room-name').value;
+              let yourName = document.querySelector('#your-name').value;
+              let romp = document.querySelector('#room-pass').value;
+              if (roomName && yourName) {
+                //remove error message, if any
+                var errmsg = document.querySelector('#err-msg');
+                if (errmsg) document.querySelector('#err-msg').innerHTML = "";
 
-              //save the user's name in sessionStorage
-              sessionStorage.setItem('username', yourName);
-              //create room link
-              let roomgen = `${roomName.trim().replace(' ', '_')}_${med.h.generateRandomString()}`;
-              let roomLink = `${location.origin}?room=${roomgen}`;
-              med.room = roomgen;
-              med.username = yourName;
-              cr.hidden=true;
-              if(romp) {
-                med.roompass=romp;
-                await med.storePass(romp,yourName);
-              }
-              //show message with link to room
-              document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
-              var clip = document.getElementById('clipMe');
-              if(clip) clip.addEventListener('click',function(e){
-                e.preventDefault();
-                med.h.copyToClipboard(e.target.href);
-                if(errmsg) {
-                  errmsg.innerHTML='Link copied to clipboard '+roomLink;
+                //save the user's name in sessionStorage
+                sessionStorage.setItem('username', yourName);
+                //create room link
+                let roomgen = `${roomName.trim().replace(' ', '_')}_${h.generateRandomString()}`;
+                let roomLink = `${location.origin}?room=${roomgen}`;
+                med.room = roomgen;
+                med.username = yourName;
+                cr.hidden = true;
+                if (romp) {
+                  med.roompass = romp;
+                  await this.storePass(romp, yourName);
                 }
-              });
-              //empty the values
-              document.querySelector('#room-name').value = roomgen;
-              document.querySelector('#room-name').readonly = true;
-              document.querySelector('#your-name').readonly = true;
-              document.querySelector('#room-pass').readonly = true;
-              document.querySelector('#room-name').disabled = true;
-              document.querySelector('#your-name').disabled = true;
-              document.querySelector('#room-pass').disabled = true;
-          }
+                //show message with link to room
+                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
+                var clip = document.getElementById('clipMe');
+                if (clip) clip.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  med.h.copyToClipboard(e.target.href);
+                  if (errmsg) {
+                    errmsg.innerHTML = 'Link copied to clipboard ' + roomLink;
+                  }
+                });
+                //empty the values
+                document.querySelector('#room-name').value = roomgen;
+                document.querySelector('#room-name').readonly = true;
+                document.querySelector('#your-name').readonly = true;
+                document.querySelector('#room-pass').readonly = true;
+                document.querySelector('#room-name').disabled = true;
+                document.querySelector('#your-name').disabled = true;
+                document.querySelector('#room-pass').disabled = true;
+              }
+              else {
 
-          else {
-
-              document.querySelector('#err-msg').innerHTML = "All fields are required";
-             // roomName.focus();
-          }
-      });
+                document.querySelector('#err-msg').innerHTML = "All fields are required";
+                // roomName.focus();
+              }
+            });
   }
 
   // function to call after modal has been created
   modalFilled (modal) {
     let type = modal.__type;
-    setTimeout(function(){ modal.checkOverflow() },300);
+    setTimeout(function(){ modal.checkOverflow() }, 300);
     var letsgo = document.querySelectorAll('.letsgo');
     if(!letsgo.length){
 
       modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { med.mutedStream = med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
         this.handleOk({type,modal,e});
-      }.bind(this));
+
+      });
     }
   }
 
@@ -383,8 +389,8 @@ export default class Modal {
    };
   }
 
-  loadModal (modal,createOrJoin,type){
-    Object.assign(modal,{__type:type});
+  loadModal (modal, createOrJoin, type){
+    Object.assign(modal,{ __type: type});
     modal.setContent(`${createOrJoin}`);
     modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
       try { med.mutedStream = med.mutedStream ? med.mutedStream : med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
