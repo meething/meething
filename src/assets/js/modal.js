@@ -1,11 +1,12 @@
 var med = null;
 var _modal = null;
+var self = this;
 
 export default class Modal {
   constructor (mediator) {
     this.mediator = mediator;
     med = this.mediator;
-
+    self = this;
     return this;
   }
   // function that creates the modal and then renders it
@@ -18,8 +19,8 @@ export default class Modal {
     _modal = new tingle.modal({
       closeMethods: [],
       footer: true,
-      stickyFooter: true,
-      onOpen: this.tingleOnOpen.bind(this)
+      stickyFooter: false,
+      onOpen: self.tingleOnOpen
     });
 
     med.modal = _modal; //remove this later
@@ -33,26 +34,62 @@ export default class Modal {
 
     var modalContent = "";
     var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+    var settingmsg = `<small class="text-white m-4 text-center" style="width:100%;" id="setting-msg">Select your audio and video devices</small>`;
     var cammicsetc =
       med.h.isOldEdge() || !med.autoload
         ? `
-        <div class="col-md-12">
-        <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-      <div id="deviceSelection" hidden>
-      <label for="as">Mic:</label><br/>
-      <select id="as"></select><br/>
-      <label for="ao">Speakers: </label><br/>
-      <select id="ao"></select><br/>
-      <label for="vs">Camera:</label><br/>
-      <select id="vs"></select><br/>
-      <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
-        <i class="fa fa-volume-up"></i>
-      </button>
-      <button class="btn btn-lg btn btn-outline-light fas fa-video" id="svm" title="Mute/Unmute Video">
-      </button><br/>
-      <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
-    </div>
-    </div>
+        <div class="p-container" id="deviceSelection" hidden>
+      <div id="" class="preview-container">
+        <div class="row">
+
+          <div class="col-md-12 mx-auto">
+      <video id="local" class="mx-auto" playsinline autoplay muted></video>
+       </div>
+
+          <div class="preview-video-buttons row col-md-12">
+          <div class="col m-1 mb-3 mx-auto">
+          <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
+
+          </div>
+          <div class="col m-1 mb-3 mx-auto">
+            <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
+            </button>
+
+            </div>
+            <div class="col m-1 mb-3 mx-auto">
+            <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
+
+            </button>
+
+            </div>
+        </div>
+        </div>
+
+      </div>
+
+
+          <div id="devicesSelection">
+
+
+            <div class="form-row device-select" id="devices-menu" style="display: none;">
+
+              <div class="col-md-4 mb-3">
+               <label for="as" class="text-white">Mic:</label>
+                 <select id="as" class="form-control btn-sm rounded-0"></select>
+               </div>
+
+             <div class="col-md-4 mb-3">
+                  <label for="ao" class="text-white">Speakers: </label>
+                    <select id="ao" class="form-control btn-sm rounded-0"></select>
+                 </div>
+
+            <div class="col-md-4 mb-3">
+                    <label for="vs" class="text-white">Camera:</label>
+                  <select id="vs" class="form-control btn-sm rounded-0"></select>
+                </div>
+            </div>
+          </div>
+          </div>
   `
         : `
   <div class="p-container">
@@ -68,36 +105,38 @@ export default class Modal {
       <div class="col m-1 mb-3 mx-auto">
         <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
         </button>
-        <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
         </div>
         <div class="col m-1 mb-3 mx-auto">
         <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
-
         </button>
-        <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
+
         </div>
+    </div>
+    <div class="col m-1 mb-3 mx-auto d-inline">
+    ${settingmsg}<button id="toggle-devices-menu" class="btn btn-sm fas fa-ellipsis-v mx-auto text-white"></button>
+
     </div>
     </div>
 
   </div>
 
-  <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+  <button class="form-control rounded-0" id="tingleSetupBtn" hidden>Set up your devices</button>
 
       <div id="deviceSelection">
 
-        <div class="form-row">
+        <div class="form-row device-select" id="devices-menu">
 
-          <div class="col-md-4 mb-3">
+          <div class="col-md-12 mb-3">
            <label for="as" class="text-white">Mic:</label>
              <select id="as" class="form-control btn-sm rounded-0"></select>
            </div>
 
-         <div class="col-md-4 mb-3">
+         <div class="col-md-12 mb-3">
               <label for="ao" class="text-white">Speakers: </label>
                 <select id="ao" class="form-control btn-sm rounded-0"></select>
              </div>
 
-        <div class="col-md-4 mb-3">
+        <div class="col-md-12 mb-3">
                 <label for="vs" class="text-white">Camera:</label>
               <select id="vs" class="form-control btn-sm rounded-0"></select>
             </div>
@@ -110,7 +149,7 @@ export default class Modal {
     med.h.getDevices().then(devices=>{
       med.devices = devices;
       devices = window.devices = devices;
-      this.navigatorGotDevices(devices);
+      self.navigatorGotDevices(devices);
     });
     // default inputs
     var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
@@ -125,7 +164,7 @@ export default class Modal {
       // Welcome back xX!
       modalContent = `
       <div class="container-fluid">
-        <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+        <button id='toggle-device-selection' class='fas fa-sliders-h btn btn-circle '></button>
         <div class="row">
           <div class="col-md-4 speech-bubble mx-auto" id='devices-selection'>
             ${cammicsetc}
@@ -136,25 +175,28 @@ export default class Modal {
    </div>
       <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${med.username}"/>${med.username}! </h4>
       <p>You're joining room: <input type="hidden" id="room-name" value="${med.room}"/> ${med.title} </p>
-      <br/>${passwinput}<br/>
+      <br/>${passwinput}<br/></br>
       </div>
       </div>
       </div>`;
-      return this.loadModal(_modal,modalContent,'join');
-      //
+      return self.loadModal(_modal,modalContent,'join');
     } else if(med.room && !med.username){
       // set username and camera options
       // when is room created
       modalContent =
       `
-      <div class="row">
-      <div class="col-md-4 speech-bubble mx-auto">
-
-        ${cammicsetc}
-         </div>
-        <div class="col-md-4 mt-4 mx-auto room-form">
-        <h4 class="speech-msg">
-        Welcome, you're joining room <input type="hidden" id="room-name" value="${med.room}"/> ${med.title}</h4>
+      <div class="container-fluid">
+    <button id='toggle-device-selection' class='fas fa-sliders-h btn btn-circle '></button>
+      <div class='row'>
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
+          ${cammicsetc}
+        </div>
+      <div class="col-md-4 mt-4 mx-auto room-form">
+      <div class='mx-auto text-center mb-4'>
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo" />
+   </div>
+      <h4 class="speech-msg">
+      Welcome, you're joining room <input type="hidden" id="room-name" value="${med.room}"/> ${med.title}</h4>
         <p>
         Please enter your username and set up your camera options! </p>
         <br/>
@@ -165,22 +207,22 @@ export default class Modal {
        </div>
       </div>
       `;
-      return this.loadModal(_modal,modalContent,'nouser');
+      return self.loadModal(_modal,modalContent,'nouser');
 
     } else if (!med.room && med.username) {
 
       // enter room name to join
       modalContent = `
     <div class="container-fluid">
-      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <button id='toggle-device-selection' class='fas fa-sliders-h btn btn-circle '></button>
       <div class='row'>
-      <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
-        ${cammicsetc}
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
+          ${cammicsetc}
         </div>
         <div class='col-md-4 mt-4 mx-auto room-form'>
-        <div class='mx-auto text-center mb-4'>
-        <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
-     </div>
+          <div class='mx-auto text-center mb-4'>
+            <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+          </div>
         <h4 class='speech-msg'>
         Welcome back, <input type='hidden' id='username' value='${med.username}'/>${med.username}</h4>
         <p>
@@ -189,16 +231,16 @@ export default class Modal {
       ${roominput}<br/>
       ${passwinput}<br/>
         </div>
-      </div>
-      </div>`;
+    </div>
+  </div>`;
 
 
-      return this.loadModal(_modal,modalContent,'noroom');
+      return self.loadModal(_modal,modalContent,'noroom');
     }else {
       // Set up a new room
       modalContent = `
       <div class="container-fluid">
-      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <button id='toggle-device-selection' class='fas fa-sliders-h btn btn-circle '></button>
       <div class='row'>
         <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
           ${cammicsetc}
@@ -219,7 +261,7 @@ export default class Modal {
         </div>
         `
 
-      return this.loadModal(_modal, modalContent, 'setup');
+      return self.loadModal(_modal, modalContent, 'setup');
     }
 
   }
@@ -236,14 +278,14 @@ export default class Modal {
           setupBtn.hidden = true;
           if(deviceSelection.hidden) {
             deviceSelection.hidden=false;
-            this.resetDevices();
-            this.modalFilled(_modal);
+            self.resetDevices();
+            self.modalFilled(_modal);
           }
         })
       } else {
         setupBtn.hidden = true;
-        this.resetDevices();
-        this.modalFilled(_modal);
+        self.resetDevices();
+        self.modalFilled(_modal);
       }
       if(preview && local) {
         preview.appendChild(local);
@@ -256,6 +298,7 @@ export default class Modal {
               let roomName = document.querySelector('#room-name').value;
               let yourName = document.querySelector('#your-name').value;
               let romp = document.querySelector('#room-pass').value;
+              let fb = document.querySelector('.tingle-modal-box__footer');
               if (roomName && yourName) {
                 //remove error message, if any
                 var errmsg = document.querySelector('#err-msg');
@@ -264,17 +307,23 @@ export default class Modal {
                 //save the user's name in sessionStorage
                 sessionStorage.setItem('username', yourName);
                 //create room link
-                let roomgen = `${roomName.trim().replace(' ', '_')}_${h.generateRandomString()}`;
+                let roomgen = `${roomName.trim().replace(' ', '_')}_${med.h.generateRandomString()}`;
                 let roomLink = `${location.origin}?room=${roomgen}`;
+                var copyLink = `Room successfully created. Share the
+                <a id="clipMe" href='${roomLink}' title="Click to copy">
+                room link</a>  with your partners.`
+                //
                 med.room = roomgen;
                 med.username = yourName;
                 cr.hidden = true;
+                fb.style.display = 'flex';
                 if (romp) {
                   med.roompass = romp;
-                  await this.storePass(romp, yourName);
+                  await self.storePass(romp, yourName);
                 }
                 //show message with link to room
-                document.querySelector('#room-created').innerHTML = `Room successfully created. Share the <a id="clipMe" style="background:lightgrey;font-family:Helvetica,sans-serif;padding:3px;color:grey" href='${roomLink}' title="Click to copy">room link</a>  with your partners.`;
+                document.getElementById('meethlogo').style.width = '150px'
+                document.querySelector('#room-created').innerHTML = copyLink;
                 var clip = document.getElementById('clipMe');
                 if (clip) clip.addEventListener('click', function (e) {
                   e.preventDefault();
@@ -302,6 +351,8 @@ export default class Modal {
 
   // function to call after modal has been created
   modalFilled (modal) {
+    let cr = document.getElementById('create-room')
+    if(!cr) document.querySelector('.tingle-modal-box__footer').style.display='flex';
     let type = modal.__type;
     setTimeout(function(){ modal.checkOverflow() }, 300);
     var letsgo = document.querySelectorAll('.letsgo');
@@ -309,7 +360,7 @@ export default class Modal {
 
       modal.addFooterBtn("Let's Go !  <i class='fas fa-chevron-right'></i>", 'tingle-btn tingle-btn--primary letsgo tingle-btn--pull-right', function(e){
         try { med.mutedStream = med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
-        this.handleOk({type,modal,e});
+        self.handleOk({type,modal,e});
 
       });
     }
@@ -336,13 +387,13 @@ export default class Modal {
     }
     ao.removeEventListener('change',aoListener);
     ao.addEventListener('change',aoListener)
-    as.removeEventListener('change',this.resetDevices);
-    as.addEventListener('change',this.resetDevices);
-    vs.removeEventListener('change',this.resetDevices);
-    vs.addEventListener('change',this.resetDevices);
+    as.removeEventListener('change',self.resetDevices);
+    as.addEventListener('change',self.resetDevices);
+    vs.removeEventListener('change',self.resetDevices);
+    vs.addEventListener('change',self.resetDevices);
     // TODO : move this listener out of this function
     var clicked = function clicked(e){
-      var p = med.setSS('config['+e.target.id+']',!!this.checked)
+      var p = med.setSS('config['+e.target.id+']',!!self.checked)
     };
     sam.removeEventListener('click',clicked);
     svm.removeEventListener('click',clicked);
@@ -364,7 +415,7 @@ export default class Modal {
       ve.oncanplay = function(){ _modal.checkOverflow(); }
       return Object.keys(devices).length>0 ? devices : med.h.getDevices();
     }).then(devices=>{
-      this.navigatorGotDevices(devices);
+      self.navigatorGotDevices(devices);
     }).catch(err=>{
       console.warn('something fishy in devices',err);
     });
@@ -394,11 +445,11 @@ export default class Modal {
     modal.setContent(`${createOrJoin}`);
     modal.addFooterBtn(`<i class='fas fa-times'></i> Reset`, 'tingle-btn tingle-btn--default tingle-btn--pull-left', function(e){
       try { med.mutedStream = med.mutedStream ? med.mutedStream : med.h.getMutedStream(); } catch(err){ console.warn("error in getting mutedstream",err); }
-      this.cancelFn({modal, e});
+      self.cancelFn({modal, e});
     });
     modal.open();
     var sB = document.getElementById('tingleSetupBtn');
-    if(sB && !med.autoload) { console.log("clicked It", this.simulateClick(sB))}
+    if(sB && !med.autoload) { console.log("clicked It", self.simulateClick(sB))}
   }
 
   navigatorGotDevices (devices) {
@@ -423,6 +474,7 @@ export default class Modal {
   }
 
   async handleOk (info) {
+    document.querySelector('.tingle-modal-box__footer').style.display='flex';
     // switch instead of multiple types
     switch (info.type) {
       case 'join':

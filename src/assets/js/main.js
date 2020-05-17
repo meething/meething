@@ -105,13 +105,13 @@ function Mediator () {
   */
 
   this.storePass = async function (pval, creator) {
-    return new Promise(async (res,rej)=>{
-      let it = await SEA.work({room:this.room, secret: pval}, pval, null, {name:'SHA-256'});
-      if(this.DEBUG){console.log("hash",it);}
+    return new Promise(async (res, rej) => {
+      let it = await SEA.work({ room:this.room, secret: pval }, pval, null, { name:'SHA-256' });
+      if(this.DEBUG){console.log("hash", it);}
       this.roompass = pval;
-      this.setSS('rooms.'+this.room+'.pwal',pval);
-      this.setSS('rooms.'+this.room+'.hash',it);
-      if(creator) this.setSS('rooms.'+this.room+'.creator',creator);
+      this.setSS('rooms.' + this.room + '.pwal', pval);
+      this.setSS('rooms.' + this.room + '.hash', it);
+      if(creator) this.setSS('rooms.' + this.room + '.creator', creator);
       return res(it);
     });
   }

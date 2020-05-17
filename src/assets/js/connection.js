@@ -2,36 +2,26 @@
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import Video from "./sfu/video.js"
 
 // create global scope to avoid .bind(this)
 var med = null;
-var _init = null
-var _initPresence = null;
-var _metaDataReceived = null;
-var _setMediaBitrates = null;
-var _setMediaBitrate = null;
-var _calculateBitrate = null;
+var self = null;
+// SFU ENABLED MEETHING
+const SFU_ENABLED = true;
+const video = new Video();
 
 export default class Connection {
   constructor (mediator){
     med = mediator;
     this.inited = false;
-    med = med;
-
+    self = this;
     return this;
   }
   // for now MCU webRTC, soon need to make SFU here with mode switching
   establish () {
-    if(this.inited) return;
-    this.inited = true;
-
-    // initiate globals from object to avoid .bind(this)
-    _init = this.init;
-    _initPresence = this.initPresence;
-    _metaDataReceived = this.metaDataReceived;
-    _setMediaBitrates = this.setMediaBitrates;
-    _setMediaBitrate  = this.setMediaBitrate;
-    _calculateBitrate = this.calculateBitrate;
+    if(self.inited) return;
+    self.inited = true;
 
       med.damSocket = new DamEventEmitter(med.root, med.room);
       let commElem = document.getElementsByClassName("room-comm");
@@ -41,12 +31,12 @@ export default class Connection {
       }
 
       document.getElementById("demo").hidden = false;
-          document.getElementById("bottom-menu").hidden = false;
+      document.getElementById("bottom-menu").hidden = false;
 
       med.socketId = med.h.uuidv4();
       med.damSocket.on("postauth",function(auth){
-        _initPresence();
-        med.metaData = new MetaData(med.root, med.room, med.socketId, _metaDataReceived);
+        self.initPresence();
+        med.metaData = new MetaData(med.root, med.room, med.socketId, self.metaDataReceived);
         med.damSocket.setMetaData(med.metaData);
         med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
 
@@ -116,7 +106,7 @@ export default class Connection {
           sfu: SFU_ENABLED
         });
 
-        _init(true, data.socketId);
+        self.init(true, data.socketId);
       });
 
       med.damSocket.on('NewUserStart', function (data) {
@@ -135,7 +125,7 @@ export default class Connection {
           return; // We don't need another round of Init for existing peers
         }
 
-        _init(false, data.sender);
+        self.init(false, data.sender);
       });
 
       med.damSocket.on('IceCandidates', function (data) {
@@ -202,7 +192,7 @@ export default class Connection {
               });
 
               let answer = await med.pcMap.get(data.sender).createAnswer();
-              answer.sdp = _setMediaBitrates(answer.sdp);
+              answer.sdp = self.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
         // SDP Bitrate Hack
@@ -234,7 +224,7 @@ export default class Connection {
                 OfferToReceiveVideo: true
               };
               let answer = await med.pcMap.get(data.sender).createAnswer(answerConstraints);
-              answer.sdp = _setMediaBitrates(answer.sdp);
+              answer.sdp = self.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
               await med.pcMap.get(data.sender).setLocalDescription(answer);
@@ -303,7 +293,7 @@ export default class Connection {
             med.h.setVideoSrc(med.localVideo,muted);
             e.srcElement.classList.remove("fa-video");
             e.srcElement.classList.add("fa-video-slash");
-  	  med.h.showNotification("Video Disabled");
+  	        med.h.showNotification("Video Disabled");
           });
         } else {
           med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
@@ -311,7 +301,7 @@ export default class Connection {
             med.videoMuted = false;
             e.srcElement.classList.add("fa-video");
             e.srcElement.classList.remove("fa-video-slash");
-  	  med.h.showNotification("Video Enabled");
+  	        med.h.showNotification("Video Enabled");
           });
         }
 
@@ -640,7 +630,7 @@ export default class Connection {
             mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
           };
           let offer = await pcPartnerName.createOffer(offerConstraints);
-          offer.sdp = _setMediaBitrates(offer.sdp);
+          offer.sdp = self.setMediaBitrates(offer.sdp);
           // SDP Interop
   	      // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
           await pcPartnerName.setLocalDescription(offer);
@@ -668,7 +658,7 @@ export default class Connection {
           }
           pcPartnerName.isNegotiating = true;
           let offer = await pcPartnerName.createOffer();
-          offer.sdp = _setMediaBitrates(offer.sdp);
+          offer.sdp = self.setMediaBitrates(offer.sdp);
         	// SDP Interop
         	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
         	// SDP Bitrate Hack
@@ -808,11 +798,11 @@ export default class Connection {
   }
 
   setMediaBitrates (sdp) {
-    if (med.videoBitrate == 'unlimited' || !_calculateBitrate()) {
+    if (med.videoBitrate == 'unlimited' || !self.calculateBitrate()) {
       console.log("Not changing bitrate max is set")
       return sdp;
     } else {
-      return _setMediaBitrate(_setMediaBitrate(sdp, "video", med.videoBitrate), "audio", 50);
+      return self.setMediaBitrate(self.setMediaBitrate(sdp, "video", med.videoBitrate), "audio", 50);
     }
   }
 
