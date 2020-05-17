@@ -53,7 +53,8 @@ export default class Connection {
       med.damSocket.out("subscribe", {
         room: room,
         socketId: med.socketId,
-        name: med.username || med.socketId
+        name: med.username || med.socketId,
+        sfu: SFU_ENABLED
       });
 
 
@@ -61,7 +62,7 @@ export default class Connection {
       med.damSocket.on('Subscribe', function (data) {
         if (data.sfu) {
           console.log("Starting SFU Subscribe");
-          damSocket.out("newUserStart", {
+          med.damSocket.out("newUserStart", {
             to: data.socketId,
             sender: med.socketId,
             name: data.name || data.socketId,
