@@ -5,9 +5,8 @@ export default class Presence {
     this.room = room;
     this.pid = this.root._.opt.pid;
     this.users = new Map();
-    var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
-    var self = this;
-    window.addEventListener(_ev, function () { self.leave(); });
+    var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';    
+    window.addEventListener(_ev, function () { this.leave(); });
     return this;
   }
 
@@ -46,7 +45,7 @@ export default class Presence {
   }
 
   addReceivedUsers(data) {
-    self = this;
+    // self = this;
     const receivedUsers = new Map(JSON.parse(data));
     receivedUsers.forEach(function (value, key) {
       self.users.set(key, value);
