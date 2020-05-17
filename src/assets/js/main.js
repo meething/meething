@@ -61,8 +61,8 @@ function Mediator () {
   */
 
   this.initSocket = async function () {
-    return new Promise((res,rej)=>{
-      var roomPeer = config.multigun+"gun";
+    return new Promise((res, rej)=>{
+      var roomPeer = config.multigun + "gun";
       var hash = null,
         creator= null;
       if (this.room) {
@@ -81,7 +81,6 @@ function Mediator () {
       var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
       window.room = this.room;
       this.root = window.root = Gun(opt);
-
       // initiate graph
       mGraph.init();
 
@@ -106,13 +105,13 @@ function Mediator () {
   */
 
   this.storePass = async function (pval, creator) {
-    return new Promise(async (res,rej)=>{
-      let it = await SEA.work({room:this.room, secret: pval}, pval, null, {name:'SHA-256'});
-      if(this.DEBUG){console.log("hash",it);}
+    return new Promise(async (res, rej) => {
+      let it = await SEA.work({ room:this.room, secret: pval }, pval, null, { name:'SHA-256' });
+      if(this.DEBUG){console.log("hash", it);}
       this.roompass = pval;
-      this.setSS('rooms.'+this.room+'.pwal',pval);
-      this.setSS('rooms.'+this.room+'.hash',it);
-      if(creator) this.setSS('rooms.'+this.room+'.creator',creator);
+      this.setSS('rooms.' + this.room + '.pwal', pval);
+      this.setSS('rooms.' + this.room + '.hash', it);
+      if(creator) this.setSS('rooms.' + this.room + '.creator', creator);
       return res(it);
     });
   }

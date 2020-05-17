@@ -2,36 +2,26 @@
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
+import Video from "./sfu/video.js"
 
 // create global scope to avoid .bind(this)
 var med = null;
-var _init = null
-var _initPresence = null;
-var _metaDataReceived = null;
-var _setMediaBitrates = null;
-var _setMediaBitrate = null;
-var _calculateBitrate = null;
+var self = null;
+// SFU ENABLED MEETHING
+const SFU_ENABLED = true;
+const video = new Video();
 
 export default class Connection {
   constructor (mediator){
     med = mediator;
     this.inited = false;
-    med = med;
-
+    self = this;
     return this;
   }
   // for now MCU webRTC, soon need to make SFU here with mode switching
   establish () {
-    if(this.inited) return;
-    this.inited = true;
-
-    // initiate globals from object to avoid .bind(this)
-    _init = this.init;
-    _initPresence = this.initPresence;
-    _metaDataReceived = this.metaDataReceived;
-    _setMediaBitrates = this.setMediaBitrates;
-    _setMediaBitrate  = this.setMediaBitrate;
-    _calculateBitrate = this.calculateBitrate;
+    if(self.inited) return;
+    self.inited = true;
 
       med.damSocket = new DamEventEmitter(med.root, med.room);
       let commElem = document.getElementsByClassName("room-comm");
@@ -41,28 +31,46 @@ export default class Connection {
       }
 
       document.getElementById("demo").hidden = false;
+      document.getElementById("bottom-menu").hidden = false;
 
       med.socketId = med.h.uuidv4();
       med.damSocket.on("postauth",function(auth){
-        _initPresence();
-        med.metaData = new MetaData(med.root, med.room, med.socketId, _metaDataReceived);
+        self.initPresence();
+        med.metaData = new MetaData(med.root, med.room, med.socketId, self.metaDataReceived);
         med.damSocket.setMetaData(med.metaData);
         med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
 
         console.log("Starting! you are", med.socketId);
         med.presence.update(med.username, med.socketId);
 
+        if(SFU_ENABLED) {
+          if (!video.joined) {
+            video.enableVideo();
+          }
+        }
 
       // Initialize Session
       med.damSocket.out("subscribe", {
         room: room,
         socketId: med.socketId,
-        name: med.username || med.socketId
+        name: med.username || med.socketId,
+        sfu: SFU_ENABLED
       });
 
 
       //Do we do this here this is now triggered from DAM?
       med.damSocket.on('Subscribe', function (data) {
+        if (data.sfu) {
+          console.log("Starting SFU Subscribe");
+          med.damSocket.out("newUserStart", {
+            to: data.socketId,
+            sender: med.socketId,
+            name: data.name || data.socketId,
+            sfu: SFU_ENABLED
+          });
+          return;
+        }
+
         console.log("Got channel subscribe", data);
         if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
           console.log("discarding old sub", data);
@@ -95,13 +103,18 @@ export default class Connection {
         med.damSocket.out("newUserStart", {
           to: data.socketId,
           sender: med.socketId,
-          name: data.name || data.socketId
+          name: data.name || data.socketId,
+          sfu: SFU_ENABLED
         });
 
-        _init(true, data.socketId);
+        self.init(true, data.socketId);
       });
 
       med.damSocket.on('NewUserStart', function (data) {
+        if (data.sfu) {
+          console.log("Start SFU new user start");
+          return;
+        }
         if (data.ts && Date.now() - data.ts > TIMEGAP) return;
         if (data.socketId == med.socketId || data.sender == med.socketId) return;
         if (
@@ -113,7 +126,7 @@ export default class Connection {
           return; // We don't need another round of Init for existing peers
         }
 
-        _init(false, data.sender);
+        self.init(false, data.sender);
       });
 
       med.damSocket.on('IceCandidates', function (data) {
@@ -180,7 +193,7 @@ export default class Connection {
               });
 
               let answer = await med.pcMap.get(data.sender).createAnswer();
-              answer.sdp = _setMediaBitrates(answer.sdp);
+              answer.sdp = self.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
         // SDP Bitrate Hack
@@ -212,7 +225,7 @@ export default class Connection {
                 OfferToReceiveVideo: true
               };
               let answer = await med.pcMap.get(data.sender).createAnswer(answerConstraints);
-              answer.sdp = _setMediaBitrates(answer.sdp);
+              answer.sdp = self.setMediaBitrates(answer.sdp);
         // SDP Interop
         // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
               await med.pcMap.get(data.sender).setLocalDescription(answer);
@@ -268,6 +281,32 @@ export default class Connection {
         }
 
       });
+      document.getElementById("svm").addEventListener("click", e => {
+        e.preventDefault();
+        var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+        var mine = med.myStream ? med.myStream : muted;
+        if (!mine) {
+          return;
+        }
+        if (!med.videoMuted) {
+          med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
+            med.videoMuted = true;
+            med.h.setVideoSrc(med.localVideo,muted);
+            e.srcElement.classList.remove("fa-video");
+            e.srcElement.classList.add("fa-video-slash");
+  	        med.h.showNotification("Video Disabled");
+          });
+        } else {
+          med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
+            med.h.setVideoSrc(med.localVideo,mine);
+            med.videoMuted = false;
+            e.srcElement.classList.add("fa-video");
+            e.srcElement.classList.remove("fa-video-slash");
+  	        med.h.showNotification("Video Enabled");
+          });
+        }
+
+      });
 
       document.getElementById("record-toggle").addEventListener("click", e => {
         e.preventDefault();
@@ -277,19 +316,50 @@ export default class Connection {
           med.isRecording = true
           e.srcElement.classList.add("text-danger");
           e.srcElement.classList.remove("text-white");
-    med.h.showNotification("Recording Started");
+          med.h.showNotification("Recording Started");
 
         } else {
           med.h.stopRecordAudio()
           med.isRecording = false
           e.srcElement.classList.add("text-white");
           e.srcElement.classList.remove("text-danger");
-    med.h.showNotification("Recording Stopped");
+          med.h.showNotification("Recording Stopped");
         }
         med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
       });
 
       document.getElementById("toggle-mute").addEventListener("click", e => {
+        e.preventDefault();
+        var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+        var mine = med.myStream ? med.myStream : muted;
+        if (!mine) {
+          return;
+        }
+        if (!med.audioMuted) {
+          med.h.replaceAudioTrackForPeers(med.pcMap, muted.getAudioTracks()[0]).then(r => {
+            med.audioMuted = true;
+            //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+            e.srcElement.classList.remove("fa-volume-up");
+            e.srcElement.classList.add("fa-volume-mute");
+            med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+            med.h.showNotification("Audio Muted");
+            med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+          });
+        } else {
+          med.h.replaceAudioTrackForPeers(med.pcMap, mine.getAudioTracks()[0]).then(r => {
+            med.audioMuted = false;
+            //localVideo.srcObject = mine;
+            e.srcElement.classList.add("fa-volume-up");
+            e.srcElement.classList.remove("fa-volume-mute");
+            med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+            med.h.showNotification("Audio Unmuted");
+            med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+          });
+        }
+
+      });
+
+      document.getElementById("sam").addEventListener("click", e => {
         e.preventDefault();
         var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
         var mine = med.myStream ? med.myStream : muted;
@@ -329,7 +399,8 @@ export default class Connection {
           med.damSocket.out("subscribe", {
             room: med.room,
             socketId: med.socketId,
-            name: med.username || med.socketId
+            name: med.username || med.socketId,
+            sfu: SFU_ENABLED
           });
         }
       });
@@ -386,7 +457,7 @@ export default class Connection {
           e.srcElement.classList.add("fa-lock");
         }
       });
-    }.bind(this));
+    });
 
     var _ev = med.h.isiOS() ? 'pagehide' : 'beforeunload';
 
@@ -485,10 +556,9 @@ export default class Connection {
         tracks['audio'] = med.myStream.getAudioTracks(); //We want sounds from myStream if there is such
         if (!tracks.video.length) tracks['video'] = med.myStream.getVideoTracks(); //also if our screenStream is malformed, let's default to myStream in that case
       }
-      var screenStream = med.screenStream;
       ['audio', 'video'].map(tracklist => {
         tracks[tracklist].forEach(track => {
-          pcPartnerName.addTrack(track, screenStream); //should trigger negotiationneeded event
+          pcPartnerName.addTrack(track, med.screenStream); //should trigger negotiationneeded event
         });
       });
     } else if (!med.screenStream && med.myStream) {
@@ -496,9 +566,9 @@ export default class Connection {
       tracks['audio'] = med.myStream.getAudioTracks();
       tracks['video'] = med.myStream.getVideoTracks();
       if (med.audioMuted || med.videoMuted) {
-        var mutedStream = mutedStream ? mutedStream : med.h.getMutedStream();
-        if (med.videoMuted) tracks['video'] = mutedStream.getVideoTracks();
-        if (med.audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+        med.mutedStream = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+        if (med.videoMuted) tracks['video'] = med.mutedStream.getVideoTracks();
+        if (med.audioMuted) tracks['audio'] = med.mutedStream.getAudioTracks();
       }
       ['audio', 'video'].map(tracklist => {
         tracks[tracklist].forEach(track => {
@@ -527,9 +597,9 @@ export default class Connection {
           tracks['audio'] = med.myStream.getAudioTracks();
           tracks['video'] = med.myStream.getVideoTracks();
           if (med.audioMuted || med.videoMuted) {
-            var mutedStream = mutedStream ? mutedStream : med.getMutedStream();
-            if (videoMuted) tracks['video'] = mutedStream.getVideoTracks();
-            if (audioMuted) tracks['audio'] = mutedStream.getAudioTracks();
+            med.mutedStream = med.mutedStream ? med.mutedStream : med.getMutedStream();
+            if (videoMuted) tracks['video'] = med.mutedStream.getVideoTracks();
+            if (audioMuted) tracks['audio'] = med.mutedStream.getAudioTracks();
           }
           ['audio', 'video'].map(tracklist => {
             tracks[tracklist].forEach(track => {
@@ -538,7 +608,7 @@ export default class Connection {
             });
           });
 
-          med.setVideoSrc(med.localVideo, mixstream);
+          med.h.setVideoSrc(med.localVideo, mixstream);
 
           // SoundMeter for Local Stream
           if (med.myStream) {
@@ -561,9 +631,9 @@ export default class Connection {
             mandatory: { OfferToReceiveAudio: true, OfferToReceiveVideo: true }
           };
           let offer = await pcPartnerName.createOffer(offerConstraints);
-          offer.sdp = _setMediaBitrates(offer.sdp);
+          offer.sdp = self.setMediaBitrates(offer.sdp);
           // SDP Interop
-  	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+  	      // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
           await pcPartnerName.setLocalDescription(offer);
           damSocket.out("sdp", {
             description: pcPartnerName.localDescription,
@@ -589,11 +659,11 @@ export default class Connection {
           }
           pcPartnerName.isNegotiating = true;
           let offer = await pcPartnerName.createOffer();
-          offer.sdp = _setMediaBitrates(offer.sdp);
-  	// SDP Interop
-  	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
-  	// SDP Bitrate Hack
-  	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+          offer.sdp = self.setMediaBitrates(offer.sdp);
+        	// SDP Interop
+        	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+        	// SDP Bitrate Hack
+        	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
 
           await pcPartnerName.setLocalDescription(offer);
           med.damSocket.out("sdp", {
@@ -660,18 +730,19 @@ export default class Connection {
         case "new":
           // med.h.hideVideo(partnerName, true);
           /* objserved when certain clients are stuck disconnecting/reconnecting - do we need to trigger a new candidate? */
-  	/* GC if state is stuck */
+  	      /* GC if state is stuck */
           break;
         case "failed":
           if (partnerName == med.socketId) {
             return;
           } // retry catch needed
           med.h.closeVideo(partnerName);
-  	// Send presence to attempt a reconnection
+  	      // Send presence to attempt a reconnection
           med.damSocket.out("subscribe", {
             room: med.room,
             socketId: med.socketId,
-            name: med.username || med.socketId
+            name: med.username || med.socketId,
+            sfu: SFU_ENABLED
           });
           break;
         case "closed":
@@ -694,14 +765,14 @@ export default class Connection {
       switch (pcPartnerName.signalingState) {
         case "have-local-offer":
           pcPartnerName.isNegotiating = true;
-  	setTimeout(function(){
-  		console.log('set GC for',partnerName);
-  		if(pcPartnerName.signalingState == "have-local-offer"){
-  			console.log('GC Stuck Peer '+partnerName, pcPartnerName.signalingState);
-  		        // pcMap.get(partnerName).close();
-  			med.h.closeVideo(partnerName);
-  		}
-  	}, 5000, pcPartnerName, partnerName);
+  	      setTimeout(function(){
+  		        console.log('set GC for',partnerName);
+  		          if(pcPartnerName.signalingState == "have-local-offer"){
+  			             console.log('GC Stuck Peer '+partnerName, pcPartnerName.signalingState);
+  		               // pcMap.get(partnerName).close();
+  			             med.h.closeVideo(partnerName);
+  		          }
+  	    } , 5000, pcPartnerName, partnerName);
   	/* GC if state is stuck */
           break;
         case "stable":
@@ -709,16 +780,17 @@ export default class Connection {
           break;
         case "closed":
           console.log("Signalling state is 'closed'");
-  	// Do we have a connection? If not kill the widget
-  	if (pcPartnerName.iceConnectionState !== "connected") {
-  		med.h.closeVideo(partnerName);
-  	  med.pcMap.delete(partnerName);
-  	}
+        	// Do we have a connection? If not kill the widget
+        	if (pcPartnerName.iceConnectionState !== "connected") {
+        		med.h.closeVideo(partnerName);
+        	  med.pcMap.delete(partnerName);
+        	}
           // Peers go down here and there - let's send a Subscribe, Just in case...
           med.damSocket.out("subscribe", {
             room: med.room,
             socketId: med.socketId,
-            name: med.username || med.socketId
+            name: med.username || med.socketId,
+            sfu: SFU_ENABLED
           });
           break;
       }
@@ -727,11 +799,11 @@ export default class Connection {
   }
 
   setMediaBitrates (sdp) {
-    if (med.videoBitrate == 'unlimited' || !_calculateBitrate()) {
+    if (med.videoBitrate == 'unlimited' || !self.calculateBitrate()) {
       console.log("Not changing bitrate max is set")
       return sdp;
     } else {
-      return _setMediaBitrate(_setMediaBitrate(sdp, "video", med.videoBitrate), "audio", 50);
+      return self.setMediaBitrate(self.setMediaBitrate(sdp, "video", med.videoBitrate), "audio", 50);
     }
   }
 
@@ -798,6 +870,47 @@ export default class Connection {
     newLines.push("b=AS:" + bitrate)
     newLines = newLines.concat(lines.slice(line, lines.length))
     return newLines.join("\n")
+  }
+
+  setBitrate (count) {
+    if (calculateBitrate()) {
+      console.log("Adapt to " + count + " users");
+      if ((adapter.browserDetails.browser === 'chrome' ||
+        adapter.browserDetails.browser === 'safari' ||
+        (adapter.browserDetails.browser === 'firefox' &&
+          adapter.browserDetails.version >= 64)) &&
+        'RTCRtpSender' in window &&
+        'setParameters' in window.RTCRtpSender.prototype) {
+        var bandwidth = videoBitrate;
+        console.log("Setting bandwidth::" + bandwidth);
+        pc.forEach((pc1, id) => {
+          pc[pc1].getSenders().forEach((sender) => {
+            if (sender.transport && sender.transport.state == "connected") {
+              const parameters = sender.getParameters();
+              if (!parameters.encodings) {
+                parameters.encodings = [{}];
+              }
+              if (bandwidth === 'unlimited') {
+                console.log("Removing bitrate setting");
+                if (parameters.encodings[0]) {
+                  delete parameters.encodings[0].maxBitrate;
+                }
+              } else {
+                if (parameters.encodings[0] !== undefined) {
+                  parameters.encodings[0].maxBitrate = bandwidth * 1000;
+                }
+              }
+              sender.setParameters(parameters)
+                .then(() => {
+                  console.log("Done setting Bandwidth to:" + bandwidth)
+                })
+                .catch(e => console.error(e));
+            }
+          })
+        });
+        return;
+      }
+    }
   }
 
 }
