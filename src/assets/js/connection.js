@@ -269,6 +269,7 @@ export default class Connection {
             e.srcElement.classList.remove("fa-video");
             e.srcElement.classList.add("fa-video-slash");
             med.h.showNotification("Video Disabled");
+            med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
           });
         } else {
           med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
@@ -277,6 +278,7 @@ export default class Connection {
             e.srcElement.classList.add("fa-video");
             e.srcElement.classList.remove("fa-video-slash");
             med.h.showNotification("Video Enabled");
+            med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
           });
         }
 
@@ -294,7 +296,7 @@ export default class Connection {
             med.h.setVideoSrc(med.localVideo,muted);
             e.srcElement.classList.remove("fa-video");
             e.srcElement.classList.add("fa-video-slash");
-  	        med.h.showNotification("Video Disabled");
+            med.h.showNotification("Video Disabled");
           });
         } else {
           med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
@@ -302,7 +304,7 @@ export default class Connection {
             med.videoMuted = false;
             e.srcElement.classList.add("fa-video");
             e.srcElement.classList.remove("fa-video-slash");
-  	        med.h.showNotification("Video Enabled");
+            med.h.showNotification("Video Enabled");
           });
         }
 

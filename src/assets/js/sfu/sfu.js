@@ -66,31 +66,14 @@ export default class SFU extends EventEmitter {
     attachMedia() {
         console.log("SFU::attachMedia");
         const self = this;
-        const video = this.config.localVideoEl;
-        navigator.mediaDevices.getUserMedia({
-            audio: true,
-            video: {
-                frameRate: {
-                    max: 15
-                },
-                height: {
-                    ideal: 720,
-                    max: 720,
-                    min: 240
-                }
-            }
-        })
-            .then(function (stream) {
-                video.srcObject = stream;
-                video.autoplay = true;
-                video.playinline = true;
-                video.muted = true;
-                video.width = 200;
-                video.height = 200;
-                video.controls = true;
+        const localVideo = this.config.localVideoEl;
+
+        helper.getUserMedia()
+            .then(async stream => {
+                if (localVideo) h.setVideoSrc(localVideo, stream);
                 self.emit("localStream");
-            })
-            .catch(function (error) {
+
+            }).catch(function (error) {
                 console.log("Something went wrong!");
                 self.emit("localMediaError");
             });
@@ -98,21 +81,9 @@ export default class SFU extends EventEmitter {
 
     //Move this to a helper?
     createRemote(consumer) {
-
         var video = document.getElementById(consumer._appData.peerId + "-video");
         if (video == undefined) {
             video = helper.addVideo(consumer._appData.peerId);
-            return video;
-            video = document.createElement("video");
-            video.id = consumer._appData.peerId;
-            video.srcObject = new MediaStream([consumer._track]);
-            video.setAttribute("data-peer-id", consumer._appData.peerId);
-            video.setAttribute("data-search-id", consumer._id);
-            video.playsInline = true;
-            video.width = 200;
-            video.height = 200;
-            video.controls = true;
-            video.play();
             return video;
         } else {
             return video;
