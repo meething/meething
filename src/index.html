@@ -48,8 +48,8 @@
   <div id="demo" class="demo" hidden>
 ​    <div class="grid-box" class="grid-box">
       <div id="emptyroom" style="width: 50%; margin: 0 auto;" class="grid-bottom">
-	<center>
-		<span class="fa fa-restroom fa-2x"></span><br><span class="loading">Waiting for Participants</span>
+	<center class="waiting">
+		<span class="fa fa-restroom fa-2x"></span><br><span class="loading mt-4">Waiting for Participants</span>
   </center>
 </div>
       <div class="grid-container" id="grid">
@@ -57,59 +57,22 @@
     </div>
   </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
-    <div class="text-white" style="margin-left:-15px;">
+    <div class="text-white" style="margin-left:-15px;" >
       <a href="http://github.com/meething" target="_blank">
         <div class="text-white">&nbsp; <span class="fa fa-bullhorn"></span> meething</div>
       </a>
     </div>
 
     <div class="pull-right room-comm" hidden>
+  
+     <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
+  
 
-      <meter high="0.25" max="1" value="0" id="audiometer"></meter>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-        title="Toggle Screensharing">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-video text-white" id="toggle-video"
-        title="Mute/Unmute Video">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-volume-up text-white" id="toggle-mute"
-        title="Mute/Unmute Audio">
-      </button>
-
-      <button class="btn btn-sm text-white pull-right btn-no-effect fa fa-comment" title="Toggle Chat"
-        id="toggle-chat-pane">
-        <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-        title="Toggle User List">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-        title="Re-Invite All Users">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white fa fa-unlock text-white" id="private-toggle"
-        title="Toggle Off-Grid Mode">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-        title="Toggle Recording">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-modal" title="Room Settings">
-        <i class="fa fa-cog text-white"></i>
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
-        <a href="/" class="text-danger text-decoration-none">
-          <i class="fas fa-sign-out-alt text-white"></i>
-        </a>
-      </button>
-
+      <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
+      id="toggle-chat-pane">
+      <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
+    </button>
+    <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
 
 
@@ -153,11 +116,62 @@
       </div>
     </div>
   </div>
+  <div id="top-menu" style="display:none">
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+    title="Toggle Screensharing"> 
+  </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+    title="Re-Invite All Users"> 
+  </button>
+  
+  <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+  title="Toggle User List"> 
+  
+  </button>
+  
+  <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+    title="Toggle Off-Grid Mode"> 
+
+  </button>
+  
+  <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+  title="Toggle Recording"> 
+  </button>
+  
+  <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog"" id="toggle-modal" title="Room Settings">
+
+  </button>
+  
+  </div>
+  <div id="bottom-menu" class="container-fluid mx-auto" hidden>
+    <div class="buttons-container d-flex justify-content-center mx-auto">
+     
+  
+  
+    <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
+      title="Mute/Unmute Video">
+    </button>
+  
+    <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+      title="Mute/Unmute Audio">
+    </button>
+ 
+  <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room" onclick="window.location.href='/'">
+    
+     
+    </a>
+  </button>
+
+    </div>
+    
+  </div>
   <div id="mydiv" style="display: none;">
     <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
     <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
     <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
   </div>
+
   <div id="snackbar"></div>
 </body>
 
