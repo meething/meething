@@ -47,7 +47,7 @@ export default class SFU extends EventEmitter {
     joinRoom(room) {
         console.log("SFU::Join %s meething", room);
         this.room = room;
-        this.sfuRoom.join();
+        this.sfuRoom.join(room);
     }
 
     async startBroadcast() {

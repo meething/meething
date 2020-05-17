@@ -4,7 +4,7 @@ import helper from '../helpers.js'
 export default class Video {
   constructor() {
     this.joined = false;
-    self = this;    
+    self = this;
   }
 
   // Determine the room name and public URL for this chat session.
@@ -75,59 +75,14 @@ export default class Video {
     });
 
     // When another person joins the chat room, we'll display their video.
-    webrtc.on("videoAdded", function (peer) {      
-      if(peer.consumer._track.kind == "audio") {
+    webrtc.on("videoAdded", function (peer) {
+      if (peer.consumer._track.kind == "audio") {
         peer.video.srcObject.addTrack(peer.consumer._track);
         return;
       }
       var stream = new MediaStream([peer.consumer._track]);
       helper.setVideoSrc(peer.video, stream);
       console.log("user added to chat", peer);
-      return;
-      var remotes = document.getElementById("remotes");
-
-      if (remotes) {
-        var outerContainer = document.createElement("div");
-        outerContainer.className = "col-md-4";
-
-        var container = document.createElement("div");
-        container.className = "videoContainer";
-        container.id = "container_" + peer.video.id;
-        container.appendChild(peer.video);
-
-        // Suppress right-clicks on the video.
-        peer.video.oncontextmenu = function () { return false; };
-
-        // Show the volume meter.
-        var vol = document.createElement("meter");
-        vol.id = "volume_" + peer.video.id;
-        vol.className = "volume";
-        vol.style.display = "block";
-        vol.min = -45;
-        vol.max = -20;
-        vol.low = -40;
-        vol.high = -25;
-        container.appendChild(vol);
-
-        // Show the connection state.
-        var connstate = document.createElement("div");
-        connstate.className = "connectionstate";
-        container.appendChild(connstate);
-        connstate.innerText = "connection established";
-
-        outerContainer.appendChild(container);
-        remotes.appendChild(outerContainer);
-
-        // If we're adding a new video we need to modify bootstrap so we
-        // only get two videos per row.
-        var remoteVideos = document.getElementById("remotes").getElementsByTagName("video").length;
-
-        if (!(remoteVideos % 3)) {
-          var spacer = document.createElement("div");
-          spacer.className = "w-100";
-          remotes.appendChild(spacer);
-        }
-      }
     });
 
     // If a user disconnects from chat, we need to remove their video feed.
@@ -135,11 +90,6 @@ export default class Video {
       console.log("user removed from chat", id);
       helper.closeVideo(id);
       return;
-      var remotes = document.getElementById("remotes");
-      var el = document.getElementById("container_" + id);
-      if (remotes && el) {
-        remotes.removeChild(el.parentElement);
-      }
     });
 
     // If our volume has changed, update the meter.
