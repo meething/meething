@@ -1,6 +1,6 @@
 /**
  * @author Jabis Sevón <jabis.is@gmail.com>
- * @date 1st May, 2020 
+ * @date 1st May, 2020
  * @author Lorenzo Mangani, QXIP BV <lorenzo.mangani@gmail.com>
  * @date 27th April, 2020
  * @author Amir Sanni <amirsanni@gmail.com>
@@ -14,13 +14,18 @@ import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 import { PoseDetector } from "./poseDetection.js";
 //import { FaceDetector } from './faceDetection.js';
+import ChatEvents from "./chatevents.js"
+import Graph from "./graphThing.js";
+import Video from "./sfu/video.js"
 
-var DEBUG = false; // if (DEBUG) 
+
+var DEBUG = false; // if (DEBUG)
 var TIMEGAP = 6000;
 var allUsers = [];
 var enableHacks = true;
 var meethrix = window.meethrix = true,
-  autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD 
+  autoload = window.autoload = true; //SET TO FALSE IF YOU DON'T WANT TO DEVICES TO AUTOLOAD
+
 window.h = h;
 var ee = null,
   modal = null;
@@ -58,6 +63,12 @@ var enablePoseDetection = true;  //Flag to enable/disable pose detector
 
 // var faceDetector;
 
+var chatEvents;
+var graph;
+
+// SFU ENABLED MEETHING
+const SFU_ENABLED = true;
+const video = new Video();
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -65,6 +76,7 @@ window.addEventListener('DOMContentLoaded', function () {
   title = room.replace(/(_.*)/, '');
   if (title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = title;
   ee = window.ee = new EventEmitter();
+  chatEvents = new ChatEvents(ee);
   //initSocket(); // letting socket start for now
   modal = window.modal = new tingle.modal({
     closeMethods: [],
@@ -99,7 +111,6 @@ window.addEventListener('DOMContentLoaded', function () {
       var cr = document.getElementById('create-room');
       if (cr) cr.addEventListener('click', async (e) => {
         e.preventDefault();
-        cr.hidden = true;
         let roomName = document.querySelector('#room-name').value;
         let yourName = document.querySelector('#your-name').value;
         let romp = document.querySelector('#room-pass').value;
@@ -115,6 +126,7 @@ window.addEventListener('DOMContentLoaded', function () {
           let roomLink = `${location.origin}?room=${roomgen}`;
           room = roomgen;
           username = yourName;
+          cr.hidden = true;
           if (romp) {
             roompass = romp;
             await storePass(romp, yourName);
@@ -138,13 +150,13 @@ window.addEventListener('DOMContentLoaded', function () {
           document.querySelector('#your-name').disabled = true;
           document.querySelector('#room-pass').disabled = true;
         }
-
         else {
 
           document.querySelector('#err-msg').innerHTML = "All fields are required";
           // roomName.focus();
         }
       });
+
     }
   });
   var toggleModal = document.getElementById('toggle-modal');
@@ -165,6 +177,7 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   ee.on('join:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display = 'flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#username') ? document.querySelector('#username') : sessionStorage.getItem('username') ? { value: sessionStorage.getItem('username') } : false;
     let _pass = document.querySelector('#room-pass');
@@ -191,6 +204,8 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('setup:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display = 'flex';
+
     let _name = document.querySelector('#your-name');
     let _room = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -222,6 +237,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('nouser:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display = 'flex';
     let _name = document.querySelector('#username');
     let _pass = document.querySelector('#room-pass');
 
@@ -248,6 +264,7 @@ window.addEventListener('DOMContentLoaded', function () {
   });
   ee.on('noroom:ok', async function () {
     var args = Array.from(arguments); // no spread here, because of Edge crapping
+    document.querySelector('.tingle-modal-box__footer').style.display = 'flex';
     console.log('Arguments are ', args);
     let _name = document.querySelector('#room-name');
     let _pass = document.querySelector('#room-pass');
@@ -281,7 +298,9 @@ window.addEventListener('DOMContentLoaded', function () {
         try { mutedStream = h.getMutedStream(); } catch (err) { console.warn("error in getting mutedstream", err); }
         ee.emit(type + ':ok', { modal, e });
       });
+
     }
+
   })
   var cancelFn = function (why) {
     room = null;
@@ -293,6 +312,9 @@ window.addEventListener('DOMContentLoaded', function () {
   ee.on('nouser:cancel', cancelFn);
   ee.on('noroom:cancel', cancelFn);
   ee.on('setup:cancel', cancelFn);
+  ee.on("Chat-Message", function (data) {
+    metaData.sendChatData(data);
+  });
 
   function resetDevices() {
     var as = document.getElementById('as');
@@ -347,27 +369,63 @@ window.addEventListener('DOMContentLoaded', function () {
   }
   var modalContent = "";
   var errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
+  var settingmsg = `<small class="text-white m-4 text-center" style="width:100%;" id="setting-msg">Select your audio and video devices</small>`
   var cammicsetc =
     h.isOldEdge() || !autoload
+
       ? `
-      <div class="col-md-12">
-      <button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
-    <div id="deviceSelection" hidden>
-    <label for="as">Mic:</label><br/>
-    <select id="as"></select><br/>
-    <label for="ao">Speakers: </label><br/>
-    <select id="ao"></select><br/>
-    <label for="vs">Camera:</label><br/>
-    <select id="vs"></select><br/>
-    <button class="btn btn-lg btn-outline-light" id="sam" title="Mute/Unmute Audio">
-      <i class="fa fa-volume-up"></i>
-    </button>
-    <button class="btn btn-lg btn btn-outline-light" id="svm" title="Mute/Unmute Video">
-      <i class="fa fa-video"></i>
-    </button><br/>
-    <div id="preview"><video id="local" playsinline autoplay muted width="150px"></video></div>
-  </div>
-  </div>
+      <div class="p-container" id="deviceSelection" hidden>
+      <div id="" class="preview-container">
+        <div class="row">
+
+          <div class="col-md-12 mx-auto">
+      <video id="local" class="mx-auto" playsinline autoplay muted></video>
+       </div>
+
+          <div class="preview-video-buttons row col-md-12">
+          <div class="col m-1 mb-3 mx-auto">
+          <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
+
+          </div>
+          <div class="col m-1 mb-3 mx-auto">
+            <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
+            </button>
+
+            </div>
+            <div class="col m-1 mb-3 mx-auto">
+            <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
+
+            </button>
+
+            </div>
+        </div>
+        </div>
+
+      </div>
+
+
+          <div id="devicesSelection">
+
+
+            <div class="form-row device-select" id="devices-menu" style="display: none;">
+
+              <div class="col-md-4 mb-3">
+               <label for="as" class="text-white">Mic:</label>
+                 <select id="as" class="form-control btn-sm rounded-0"></select>
+               </div>
+
+             <div class="col-md-4 mb-3">
+                  <label for="ao" class="text-white">Speakers: </label>
+                    <select id="ao" class="form-control btn-sm rounded-0"></select>
+                 </div>
+
+            <div class="col-md-4 mb-3">
+                    <label for="vs" class="text-white">Camera:</label>
+                  <select id="vs" class="form-control btn-sm rounded-0"></select>
+                </div>
+            </div>
+          </div>
+          </div>
 `
       : `
 <div class="p-container">
@@ -379,47 +437,51 @@ window.addEventListener('DOMContentLoaded', function () {
  </div>
 
     <div class="preview-video-buttons row col-md-12">
-
     <div class="col m-1 mb-3 mx-auto">
       <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Sound On / Off</small>
+
       </div>
       <div class="col m-1 mb-3 mx-auto">
       <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
-      
+
       </button>
-      <small class="d-block d-xs-block d-md-none text-white m-3 mx-auto text-center">Cam On / Off</small>
+
       </div>
   </div>
+  <div class="col m-1 mb-3 mx-auto d-inline">
+  ${settingmsg}<button id="toggle-devices-menu" class="btn btn-sm fas fa-ellipsis-v mx-auto text-white"></button>
+
   </div>
- 
+  </div>
+
 </div>
 
-<button class="form-control rounded-0" id="tingleSetupBtn">Set up your devices</button>
+<button class="form-control rounded-0" id="tingleSetupBtn" hidden>Set up your devices</button>
 
     <div id="deviceSelection">
 
-      <div class="form-row">
 
-        <div class="col-md-4 mb-3">
+      <div class="form-row device-select" id="devices-menu">
+
+        <div class="col-md-12 mb-3">
          <label for="as" class="text-white">Mic:</label>
            <select id="as" class="form-control btn-sm rounded-0"></select>
          </div>
 
-       <div class="col-md-4 mb-3">
+       <div class="col-md-12 mb-3">
             <label for="ao" class="text-white">Speakers: </label>
               <select id="ao" class="form-control btn-sm rounded-0"></select>
            </div>
 
-      <div class="col-md-4 mb-3">
+      <div class="col-md-12 mb-3">
               <label for="vs" class="text-white">Camera:</label>
             <select id="vs" class="form-control btn-sm rounded-0"></select>
           </div>
       </div>
     </div>
     </div>
-   
+
   `;
 
   ee.on('navigator:gotDevices', function (devices) {
@@ -466,7 +528,7 @@ window.addEventListener('DOMContentLoaded', function () {
   // default inputs
   var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
   var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
-  var passwinput = `<label for="your-name">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
+  var passwinput = `<label for="room-pass">Room password</label> <input id="room-pass" class="form-control rounded-0" type="password" autocomplete="new-password" placeholder="Password (optional)" />`;
   var roominput = `<label for="room-name">Room Name</label><input type="text" id="room-name" class="form-control rounded-0" placeholder="Room Name" required/> `;
   // @TODO disable roomcreate button when errors
   var roomcreatebtn = `<button id="create-room" class="btn btn-block rounded-0 btn-info">Create Room</button>`
@@ -476,38 +538,43 @@ window.addEventListener('DOMContentLoaded', function () {
     // Welcome back xX!
     modalContent = `
     <div class="container-fluid">
-    <div class="row">
-    <div class="col-md-4 speech-bubble mx-auto">
-     ${cammicsetc}
-    </div> 
-    <div class="col-md-4 mt-4 mx-auto text-white"> 
+      <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+      <div class='row'>
+        <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
+          ${cammicsetc}
+        </div>
+    <div class="col-md-4 mt-4 mx-auto text-white room-form">
+    <div class='mx-auto text-center mb-4'>
+    <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/>
+ </div>
     <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
     <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
     <br/>${passwinput}<br/>
-    </div> 
-    </div> 
+    </div>
+    </div>
     </div>`;
     return loadModal(modal, modalContent, 'join');
     //
   } else if (room && !username) {
-    // set username and camera options 
+    // set username and camera options
     // when is room created
     modalContent =
-      ` 
-    <div class="row"> 
-    <div class="col-md-4 speech-bubble mx-auto"> 
+      `
+    <div class="row">
+    <div class="col-md-4 speech-bubble mx-auto">
+
       ${cammicsetc}
-       </div> 
-      <div class="col-md-4 mt-4 mx-auto room-form"> 
-      <h4 class="speech-msg"> 
+       </div>
+      <div class="col-md-4 mt-4 mx-auto room-form">
+      <h4 class="speech-msg">
       Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
       <p>
       Please enter your username and set up your camera options! </p>
       <br/>
       ${joinnameinput} <br/>
       ${passwinput} <br/>
-     
-      </div> 
+     </div>
+      </div>
     </div>
     `;
     return loadModal(modal, modalContent, 'nouser');
@@ -515,22 +582,29 @@ window.addEventListener('DOMContentLoaded', function () {
   } else if (!room && username) {
 
     // enter room name to join
-    modalContent = ` 
+    modalContent = `
   <div class="container-fluid">
-    <div class='row'> 
-    <div class='col-md-4 speech-bubble mx-auto'> 
+  <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+  <div class='row'>
+    <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
       ${cammicsetc}
-       </div> 
-      <div class='col-md-4 mt-4 mx-auto room-form'> 
-      <h4 class='speech-msg'> 
+    </div>
+      <div class='col-md-4 mt-4 mx-auto room-form'>
+      <div class='mx-auto text-center mb-4'>
+      <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+   </div>
+      <h4 class='speech-msg'>
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
       <p>
       Please enter the room name you want to join or create below! </p>
       <br/>
     ${roominput}<br/>
     ${passwinput}<br/>
-      </div> 
-    </div> 
+
+      </div>
+
+    </div>
+
     </div>`;
 
     return loadModal(modal, modalContent, 'noroom');
@@ -538,24 +612,23 @@ window.addEventListener('DOMContentLoaded', function () {
     // Set up a new room
     modalContent = `
     <div class="container-fluid">
-    <div class='row'> 
-      <div class='col-md-4 speech-bubble mx-auto'> 
-        <p class='speech-msg'> 
-        Hey, let\'s set up a new room!</p> 
+    <button id='toggle-device-selection' class='fas fa-video btn btn-circle '></button>
+    <div class='row'>
+      <div class='col-md-4 speech-bubble mx-auto' id='devices-selection'>
         ${cammicsetc}
-      </div> 
-      <div class='col-md-4 mx-auto mt-5 room-form'> 
-        <div class='d-none d-xs-none d-md-block'> 
-          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' /> 
-       </div> 
-       <p>${roomcreated}</p> 
-        ${errmsg}<br> 
-        ${createnameinput}<br> 
-        ${roominput}<br> 
-        ${passwinput}<br> 
-        <br> <br>
+      </div>
+      <div class='col-md-4 mx-auto mt-5 room-form'>
+        <div class='mx-auto text-center mb-4'>
+          <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+       </div>
+       <p>${roomcreated}</p>
+        ${errmsg}<br>
+        ${createnameinput}<br>
+        ${roominput}<br>
+        ${passwinput}<br>
+        <br>
         ${roomcreatebtn}
-       </div> 
+       </div>
       </div>
       </div>
       `
@@ -599,11 +672,12 @@ async function initSocket() {
       console.log(r);
       roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
     }
-
+    localStorage.clear();
     var peers = [roomPeer];
-    var opt = { peers: peers, localStorage: false, radisk: false };
+    var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
     window.room = room;
     root = window.root = Gun(opt);
+    graph = new Graph(root, ee)
 
     socket = window.socket = root
       .get("meething")
@@ -616,6 +690,7 @@ var reinit = window.reinit = async function () {
   let stuff = await initSocket();
   return stuff;
 }
+
 function sendMsg(msg, local) {
   let data = {
     room: room,
@@ -623,15 +698,13 @@ function sendMsg(msg, local) {
     sender: username || socketId
   };
 
-  //emit chat message
-  if (!local) {
-    if (data.sender && data.to && data.sender == data.to) return;
-    if (!data.ts) data.ts = Date.now();
-    metaData.sendChatData(data);
+  if (local) {
+    ee.emit("local", data)
+  } else {
+    ee.emit("tourist", data)
   }
-  //add localchat
-  h.addChat(data, "local");
 }
+
 var _ev = h.isiOS() ? 'pagehide' : 'beforeunload';
 window.addEventListener(_ev, function () {
   if (damSocket && damSocket.getPresence()) damSocket.getPresence().leave();
@@ -676,7 +749,7 @@ function metaDataReceived(data) {
       }
     } else if (data.subEvent == "mute") {
       if (data.muted) {
-        var notification = data.username + " is going silence";
+        var notification = data.username + " is going silent";
         h.showNotification(notification);
       } else {
         var notification = data.username + " is on speaking terms"
@@ -744,6 +817,7 @@ function metaDataReceived(data) {
     //data.socketId and data.pid should give you what you want
     //Probably want to filter but didnt know if you wanted it filter on socketId or PID
   }
+  ee.emit('graph:update');
 }
 
 
@@ -759,6 +833,7 @@ function initRTC() {
   }
 
   document.getElementById("demo").hidden = false;
+  document.getElementById("bottom-menu").hidden = false;
 
   socketId = h.uuidv4();
   damSocket.on("postauth", function (auth) {
@@ -770,16 +845,34 @@ function initRTC() {
     console.log("Starting! you are", socketId);
     presence.update(username, socketId);
 
+    if (SFU_ENABLED) {
+      if (!video.joined) {
+        video.enableVideo();
+      }
+    }
+
     // Initialize Session
     damSocket.out("subscribe", {
       room: room,
       socketId: socketId,
-      name: username || socketId
+      name: username || socketId,
+      sfu: SFU_ENABLED
     });
 
 
     //Do we do this here this is now triggered from DAM?
     damSocket.on('Subscribe', function (data) {
+      if (data.sfu) {
+        console.log("Starting SFU Subscribe");
+        damSocket.out("newUserStart", {
+          to: data.socketId,
+          sender: socketId,
+          name: data.name || data.socketId,
+          sfu: SFU_ENABLED
+        });
+        return;
+      }
+
       console.log("Got channel subscribe", data);
       if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
         console.log("discarding old sub", data);
@@ -812,13 +905,22 @@ function initRTC() {
       damSocket.out("newUserStart", {
         to: data.socketId,
         sender: socketId,
-        name: data.name || data.socketId
+        name: data.name || data.socketId,
+        sfu: SFU_ENABLED
       });
-
+      // add info to grap, socketId label
+      root.get('meething').get(room).get(socketId).put({ label: socketId });
+      // add person we are connecting to
+      root.get('meething').get(room).get(socketId).get(data.socketId).put({ label: data.name || data.socketId });
+      ee.emit('graph:update');
       init(true, data.socketId);
     });
 
     damSocket.on('NewUserStart', function (data) {
+      if (data.sfu) {
+        console.log("Start SFU new user start");
+        return;
+      }
       if (data.ts && Date.now() - data.ts > TIMEGAP) return;
       if (data.socketId == socketId || data.sender == socketId) return;
       if (
@@ -985,6 +1087,32 @@ function initRTC() {
       }
 
     });
+    document.getElementById("svm").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!videoMuted) {
+        h.replaceVideoTrackForPeers(pcMap, muted.getVideoTracks()[0]).then(r => {
+          videoMuted = true;
+          h.setVideoSrc(localVideo, muted);
+          e.srcElement.classList.remove("fa-video");
+          e.srcElement.classList.add("fa-video-slash");
+          h.showNotification("Video Disabled");
+        });
+      } else {
+        h.replaceVideoTrackForPeers(pcMap, mine.getVideoTracks()[0]).then(r => {
+          h.setVideoSrc(localVideo, mine);
+          videoMuted = false;
+          e.srcElement.classList.add("fa-video");
+          e.srcElement.classList.remove("fa-video-slash");
+          h.showNotification("Video Enabled");
+        });
+      }
+
+    });
 
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
@@ -1026,7 +1154,7 @@ function initRTC() {
       } else {
         h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
           audioMuted = false;
-          //localVideo.srcObject = mine; 
+          //localVideo.srcObject = mine;
           e.srcElement.classList.add("fa-volume-up");
           e.srcElement.classList.remove("fa-volume-mute");
           metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
@@ -1036,7 +1164,36 @@ function initRTC() {
       }
 
     });
+    document.getElementById("sam").addEventListener("click", e => {
+      e.preventDefault();
+      var muted = mutedStream ? mutedStream : h.getMutedStream();
+      var mine = myStream ? myStream : muted;
+      if (!mine) {
+        return;
+      }
+      if (!audioMuted) {
+        h.replaceAudioTrackForPeers(pcMap, muted.getAudioTracks()[0]).then(r => {
+          audioMuted = true;
+          //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+          e.srcElement.classList.remove("fa-volume-up");
+          e.srcElement.classList.add("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Muted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
+        });
+      } else {
+        h.replaceAudioTrackForPeers(pcMap, mine.getAudioTracks()[0]).then(r => {
+          audioMuted = false;
+          //localVideo.srcObject = mine;
+          e.srcElement.classList.add("fa-volume-up");
+          e.srcElement.classList.remove("fa-volume-mute");
+          metaData.sendNotificationData({ username: username, subEvent: "mute", muted: audioMuted });
+          h.showNotification("Audio Unmuted");
+          myStream.getAudioTracks()[0].enabled = !audioMuted;
+        });
+      }
 
+    });
     document.getElementById("toggle-invite").addEventListener("click", e => {
       e.preventDefault();
       //if (!myStream) return;
@@ -1046,7 +1203,8 @@ function initRTC() {
         damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
-          name: username || socketId
+          name: username || socketId,
+          sfu: SFU_ENABLED
         });
       }
     });
@@ -1117,7 +1275,7 @@ function init(createOffer, partnerName) {
   pcMap.set(partnerName, pcPartnerName); // MAP Tracking
   h.addVideo(partnerName, false);
 
-  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE! 
+  //TODO: SET THE BELOW TRACK HANDLERS SOMEWHERE IN A BETTER PLACE!
   //TODO: KNOWN REGRESSION IN THIS BRANCH IS MUTING DOES NOT WORK!
 
   // Q&A: Should we use the existing myStream when available? Potential cause of issue and no-mute
@@ -1319,7 +1477,8 @@ function init(createOffer, partnerName) {
         damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
-          name: username || socketId
+          name: username || socketId,
+          sfu: SFU_ENABLED
         });
         break;
       case "closed":
@@ -1366,7 +1525,8 @@ function init(createOffer, partnerName) {
         damSocket.out("subscribe", {
           room: room,
           socketId: socketId,
-          name: username || socketId
+          name: username || socketId,
+          sfu: SFU_ENABLED
         });
         break;
     }

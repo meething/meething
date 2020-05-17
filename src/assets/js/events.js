@@ -25,7 +25,47 @@ window.addEventListener('DOMContentLoaded', () => {
 
     });
 
+    document.getElementById("sam").addEventListener("click", e => {
+        e.preventDefault();
+        e.srcElement.classList.toggle("fa-volume-up");
+        e.srcElement.classList.toggle("fa-volume-mute");
+    })
 
+    document.getElementById("svm").addEventListener("click", e => {
+        e.preventDefault();
+        e.srcElement.classList.toggle("fa-video");
+        e.srcElement.classList.toggle("fa-video-slash");
+        
+    })
+
+    document.getElementById("toggle-devices-menu").addEventListener("click", e => {
+        e.preventDefault();
+        document.getElementById("devices-menu").classList.toggle('device-select-open')
+
+        e.srcElement.classList.toggle("fa-ellipsis-v");
+        e.srcElement.classList.toggle("fa-ellipsis-h");
+
+    })
+
+    document.getElementById("toggle-main-menu").addEventListener("click", e => {
+        e.preventDefault();
+        let div = document.getElementById("top-menu");
+        if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
+        else div.style.display = 'block';
+        
+
+        e.srcElement.classList.toggle("fa-ellipsis-h");
+        e.srcElement.classList.toggle("fa-ellipsis-v");
+    })
+
+    document.getElementById("toggle-device-selection").addEventListener("click", e => {
+        e.preventDefault();
+       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
+      
+
+        e.srcElement.classList.toggle("fa-video");
+        e.srcElement.classList.toggle("fa-times");
+    })
     //When the video frame is clicked. This will enable picture-in-picture
     if ("pictureInPictureEnabled" in document 
       && typeof document.getElementById('local').requestPictureInPicture === 'function' ) 
