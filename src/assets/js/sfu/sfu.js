@@ -58,13 +58,11 @@ export default class SFU extends EventEmitter {
         // Attach SoundMeter to Local Stream
         if (SoundMeter) {
           // Soundmeter
-          window.stream = video.srcObject;
-          // console.log('Init Soundmeter.........');
           const soundMeter = new SoundMeter(function () {
             console.log('Imm Speaking! Sending metadata mesh focus...');
               med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
           });
-          soundMeter.connectToSource(window.stream);
+          soundMeter.connectToSource(video.srcObject);
         } else { console.error('no soundmeter!'); }
         
     }
