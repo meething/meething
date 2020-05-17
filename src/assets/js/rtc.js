@@ -494,13 +494,15 @@ window.addEventListener('DOMContentLoaded', function () {
     // });
 
     //Listen for Facemesh and pose detections
-    poseDetector = new PoseDetector();
-    poseDetector.sampleAndDetect();
-    localVideo.addEventListener('poseDetected', e => {
-      console.log("caught pose detection - sending");
-      sendFaceMeshAndPose(e.detail);
+    if (enablePoseDetection) {
+      poseDetector = new PoseDetector();
+      poseDetector.sampleAndDetect();
+      localVideo.addEventListener('poseDetected', e => {
+        console.log("caught pose detection - sending");
+        sendFaceMeshAndPose(e.detail);
 
-    });
+      });
+    }
 
     //console.log('hello',devices);
     ["as", "ao", "vs"].map(function (group) {
