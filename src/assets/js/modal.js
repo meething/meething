@@ -1,11 +1,12 @@
 var med = null;
 var _modal = null;
-var self = this;
+let self;
 
 export default class Modal {
   constructor (mediator) {
     this.mediator = mediator;
     med = this.mediator;
+    this.ee = med.ee;
     self = this;
     return this;
   }
@@ -22,8 +23,8 @@ export default class Modal {
       stickyFooter: false,
       onOpen: self.tingleOnOpen
     });
-
-    med.modal = _modal; //remove this later
+    
+    this._modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
 
@@ -151,6 +152,12 @@ export default class Modal {
       devices = window.devices = devices;
       self.navigatorGotDevices(devices);
     });
+    this.ee.on('toggle-device-selection',function(event){
+      var el = document.getElementById('deviceSelection');
+      if(el) el.hidden=false;
+      self.resetDevices();
+      self.modalFilled(_modal);
+    })
     // default inputs
     var joinnameinput = `<label for="username">Your Name</label><input type="text" id="username" class="form-control rounded-0" placeholder="Your Name" required/>`;
     var createnameinput = `<label for="your-name">Your Name</label> <input type="text" id="your-name" class="form-control rounded-0" placeholder="Your Name" required/>`;
@@ -179,7 +186,8 @@ export default class Modal {
       </div>
       </div>
       </div>`;
-      return self.loadModal(_modal,modalContent,'join');
+      self.loadModal(_modal,modalContent,'join');
+      return this;
     } else if(med.room && !med.username){
       // set username and camera options
       // when is room created
@@ -207,8 +215,8 @@ export default class Modal {
        </div>
       </div>
       `;
-      return self.loadModal(_modal,modalContent,'nouser');
-
+      self.loadModal(_modal,modalContent,'nouser');
+      return this;
     } else if (!med.room && med.username) {
 
       // enter room name to join
@@ -235,7 +243,8 @@ export default class Modal {
   </div>`;
 
 
-      return self.loadModal(_modal,modalContent,'noroom');
+      self.loadModal(_modal,modalContent,'noroom');
+      return this;
     }else {
       // Set up a new room
       modalContent = `
@@ -261,7 +270,8 @@ export default class Modal {
         </div>
         `
 
-      return self.loadModal(_modal, modalContent, 'setup');
+      self.loadModal(_modal, modalContent, 'setup');
+      return this;
     }
 
   }
@@ -319,7 +329,7 @@ export default class Modal {
                 fb.style.display = 'flex';
                 if (romp) {
                   med.roompass = romp;
-                  await self.storePass(romp, yourName);
+                  await med.storePass(romp, yourName);
                 }
                 //show message with link to room
                 document.getElementById('meethlogo').style.width = '150px'
@@ -429,17 +439,6 @@ export default class Modal {
     window.location = '/';
   }
 
-  ee () {
-    return {
-      on:function (events, data) {
-        console.log('oncalled',events, data);
-      },
-      emit:function (events, data) {
-        console.log('emitted', events, data);
-      }
-   };
-  }
-
   loadModal (modal, createOrJoin, type){
     Object.assign(modal,{ __type: type});
     modal.setContent(`${createOrJoin}`);
@@ -450,9 +449,12 @@ export default class Modal {
     modal.open();
     var sB = document.getElementById('tingleSetupBtn');
     if(sB && !med.autoload) { console.log("clicked It", self.simulateClick(sB))}
+    self.modalFilled(_modal);
+    return this;
   }
 
   navigatorGotDevices (devices) {
+    this.ee.emit('navigator:gotDevices',devices);
       if(med.DEBUG){console.log('hello',devices);}
       ["as","ao","vs"].map(function(group){
         let devs = devices[group];
@@ -471,6 +473,7 @@ export default class Modal {
         });
         _modal.checkOverflow();
       });
+      return this;
   }
 
   async handleOk (info) {
@@ -537,6 +540,9 @@ export default class Modal {
         break;
     }
     // stuff that is common
+    if(!med.myStream){ 
+      await this.resetDevices();
+    }
     var ve = document.getElementById('local');
     var vs = document.getElementById('localStream');
     if(ve && vs){
@@ -547,6 +553,7 @@ export default class Modal {
       info.modal.close();
       med.initComm();
     })
+    return this;
   }
   /* if autoload is false we need to simulate a click */
 
