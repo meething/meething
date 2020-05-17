@@ -114,6 +114,7 @@ class FaceDetector {
   }
 }
 
+
 export {
   FaceDetector
 };

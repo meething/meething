@@ -12,7 +12,8 @@ import EventEmitter from './ee.js';
 import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
-import { FaceDetector } from './faceDetection.js';
+import { PoseDetector } from "./poseDetection.js";
+//import { FaceDetector } from './faceDetection.js';
 
 var DEBUG = false; // if (DEBUG) 
 var TIMEGAP = 6000;
@@ -51,7 +52,12 @@ var socketId;
 var damSocket;
 var presence;
 var metaData;
-var faceDetector;
+var poseDetector;
+
+var enablePoseDetection = true;  //Flag to enable/disable pose detector
+
+// var faceDetector;
+
 
 window.addEventListener('DOMContentLoaded', function () {
   room = h.getQString(location.href, "room") ? h.getQString(location.href, "room") : "";
@@ -418,11 +424,20 @@ window.addEventListener('DOMContentLoaded', function () {
 
   ee.on('navigator:gotDevices', function (devices) {
     // Instantiate Face Detection
-    faceDetector = new FaceDetector();
-    faceDetector.sampleAndDetect(); // start sampling the video for detecting face
-    localVideo.addEventListener("faceDetected", e => {
-      console.log("Caught detected event. Detections : ", e.detail)
-      sendFaceData(e.detail);
+    // faceDetector = new FaceDetector();
+    // faceDetector.sampleAndDetect(); // start sampling the video for detecting face
+    // localVideo.addEventListener("faceDetected", e => {
+    //   console.log("Caught detected event. Detections : ", e.detail)
+    //   sentFaceData(e.detail);
+    // });
+
+    //Listen for Facemesh and pose detections
+    poseDetector = new PoseDetector();
+    poseDetector.sampleAndDetect();
+    localVideo.addEventListener('poseDetected', e => {
+      console.log("caught pose detection - sending");
+      sendFaceMeshAndPose(e.detail);
+
     });
 
     //console.log('hello',devices);
@@ -560,9 +575,15 @@ function loadModal(modal, createOrJoin, type) {
   modal.open();
 }
 
-function sendFaceData(faceMeta) {
+function sentFaceData(faceMeta) {
   if (metaData != null && metaData != undefined) {
     metaData.sendControlData({ username: username, id: socketId, face: faceMeta });
+  }
+}
+
+function sendFaceMeshAndPose(poseMeta) {
+  if (metaData != null && metaData != undefined) {
+    metaData.sendControlData({ username: username, id: socketId, faceMesh: poseMeta.faceMesh, pose: poseMeta.pose });
   }
 }
 
@@ -712,6 +733,9 @@ function metaDataReceived(data) {
 
 
       }
+    }
+    if (data.faceMesh && data.pose && data.socketId) {
+      console.log("Received Detections");
     }
   }
   else {
