@@ -12,9 +12,6 @@ export default class SFU extends EventEmitter {
 
     init() {
         console.log("SFU::Init");
-        if (this.config.autoRequestMedia) {
-            // this.startLocalVideo()
-        }
         this.sfuRoom.on("@open", ({ peers }) => {
             console.log(`${peers.length} peers in this room.`);
             this.emit("readyToCall");
@@ -42,29 +39,51 @@ export default class SFU extends EventEmitter {
         this.sfuRoom.on("@peerClosed", async id => {
             this.emit("videoRemoved", id);
         });
+
+        this.sfuRoom.on("@consumerClosed", async id => {
+            this.emit("videoRemoved", id);
+        });
+
+        this.sfuRoom.on("@peerJoined", async id => {
+            this.emit("readyToCall");
+        });
+
     }
 
-    joinRoom(room) {
+    joinRoom(room, peerId) {
         console.log("SFU::Join %s meething", room);
         this.room = room;
-        this.sfuRoom.join(room);
+        this.sfuRoom.join(room, peerId);
     }
 
     async startBroadcast() {
-        const video = this.config.localVideoEl;
-        await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
-        await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
-        
-        // Attach SoundMeter to Local Stream
-        if (SoundMeter) {
-          // Soundmeter
-          const soundMeter = new SoundMeter(function () {
-            console.log('Imm Speaking! Sending metadata mesh focus...');
-              med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
-          });
-          soundMeter.connectToSource(video.srcObject);
-        } else { console.error('no soundmeter!'); }
-        
+        if (!this.broadcasting) {
+            try {
+                this.broadcasting = true;
+                const video = this.config.localVideoEl;
+                this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
+                this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
+
+                var self = this;
+                // Attach SoundMeter to Local Stream
+                if (SoundMeter) {
+                    // Soundmeter
+                    const soundMeter = new SoundMeter(function () {
+                        self.emit("soundmeter");
+                    });
+                    soundMeter.connectToSource(video.srcObject);
+                } else { console.error('no soundmeter!'); }
+            } catch (error) {
+                console.error("Too early sending video");
+                this.broadcasting = false;
+            }
+        }
+    }
+
+    async startScreenShare() {
+        var stream = await helper.getDisplayMedia({ audio: true, video: true });
+        var screenTrack = stream.getVideoTracks()[0];
+        this.screenProducer = await this.sfuRoom.sendScreen(screenTrack);
     }
 
     //Move this to a helper?
@@ -96,8 +115,36 @@ export default class SFU extends EventEmitter {
         if (video == undefined) {
             video = helper.addVideo(consumer._appData.peerId);
             return video;
+        } else if (video.srcObject.getVideoTracks().length > 0 && consumer._track.kind == "video") {
+            video = helper.addVideo(consumer._id);
+            return video;
         } else {
             return video;
+        }
+    }
+
+    toggleVideo() {
+        if (this.videoProducer.paused) {
+            this.videoProducer.resume();
+        } else {
+            this.videoProducer.pause();
+        }
+    }
+
+    toggleAudio() {
+        if (this.audioProducer.paused) {
+            this.audioProducer.resume();
+        } else {
+            this.audioProducer.pause();
+        }
+    }
+
+    async toggleScreen() {
+        if (!this.screenProducer || this.screenProducer._closed) {
+            await this.startScreenShare();
+        } else {
+            this.screenProducer.close();
+            this.screenProducer._events.trackended()
         }
     }
 }

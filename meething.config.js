@@ -7,6 +7,7 @@ module.exports = {
       SSL : true,
       SSLKEY : 'src/assets/privkey.pem',
       SSLCERT  : 'src/assets/fullchain.pm',
+      SFU_URL : false,
       DEBUG : false
   }]
 };
