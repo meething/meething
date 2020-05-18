@@ -13,7 +13,12 @@ export default class Room extends EventEmitter {
 
     join(room) {
         console.warn("room.join()");
-        const wsTransport = new WebSocket("wss://"+window.location.hostname+":2345/" + room, "protoo");
+        // Select SFU Server from config or try self
+        var SFU_URL = process.env.SFU_URL ? process.env.SFU_URL : "wss://"+window.location.hostname+":2345";
+        if (SFU_URL.charAt(SFU_URL.length - 1) == "/") SFU_URL = SFU_URL.substr(0, SFU_URL.length - 1);
+        console.log("Joining SFU",SFU_URL);
+        
+        const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
 
         this.peer = new Peer(wsTransport);
         this.peer.on("open", this.onPeerOpen.bind(this));
@@ -90,7 +95,14 @@ export default class Room extends EventEmitter {
             .catch(console.error);
 
         const iceServers =
-            [{ "urls": ["stun:stun.l.google.com:19302"] }];
+            [{ "urls": ["stun:stun.l.google.com:19302"] },
+            {
+                "urls": ["turn:turn.hepic.tel", "turns:turn.hepic.tel"],
+                "username": "meething",
+                "credential": "b0756813573c0e7f95b2ef667c75ace3",
+                "credentialType": "password"
+            }
+            ];
 
         transportInfo.iceServers = iceServers;
         this.sendTransport = device.createSendTransport(transportInfo);
@@ -143,7 +155,7 @@ export default class Room extends EventEmitter {
                 "credential": "b0756813573c0e7f95b2ef667c75ace3",
                 "credentialType": "password"
             }
-            ]
+            ];
 
         transportInfo.iceServers = iceServers;
         this.recvTransport = device.createRecvTransport(transportInfo);
