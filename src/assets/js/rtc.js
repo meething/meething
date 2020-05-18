@@ -400,7 +400,7 @@ window.addEventListener('DOMContentLoaded', function () {
           <div id="devicesSelection">
 
 
-            <div class="form-row device-select" id="devices-menu" style="display: none;">
+            <div class="form-row device-select" id="devices-menu">
 
               <div class="col-md-4 mb-3">
                <label for="as" class="text-white">Mic:</label>

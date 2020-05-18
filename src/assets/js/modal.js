@@ -49,16 +49,12 @@ export default class Modal {
 
           <div class="preview-video-buttons row col-md-12">
           <div class="col m-1 mb-3 mx-auto">
-          <button id="toggle-devices-menu" class="fas fa-ellipsis-v mx-auto"></button>
-
-          </div>
-          <div class="col m-1 mb-3 mx-auto">
-            <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
+            <button id="sam" class="fa fa-volume-up mx-auto shadow" title="Mute/Unmute Audio">
             </button>
 
             </div>
             <div class="col m-1 mb-3 mx-auto">
-            <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
+            <button id="svm" class="fa fa-video mx-auto shadow" title="Mute/Unmute Video">
 
             </button>
 
@@ -72,19 +68,19 @@ export default class Modal {
           <div id="devicesSelection">
 
 
-            <div class="form-row device-select" id="devices-menu" style="display: none;">
+            <div class="form-row device-select" id="devices-menu">
 
-              <div class="col-md-4 mb-3">
+              <div class="col-md-12 mb-3">
                <label for="as" class="text-white">Mic:</label>
                  <select id="as" class="form-control btn-sm rounded-0"></select>
                </div>
 
-             <div class="col-md-4 mb-3">
+             <div class="col-md-12 mb-3">
                   <label for="ao" class="text-white">Speakers: </label>
                     <select id="ao" class="form-control btn-sm rounded-0"></select>
                  </div>
 
-            <div class="col-md-4 mb-3">
+            <div class="col-md-12 mb-3">
                     <label for="vs" class="text-white">Camera:</label>
                   <select id="vs" class="form-control btn-sm rounded-0"></select>
                 </div>
