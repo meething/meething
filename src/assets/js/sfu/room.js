@@ -18,8 +18,14 @@ export default class Room extends EventEmitter {
         if (SFU_URL.charAt(SFU_URL.length - 1) == "/") SFU_URL = SFU_URL.substr(0, SFU_URL.length - 1);
         console.log("Joining SFU",SFU_URL);
         
-        const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
-
+        try {
+            const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
+        } catch(e){
+            console.log('SFU Failover! Use defaults');
+            SFU_URL = 'wss://meething.space:2345'
+            const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
+        }
+            
         this.peer = new Peer(wsTransport);
         this.peer.on("open", this.onPeerOpen.bind(this));
         this.peer.on("request", this.onPeerRequest.bind(this));
