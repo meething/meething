@@ -7,11 +7,13 @@ import Conn from "./connection.js";
 import Graph from "./graphThing.js";
 import Chat from "./chat.js";
 import Modal from "./modal.js";
+import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 let mGraph,
 mModal,
 mChat,
-mConn;
+mConn,
+mUex;
 // define Mediator
 function Mediator () {
   // state tracking should occur in here for global state
@@ -60,7 +62,9 @@ function Mediator () {
   */
 
   this.welcomeMat = function () {
+    this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.modal.createModal(); // create and display
+    this.uex.afterModalRegister(); // attach listeners to items in modal
   };
 
   /* Initiate sockets and get stuff set up for streaming
@@ -175,10 +179,12 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mModal = new Modal(meething);
   mChat = new Chat(meething);
   mConn = new Conn(meething);
+  mUex = new UEX(meething);
   meething.graph = mGraph;
   meething.chat = mChat;
   meething.conn = mConn;
   meething.modal = mModal;
+  meething.uex = mUex;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 
