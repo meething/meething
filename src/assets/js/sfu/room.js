@@ -11,9 +11,9 @@ export default class Room extends EventEmitter {
         this.recvTransport = null;
     }
 
-    join() {
+    join(room) {
         console.warn("room.join()");
-        const wsTransport = new WebSocket("wss://meething.hepic.tel:2345/", "protoo");
+        const wsTransport = new WebSocket("wss://meething.hepic.tel:2345/" + room, "protoo");
 
         this.peer = new Peer(wsTransport);
         this.peer.on("open", this.onPeerOpen.bind(this));
