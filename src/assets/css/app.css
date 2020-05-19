@@ -573,7 +573,9 @@ margin-bottom:10px;
 .yellow {
   background:orange;
 }
-
+.shadow {
+  box-shadow: 1px 1px 3px black;
+}
 #top-menu {
   position:absolute;
   padding:15px;
