@@ -120,16 +120,6 @@ export default class UEX {
       med.ee.emit('toggle-device-selection', e);
     });
 
-    // Toggle Device Menu (it's going away I think)
-    document.getElementById("toggle-devices-menu").addEventListener("click", e => {
-        e.preventDefault();
-        document.getElementById("devices-menu").classList.toggle('device-select-open')
-
-        e.srcElement.classList.toggle("fa-ellipsis-v");
-        e.srcElement.classList.toggle("fa-ellipsis-h");
-        med.ee.emit('uex:DeviceMenuToggle', e);
-    });
-
   }
 ////
 }
