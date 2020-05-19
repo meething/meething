@@ -152,7 +152,7 @@ body {
     top: 47px;
   }
   .local-video {
-    top: 30%;
+    bottom: 1%;
     right: 30px;
     position: fixed;
     height: 150px;
@@ -573,7 +573,9 @@ margin-bottom:10px;
 .yellow {
   background:orange;
 }
-
+.shadow {
+  box-shadow: 1px 1px 3px black;
+}
 #top-menu {
   position:absolute;
   padding:15px;

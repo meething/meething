@@ -1,32 +1,19 @@
 import SFU from './sfu.js'
 import helper from '../helpers.js'
 
+var med = null;
+
 export default class Video {
-  constructor() {
+  constructor(mediator) {
+    med = mediator;
     this.joined = false;
     self = this;
   }
 
-  // Determine the room name and public URL for this chat session.
-  getRoom() {
-    var query = location.search && location.search.split("?")[1];
-
-    if (query) {
-      return (location.search && decodeURIComponent(query.split("=")[1]));
-    }
-
-    return "no-id"
-  }
-
-  // Retrieve the absolute room URL.
-  getRoomURL() {
-    return location.protocol + "//" + location.host + (location.path || "") + "?room=" + this.getRoom();
-  }
-
   // Enable video on the page.
-  enableVideo() {
+  establish() {
     this.joined = true;
-    this.loadSimpleWebRTC();
+    this.loadSimpleWebRTC(med);
   }
 
   showVolume(el, volume) {
@@ -38,7 +25,7 @@ export default class Video {
 
   // Dynamically load the simplewebrtc script so that we can
   // kickstart the video call.
-  loadSimpleWebRTC() {
+  loadSimpleWebRTC(med) {
     var webrtc = new SFU({
       localVideoEl: document.getElementById("local"),
       // the id/element dom element that will hold remote videos
@@ -51,7 +38,7 @@ export default class Video {
 
     // Set the publicly available room URL.
     // startButton.onclick = function () {
-    webrtc.joinRoom(this.getRoom());
+    webrtc.joinRoom(med.room, med.socketId);
     this.disabled = true;
     // }
 
@@ -121,6 +108,23 @@ export default class Video {
         fileinput.disabled = "disabled";
       }
     });
+
+    webrtc.on("soundmeter", function () {
+      med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
+    });
+
+    window.ee.on("audio-toggled", function () {
+      webrtc.toggleAudio();
+    });
+
+    window.ee.on("video-toggled", function () {
+      webrtc.toggleVideo();
+    });
+
+    window.ee.on("screen-toggled", function () {
+      webrtc.toggleScreen();
+    });
+
     webrtc.init();
   }
 }
