@@ -13,16 +13,15 @@ export default class Room extends EventEmitter {
 
     join(room) {
         console.warn("room.join()");
-        // Select SFU Server from config or try self
-        var SFU_URL = process.env.SFU_URL ? process.env.SFU_URL : "wss://"+window.location.hostname+":2345";
-        if (SFU_URL.charAt(SFU_URL.length - 1) == "/") SFU_URL = SFU_URL.substr(0, SFU_URL.length - 1);
-        console.log("Joining SFU",SFU_URL);
-        
-        try {
+         try {
+            // Select SFU Server from config or try self
+            var SFU_URL = process.env.SFU_URL ? process.env.SFU_URL : "wss://"+window.location.hostname+":2345";
+            if (SFU_URL.charAt(SFU_URL.length - 1) == "/") SFU_URL = SFU_URL.substr(0, SFU_URL.length - 1);
+            console.log("Joining SFU",SFU_URL);
             const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
         } catch(e){
             console.log('SFU Failover! Use defaults');
-            SFU_URL = 'wss://meething.space:2345'
+            var SFU_URL = 'wss://meething.space:2345'
             const wsTransport = new WebSocket(SFU_URL + "/" + room, "protoo");
         }
             
