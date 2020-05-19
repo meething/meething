@@ -39,16 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
         e.srcElement.classList.toggle("fa-video-slash");
         
     })
-/*
-    document.getElementById("toggle-devices-menu").addEventListener("click", e => {
-        e.preventDefault();
-        document.getElementById("devices-menu").classList.toggle('device-select-open')
-
-        e.srcElement.classList.toggle("fa-ellipsis-v");
-        e.srcElement.classList.toggle("fa-ellipsis-h");
-
-    })
-*/
+    
     document.getElementById("toggle-main-menu").addEventListener("click", e => {
         e.preventDefault();
         let div = document.getElementById("top-menu");
