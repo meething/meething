@@ -20,6 +20,7 @@ let mGraph,
 function Mediator() {
   // state tracking should occur in here for global state
   // module specific state should be kept in the module (I think?)
+  this.SFU_ENABLED = false;
   this.DEBUG = true;
   this.TIMEGAP = 6000; //RTC Module?
   this.allUsers = []; // needs to live here

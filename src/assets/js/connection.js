@@ -8,7 +8,6 @@ import Presence from "./presence.js";
 // create global scope to avoid .bind(this)
 var med = null;
 var self = null;
-const SFU_ENABLED = true;
 
 export default class Connection {
   constructor(mediator) {
@@ -40,7 +39,7 @@ export default class Connection {
     self.inited = true;
     this.init();
     this.unhide();
-    if (SFU_ENABLED) {
+    if (med.SFU_ENABLED) {
       console.log("Start SFU");
       this.video = new Video(med).establish();
     } else {
