@@ -50,6 +50,11 @@ export default class Modal {
       self.resetDevices();
       self.modalFilled(_modal);
     })
+    window.ee.on("local-video-loaded", function () {
+      if (med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
+        med.initComm();
+      }
+    });
     // default inputs
     var joinnameinput = lib.joinnameinput
     var createnameinput = lib.createnameinput;
@@ -360,10 +365,10 @@ export default class Modal {
     if(ve && vs){
       ve.className="local-video clipped";
       vs.appendChild(ve);
+      window.ee.emit("local-video-loaded");
     }
     med.initSocket().then(sock=>{
       info.modal.close();
-      med.initComm();
     })
     return this;
   }

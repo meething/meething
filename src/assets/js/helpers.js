@@ -360,6 +360,7 @@ export default {
       source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
       video.src = source;
     }
+    window.ee.emit("local-video-loaded");
     return {video, source}
     }
   },
