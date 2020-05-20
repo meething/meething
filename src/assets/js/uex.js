@@ -8,7 +8,6 @@ var self = null;
 * User Eenterface eXperience @jacovinus May 2020
 */
 
-
 export default class UEX {
   constructor (mediator) {
     this.mediator = mediator;
@@ -29,10 +28,6 @@ export default class UEX {
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
-        if(window.innerWidth < 412){
-          document.querySelector('#local').classList.toggle('video-mini');
-        }
-       
         med.ee.emit('uex:ChatPaneToggle', e);
         //remove the 'New' badge on chat icon (if any) once chat is opened.
         setTimeout(() => {
@@ -44,29 +39,38 @@ export default class UEX {
 
     // CHAT: On enter, emit to chat
     document.querySelector('#chat-input').addEventListener('keydown', (e)=>{
-      if(e.key == 'Enter') {
-        let val = document.querySelector('#chat-input').value;
-        // assemble the chat message
-        let chatMessage = {
-          sender: med.username,
-          msg: val
-        };
-        med.chat.broadcast(chatMessage);
-        document.querySelector('#chat-input').value = '';
-        document.querySelector('#chat-input').blur();
+      let val = document.querySelector('#chat-input').value;
+      var chatcont = document.getElementById('chat-messages');
+      if(val !==''){
+        if(e.key == 'Enter') {
+          // assemble the chat message
+          let chatMessage = {
+            sender: med.username,
+            msg: val
+          };
+          med.chat.broadcast(chatMessage);
+          chatcont.scrollBy(0,80 * chatcont.childElementCount)
+          document.querySelector('#chat-input').value = '';
+          document.querySelector('#chat-input').blur();
+        }
       }
     });
     // CHAT: On button, emit to chat
     document.querySelector('#chat-send').addEventListener('click', (e)=>{
         let val = document.querySelector('#chat-input').value;
+        var chatcont = document.getElementById('chat-messages');
         // assemble the chat message
-        let chatMessage = {
-          sender: med.username,
-          msg: val
-        };
-        med.chat.broadcast(chatMessage);
-        document.querySelector('#chat-input').value = '';
-        document.querySelector('#chat-input').blur();
+        if(val!==''){
+          let chatMessage = {
+            sender: med.username,
+            msg: val
+          };
+          med.chat.broadcast(chatMessage);
+          chatcont.scrollBy(0,80 * chatcont.childElementCount)
+          document.querySelector('#chat-input').value = '';
+          document.querySelector('#chat-input').blur();
+        }
+        
     });
 
     // Show / Hide User List
@@ -75,7 +79,6 @@ export default class UEX {
         var div = document.getElementById('mydiv');
         if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
         else div.style.display = 'block';
-
         e.srcElement.classList.toggle("fa-user-plus");
         e.srcElement.classList.toggle("fa-user-minus");
         med.ee.emit('uex:UserListToggle', e);
@@ -87,7 +90,6 @@ export default class UEX {
         let div = document.getElementById("top-menu");
         if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
         else div.style.display = 'block';
-
         e.srcElement.classList.toggle("fa-ellipsis-h");
         e.srcElement.classList.toggle("fa-ellipsis-v");
         med.ee.emit('uex:MainMenuToggle', e);
@@ -145,7 +147,6 @@ export default class UEX {
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
       e.preventDefault();
       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
-
       e.srcElement.classList.toggle("fa-sliders-h");
       e.srcElement.classList.toggle("fa-times");
       med.ee.emit('toggle-device-selection', e);

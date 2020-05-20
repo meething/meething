@@ -54,6 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
       e.preventDefault();
       med.ee.emit('toggle-device-selection',e); //fire EventEmitter
+ 
       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
         e.srcElement.classList.toggle("fa-video");
         e.srcElement.classList.toggle("fa-times");

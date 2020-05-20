@@ -1,3 +1,9 @@
+
+/*
+* Module for injecting html elements on other modules
+* To define html elements inside modal.js
+*/
+
 export var lib = (() => {
 let errmsg = '<span class="form-text small text-danger" id="err-msg"></span>';
 let settingmsg = `<small class="text-white m-4 text-center" style="width:100%;" id="setting-msg">Select your audio and video devices</small>`;
@@ -93,8 +99,10 @@ let roometusername = (room, username, passwinput, title, camisset) => {
       ${camisset}
       </div>
 <div class="col-md-4 mt-4 mx-auto text-white">
+
 <div class='mx-auto text-center mb-4'>
 <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/>
+
 </div>
 <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
 <p>You're joining room: <input type="hidden" id="room-name" value="${room}"/> ${title} </p>
@@ -134,6 +142,7 @@ let roometnusername = (room, joinnameinput, passwinput, title, camisset) => {
       </div>
       <div class='col-md-4 mt-4 mx-auto room-form'>
         <div class='mx-auto text-center mb-4'>
+        
           <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
         </div>
       <h4 class='speech-msg'>
@@ -172,7 +181,7 @@ let nroometnusername = (camisset, roomcreated, errmsg, createnameinput, roomcrea
   let roomgen = (room, rand ) => `${room.trim().replace(' ', '_')}_${rand}`;
   let roomLink = (location, roomgen) => `${location}?room=${roomgen}`;
   var copyLink = roomLink => `Room successfully created. Share the
-  <a id="clipMe" href='${roomLink}' title="Click to copy">
+<a id="clipMe" href='${roomLink}' title="Click to copy">
   room link</a>  with your partners.`;
  return {
    errmsg, 
