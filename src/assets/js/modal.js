@@ -351,6 +351,7 @@ export default class Modal {
         if(pval) await med.storePass(pval);
         break;
     }
+    med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     // stuff that is common
     if(!med.myStream){
       await this.resetDevices();
