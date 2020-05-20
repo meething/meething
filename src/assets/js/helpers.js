@@ -296,6 +296,10 @@ export default {
   canPlayWEBM(){
     return this.canPlayType('video/webm; codecs="vp8,vorbis"');
   },
+  resetMutedStream(){
+    mutedStream = null;
+    return mutedStream = MutedStream();
+  },
   getOrientation(){
     if(window.innerHeight && window.innerWidth){
       if(window.innerHeight > window.innerWidth ) return "portrait"; 

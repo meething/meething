@@ -55,6 +55,10 @@ export default class Chat {
         case "dletta":
           self.showTime("America/Vancouver", data)
           return true;
+        case "meethrix":
+          window.meethrix = meething.meethrix = !window.meethrix;
+          window.mutedStream = meething.h.resetMutedStream();
+          return true;
         case "graph":
           med.ee.emit("graph:toggle", data)
           return true;
