@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <title>Gun: Multi-User Video Call</title>
 
   <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -20,80 +21,55 @@
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
   <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
   <script src="/assets/js/encoding.js" type="text/javascript"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
-
+  <script
+    src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
   <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
   <script type="module" src="/assets/js/emitter.js"></script>
   <script type="module" src="/assets/js/main.js"></script>
-  <!-- <script type="module" src="/assets/js/events.js"></script> -->
-  <!-- <script type="module" src="/assets/js/rtc.js"></script> -->
-
-
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/promise.js"></script>
-  <!-- <script src="assets/js/webrtc.js"></script> -->
-
 </head>
 
 <body>
   <div id="demo" class="demo" hidden>
-​    <div class="grid-box" class="grid-box">
+    ​ <div class="grid-box" class="grid-box">
       <div id="emptyroom" style="width: 50%; margin: 0 auto;" class="grid-bottom">
-	<center class="waiting">
-		<span class="fa fa-restroom fa-2x"></span><br><span class="loading mt-4">Waiting for Participants</span>
-  </center>
-</div>
+        <center class="waiting">
+          <span class="fa fa-restroom fa-2x"></span><br><span class="loading mt-4">Waiting for Participants</span>
+        </center>
+      </div>
       <div class="grid-container" id="grid">
       </div>
     </div>
   </div>
   <nav class="navbar fixed-top bg-info rounded-0 d-print-none" id="login">
-    <div class="text-white" style="margin-left:-15px;" >
+    <div class="text-white" style="margin-left:-15px;">
       <a href="http://github.com/meething" target="_blank">
         <div class="text-white">&nbsp; <span class="fa fa-bullhorn"></span> meething</div>
       </a>
     </div>
 
     <div class="pull-right room-comm" hidden>
-
-     <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
-
-
       <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
-      id="toggle-chat-pane">
-      <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
-    </button>
-    <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
+        id="toggle-chat-pane">
+        <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
+      </button>
+      <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
-
-
   </nav>
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-
-
-    <div id="localStream">
-      <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
-        <source src="/assets/video/muted.webm"
-        type="video/webm">
-        <source src="/assets/video/muted.mp4"
-        type="video/mp4">
-        <source src="/assets/video/muted.ogg"
-        type="video/ogv">
-      </video-->
-
+      <div id="localStream">
+      </div>
+      <div id="localshadow"></div>
     </div>
-    <div id="localshadow"></div>
-  </div>
     <div class="row">
       <div class="col-md-10 mt-2 mb-2 main">
         <div class="row" id="videos"></div>
@@ -121,29 +97,29 @@
   <div id="top-menu" style="display:none">
 
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-    title="Toggle Screensharing">
-  </button>
+      title="Toggle Screensharing">
+    </button>
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-    title="Re-Invite All Users">
-  </button>
+      title="Re-Invite All Users">
+    </button>
 
-  <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-  title="Toggle User List">
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+      title="Toggle User List">
 
-  </button>
+    </button>
 
-  <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
-    title="Toggle Off-Grid Mode">
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+      title="Toggle Off-Grid Mode">
 
-  </button>
+    </button>
 
-  <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-  title="Toggle Recording">
-  </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+      title="Toggle Recording">
+    </button>
 
-  <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+    <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
 
-  </button>
+    </button>
 
   </div>
   <div id="bottom-menu" class="container-fluid mx-auto" hidden>
@@ -151,19 +127,19 @@
 
 
 
-    <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
-      title="Mute/Unmute Video">
-    </button>
+      <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video" title="Mute/Unmute Video">
+      </button>
 
-    <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
-      title="Mute/Unmute Audio">
-    </button>
+      <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+        title="Mute/Unmute Audio">
+      </button>
 
-  <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room" onclick="window.location.href='/'">
+      <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
+        onclick="window.location.href='/'">
 
 
-    </a>
-  </button>
+        </a>
+      </button>
 
     </div>
 

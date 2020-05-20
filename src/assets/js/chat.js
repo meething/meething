@@ -15,63 +15,61 @@ export default class Chat {
   }
 
   /* A message is sending out from me */
-  broadcast (data) {
+  broadcast(data) {
     let senderType = "local";
     if (!self.executeCommand(data)) {
-        if (data.sender && data.to && data.sender == data.to) return;
-        if (!data.ts) data.ts = Date.now();
-        med.ee.emit("chat:IntMsg", data);
-        med.metaData.sendChatData(data);
-        self.showInChat(data, senderType);
+      if (data.sender && data.to && data.sender == data.to) return;
+      if (!data.ts) data.ts = Date.now();
+      med.ee.emit("chat:IntMsg", data);
+      med.metaData.sendChatData(data);
+      self.showInChat(data, senderType);
     }
 
   }
 
-  receiver (data) {
-    if(data.event !== "chat"){return;}
+  receiver(data) {
+    if (data.event !== "chat") { return; }
     let senderType = "remote";
     self.showInChat(data, senderType);
   }
 
-
-
-  executeCommand (data) {
+  executeCommand(data) {
     if (data.msg.startsWith("/")) {
-        var trigger = data.msg.replace("/", "");
-        switch (trigger) {
-            case "help":
-                data.msg = "Welcome to chat commands these are your options:<br>" +
-                    "/help - this will trigger this information";
-                self.showInChat(data);
-                return true;
-            case "qxip":
-            case "qvdev":
-                self.showTime("Europe/Amsterdam", data)
-                return true;
-            case "jabis":
-                self.showTime("Asia/Bangkok",data)
-                return true;
-            case "joe":
-                data.msg = "&#128526;"
-                return true;
-            case "dletta":
-                self.showTime("America/Vancouver",data)
-                return true;
-            case "graph":
-                med.ee.emit("graph:toggle", data)
-                return true;
-            case "graphU":
-                med.ee.emit("graph:update", data)
-                return true;
-            default:
-                return false;
-        }
+      var trigger = data.msg.replace("/", "");
+      switch (trigger) {
+        case "help":
+          data.msg = "Welcome to chat commands these are your options:<br>" +
+            "/help - this will trigger this information";
+          self.showInChat(data);
+          return true;
+        case "qxip":
+        case "qvdev":
+          self.showTime("Europe/Amsterdam", data)
+          return true;
+        case "jabis":
+          self.showTime("Asia/Bangkok", data)
+          return true;
+        case "joe":
+          data.msg = "&#128526;"
+          return true;
+        case "dletta":
+          self.showTime("America/Vancouver", data)
+          return true;
+        case "graph":
+          med.ee.emit("graph:toggle", data)
+          return true;
+        case "graphU":
+          med.ee.emit("graph:update", data)
+          return true;
+        default:
+          return false;
+      }
     } else {
-        return false;
+      return false;
     }
   }
 
-  showInChat (data, senderType) {
+  showInChat(data, senderType) {
     if (data == self.cache) {
       self.cache = null;
       return;
@@ -113,13 +111,11 @@ export default class Chat {
   }
 
   async showTime(timezone, data) {
-      let response = await fetch("https://worldtimeapi.org/api/timezone/" + timezone);
-      if (response.ok) {
-          let json = await response.json();
-          data.msg = json.datetime;
-          this.showInChat(data);
-      }
+    let response = await fetch("https://worldtimeapi.org/api/timezone/" + timezone);
+    if (response.ok) {
+      let json = await response.json();
+      data.msg = json.datetime;
+      this.showInChat(data);
+    }
   }
-
-//////
 }
