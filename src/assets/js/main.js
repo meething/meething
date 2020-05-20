@@ -1,7 +1,7 @@
 // Import all the modules here instead of index.html
 import config from './config.js';
 import h from "./helpers.js";
-import ChatEvents from "./chatevents.js";
+
 // new ones here
 import Conn from "./connection.js";
 import Graph from "./graphThing.js";
@@ -11,11 +11,11 @@ import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
 let mGraph,
-  mModal,
-  mChat,
-  mConn,
-  mToggles,
-  mUex;
+    mModal,
+    mChat,
+    mConn,
+    mToggles,
+    mUex;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -48,14 +48,13 @@ function Mediator() {
   this.socketId; //this clients socketId (MCU only)
   this.presence; // keep here for others to use
   this.metaData; // separate module
-  this.chatEvents; //chat module
   this.modal;
   this.chat;
   this.conn;
   this.toggles;
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
-    this.graph;
+  this.graph;
 
   /* Define 'Workflows' that consist of work across modules
   */
@@ -108,11 +107,9 @@ function Mediator() {
     })
   }
 
-  /* BIG TODO Communications Module for initiating RTC
-  */
-
+  /* Call connection module to establish connection */
+  
   this.initComm = function () {
-    // only MCU right now
     mConn.establish()
   }
 
