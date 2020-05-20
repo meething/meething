@@ -159,7 +159,7 @@
 
 
 .tingle-enabled .tingle-content-wrapper {
-  filter: blur(1px);
+
 }
 
 .tingle-modal--visible {
@@ -288,46 +288,17 @@
   }
 }
 
-@supports (
-  (-webkit-backdrop-filter: blur(2px)) or (backdrop-filter: blur(2px))
-) {
-  .tingle-modal:before {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    content: "";
-    backdrop-filter: blur(2px);
 
-    -webkit-backdrop-filter: blur(2px);
-  }
-
-  .tingle-enabled .tingle-content-wrapper {
-    filter: none;
-  }
-}
 
 /* animations
 -------------------------------------------------------------- */
-
-@keyframes scale {
-  0% {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
 
 .speech-bubble {
   z-index: 999;
   height: 100vh;
   background: black;
   position: absolute;
-  left: -350px;
+  left: -100vw;
   top: 0px;
   border-radius: 3px;
   color: rgb(58, 58, 58);
@@ -335,7 +306,7 @@
   display: grid;
   margin-bottom: 10px;
   margin-top: 20px;
-  width: 350px;
+  width: 100vw;
   transition:.5s ease all;
 
 }
@@ -389,12 +360,13 @@
 .preview-video-buttons button {
   display: block;
  border:none;
-  height: 50px;
-  width: 50px;
-  background: none;
+  height: 40px;
+  width: 40px;
+  background: #3f069c;
   transition: 0.5s all;
   position: relative;
   z-index: 1000;
+  border-radius:6px;
 
 }
 .preview-video-buttons button {
@@ -429,12 +401,12 @@
   position:absolute;
   left:30px;
   top:50px;
-  width: 45px;
-  height: 45px;
+  width: 35px;
+  height: 35px;
   padding: 7px 0px;
   border-radius: 15px;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.42857;
   color: white !important;
   z-index:10000;

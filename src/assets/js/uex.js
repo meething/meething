@@ -29,6 +29,10 @@ export default class UEX {
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
+        if(window.innerWidth < 412){
+          document.querySelector('#local').classList.toggle('video-mini');
+        }
+       
         med.ee.emit('uex:ChatPaneToggle', e);
         //remove the 'New' badge on chat icon (if any) once chat is opened.
         setTimeout(() => {

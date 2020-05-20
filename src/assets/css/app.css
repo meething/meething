@@ -42,6 +42,12 @@ body {
   height: 100px;
   width: 150px;
   z-index: 1000;
+  transition:.5s all;
+}
+.video-mini {
+  width:20px;
+  height:10px;
+
 }
 #chat-messages {
   padding: 15px;
@@ -57,7 +63,15 @@ body {
   width: 0px; /* remove scrollbar space */
   background: transparent;
 }
+#chat-input{
+  position:sticky;
+ 
 
+}
+#chat-send{
+  bottom:30px;
+  color:white;
+}
 .chat-box {
   bottom: 30px;
   right: 0;
@@ -76,17 +90,20 @@ body {
 
 }
 
-.chat-box,
-.chat-box:focus {
+.chat-box
+ {
   padding:10px;
   z-index:1000;
-  background:#473761;
+  background:none;
   color:white;
   resize: none !important;
   box-shadow: none !important;
   border-bottom:2px solid orange;
 }
-
+.chat-box:focus {
+  background:#473761;
+  color:white;
+}
 .chat-row {
   height: 100%;
   overflow-x: scroll;
@@ -151,12 +168,14 @@ body {
 .very-small {
   font-size: 6px !important;
 }
-
+@media only screen and (min-width:732px) {
+  #chat-messages{height:70vh}
+}
 @media only screen and (min-width: 1767px) {
 
   .chat-col {
-    right: -70vw;
-    width: 70vw;
+    right: -75vw;
+    width: 75vw;
     z-index: 999;
     transition: 0.3s;
     top: 47px;
@@ -206,6 +225,7 @@ body {
   .chat-box {
     bottom: 90px;
     margin-bottom: 0px;
+    background:none;
   }
 }
 @media only screen and (max-width: 1767px) {
@@ -233,9 +253,7 @@ body {
 
 
 
-  #chat-messages {
-    height: 60vh;
-  }
+
 
   .chat-box {
     bottom: 90px;
@@ -583,9 +601,7 @@ margin-bottom:10px;
 .yellow {
   background:orange;
 }
-.shadow {
-  box-shadow: 1px 1px 3px black;
-}
+
 #top-menu {
   position:absolute;
   padding:15px;
