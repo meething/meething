@@ -63,7 +63,7 @@ export default class Connection {
       if (data.socketId == med.socketId || data.sender == med.socketId) return;
       if (data.sender == med.username) return;
       if (med.DEBUG) console.log("got chat", data);
-      med.h.addChat(data, "remote");
+      med.ee.emit("chat:ExtMsg", data);
     } else if (data.event == "notification") {
       if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == med.username) return;
       if (data.subEvent == "recording") {

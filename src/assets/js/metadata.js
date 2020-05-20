@@ -1,3 +1,5 @@
+var self = null;
+
 export default class MetaData {
     constructor(gun, room, socketId, callback) {
         this.room = room;
@@ -5,47 +7,50 @@ export default class MetaData {
         this.socketId = socketId;
         this.callback = callback;
         this.inMap = false;
+        self = this;
+
+        return this;
     }
 
     receiveData(data) {
         if (!data) {
             return
         } else {
-            if (this.callback) {
-                this.callback(data);
+            if (self.callback) {
+                self.callback(data);
             }
         }
     }
 
     initMap() {
         var data = {};
-        data.socketId = this.socketId;
-        data.pid = this.root._.opt.pid;
-        let metaData = this.root.get(this.root._.opt.pid).put(data);
-        this.root.get(this.room).set(metaData);
+        data.socketId = self.socketId;
+        data.pid = self.root._.opt.pid;
+        let metaData = self.root.get(self.root._.opt.pid).put(data);
+        self.root.get(self.room).set(metaData);
     }
 
     sendControlData(data) {
         data.event = "control";
-        this.send(data);
+        self.send(data);
     }
 
     sendChatData(data) {
         data.event = "chat";
-        this.send(data);
+        self.send(data);
     }
 
     sendNotificationData(data) {
         data.ts = Date.now();
         data.event = "notification";
-        this.send(data);
+        self.send(data);
     }
 
     send(data) {
-        data.socketId = this.socketId;
-        data.pid = this.root._.opt.pid;
-        data.room = this.room;
-        this.root.on("out", {
+        data.socketId = self.socketId;
+        data.pid = self.root._.opt.pid;
+        data.room = self.room;
+        self.root.on("out", {
             metaData: data
         });
     }
