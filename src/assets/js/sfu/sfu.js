@@ -81,9 +81,23 @@ export default class SFU extends EventEmitter {
     }
 
     async startScreenShare() {
-        var stream = await helper.getDisplayMedia({ audio: true, video: true });
+        var stream = await helper.getDisplayMedia({ 
+            audio: false, 
+            video: {
+                height: {
+                    ideal: 720,
+                    max: 720,
+                    min: 720,
+                    frameRate: {
+                        ideal: 15,
+                        min: 10
+                    }
+                }
+            }
+        });
         var screenTrack = stream.getVideoTracks()[0];
         this.screenProducer = await this.sfuRoom.sendScreen(screenTrack);
+        // this.screenProducer.setRtpEncodingParameters({ maxBitrate: 150000 })
     }
 
     //Move this to a helper?
