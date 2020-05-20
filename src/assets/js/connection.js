@@ -8,7 +8,7 @@ import Presence from "./presence.js";
 // create global scope to avoid .bind(this)
 var med = null;
 var self = null;
-const SFU_ENABLED = false;
+const SFU_ENABLED = true;
 
 export default class Connection {
   constructor(mediator) {
