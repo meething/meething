@@ -49,7 +49,7 @@ export default class UEX {
         };
         med.chat.broadcast(chatMessage);
         document.querySelector('#chat-input').innerHTML = '';
-        //document.querySelector('#chat-input').blur();
+        document.querySelector('#chat-input').blur();
       }
     });
     // CHAT: On button, emit to chat
