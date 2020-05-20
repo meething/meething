@@ -289,7 +289,6 @@
 }
 
 
-
 /* animations
 -------------------------------------------------------------- */
 
@@ -302,14 +301,16 @@
   top: 0px;
   border-radius: 3px;
   color: rgb(58, 58, 58);
-  padding: 20px;
   display: grid;
   margin-bottom: 10px;
   margin-top: 20px;
+  padding: 20px;
+  padding-top:50px;
   width: 100vw;
   transition:.5s ease all;
-
+  overflow-y:auto;
 }
+
 .speech-bubble-open{
   left:0px;
 }
