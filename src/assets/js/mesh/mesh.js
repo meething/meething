@@ -261,26 +261,6 @@ export default class Mesh {
 
             });
 
-            document.getElementById("record-toggle").addEventListener("click", e => {
-                e.preventDefault();
-
-                if (!med.isRecording) {
-                    med.h.recordAudio();
-                    med.isRecording = true
-                    e.srcElement.classList.add("text-danger");
-                    e.srcElement.classList.remove("text-white");
-                    med.h.showNotification("Recording Started");
-
-                } else {
-                    med.h.stopRecordAudio()
-                    med.isRecording = false
-                    e.srcElement.classList.add("text-white");
-                    e.srcElement.classList.remove("text-danger");
-                    med.h.showNotification("Recording Stopped");
-                }
-                med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
-            });
-
             window.ee.on("audio-toggled", function () {
                 var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
                 var mine = med.myStream ? med.myStream : muted;

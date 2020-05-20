@@ -11,6 +11,7 @@ export default class Toggles {
     this.initToggleVideo();
     this.initToggleAudio();
     this.initToggleScreenShare();
+    this.initToggleAudioRecording();
   }
 
   initToggleVideo() {
@@ -66,6 +67,27 @@ export default class Toggles {
         e.srcElement.classList.remove("text-black");
       }
       window.ee.emit("screen-toggled")
+    });
+  }
+
+  initToggleAudioRecording() {
+    document.getElementById("record-toggle").addEventListener("click", e => {
+      e.preventDefault();
+      if (!med.isRecording) {
+        med.h.recordAudio();
+        med.isRecording = true
+        e.srcElement.classList.add("text-danger");
+        e.srcElement.classList.remove("text-white");
+        med.h.showNotification("Recording Started");
+      } else {
+        med.h.stopRecordAudio()
+        med.isRecording = false
+        e.srcElement.classList.add("text-white");
+        e.srcElement.classList.remove("text-danger");
+        med.h.showNotification("Recording Stopped");
+      }
+      med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
+      window.ee.emit("record-audio-toggled")
     });
   }
 }

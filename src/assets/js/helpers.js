@@ -331,6 +331,10 @@ export default {
     const sink = audio.value;
     return this.attachSinkToVideo(video, sink, audio);
   },
+  setAudioTrack(video, track) {
+    video.srcObject.addTrack(track);
+    this.addAudio(video.srcObject);
+  },
   setVideoSrc(video,mediaSource){
     let source,tof="";
     this.addAudio(mediaSource);
