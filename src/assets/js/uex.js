@@ -48,7 +48,7 @@ export default class UEX {
           msg: val
         };
         med.chat.broadcast(chatMessage);
-        document.querySelector('#chat-input').innerHTML = '';
+        document.querySelector('#chat-input').value = '';
         document.querySelector('#chat-input').blur();
       }
     });
