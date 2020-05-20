@@ -1,6 +1,3 @@
-// need to split this intelligently, might be above me
-import Presence from "../presence.js";
-
 // create global scope to avoid .bind(this)
 var self = null;
 var med = null;
@@ -19,11 +16,8 @@ export default class Mesh {
         self.inited = true;
 
         med.damSocket.on("postauth", function (auth) {
-            self.initPresence();
-            med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
 
-            console.log("Starting! you are", med.socketId);
-            med.presence.update(med.username, med.socketId);
+        console.log("Starting! you are", med.socketId);
 
             // Initialize Session
             med.damSocket.out("subscribe", {
@@ -384,13 +378,6 @@ export default class Mesh {
         });
     }
 
-    initPresence() {
-        med.presence = new Presence(med.root, med.room);
-        med.damSocket.setPresence(med.presence);
-        // why not use natural typeOf? don't tell me edge doesn't support that?? @jabis
-        if (med.h.typeOf(med.presence.enter) == "function") med.presence.enter();
-    }
-
     metaDataReceived(data) {
         if (data.event == "chat") {
             if (data.ts && Date.now() - data.ts > 5000) return;
@@ -705,7 +692,7 @@ export default class Mesh {
                     break;
             }
         };
-        ///////
+
     }
 
     setMediaBitrates(sdp) {
