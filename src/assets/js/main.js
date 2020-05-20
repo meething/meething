@@ -111,7 +111,7 @@ function Mediator() {
   /* Call connection module to establish connection */
   
   this.initComm = function () {
-    mConn.establish()
+    setTimeout(function() { mConn.establish(); }, 800);
   }
 
   /* Helper functions that need to be here for now until modules are more split
