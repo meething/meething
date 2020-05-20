@@ -234,7 +234,6 @@ export default class Modal {
       med.h.setVideoSrc(ve,stream);
       med.h.replaceStreamForPeers(med.pcMap, stream);
       ve.oncanplay = function(){ _modal.checkOverflow(); }
-      med.initComm();
       return Object.keys(devices).length>0 ? devices : med.h.getDevices();
     }).then(devices=>{
       self.navigatorGotDevices(devices);
@@ -364,6 +363,7 @@ export default class Modal {
     }
     med.initSocket().then(sock=>{
       info.modal.close();
+      med.initComm();
     })
     return this;
   }
