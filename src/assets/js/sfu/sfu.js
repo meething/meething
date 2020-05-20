@@ -88,10 +88,6 @@ export default class SFU extends EventEmitter {
                     ideal: 720,
                     max: 720,
                     min: 720,
-                    frameRate: {
-                        ideal: 15,
-                        min: 10
-                    }
                 }
             }
         });
