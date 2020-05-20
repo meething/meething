@@ -16,13 +16,13 @@ export default class Room extends EventEmitter {
 
         try {
             // Select SFU Server from config or try self
-            var SFU_URL = process.env.SFU_URL ? process.env.SFU_URL : "wss://" + window.location.hostname + ":2345";
-            if (SFU_URL.charAt(SFU_URL.length - 1) == "/") SFU_URL = SFU_URL.substr(0, SFU_URL.length - 1);
-            console.log("Joining SFU", SFU_URL);
+            var SFU_URL = "wss://" + window.location.hostname + ":2345";
+            console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
+            if(!wsTransport.onopen){throw 'local connection not working'};
             this.peer = new Peer(wsTransport);
         } catch (e) {
-            console.log('SFU Failover! Use defaults');
+            console.log('SFU Failover! Use Remote default');
             var SFU_URL = 'wss://meething.space:2345'
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
             this.peer = new Peer(wsTransport);

@@ -1,23 +1,26 @@
 // Import all the modules here instead of index.html
 import config from './config.js';
 import h from "./helpers.js";
-import ChatEvents from "./chatevents.js";
+
 // new ones here
 import Conn from "./connection.js";
 import Graph from "./graphThing.js";
 import Chat from "./chat.js";
 import Modal from "./modal.js";
+import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
 let mGraph,
-  mModal,
-  mChat,
-  mConn,
-  mToggles;
+    mModal,
+    mChat,
+    mConn,
+    mToggles,
+    mUex;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
   // module specific state should be kept in the module (I think?)
+  this.SFU_ENABLED = true;
   this.DEBUG = true;
   this.TIMEGAP = 6000; //RTC Module?
   this.allUsers = []; // needs to live here
@@ -46,14 +49,13 @@ function Mediator() {
   this.socketId; //this clients socketId (MCU only)
   this.presence; // keep here for others to use
   this.metaData; // separate module
-  this.chatEvents; //chat module
   this.modal;
   this.chat;
   this.conn;
   this.toggles;
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
-    this.graph;
+  this.graph;
 
   /* Define 'Workflows' that consist of work across modules
   */
@@ -63,7 +65,9 @@ function Mediator() {
   */
 
   this.welcomeMat = function () {
+    this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.modal.createModal(); // create and display
+    this.uex.afterModalRegister(); // attach listeners to items in modal
   };
 
   /* Initiate sockets and get stuff set up for streaming
@@ -104,11 +108,9 @@ function Mediator() {
     })
   }
 
-  /* BIG TODO Communications Module for initiating RTC
-  */
-
+  /* Call connection module to establish connection */
+  
   this.initComm = function () {
-    // only MCU right now
     mConn.establish()
   }
 
@@ -176,11 +178,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mChat = new Chat(meething);
   mConn = new Conn(meething);
   mToggles = new Toggles(meething);
+  mUex = new UEX(meething);
+
   meething.graph = mGraph;
   meething.chat = mChat;
   meething.conn = mConn;
   meething.modal = mModal;
   meething.toggles = mToggles;
+  meething.uex = mUex;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 

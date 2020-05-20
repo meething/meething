@@ -13,7 +13,7 @@ export default class Modal {
   }
   // function that creates the modal and then renders it
   createModal () {
-    med.room = med.h.getQString(location.href, "room") ? med.h.getQString(location.href, "room") : "";
+    med.room = med.h.getQString(location.href, "room") || sessionStorage && sessionStorage.getItem("roomname") ? med.h.getQString(location.href, "room") || sessionStorage.getItem("roomname") : "";
     med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     med.title = med.room.replace(/(_.*)/, '');
     if (med.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerHTML = med.title;
@@ -24,7 +24,7 @@ export default class Modal {
       stickyFooter: false,
       onOpen: self.tingleOnOpen
     });
-    
+
     this._modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
@@ -61,7 +61,7 @@ export default class Modal {
     if(med.room && med.username){
       // Welcome back xX!
       modalContent = lib.roometusername(med.room,med.username,passwinput ,med.title,cammicsetc)
-    
+
       self.loadModal(_modal,modalContent,'join');
       return this;
 
@@ -129,7 +129,9 @@ export default class Modal {
                 sessionStorage.setItem('username', yourName);
                 //create room link
                 let roomgen = lib.roomgen(roomName,med.h.generateRandomString())
-                let roomLink = lib.roomLink(location.origin,roomgen) 
+                // save room name in sessionStorage
+                sessionStorage.setItem('roomname', roomgen);
+                let roomLink = lib.roomLink(location.origin,roomgen)
                 var copyLink = lib.copyLink(roomLink)
                 //
                 med.room = roomgen;
@@ -232,7 +234,6 @@ export default class Modal {
       med.h.setVideoSrc(ve,stream);
       med.h.replaceStreamForPeers(med.pcMap, stream);
       ve.oncanplay = function(){ _modal.checkOverflow(); }
-      med.initComm();
       return Object.keys(devices).length>0 ? devices : med.h.getDevices();
     }).then(devices=>{
       self.navigatorGotDevices(devices);
@@ -349,8 +350,9 @@ export default class Modal {
         if(pval) await med.storePass(pval);
         break;
     }
+    med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     // stuff that is common
-    if(!med.myStream){ 
+    if(!med.myStream){
       await this.resetDevices();
     }
     var ve = document.getElementById('local');
@@ -361,6 +363,7 @@ export default class Modal {
     }
     med.initSocket().then(sock=>{
       info.modal.close();
+      med.initComm();
     })
     return this;
   }

@@ -1,6 +1,3 @@
-// need to split this intelligently, might be above me
-import Presence from "../presence.js";
-
 // create global scope to avoid .bind(this)
 var self = null;
 var med = null;
@@ -19,11 +16,8 @@ export default class Mesh {
         self.inited = true;
 
         med.damSocket.on("postauth", function (auth) {
-            self.initPresence();
-            med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
 
-            console.log("Starting! you are", med.socketId);
-            med.presence.update(med.username, med.socketId);
+        console.log("Starting! you are", med.socketId);
 
             // Initialize Session
             med.damSocket.out("subscribe", {
@@ -261,26 +255,6 @@ export default class Mesh {
 
             });
 
-            document.getElementById("record-toggle").addEventListener("click", e => {
-                e.preventDefault();
-
-                if (!med.isRecording) {
-                    med.h.recordAudio();
-                    med.isRecording = true
-                    e.srcElement.classList.add("text-danger");
-                    e.srcElement.classList.remove("text-white");
-                    med.h.showNotification("Recording Started");
-
-                } else {
-                    med.h.stopRecordAudio()
-                    med.isRecording = false
-                    e.srcElement.classList.add("text-white");
-                    e.srcElement.classList.remove("text-danger");
-                    med.h.showNotification("Recording Stopped");
-                }
-                med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
-            });
-
             window.ee.on("audio-toggled", function () {
                 var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
                 var mine = med.myStream ? med.myStream : muted;
@@ -402,13 +376,6 @@ export default class Mesh {
                 }
             });
         });
-    }
-
-    initPresence() {
-        med.presence = new Presence(med.root, med.room);
-        med.damSocket.setPresence(med.presence);
-        // why not use natural typeOf? don't tell me edge doesn't support that?? @jabis
-        if (med.h.typeOf(med.presence.enter) == "function") med.presence.enter();
     }
 
     metaDataReceived(data) {
@@ -725,7 +692,7 @@ export default class Mesh {
                     break;
             }
         };
-        ///////
+
     }
 
     setMediaBitrates(sdp) {
