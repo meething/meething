@@ -57,8 +57,9 @@ function Mediator() {
   this.conn;
   this.toggles;
   this.h = h;
-  this.ee = window.ee = new EventEmitter(),
-    this.graph;
+  this.ee = window.ee = new EventEmitter();
+  this.graph;
+  this.enablePoseDetection = true; // Flag to enable pose detection
 
   /* Define 'Workflows' that consist of work across modules
   */
@@ -182,7 +183,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mConn = new Conn(meething);
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
-  mPose = new PoseDetector(meething);
+
+  if (enablePoseDetection)
+    mPose = new PoseDetector(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
@@ -190,6 +193,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.modal = mModal;
   meething.toggles = mToggles;
   meething.uex = mUex;
+
+  if (enablePoseDetection)
+    meething.poseDetector = mPose;
+
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 
