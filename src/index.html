@@ -19,10 +19,6 @@
   <link rel="stylesheet" href="assets/css/tingle.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
-  <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
-  <script src="/assets/js/encoding.js" type="text/javascript"></script>
-  <script
-    src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
 
   <!-- TODO: ADD THESE IN WEBWORKER -->
   <!-- Load TensorFlow.js -->
@@ -31,8 +27,10 @@
   <script src="https://unpkg.com/@tensorflow-models/posenet"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
   <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
-
-
+  <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
+  <script src="/assets/js/encoding.js" type="text/javascript"></script>
+  <script
+    src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
   <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
@@ -66,170 +64,101 @@
     </div>
 
     <div class="pull-right room-comm" hidden>
-      <<<<<<< HEAD <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
-
-
-        =======
-        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
-        <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
-          id="toggle-chat-pane">
-          <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
-        </button>
-        <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
+      <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
+        id="toggle-chat-pane">
+        <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
+      </button>
+      <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
   </nav>
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-      <<<<<<< HEAD <div id="localStream">
-        <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
-        <source src="/assets/video/muted.webm"
-        type="video/webm">
-        <source src="/assets/video/muted.mp4"
-        type="video/mp4">
-        <source src="/assets/video/muted.ogg"
-        type="video/ogv">
-      </video-->
-
-        =======
-        <div id="localStream">
-        </div>
-        <div id="localshadow"></div>
+      <div id="localStream">
+      </div>
+      <div id="localshadow"></div>
     </div>
     <div class="row">
       <div class="col-md-10 mt-2 mb-2 main">
         <div class="row" id="videos"></div>
-        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
       </div>
-      <div class="row">
-        <div class="col-md-10 mt-2 mb-2 main">
-          <div class="row" id="videos"></div>
-        </div>
 
-        <div class="col-md-4 chat-col d-print-none mb-2 bg-info" id="chat-pane">
-          <div class="row">
-            <div class="col-12 text-center h5 mb-3" id="chat-title">
-              ChatRoom
-            </div>
+      <div class="col-md-4 chat-col d-print-none mb-2 bg-info" id="chat-pane">
+        <div class="row">
+          <div class="col-12 text-center h5 mb-3" id="chat-title">
+            ChatRoom
           </div>
-
-          <div id="chat-messages"></div>
-
-          <<<<<<< HEAD <div class="row">
-            <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="3"
-              placeholder="Type here..."></textarea>
         </div>
-        =======
+
+        <div id="chat-messages"></div>
+
         <div class="row">
           <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="1"
             placeholder="Type here..."></textarea><br>
           <button id="chat-send" class="form-control btn btn-primary rounded-0 chat-button">
             <i class="fas fa-paper-plane"></i>
           </button>
-          >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
         </div>
       </div>
     </div>
-    <div id="top-menu" style="display:none">
+  </div>
+  <div id="top-menu" style="display:none">
 
-      <<<<<<< HEAD <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-        title="Toggle Screensharing">
-        </button>
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-          title="Re-Invite All Users">
-        </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+      title="Toggle Screensharing">
+    </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+      title="Re-Invite All Users">
+    </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-          title="Toggle User List">
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+      title="Toggle User List">
 
-        </button>
+    </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
-          title="Toggle Off-Grid Mode">
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+      title="Toggle Off-Grid Mode">
 
-        </button>
+    </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-          title="Toggle Recording">
-        </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+      title="Toggle Recording">
+    </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+    <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
 
-        </button>
-        =======
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-          title="Toggle Screensharing">
-        </button>
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-          title="Re-Invite All Users">
-        </button>
+    </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-          title="Toggle User List">
+  </div>
+  <div id="bottom-menu" class="container-fluid mx-auto" hidden>
+    <div class="buttons-container d-flex justify-content-center mx-auto">
 
-        </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
-          title="Toggle Off-Grid Mode">
 
-        </button>
+      <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video" title="Mute/Unmute Video">
+      </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-          title="Toggle Recording">
-        </button>
+      <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+        title="Mute/Unmute Audio">
+      </button>
 
-        <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+      <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
+        onclick="window.location.href='/'">
 
-        </button>
-        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
+
+        </a>
+      </button>
 
     </div>
-    <div id="bottom-menu" class="container-fluid mx-auto" hidden>
-      <div class="buttons-container d-flex justify-content-center mx-auto">
 
+  </div>
+  <div id="mydiv" style="display: none;">
+    <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
+    <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
+    <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
+  </div>
 
-
-        <<<<<<< HEAD <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
-          title="Mute/Unmute Video">
-          </button>
-
-          <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
-            title="Mute/Unmute Audio">
-          </button>
-
-          <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
-            onclick="window.location.href='/'">
-
-
-            </a>
-          </button>
-          =======
-          <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
-            title="Mute/Unmute Video">
-          </button>
-
-          <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
-            title="Mute/Unmute Audio">
-          </button>
-
-          <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
-            onclick="window.location.href='/'">
-
-
-            </a>
-          </button>
-          >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
-
-      </div>
-
-    </div>
-    <div id="mydiv" style="display: none;">
-      <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
-      <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
-      <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
-    </div>
-
-    <div id="snackbar"></div>
+  <div id="snackbar"></div>
 </body>
 
 </html>
