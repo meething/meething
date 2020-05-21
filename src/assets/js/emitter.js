@@ -12,10 +12,10 @@ export default class DamEventEmitter extends EventEmitter {
     this.checkAuth();
     return this;
   }
-  async reinit(){
+  async reinit() {
     var self = this;
-    return new Promise(async(res,rej)=>{
-      if(window.reinit) {
+    return new Promise(async (res, rej) => {
+      if (window.reinit) {
         let socks = await window.reinit();
         console.log(socks);
         self.root = socks.root;
@@ -27,37 +27,37 @@ export default class DamEventEmitter extends EventEmitter {
       }
     })
   }
-  async checkAuth(){
+  async checkAuth() {
     console.log("checking auth");
     var self = this;
-    if(self.user.is) self.user.leave();
-    this.root.get("meething").get(this.room).on(async function(data,key,g,events){
+    if (self.user.is) self.user.leave();
+    this.root.get("meething").get(this.room).on(async function (data, key, g, events) {
       events.off();
-      console.log('data',data,key);
-      if(data && data.hasOwnProperty('passwordProtected')){
-        console.log("are we password protected?",data.passwordProtected ? 'yes' : 'no');
-        if(!data.passwordProtected) { 
-          return self.emit('auth:ok',data);
+      console.log('data', data, key);
+      if (data && data.hasOwnProperty('passwordProtected')) {
+        console.log("are we password protected?", data.passwordProtected ? 'yes' : 'no');
+        if (!data.passwordProtected) {
+          return self.emit('auth:ok', data);
         } else {
           self = await self.reinit(); // let the magic happen reconnecting gun because of reasons
           console.log("OK searching for user hash");
-          var hash = self.get('rooms['+self.room+'].hash');
-          console.log("hash found?",hash);
-          if(hash){
+          var hash = self.get('rooms[' + self.room + '].hash');
+          console.log("hash found?", hash);
+          if (hash) {
             console.log("trying to authenticate");
-            self.user.auth(self.room,hash,function(ack){
-              if(ack.err){ 
-                console.warn("error authenticating",self.room,"with hash",hash, "had error:",ack.err); 
-                return self.emit('auth:fail',{err:ack.err}); 
+            self.user.auth(self.room, hash, function (ack) {
+              if (ack.err) {
+                console.warn("error authenticating", self.room, "with hash", hash, "had error:", ack.err);
+                return self.emit('auth:fail', { err: ack.err });
               }
               self.emit('auth:ok', data);
             });
           } else {
-            return self.emit('auth:fail',{err:'No credentials!'});
+            return self.emit('auth:fail', { err: 'No credentials!' });
           }
         }
       } else {
-        console.warn("something wrong with data",data,key);
+        console.warn("something wrong with data", data, key);
       }
     });
     return this;
@@ -69,7 +69,7 @@ export default class DamEventEmitter extends EventEmitter {
   getPresence() {
     return this.presence ? this.presence : false;
   }
- 
+
   setMetaData(metaData) {
     this.metaData = metaData;
   }
@@ -87,8 +87,8 @@ export default class DamEventEmitter extends EventEmitter {
   init() {
     const self = this;
     this.pid = this.root._.opt.pid;
-    this.on('auth:ok',function(auth){
-      self.emit('postauth',auth);
+    this.on('auth:ok', function (auth) {
+      self.emit('postauth', auth);
       self.root.on("in", function (msg) {
         if (msg && msg.event && self.getPresence()) {
           let presence = self.getPresence();
@@ -106,31 +106,31 @@ export default class DamEventEmitter extends EventEmitter {
             switch (msg.signaling) {
               case "subscribe":
                 if (msg.data.socketId) {
-                // console.log("DAM: subscribe from", msg.data.socketId);
+                  // console.log("DAM: subscribe from", msg.data.socketId);
                   self.emit('Subscribe', msg.data);
                 }
                 break;
               case "newUserStart":
-              // console.log("DAM: newUserStart " + msg.data);
+                // console.log("DAM: newUserStart " + msg.data);
                 self.emit('NewUserStart', msg.data);
                 break;
               case "icecandidates":
-              //  console.log("DAM: icecandidates");
+                //  console.log("DAM: icecandidates");
                 self.emit('IceCandidates', msg.data);
                 break;
               case "sdp":
-              //  console.log("DAM: sdp");
+                //  console.log("DAM: sdp");
                 self.emit('SDP', msg.data);
                 break;
               default:
-            //   console.log("DAM: Unknown signaling " + msg.signaling);
+                //   console.log("DAM: Unknown signaling " + msg.signaling);
                 break;
             }
           } else {
             console.error("Should never happen privacy issue we got msg for other room " + msg.data.room);
           }
           if (msg.to && msg.to == self.pid) {
-          //  console.log("DAM: signaling for our local peer!", msg.data);
+            //  console.log("DAM: signaling for our local peer!", msg.data);
           }
         }
       });
