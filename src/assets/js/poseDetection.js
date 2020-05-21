@@ -1,11 +1,13 @@
 /// VIP - Video should be square for this to work !!
-
+var med = null;
 export default class PoseDetector {
     constructor(mediator) {
-        // self = this;
+        med = mediator;
+        var self = this;
         window.ee.on('navigator:gotDevices', devices => {
-            this.init();
-            this.sampleAndDetect();
+            self.init();
+            self.sampleAndDetect();
+            self.addEventListeners();
         });
     }
 
@@ -46,7 +48,6 @@ export default class PoseDetector {
             this.faceModel = await facemesh.load();
             this.loadedModel = true;
         }
-
 
     }
     //var webWorker = new Worker('/assets/js/poseWorker.js');
@@ -127,6 +128,20 @@ export default class PoseDetector {
 
         poseDetectionFrame();
 
+    }
+
+    addEventListeners() {
+        this.video.addEventListener('poseDetected', e => {
+            console.log("caught pose detection - sending");
+            sendFaceMeshAndPose(e.detail);
+
+        });
+    }
+
+    sendFaceMeshAndPose(poseMeta) {
+        if (med.metaData != null && poseMeta != undefined) {
+            med.metaData.sendControlData({ username: med.username, id: med.socketId, faceMesh: poseMeta.faceMesh, pose: poseMeta.pose });
+        }
     }
 
 }
