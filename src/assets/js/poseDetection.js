@@ -94,7 +94,7 @@ export default class PoseDetector {
                 //webWorker.postMessage(message, [input]);
 
                 self.faceDetection = await self.faceModel.estimateFaces(input, false, false);
-                console.log("Facemesh detected : ", self.faceDetection);
+                //console.log("Facemesh detected : ", self.faceDetection);
                 let poses = [];
                 let all_poses = await self.poseModel.estimatePoses(input, {
                     flipHorizontal: true,
@@ -103,7 +103,7 @@ export default class PoseDetector {
                     scoreThreshold: self.minPartConfidence,
                     nmsRadius: self.nmsRadius
                 });
-                console.log("pose detected : ", all_poses);
+                //  console.log("pose detected : ", all_poses);
 
                 //Dispatch event
                 var event = new CustomEvent('poseDetected', {
@@ -112,7 +112,7 @@ export default class PoseDetector {
                         pose: all_poses
                     }
                 });
-                console.log("sending event : ", event.detail);
+                //console.log("sending event : ", event.detail);
                 self.video.dispatchEvent(event);
 
                 poses = poses.concat(all_poses);
@@ -132,14 +132,16 @@ export default class PoseDetector {
 
     addEventListeners() {
         this.video.addEventListener('poseDetected', e => {
-            console.log("caught pose detection - sending");
-            sendFaceMeshAndPose(e.detail);
-
+            //console.log("caught pose detection - sending");
+            this.sendFaceMeshAndPose(e.detail);
         });
+
+
     }
 
     sendFaceMeshAndPose(poseMeta) {
         if (med.metaData != null && poseMeta != undefined) {
+            console.log("Sent pose data - uname: ", med.username);
             med.metaData.sendControlData({ username: med.username, id: med.socketId, faceMesh: poseMeta.faceMesh, pose: poseMeta.pose });
         }
     }
