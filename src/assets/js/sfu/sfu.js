@@ -96,7 +96,6 @@ export default class SFU extends EventEmitter {
         });
         var screenTrack = stream.getVideoTracks()[0];
         this.screenProducer = await this.sfuRoom.sendScreen(screenTrack);
-        // this.screenProducer.setRtpEncodingParameters({ maxBitrate: 150000 })
     }
 
     //Move this to a helper?
