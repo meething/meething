@@ -26,7 +26,7 @@ export default class UEX {
     *  via med.ee
     */
 
-    // Open and Close Chat
+    // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
         med.ee.emit('uex:ChatPaneToggle', e);
@@ -36,6 +36,33 @@ export default class UEX {
                 med.h.toggleChatNotificationBadge();
             }
         }, 300);
+    });
+
+    // CHAT: On enter, emit to chat
+    document.querySelector('#chat-input').addEventListener('keydown', (e)=>{
+      if(e.key == 'Enter') {
+        let val = document.querySelector('#chat-input').value;
+        // assemble the chat message
+        let chatMessage = {
+          sender: med.username,
+          msg: val
+        };
+        med.chat.broadcast(chatMessage);
+        document.querySelector('#chat-input').value = '';
+        document.querySelector('#chat-input').blur();
+      }
+    });
+    // CHAT: On button, emit to chat
+    document.querySelector('#chat-send').addEventListener('click', (e)=>{
+        let val = document.querySelector('#chat-input').value;
+        // assemble the chat message
+        let chatMessage = {
+          sender: med.username,
+          msg: val
+        };
+        med.chat.broadcast(chatMessage);
+        document.querySelector('#chat-input').value = '';
+        document.querySelector('#chat-input').blur();
     });
 
     // Show / Hide User List

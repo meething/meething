@@ -50,6 +50,11 @@ export default class Modal {
       self.resetDevices();
       self.modalFilled(_modal);
     })
+    window.ee.on("local-video-loaded", function () {
+      if (med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
+        med.initComm();
+      }
+    });
     // default inputs
     var joinnameinput = lib.joinnameinput
     var createnameinput = lib.createnameinput;
@@ -234,7 +239,6 @@ export default class Modal {
       med.h.setVideoSrc(ve,stream);
       med.h.replaceStreamForPeers(med.pcMap, stream);
       ve.oncanplay = function(){ _modal.checkOverflow(); }
-      med.initComm();
       return Object.keys(devices).length>0 ? devices : med.h.getDevices();
     }).then(devices=>{
       self.navigatorGotDevices(devices);
@@ -351,6 +355,7 @@ export default class Modal {
         if(pval) await med.storePass(pval);
         break;
     }
+    med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     // stuff that is common
     if(!med.myStream){
       await this.resetDevices();
@@ -360,6 +365,7 @@ export default class Modal {
     if(ve && vs){
       ve.className="local-video clipped";
       vs.appendChild(ve);
+      window.ee.emit("local-video-loaded");
     }
     med.initSocket().then(sock=>{
       info.modal.close();

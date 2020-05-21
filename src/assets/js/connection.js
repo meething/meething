@@ -3,11 +3,11 @@ import Video from "./sfu/video.js"
 import Mesh from "./mesh/mesh.js"
 import DamEventEmitter from "./emitter.js";
 import MetaData from "./metadata.js";
+import Presence from "./presence.js";
 
 // create global scope to avoid .bind(this)
 var med = null;
 var self = null;
-const SFU_ENABLED = true;
 
 export default class Connection {
   constructor(mediator) {
@@ -19,8 +19,8 @@ export default class Connection {
 
   init() {
     this.initDamSocket();
-    this.initMetaData()
-
+    this.initMetaData();
+    this.initPresence();
   }
 
   initDamSocket() {
@@ -39,13 +39,22 @@ export default class Connection {
     self.inited = true;
     this.init();
     this.unhide();
-    if (SFU_ENABLED) {
+    if (med.SFU_ENABLED) {
       console.log("Start SFU");
       this.video = new Video(med).establish();
     } else {
       console.log("Start MESH");
       new Mesh(med).establish();
     }
+  }
+
+  initPresence() {
+    med.presence = new Presence(med.root, med.room);
+    med.damSocket.setPresence(med.presence);
+    // why not use natural typeOf? don't tell me edge doesn't support that?? @jabis
+    if (med.h.typeOf(med.presence.enter) == "function") med.presence.enter();
+    med.presence.update(med.username, med.socketId);
+    med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
   }
 
   unhide() {
@@ -63,7 +72,7 @@ export default class Connection {
       if (data.socketId == med.socketId || data.sender == med.socketId) return;
       if (data.sender == med.username) return;
       if (med.DEBUG) console.log("got chat", data);
-      med.h.addChat(data, "remote");
+      med.ee.emit("chat:ExtMsg", data);
     } else if (data.event == "notification") {
       if (data.ts && Date.now() - data.ts > 5000 || data.ts == undefined || data.username == med.username) return;
       if (data.subEvent == "recording") {

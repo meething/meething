@@ -64,7 +64,7 @@ export default class Video {
     // When another person joins the chat room, we'll display their video.
     webrtc.on("videoAdded", function (peer) {
       if (peer.consumer._track.kind == "audio") {
-        peer.video.srcObject.addTrack(peer.consumer._track);
+        helper.setAudioTrack(peer.video, peer.consumer._track)
         return;
       }
       var stream = new MediaStream([peer.consumer._track]);
