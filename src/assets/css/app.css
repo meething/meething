@@ -419,6 +419,19 @@ li {
     top: 46px;
     bottom: 65px;
   }
+  .v-user{
+    margin-left:50px;
+  }
+  .widget-button{
+    border-radius:0px 6px 6px 0px;
+  }
+  .top-widget-toolbox {
+    display: grid;
+    position:absolute;
+    bottom:0;
+    align-items: center;
+    margin-left: 10px;
+  }
 }
 
 @media only screen and (max-height: 330px) {
