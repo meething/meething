@@ -184,8 +184,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
 
-  if (enablePoseDetection)
-    mPose = new PoseDetector(meething);
+  // if (enablePoseDetection)
+  mPose = new PoseDetector(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
@@ -194,8 +194,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.toggles = mToggles;
   meething.uex = mUex;
 
-  if (enablePoseDetection)
-    meething.poseDetector = mPose;
+  // if (enablePoseDetection)
+  meething.poseDetector = mPose;
 
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
