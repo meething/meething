@@ -11,11 +11,23 @@ export default class Room extends EventEmitter {
         this.recvTransport = null;
     }
 
-    join(room) {
+    join(roomId, peerId) {
         console.warn("room.join()");
-        const wsTransport = new WebSocket("wss://meething.hepic.tel:2345/" + room, "protoo");
 
-        this.peer = new Peer(wsTransport);
+        try {
+            // Select SFU Server from config or try self
+            var SFU_URL = "wss://" + window.location.hostname + ":2345";
+            console.log("Joining Local SFU", SFU_URL);
+            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
+            // if(!wsTransport.onopen){throw 'local connection not working'};
+            this.peer = new Peer(wsTransport);
+        } catch (e) {
+            console.log('SFU Failover! Use Remote default');
+            var SFU_URL = 'wss://meething.space:2345'
+            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
+            this.peer = new Peer(wsTransport);
+        }
+
         this.peer.on("open", this.onPeerOpen.bind(this));
         this.peer.on("request", this.onPeerRequest.bind(this));
         this.peer.on("notification", this.onPeerNotification.bind(this));
@@ -23,6 +35,8 @@ export default class Room extends EventEmitter {
         this.peer.on("disconnected", console.error);
         this.peer.on("close", console.error);
         this.peer.on("peers", this.onPeers.bind(this));
+
+        console.log(this.peer.id);
     }
 
     async sendAudio(track) {
@@ -58,6 +72,19 @@ export default class Room extends EventEmitter {
         return videoProducer;
     }
 
+    async sendScreen(track) {
+        console.warn("room.sendScreen()");
+        const screenProducer = await this.sendTransport.produce({
+            track: track
+        });
+
+        screenProducer.on("trackended", async () => {
+            console.warn("producer.close() by trackended");
+            await this._closeProducer(screenProducer);
+        });
+        return screenProducer;
+    }
+
     async onPeerOpen() {
         console.warn("room.peer:open");
         const device = new mediasoupClient.Device();
@@ -90,7 +117,14 @@ export default class Room extends EventEmitter {
             .catch(console.error);
 
         const iceServers =
-            [{ "urls": ["stun:stun.l.google.com:19302"] }];
+            [{ "urls": ["stun:stun.l.google.com:19302"] },
+            {
+                "urls": ["turn:turn.hepic.tel", "turns:turn.hepic.tel"],
+                "username": "meething",
+                "credential": "b0756813573c0e7f95b2ef667c75ace3",
+                "credentialType": "password"
+            }
+            ];
 
         transportInfo.iceServers = iceServers;
         this.sendTransport = device.createSendTransport(transportInfo);
@@ -143,7 +177,7 @@ export default class Room extends EventEmitter {
                 "credential": "b0756813573c0e7f95b2ef667c75ace3",
                 "credentialType": "password"
             }
-            ]
+            ];
 
         transportInfo.iceServers = iceServers;
         this.recvTransport = device.createRecvTransport(transportInfo);
@@ -212,6 +246,12 @@ export default class Room extends EventEmitter {
         this.emit("@" + notification.method, notification.data);
         if (notification.method == "peerClosed") {
             this.emit("@peerClosed", notification.data.peerId);
+        }
+        if (notification.method == "consumerClosed") {
+            this.emit("@consumerClosed", notification.data.consumerId);
+        }
+        if(notification.method == "peerJoined") {
+            this.emit("@peerJoined", notification.data.peerId);
         }
     }
 }

@@ -1,7 +1,7 @@
 body {
   color: #FFF;
   background: url("../images/background.png")no-repeat center center fixed;
-  background-image: url("../images/background.png");
+  background-image :  url("../images/background.png");
   -webkit-background-image: url("../images/background.png");
   -webkit-background-size: cover;
   -moz-background-size: cover;
@@ -42,7 +42,7 @@ body {
   z-index: 1000;
 }
 #chat-messages {
-
+  padding: 15px;
   top:0px;
   height: 50vh;
   overflow-x: hidden;
@@ -93,16 +93,25 @@ body {
   overflow-x: scroll;
 }
 
+.chat-button {
+  bottom: 55px;
+  right: 0;
+  position: absolute;
+  border: 1;
+  border-top: 1px groove white;
+  border-left: 1px groove white;
+  font-size: small;
+}
 
 .remote-video {
   position: relative;
-  object-fit: cover !important; 
+  object-fit: cover !important;
   height: 100%;
   width: 100%;
   border-radius: 6px;
   max-height: 80vh;
   background:#14101bbb ;
-  
+
 }
 
 .clipped {
@@ -172,18 +181,18 @@ body {
     top: 47px;
   }
   .local-video {
-    top: 30%;
+    bottom: 1%;
     right: 30px;
     position: fixed;
     height: 150px;
     width: 200px;
     z-index: 1000;
-  
-} 
+
+}
 #top-menu {
   position:absolute;
   padding:15px;
- 
+
   right:0px;
   z-index:100000;
   background-color: #473761;
@@ -217,7 +226,6 @@ body {
     margin-bottom: 0px;
   }
 }
-
 @media only screen and (max-width: 1767px) {
   .chat-col {
     right: -100vw;
@@ -258,7 +266,7 @@ body {
 
 .bg-green {
   background-color: #d7f7c5 !important;
- 
+
 }
 
 .card {
@@ -334,9 +342,9 @@ li {
    transition:.5s all;
    font-size:22px;
    margin:0 auto;
- 
-   
-  
+
+
+
  }
  #create-room:hover{
    background:#5610c5;
@@ -356,7 +364,7 @@ text-align:center;
  text-transform: capitalize;
  font-weight:lighter;
 padding: 0px 12px;
- 
+
 
 }
 
@@ -390,14 +398,14 @@ font-size:12px !important;
   margin: -45px 0 0 -45px;
   position:relative;
 
- 
+
   display:flex;
   justify-content: flex-start;
  margin-left:15px;
   align-items:center;
   z-index:1;
- 
- 
+
+
 }
 
 /* main toolbar styles .. */
@@ -424,7 +432,7 @@ margin-left:10px;
   margin-right:3px;
   color: white;
   opacity:.5;
-  transition:.3s all; 
+  transition:.3s all;
   margin:5px;
   margin-bottom:10px;
   background:#3f069c;
@@ -432,13 +440,13 @@ margin-left:10px;
   border-radius:6px 6px 0px 0px;
 }
 .widget-button:hover{
-  
+
   opacity:1;
 }
 
 /* mobile overrides */
 @media only screen and (max-width: 600px) {
- 
+
   .chat-col {
     border-top:2px solid orange;
     right: -100vw;
@@ -456,7 +464,7 @@ margin-left:10px;
   .local-video {
     top:50px;
   }
- 
+
 
 }
 @media only screen and (max-height: 330px) {
@@ -608,7 +616,9 @@ margin-bottom:10px;
 .yellow {
   background:orange;
 }
-
+.shadow {
+  box-shadow: 1px 1px 3px black;
+}
 #top-menu {
   position:absolute;
   padding:15px;

@@ -35,23 +35,15 @@
 
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
-  <script type="module" src="/assets/js/soundmeter.js"></script>
+  <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
   <script type="module" src="/assets/js/emitter.js"></script>
   <script type="module" src="/assets/js/main.js"></script>
-  <script type="module" src="/assets/js/events.js"></script>
-  <!--<script type="module" src="/assets/js/rtc.js"></script> -->
-
-
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/promise.js"></script>
-  <!-- <script src="assets/js/webrtc.js"></script> -->
-
 </head>
 
 <body>
@@ -74,25 +66,22 @@
     </div>
 
     <div class="pull-right room-comm" hidden>
+      <<<<<<< HEAD <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
 
-      <!-- <meter high="0.25" max="1" value="0" id="audiometer" class="mr-3"></meter> -->
 
-
-      <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
-        id="toggle-chat-pane">
-        <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
-      </button>
-      <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
+        =======
+        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
+        <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
+          id="toggle-chat-pane">
+          <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
+        </button>
+        <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
-
-
   </nav>
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-
-
-      <div id="localStream">
+      <<<<<<< HEAD <div id="localStream">
         <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
         <source src="/assets/video/muted.webm"
         type="video/webm">
@@ -102,6 +91,15 @@
         type="video/ogv">
       </video-->
 
+        =======
+        <div id="localStream">
+        </div>
+        <div id="localshadow"></div>
+    </div>
+    <div class="row">
+      <div class="col-md-10 mt-2 mb-2 main">
+        <div class="row" id="videos"></div>
+        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
       </div>
       <div class="row">
         <div class="col-md-10 mt-2 mb-2 main">
@@ -117,39 +115,73 @@
 
           <div id="chat-messages"></div>
 
-          <div class="row">
+          <<<<<<< HEAD <div class="row">
             <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="3"
               placeholder="Type here..."></textarea>
-          </div>
+        </div>
+        =======
+        <div class="row">
+          <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="1"
+            placeholder="Type here..."></textarea><br>
+          <button id="chat-send" class="form-control btn btn-primary rounded-0 chat-button">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+          >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
         </div>
       </div>
     </div>
     <div id="top-menu" style="display:none">
 
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+      <<<<<<< HEAD <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
         title="Toggle Screensharing">
-      </button>
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-        title="Re-Invite All Users">
-      </button>
+        </button>
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+          title="Re-Invite All Users">
+        </button>
 
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-        title="Toggle User List">
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+          title="Toggle User List">
 
-      </button>
+        </button>
 
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
-        title="Toggle Off-Grid Mode">
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+          title="Toggle Off-Grid Mode">
 
-      </button>
+        </button>
 
-      <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-        title="Toggle Recording">
-      </button>
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+          title="Toggle Recording">
+        </button>
 
-      <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+        <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
 
-      </button>
+        </button>
+        =======
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+          title="Toggle Screensharing">
+        </button>
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+          title="Re-Invite All Users">
+        </button>
+
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+          title="Toggle User List">
+
+        </button>
+
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+          title="Toggle Off-Grid Mode">
+
+        </button>
+
+        <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+          title="Toggle Recording">
+        </button>
+
+        <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+
+        </button>
+        >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
 
     </div>
     <div id="bottom-menu" class="container-fluid mx-auto" hidden>
@@ -157,20 +189,36 @@
 
 
 
-        <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
+        <<<<<<< HEAD <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
           title="Mute/Unmute Video">
-        </button>
+          </button>
 
-        <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
-          title="Mute/Unmute Audio">
-        </button>
+          <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+            title="Mute/Unmute Audio">
+          </button>
 
-        <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
-          onclick="window.location.href='/'">
+          <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
+            onclick="window.location.href='/'">
 
 
-          </a>
-        </button>
+            </a>
+          </button>
+          =======
+          <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video"
+            title="Mute/Unmute Video">
+          </button>
+
+          <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+            title="Mute/Unmute Audio">
+          </button>
+
+          <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
+            onclick="window.location.href='/'">
+
+
+            </a>
+          </button>
+          >>>>>>> e5c2bdfab227f2905984d46d7b46a85a8d06c5a3
 
       </div>
 

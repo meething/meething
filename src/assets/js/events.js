@@ -1,7 +1,9 @@
 import helpers from './helpers.js';
 import EventEmitter from './ee.js';
-
+let med = null;
 window.addEventListener('DOMContentLoaded', () => {
+    // set mediator
+    med = window.meething;
     //When the chat icon is clicked
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
@@ -37,16 +39,7 @@ window.addEventListener('DOMContentLoaded', () => {
         e.srcElement.classList.toggle("fa-video-slash");
         
     })
-
-    document.getElementById("toggle-devices-menu").addEventListener("click", e => {
-        e.preventDefault();
-        document.getElementById("devices-menu").classList.toggle('device-select-open')
-
-        e.srcElement.classList.toggle("fa-ellipsis-v");
-        e.srcElement.classList.toggle("fa-ellipsis-h");
-
-    })
-
+    
     document.getElementById("toggle-main-menu").addEventListener("click", e => {
         e.preventDefault();
         let div = document.getElementById("top-menu");
@@ -59,10 +52,9 @@ window.addEventListener('DOMContentLoaded', () => {
     })
 
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
-        e.preventDefault();
-       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
-      
-
+      e.preventDefault();
+      med.ee.emit('toggle-device-selection',e); //fire EventEmitter
+      document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
         e.srcElement.classList.toggle("fa-video");
         e.srcElement.classList.toggle("fa-times");
     })
@@ -87,68 +79,5 @@ window.addEventListener('DOMContentLoaded', () => {
                     });
             }
         });
-      }
-    /*MOVED TO rtc event emitter
-    var em = window.ee;
-    console.log(em,ee);
-    if(em) em.on('tingle:load',function(content){
-    console.log("we're here",content);
-    //When the 'Create room" is button is clicked
-    var cr = document.getElementById('create-room');
-    if(cr)  cr.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            let roomName = document.querySelector('#room-name').value;
-            let yourName = document.querySelector('#your-name').value;
-
-            if (roomName && yourName) {
-                //remove error message, if any
-                document.querySelector('#err-msg').innerHTML = "";
-
-                //save the user's name in sessionStorage
-                sessionStorage.setItem('username', yourName);
-
-                //create room link
-                let roomLink = `${location.origin}?room=${roomName.trim().replace(' ', '_')}_${helpers.generateRandomString()}`;
-
-                //show message with link to room
-                document.querySelector('#room-created').innerHTML = `Room successfully created. Click <a href='${roomLink}'>here</a> to enter room. 
-                    Share the <a href='${roomLink}'>room link</a> with your partners.`;
-
-                // add room name to chat title
-                document.querySelector('#chat-title').innerHTML = roomName;
-
-                //empty the values
-                document.querySelector('#room-name').value = '';
-                document.querySelector('#your-name').value = '';
-            }
-
-            else {
-                document.querySelector('#err-msg').innerHTML = "All fields are required";
-            }
-        });
-
-        var er = document.getElementById('enter-room');
-        if(cr)  document.getElementById('enter-room').addEventListener('click', (e) => {
-            e.preventDefault();
-
-            let name = document.querySelector('#username').value;
-
-            if (name) {
-                //remove error message, if any
-                document.querySelector('#err-msg-username').innerHTML = "";
-
-                //save the user's name in sessionStorage
-                sessionStorage.setItem('username', name);
-
-                //reload room
-                location.reload();
-            }
-
-            else {
-                document.querySelector('#err-msg-username').innerHTML = "Please input your name";
-            }
-        });
-       
-    }); */
+      } 
 })

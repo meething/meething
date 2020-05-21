@@ -331,6 +331,10 @@ export default {
     const sink = audio.value;
     return this.attachSinkToVideo(video, sink, audio);
   },
+  setAudioTrack(video, track) {
+    video.srcObject.addTrack(track);
+    this.addAudio(video.srcObject);
+  },
   setVideoSrc(video,mediaSource){
     let source,tof="";
     this.addAudio(mediaSource);
@@ -356,6 +360,7 @@ export default {
       source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
       video.src = source;
     }
+    window.ee.emit("local-video-loaded");
     return {video, source}
     }
   },

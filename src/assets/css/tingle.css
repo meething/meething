@@ -448,15 +448,4 @@
   margin:0 auto;
 }
 
-.device-select{
-  overflow:hidden;
-  height:0px;
-  
-  transition:.5s all;
-}
-
-.device-select-open{
-  
-  height:100%;
-}
 
