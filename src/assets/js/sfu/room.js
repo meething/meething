@@ -20,6 +20,7 @@ export default class Room extends EventEmitter {
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
             // if(!wsTransport.onopen){throw 'local connection not working'};
+            if (wsTransport.readyState !== 1 || 0) { console.error('something not right with webSocket'); throw 'webSocket Local Error'; }
             this.peer = new Peer(wsTransport);
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
@@ -250,7 +251,7 @@ export default class Room extends EventEmitter {
         if (notification.method == "consumerClosed") {
             this.emit("@consumerClosed", notification.data.consumerId);
         }
-        if(notification.method == "peerJoined") {
+        if (notification.method == "peerJoined") {
             this.emit("@peerJoined", notification.data.peerId);
         }
     }
