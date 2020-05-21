@@ -109,7 +109,8 @@ export default class Connection {
         med.h.swapUserDetails(data.socketId + "-title", data);
       }
       if (data.socketId && data.username && data.faceMesh && data.pose) {
-        console.log("Received pose detection from - ", data.username);
+        window.ee.emit("poseReceived", data);
+        // console.log("Received pose detection from - ", data.username);
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);

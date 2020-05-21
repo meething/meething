@@ -131,12 +131,16 @@ export default class PoseDetector {
     }
 
     addEventListeners() {
-        this.video.addEventListener('poseDetected', e => {
+        var self = this;
+        self.video.addEventListener('poseDetected', e => {
             //console.log("caught pose detection - sending");
-            this.sendFaceMeshAndPose(e.detail);
+            self.sendFaceMeshAndPose(e.detail);
         });
 
-
+        window.ee.on("poseReceived", data => {
+            console.log("Received pose detection from - ", data.username);
+            //TODO - animate the SVG
+        });
     }
 
     sendFaceMeshAndPose(poseMeta) {
