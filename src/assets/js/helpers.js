@@ -870,6 +870,18 @@ export default {
       snackbar.className = snackbar.className.replace("show", "");
     }, 3000);
   },
+  showWarning(msg,color){
+    var wSign = document.getElementById("warning-sign");
+    console.log("silence please!")
+    wSign.innerHTML = msg;
+    wSign.hidden = false;
+   wSign.style.backgroundColor = color;
+
+  },
+  hideWarning(){
+    var wSign = document.getElementById("warning-sign");
+    wSign.hidden = true
+  },
   addButton(id, className, iconName) {
     let button = document.createElement("button");
     button.id = id;

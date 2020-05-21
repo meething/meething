@@ -41,12 +41,14 @@ export default class Toggles {
         e.srcElement.classList.add("fa-volume-mute");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
         med.h.showNotification("Audio Muted");
+        med.h.showWarning("Audio Muted","#de0046")
       } else {
         med.audioMuted = false;
         e.srcElement.classList.add("fa-volume-up");
         e.srcElement.classList.remove("fa-volume-mute");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
         med.h.showNotification("Audio Unmuted");
+        med.h.hideWarning();
       }
       window.ee.emit("audio-toggled")
     });
