@@ -81,13 +81,16 @@ export default class SFU extends EventEmitter {
     }
 
     async startScreenShare() {
-        var stream = await helper.getDisplayMedia({ 
-            audio: false, 
+        //WXGA 1280x720
+        var stream = await helper.getDisplayMedia({
+            audio: false,
             video: {
                 height: {
                     ideal: 720,
-                    max: 720,
-                    min: 720,
+                    max: 720
+                }, width: {
+                    ideal: 1280,
+                    max: 1280
                 }
             }
         });
