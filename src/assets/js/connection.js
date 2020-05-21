@@ -106,8 +106,11 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        med.h.swapDiv(data.socketId + "-widget");
+        //med.h.swapDiv(data.socketId + "-widget"); not switching div, just glow
+        med.h.swapGlow(data.socketId+"-talker");
+       // console.log(data.socketId,' is talking')
       }
+
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
         med.h.showNotification("Read-Only Join by " + data.username);

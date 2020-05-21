@@ -254,80 +254,82 @@ export default {
   isEdge() {
     return isEdge;
   },
-  isOldEdge(){
+  isOldEdge() {
     return isOldEdge;
   },
-  isTouchScreen(){
+  isTouchScreen() {
     return isTouchScreen;
   },
-  isSafari(){
+  isSafari() {
     return isSafari;
   },
-  isiOS(){
+  isiOS() {
     return isiOS;
   },
-  isMobile(){
+  isMobile() {
     return isMobile;
   },
-  isMobileOriOS(){
-    return (this.isMobile() || this.isiOS())?true:false;
+  isMobileOriOS() {
+    return this.isMobile() || this.isiOS() ? true : false;
   },
-  canCreateMediaStream(){
+  canCreateMediaStream() {
     return canCreateMediaStream;
   },
-  canCaptureStream(){
+  canCaptureStream() {
     return canCaptureStream;
   },
-  canCaptureAudio(){
+  canCaptureAudio() {
     return canCaptureAudio;
   },
-  canSelectAudioDevices(){
+  canSelectAudioDevices() {
     return canSelectAudioDevices;
   },
-  canPlayType(type){
+  canPlayType(type) {
     return document.createElement("video").canPlayType(type);
   },
-  canPlayMP4(){
+  canPlayMP4() {
     return this.canPlayType('video/mp4; codecs="avc1.42E01E,mp4a.40.2"');
   },
-  canPlayOGG(){
+  canPlayOGG() {
     return this.canPlayType('video/ogg; codecs="theora,vorbis"');
   },
-  canPlayWEBM(){
+  canPlayWEBM() {
     return this.canPlayType('video/webm; codecs="vp8,vorbis"');
   },
-  getOrientation(){
-    if(window.innerHeight && window.innerWidth){
-      if(window.innerHeight > window.innerWidth ) return "portrait"; 
-      else return "landscape"; 
-    } else if (window.matchMedia) { // we shouldn't reach here but if we do, let's have matchMedia do the work
+  getOrientation() {
+    if (window.innerHeight && window.innerWidth) {
+      if (window.innerHeight > window.innerWidth) return "portrait";
+      else return "landscape";
+    } else if (window.matchMedia) {
+      // we shouldn't reach here but if we do, let's have matchMedia do the work
       var mql = window.matchMedia("(orientation: portrait)");
-      if(mql && mql.matches) return "portrait";
+      if (mql && mql.matches) return "portrait";
       else return "landscape";
     } else {
       return "landscape";
     }
   },
   attachSinkToVideo(video, sinkId, select) {
-    if (typeof video.sinkId !== 'undefined') {
-      return video.setSinkId(sinkId)
-          .then(() => {
-            console.log(`Success, audio output device attached: ${sinkId}`);
-          })
-          .catch(error => {
-            let errorMessage = error;
-            if (error.name === 'SecurityError') {
-              errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
-            }
-            console.error(errorMessage);
-            // Jump back to first output device in the list as it's the default.
-            select.selectedIndex = 0;
-          });
+    if (typeof video.sinkId !== "undefined") {
+      return video
+        .setSinkId(sinkId)
+        .then(() => {
+          console.log(`Success, audio output device attached: ${sinkId}`);
+        })
+        .catch((error) => {
+          let errorMessage = error;
+          if (error.name === "SecurityError") {
+            errorMessage = `You need to use HTTPS for selecting audio output device: ${error}`;
+          }
+          console.error(errorMessage);
+          // Jump back to first output device in the list as it's the default.
+          select.selectedIndex = 0;
+        });
     } else {
-      console.warn('Browser does not support output device selection.');
+      console.warn("Browser does not support output device selection.");
     }
   },
-  setAudioToVideo(audio,video) {
+  setAudioToVideo(audio, video) {
     const sink = audio.value;
     return this.attachSinkToVideo(video, sink, audio);
   },
@@ -335,48 +337,64 @@ export default {
     video.srcObject.addTrack(track);
     this.addAudio(video.srcObject);
   },
-  setVideoSrc(video,mediaSource){
-    let source,tof="";
+  setVideoSrc(video, mediaSource) {
+    let source,
+      tof = "";
     this.addAudio(mediaSource);
-    if(isOldEdge){
+    if (isOldEdge) {
       //if(video.id=="local") return;
       //console.log("typeOf mediasource",typeOf(mediaSource));
-      if(!mediaSource) mediaSource = this.getMutedStream();
-      source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
-      video[tof=="mediastream"?"srcObject":"src"] = source;
-        return {video,source};
+      if (!mediaSource) mediaSource = this.getMutedStream();
+      source =
+        this.typeOf(mediaSource) == "mediasource"
+          ? URL.createObjectURL(mediaSource)
+          : this.typeOf(mediaSource) == "mediastream"
+          ? mediaSource
+          : null;
+      video[tof == "mediastream" ? "srcObject" : "src"] = source;
+      return { video, source };
     } else {
-    if ("srcObject" in video) {
-      try {
-        source = mediaSource;
-        video.srcObject = source;
-      } catch (err) {
-        console.warn("error setting mediaSource",err);
-        source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
-        // Try to set mediaSource src instead
+      if ("srcObject" in video) {
+        try {
+          source = mediaSource;
+          video.srcObject = source;
+        } catch (err) {
+          console.warn("error setting mediaSource", err);
+          source =
+            this.typeOf(mediaSource) == "mediasource"
+              ? URL.createObjectURL(mediaSource)
+              : this.typeOf(mediaSource) == "mediastream"
+              ? mediaSource
+              : null;
+          // Try to set mediaSource src instead
+          video.src = source;
+        }
+      } else {
+        source =
+          this.typeOf(mediaSource) == "mediasource"
+            ? URL.createObjectURL(mediaSource)
+            : this.typeOf(mediaSource) == "mediastream"
+            ? mediaSource
+            : null;
         video.src = source;
       }
-    } else {
-      source = this.typeOf(mediaSource) == "mediasource" ? URL.createObjectURL(mediaSource) : this.typeOf(mediaSource) == "mediastream" ? mediaSource : null;
-      video.src = source;
-    }
-    window.ee.emit("local-video-loaded");
-    return {video, source}
+      window.ee.emit("local-video-loaded");
+      return { video, source };
     }
   },
   generateRandomString() {
     return Math.random().toString(36).slice(2).substring(0, 15);
   },
-  hideVideo(elemId,state) {
+  hideVideo(elemId, state) {
     var video = document.getElementById(elemId + "-widget");
     if (video && state) {
-        if (state) {
-		console.log('hiding video', video);
-		video.setAttribute("hidden", true);
-        } else {
-		console.log('showing video', video);
-		video.removeAttribute("hidden", true);
-	}
+      if (state) {
+        console.log("hiding video", video);
+        video.setAttribute("hidden", true);
+      } else {
+        console.log("showing video", video);
+        video.removeAttribute("hidden", true);
+      }
     }
   },
   closeVideo(elemId) {
@@ -388,7 +406,7 @@ export default {
     }
   },
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
       var r = (Math.random() * 16) | 0,
         v = c == "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
@@ -435,22 +453,22 @@ export default {
   userMediaAvailable,
   getUserMedia(opts) {
     if (this.userMediaAvailable()) {
-      opts = opts && this.typeOf(opts) == "object" ? opts : {
-        video: {
-          height: {
-            ideal: 720,
-            max: 720,
-            min: 240,
-            frameRate: {
-              ideal: 15,
-              min: 10
-            }
-          }
-        },
-        audio: {
-          echoCancellation: true,
-        },
-      }
+      opts = opts && this.typeOf(opts) == "object" ? opts: {
+              video: {
+                height: {
+                  ideal: 720,
+                  max: 720,
+                  min: 240,
+                  frameRate: {
+                    ideal: 15,
+                    min: 10,
+                  },
+                },
+              },
+              audio: {
+                echoCancellation: true,
+              },
+            };
       return navigator.mediaDevices.getUserMedia(opts);
     } else {
       throw new Error("User media not available");
@@ -471,20 +489,16 @@ export default {
     };
     //return servers;    let srvs = (isEdge) ? ["turn:gamma.coder.fi"] : ["turns:gamma.coder.fi","turn:gamma.coder.fi"];
     return {
-      sdpSemantics: 'unified-plan',
+      sdpSemantics: "unified-plan",
       //iceCandidatePoolSize: 2,
       iceServers: [
         { urls: ["stun:turn.hepic.tel"] },
         { urls: ["stun:stun.l.google.com:19302"] },
         {
-          username:
-            "meething",
+          username: "meething",
           credential: "b0756813573c0e7f95b2ef667c75ace3",
-          urls: [
-            "turn:turn.hepic.tel",
-            "turns:turn.hepic.tel?transport=tcp",
-          ],
-        }
+          urls: ["turn:turn.hepic.tel", "turns:turn.hepic.tel?transport=tcp"],
+        },
       ],
     };
   },
@@ -530,8 +544,7 @@ export default {
   },
 
   addVideoElementEvent(elem, type = "pip") {
-    if ("pictureInPictureEnabled" in document 
-      && type == "pip") {
+    if ("pictureInPictureEnabled" in document && type == "pip") {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
@@ -599,10 +612,10 @@ export default {
       a.click();
       window.URL.revokeObjectURL(url);
       chunks = [];
-    }
+    };
     mediaRecorder.ondataavailable = function (e) {
       chunks.push(e.data);
-    }
+    };
     mediaRecorder.start();
   },
   stopRecordAudio() {
@@ -619,28 +632,34 @@ export default {
     <source src="/assets/video/muted.mp4" type="video/mp4">  
     <source src="/assets/video/muted.ogg" type="video/ogv">
     </video>`;
-    var videoParent = document.createElement('div.offscreen'); 
+    var videoParent = document.createElement("div.offscreen");
     videoParent.innerHTML = videohtml;
     document.body.appendChild(videoParent);
-    let newVid = document.getElementById(partnerName + '-video') || document.createElement("video");
+    let newVid =
+      document.getElementById(partnerName + "-video") ||
+      document.createElement("video");
 
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
     //video div
-    var videoDiv = document.createElement('div');
-    videoDiv.id = partnerName
+    var videoDiv = document.createElement("div");
+    videoDiv.id = partnerName;
     videoDiv.appendChild(newVid);
-   
+
     //Top toolbox
     var topToolbox = document.createElement("div");
-    topToolbox.className = "top-widget-toolbox"
+    topToolbox.className = "top-widget-toolbox";
 
     // close window button // should include close video method
-    var closeButton = this.addButton("close-video-button","widget-button","fas fa-expand")
-    closeButton.addEventListener('click',function(){
+    var closeButton = this.addButton(
+      "close-video-button",
+      "widget-button",
+      "fas fa-expand"
+    );
+    closeButton.addEventListener("click", function () {
       // do fullscreen
       var elem = document.getElementById(`${partnerName}-video`);
-      if (elem){
+      if (elem) {
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
         } else if (elem.mozRequestFullScreen) { /* Firefox */
@@ -650,75 +669,67 @@ export default {
         } else if (elem.msRequestFullscreen) { /* IE/Edge */
           elem.msRequestFullscreen();
         }
-      }      
+      }
     });
 
     // full screen button
-    var fullscreenBtn = this.addButton("full-screen-button","widget-button","fas fa-share-square")
-    fullscreenBtn.addEventListener('click',function(){
-	    var doubleClickEvent = document.createEvent('MouseEvents');
-	    doubleClickEvent.initEvent('dblclick', true, true);
-	    var vselect = document.getElementById(`${partnerName}-video`);
-	    if (vselect) vselect.dispatchEvent(doubleClickEvent);
+    var fullscreenBtn = this.addButton(
+      "full-screen-button",
+      "widget-button",
+      "fas fa-share-square"
+    );
+    fullscreenBtn.addEventListener("click", function () {
+      var doubleClickEvent = document.createEvent("MouseEvents");
+      doubleClickEvent.initEvent("dblclick", true, true);
+      var vselect = document.getElementById(`${partnerName}-video`);
+      if (vselect) vselect.dispatchEvent(doubleClickEvent);
     });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
 
     // autopilot button
-    var autopilotBtn = this.addButton("auto-pilot-button","widget-button","fas fa-bullhorn")
-   // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
-   
+    var autopilotBtn = this.addButton(
+      `${partnerName}-talker`,
+      "widget-button",
+      "fas fa-bullhorn"
+    );
+    // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
+
     topToolbox.appendChild(closeButton);
     topToolbox.appendChild(fullscreenBtn);
     topToolbox.appendChild(autopilotBtn);
     var toolbox = document.createElement("div");
-    toolbox.className="toolbox";
- 
+    toolbox.className = "toolbox";
+
     // bottom toolbox
     var videoToolbox = document.createElement("div");
-    videoToolbox.className = 'v-toolbox';
+    videoToolbox.className = "v-toolbox";
     var vtitle = document.createElement("p");
     var vuser = partnerName;
     vtitle.textContent = `● ${vuser}`;
-    vtitle.className = 'v-user';
+    vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
     videoToolbox.appendChild(vtitle);
     let ogrid = document.createElement("div");
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
-  
+
     ogrid.appendChild(videoDiv);
     videoDiv.appendChild(toolbox);
-//ogrid.appendChild(videoToolbox);
-  
-  
-   // ogrid.appendChild(topToolbox);
- // ogrid.appendChild(videoToolbox);
+    //ogrid.appendChild(videoToolbox);
+
+    // ogrid.appendChild(topToolbox);
+    // ogrid.appendChild(videoToolbox);
     ogrid.id = partnerName + "-widget";
-    var realgrid = document.getElementById('grid');
+    var realgrid = document.getElementById("grid");
     realgrid.appendChild(ogrid);
 
     // Play join notification
     try {
-      let src = 'assets/sounds/join.mp3';
+      let src = "assets/sounds/join.mp3";
       let audio = new Audio(src);
       audio.play();
-    } catch(err){}
-    // Play with Speech
-    /*
-    let synth = window.speechSynthesis;
-    let message = new SpeechSynthesisUtterance ();
-    let voices = synth.getVoices ();
-	for (let voice of voices)
-	{
-		if ((voice.lang === 'US') || (voice.name.startsWith('Google US')) )
-		{
-			message.voice = voice;
-		}
-	}
-	// message.lang = 'en';
-	message.text = "Hello!";
-	speechSynthesis.speak (message);
-     */
+    } catch (err) {}
+
     return newVid;
   },
 
@@ -750,9 +761,14 @@ export default {
 
   replaceStreamForPeer(peer, stream) {
     if (peer && peer.getSenders)
-      return Promise.all(peer.getSenders().map(
-        sender => sender.replaceTrack(stream.getTracks().find(t => t.kind == sender.track.kind), stream)
-      ));
+      return Promise.all(
+        peer.getSenders().map((sender) =>
+          sender.replaceTrack(
+            stream.getTracks().find((t) => t.kind == sender.track.kind),
+            stream
+          )
+        )
+      );
     else return Promise.reject({ error: "no sender in peer", peer: peer });
   },
 
@@ -845,13 +861,16 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
-  showNotification(msg) {//Snackbar notification
+  showNotification(msg) {
+    //Snackbar notification
     var snackbar = document.getElementById("snackbar");
     snackbar.innerHTML = msg;
     snackbar.className = "show";
-    setTimeout(function () { snackbar.className = snackbar.className.replace("show", ""); }, 3000);
+    setTimeout(function () {
+      snackbar.className = snackbar.className.replace("show", "");
+    }, 3000);
   },
-  addButton(id,className,iconName){
+  addButton(id, className, iconName) {
     let button = document.createElement("button");
     button.id = id;
     button.className = className;
@@ -860,71 +879,101 @@ export default {
     button.appendChild(icon);
     return button;
   },
-  swapDiv(id){
-    if(!id) return;
+  swapDiv(id) {
+    if (!id) return;
     // console.log('Focusing grid widget with id '+id);
     try {
-      var container = document.getElementById('grid'),
-          fresh = document.getElementById(id),
-          first = container.firstElementChild;
+      var container = document.getElementById("grid"),
+        fresh = document.getElementById(id),
+        first = container.firstElementChild;
       // Move speaker to first position
       if (container && fresh && first) container.insertBefore(fresh, first);
-    } catch(e) { console.log(e); }
+    } catch (e) {
+      console.log(e);
+    }
   },
-  swapUserDetails(id,metadata){
-    if(!id||!metadata) return;
+  swapGlow(id) {
+    if (!id) return;
+    try {
+      let glowed = document.getElementById(id);
+      if(glowed.classList.contains("lighter")){
+        glowed.classList.toggle("lighter");
+        glowed.classList.remove("lighter")
+      }
+        glowed.classList.toggle("lighter");
+        setTimeout(function () {
+          glowed.classList.remove("lighter");
+        }, 500);
+    
+    } catch (e) {
+      console.log(e);
+    }
+  },
+  swapUserDetails(id, metadata) {
+    if (!id || !metadata) return;
     // console.log('Updating widget with id '+id);
     try {
-      var container = document.getElementById('grid'),
-          id = document.getElementById(id);
-      	  if (metadata.username && container && id) {
-		id.textContent = metadata.username;
- 	  }
-    } catch(e) { console.log(e); }
+      var container = document.getElementById("grid"),
+        id = document.getElementById(id);
+      if (metadata.username && container && id) {
+        id.textContent = metadata.username;
+      }
+    } catch (e) {
+      console.log(e);
+    }
   },
   // adjust audio or video rates, ie: setMediaBitRate(sdp, 'video', 500);
   setMediaBitrate(sdp, mediaType, bitrate) {
-      var sdpLines = sdp.split('\n'),
-  	  mediaLineIndex = -1,
-  	  mediaLine = 'm=' + mediaType,
-  	  bitrateLineIndex = -1,
-  	  bitrateLine = 'b=AS:' + bitrate,
-  	  mediaLineIndex = sdpLines.findIndex(line => line.startsWith(mediaLine));
-	  // If we find a line matching “m={mediaType}”
-	  if (mediaLineIndex && mediaLineIndex < sdpLines.length) {
-	  // Skip the media line
-	  bitrateLineIndex = mediaLineIndex + 1;
-	  // Skip both i=* and c=* lines (bandwidths limiters have to come afterwards)
-	  while (sdpLines[bitrateLineIndex].startsWith('i=') || sdpLines[bitrateLineIndex].startsWith('c=')) {
-	    bitrateLineIndex++;
-	  }
-	    if (sdpLines[bitrateLineIndex].startsWith('b=')) {
-	      // If the next line is a b=* line, replace it with our new bandwidth
-	      sdpLines[bitrateLineIndex] = bitrateLine;
-	    } else {
-	      // Otherwise insert a new bitrate line.
-	      sdpLines.splice(bitrateLineIndex, 0, bitrateLine);
-	    }
-	  }
-	  // Then return the updated sdp content as a string
-	  return sdpLines.join('\n');
+    var sdpLines = sdp.split("\n"),
+      mediaLineIndex = -1,
+      mediaLine = "m=" + mediaType,
+      bitrateLineIndex = -1,
+      bitrateLine = "b=AS:" + bitrate,
+      mediaLineIndex = sdpLines.findIndex((line) => line.startsWith(mediaLine));
+    // If we find a line matching “m={mediaType}”
+    if (mediaLineIndex && mediaLineIndex < sdpLines.length) {
+      // Skip the media line
+      bitrateLineIndex = mediaLineIndex + 1;
+      // Skip both i=* and c=* lines (bandwidths limiters have to come afterwards)
+      while (
+        sdpLines[bitrateLineIndex].startsWith("i=") ||
+        sdpLines[bitrateLineIndex].startsWith("c=")
+      ) {
+        bitrateLineIndex++;
+      }
+      if (sdpLines[bitrateLineIndex].startsWith("b=")) {
+        // If the next line is a b=* line, replace it with our new bandwidth
+        sdpLines[bitrateLineIndex] = bitrateLine;
+      } else {
+        // Otherwise insert a new bitrate line.
+        sdpLines.splice(bitrateLineIndex, 0, bitrateLine);
+      }
+    }
+    // Then return the updated sdp content as a string
+    return sdpLines.join("\n");
   },
   updateBandwidthRestriction(sdp, bandwidth) {
-	  let modifier = 'AS';
-	  if (adapter.browserDetails.browser === 'firefox') {
-	    bandwidth = (bandwidth >>> 0) * 1000;
-	    modifier = 'TIAS';
-	  }
-	  if (sdp.indexOf('b=' + modifier + ':') === -1) {
-	    // insert b= after c= line.
-	    sdp = sdp.replace(/c=IN (.*)\r\n/, 'c=IN $1\r\nb=' + modifier + ':' + bandwidth + '\r\n');
-	  } else {
-	    sdp = sdp.replace(new RegExp('b=' + modifier + ':.*\r\n'), 'b=' + modifier + ':' + bandwidth + '\r\n');
-	  }
-	  return sdp;
+    let modifier = "AS";
+    if (adapter.browserDetails.browser === "firefox") {
+      bandwidth = (bandwidth >>> 0) * 1000;
+      modifier = "TIAS";
+    }
+    if (sdp.indexOf("b=" + modifier + ":") === -1) {
+      // insert b= after c= line.
+      sdp = sdp.replace(
+        /c=IN (.*)\r\n/,
+        "c=IN $1\r\nb=" + modifier + ":" + bandwidth + "\r\n"
+      );
+    } else {
+      sdp = sdp.replace(
+        new RegExp("b=" + modifier + ":.*\r\n"),
+        "b=" + modifier + ":" + bandwidth + "\r\n"
+      );
+    }
+    return sdp;
   },
 
   removeBandwidthRestriction(sdp) {
-   return sdp.replace(/b=AS:.*\r\n/, '').replace(/b=TIAS:.*\r\n/, '');
-  }
+    return sdp.replace(/b=AS:.*\r\n/, "").replace(/b=TIAS:.*\r\n/, "");
+  },
 };

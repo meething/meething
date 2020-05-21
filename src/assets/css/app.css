@@ -168,7 +168,7 @@ body {
     top: 47px;
   }
   .local-video {
-    bottom: 1%;
+    bottom: 35px;
     right: 30px;
     position: fixed;
     height: 150px;
@@ -367,10 +367,9 @@ li {
 .toolbox {
   margin: -45px 0 0 -45px;
   position: relative;
-
   display: flex;
   justify-content: flex-start;
-  margin-left: 15px;
+  margin-left: -15px;
   align-items: center;
   z-index: 1;
 }
@@ -398,7 +397,7 @@ li {
   margin-right: 3px;
   color: white;
   opacity: 0.5;
-  transition: 0.3s all;
+  transition: 0.5s all;
   margin: 5px;
   margin-bottom: 10px;
   background: #3f069c;
@@ -445,13 +444,13 @@ li {
 }
 @media only screen and (min-width: 300px) {
   .local-video {
-    bottom: 0%;
+    top:35px;
   }
 }
 
 @media only screen and (min-width: 768px) {
   .local-video {
-    bottom: 5%;
+   top:35px;
   }
 }
 
@@ -478,7 +477,7 @@ meter {
   display: grid;
   grid-gap: 5px;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  padding: 10px;
+  padding: 0px;
   height: 100%;
 }
 
@@ -592,4 +591,10 @@ meter {
   top: 40px;
   left: 20px;
   z-index: 10000;
+}
+
+.lighter {
+  background:orange;
+  box-shadow:3px 3px 8px orange;
+  opacity:1;
 }
