@@ -3,7 +3,7 @@ import DamEventEmitter from "./emitter.js";
 import Presence from "./presence.js";
 import MetaData from "./metadata.js";
 import Video from "./sfu/video.js"
-
+import { PoseDetector } from "./poseDetection.js";
 // create global scope to avoid .bind(this)
 var med = null;
 var self = null;
@@ -11,43 +11,47 @@ var self = null;
 const SFU_ENABLED = true;
 const video = new Video();
 
+var poseDetector;
+
+var enablePoseDetection = true;  //Flag to enable/disable pose detector
+
 export default class Connection {
-  constructor (mediator){
+  constructor(mediator) {
     med = mediator;
     this.inited = false;
     self = this;
     return this;
   }
   // for now MCU webRTC, soon need to make SFU here with mode switching
-  establish () {
-    if(self.inited) return;
+  establish() {
+    if (self.inited) return;
     self.inited = true;
 
-      med.damSocket = new DamEventEmitter(med.root, med.room);
-      let commElem = document.getElementsByClassName("room-comm");
+    med.damSocket = new DamEventEmitter(med.root, med.room);
+    let commElem = document.getElementsByClassName("room-comm");
 
-      for (let i = 0; i < commElem.length; i++) {
-        commElem[i].hidden=false;
-      }
+    for (let i = 0; i < commElem.length; i++) {
+      commElem[i].hidden = false;
+    }
 
-      document.getElementById("demo").hidden = false;
-      document.getElementById("bottom-menu").hidden = false;
+    document.getElementById("demo").hidden = false;
+    document.getElementById("bottom-menu").hidden = false;
 
-      med.socketId = med.h.uuidv4();
-      med.damSocket.on("postauth",function(auth){
-        self.initPresence();
-        med.metaData = new MetaData(med.root, med.room, med.socketId, self.metaDataReceived);
-        med.damSocket.setMetaData(med.metaData);
-        med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+    med.socketId = med.h.uuidv4();
+    med.damSocket.on("postauth", function (auth) {
+      self.initPresence();
+      med.metaData = new MetaData(med.root, med.room, med.socketId, self.metaDataReceived);
+      med.damSocket.setMetaData(med.metaData);
+      med.metaData.sendControlData({ username: med.username, sender: med.username, status: "online", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
 
-        console.log("Starting! you are", med.socketId);
-        med.presence.update(med.username, med.socketId);
+      console.log("Starting! you are", med.socketId);
+      med.presence.update(med.username, med.socketId);
 
-        if(SFU_ENABLED) {
-          if (!video.joined) {
-            video.enableVideo();
-          }
+      if (SFU_ENABLED) {
+        if (!video.joined) {
+          video.enableVideo();
         }
+      }
 
       // Initialize Session
       med.damSocket.out("subscribe", {
@@ -136,12 +140,12 @@ export default class Connection {
             !data.sender ||
             !data.to
           )
-          return;
+            return;
           if (med.DEBUG) console.log(
             data.sender.trim() + " is trying to connect with " + data.to.trim()
           );
-          if(data.candidate && data.candidate.hasOwnProperty('candidate')){
-            if(!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
+          if (data.candidate && data.candidate.hasOwnProperty('candidate')) {
+            if (!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
           }
           data.candidate = new RTCIceCandidate(data.candidate);
           if (!data.candidate) return;
@@ -185,6 +189,7 @@ export default class Connection {
             .then(async stream => {
               if (med.localVideo) med.h.setVideoSrc(med.localVideo, stream);
 
+
               //save my stream
               med.myStream = stream;
 
@@ -194,10 +199,10 @@ export default class Connection {
 
               let answer = await med.pcMap.get(data.sender).createAnswer();
               answer.sdp = self.setMediaBitrates(answer.sdp);
-        // SDP Interop
-        // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
-        // SDP Bitrate Hack
-        // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
+              // SDP Interop
+              // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+              // SDP Bitrate Hack
+              // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
 
               await med.pcMap.get(data.sender).setLocalDescription(answer);
 
@@ -210,11 +215,11 @@ export default class Connection {
             .catch(async e => {
               console.error(`answer stream error: ${e}`);
               if (!med.enableHacks) {
-                       var r = confirm("No Media Devices! Join as Viewer?");
-                 if (r) {
-                   med.enableHacks = true;
-                   med.metaData.sendControlData({ username: med.username + "(readonly)", id: med.socketId, readonly: true });
-                 } else { location.replace("/"); return; }
+                var r = confirm("No Media Devices! Join as Viewer?");
+                if (r) {
+                  med.enableHacks = true;
+                  med.metaData.sendControlData({ username: med.username + "(readonly)", id: med.socketId, readonly: true });
+                } else { location.replace("/"); return; }
               }
               // start crazy mode lets answer anyhow
               console.log(
@@ -226,8 +231,8 @@ export default class Connection {
               };
               let answer = await med.pcMap.get(data.sender).createAnswer(answerConstraints);
               answer.sdp = self.setMediaBitrates(answer.sdp);
-        // SDP Interop
-        // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+              // SDP Interop
+              // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
               await med.pcMap.get(data.sender).setLocalDescription(answer);
 
               med.damSocket.out("sdp", {
@@ -253,7 +258,8 @@ export default class Connection {
           setTimeout(() => {
             e.target.value = "";
           }, 50);
-        }});
+        }
+      });
 
       document.getElementById("toggle-video").addEventListener("click", e => {
         e.preventDefault();
@@ -265,7 +271,7 @@ export default class Connection {
         if (!med.videoMuted) {
           med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
             med.videoMuted = true;
-            med.h.setVideoSrc(med.localVideo,muted);
+            med.h.setVideoSrc(med.localVideo, muted);
             e.srcElement.classList.remove("fa-video");
             e.srcElement.classList.add("fa-video-slash");
             med.h.showNotification("Video Disabled");
@@ -273,7 +279,7 @@ export default class Connection {
           });
         } else {
           med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
-            med.h.setVideoSrc(med.localVideo,mine);
+            med.h.setVideoSrc(med.localVideo, mine);
             med.videoMuted = false;
             e.srcElement.classList.add("fa-video");
             e.srcElement.classList.remove("fa-video-slash");
@@ -293,14 +299,14 @@ export default class Connection {
         if (!med.videoMuted) {
           med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
             med.videoMuted = true;
-            med.h.setVideoSrc(med.localVideo,muted);
+            med.h.setVideoSrc(med.localVideo, muted);
             e.srcElement.classList.remove("fa-video");
             e.srcElement.classList.add("fa-video-slash");
             med.h.showNotification("Video Disabled");
           });
         } else {
           med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
-            med.h.setVideoSrc(med.localVideo,mine);
+            med.h.setVideoSrc(med.localVideo, mine);
             med.videoMuted = false;
             e.srcElement.classList.add("fa-video");
             e.srcElement.classList.remove("fa-video-slash");
@@ -422,7 +428,7 @@ export default class Connection {
             var vtrack = stream.getVideoTracks()[0];
             if (false) med.h.replaceAudioTrackForPeers(med.pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
             med.h.replaceVideoTrackForPeers(med.pcMap, vtrack);
-            med.h.setVideoSrc(med.localVideo,stream);
+            med.h.setVideoSrc(med.localVideo, stream);
             vtrack.onended = function (event) {
               if (med.DEBUG) console.log("Screensharing ended via the browser UI");
               med.screenStream = null;
@@ -463,8 +469,8 @@ export default class Connection {
 
     var _ev = med.h.isiOS() ? 'pagehide' : 'beforeunload';
 
-    window.addEventListener(_ev,function () {
-      if(med.damSocket && med.damSocket.getPresence()) med.damSocket.getPresence().leave();
+    window.addEventListener(_ev, function () {
+      if (med.damSocket && med.damSocket.getPresence()) med.damSocket.getPresence().leave();
       med.pcMap.forEach((pc, id) => {
         if (med.pcMap.has(id)) {
           med.pcMap.get(id).close();
@@ -474,14 +480,14 @@ export default class Connection {
     });
   }
 
-  initPresence () {
+  initPresence() {
     med.presence = new Presence(med.root, med.room);
     med.damSocket.setPresence(med.presence);
     // why not use natural typeOf? don't tell me edge doesn't support that?? @jabis
-    if(med.h.typeOf(med.presence.enter)=="function") med.presence.enter();
+    if (med.h.typeOf(med.presence.enter) == "function") med.presence.enter();
   }
 
-  metaDataReceived (data) {
+  metaDataReceived(data) {
     if (data.event == "chat") {
       if (data.ts && Date.now() - data.ts > 5000) return;
       if (data.socketId == med.socketId || data.sender == med.socketId) return;
@@ -525,7 +531,7 @@ export default class Connection {
       }
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
-        med.h.showNotification("Read-Only Join by "+data.username);
+        med.h.showNotification("Read-Only Join by " + data.username);
         med.h.hideVideo(data.socketId, true);
       }
     }
@@ -538,10 +544,10 @@ export default class Connection {
     // TODO update graph
   }
 
-  init (createOffer, partnerName) {
+  init(createOffer, partnerName) {
     // OLD: track peerconnections in array
     if (med.pcMap.has(partnerName)) return med.pcMap.get(partnerName);
-     var pcPartnerName = new RTCPeerConnection(med.h.getIceServer());
+    var pcPartnerName = new RTCPeerConnection(med.h.getIceServer());
     // DAM: replace with local map keeping tack of users/peerconnections
     med.pcMap.set(partnerName, pcPartnerName); // MAP Tracking
     med.h.addVideo(partnerName, false);
@@ -584,12 +590,12 @@ export default class Connection {
           med.myStream = stream;
           var mixstream = null;
           //provide access to window for debug
-          if(med.h.canCreateMediaStream()){
+          if (med.h.canCreateMediaStream()) {
             mixstream = new MediaStream();
           } else {
             //Safari trickery
             mixstream = med.myStream.clone();
-            mixstream.getTracks().forEach(track=>{
+            mixstream.getTracks().forEach(track => {
               mixstream.removeTrack(track);
             });
           }
@@ -617,8 +623,8 @@ export default class Connection {
             // Soundmeter
             if (med.DEBUG) console.log('Init Soundmeter.........');
             const soundMeter = new SoundMeter(function () {
-                if (med.DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
-                if (!med.audioMuted) med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
+              if (med.DEBUG) console.log('Imm Speaking! Sending metadata mesh focus...');
+              if (!med.audioMuted) med.metaData.sendControlData({ username: med.username, id: med.socketId, talking: true });
             });
             soundMeter.connectToSource(med.myStream)
           }
@@ -635,7 +641,7 @@ export default class Connection {
           let offer = await pcPartnerName.createOffer(offerConstraints);
           offer.sdp = self.setMediaBitrates(offer.sdp);
           // SDP Interop
-  	      // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+          // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
           await pcPartnerName.setLocalDescription(offer);
           damSocket.out("sdp", {
             description: pcPartnerName.localDescription,
@@ -662,10 +668,10 @@ export default class Connection {
           pcPartnerName.isNegotiating = true;
           let offer = await pcPartnerName.createOffer();
           offer.sdp = self.setMediaBitrates(offer.sdp);
-        	// SDP Interop
-        	// if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
-        	// SDP Bitrate Hack
-        	// if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
+          // SDP Interop
+          // if (navigator.mozGetUserMedia) offer = Interop.toUnifiedPlan(offer);
+          // SDP Bitrate Hack
+          // if (offer.sdp) offer.sdp = h.setMediaBitrate(offer.sdp, 'video', 500);
 
           await pcPartnerName.setLocalDescription(offer);
           med.damSocket.out("sdp", {
@@ -694,10 +700,10 @@ export default class Connection {
       let str = e.streams[0];
       var el = document.getElementById(`${partnerName}-video`);
       if (el) {
-        med.h.setVideoSrc(el,str);
+        med.h.setVideoSrc(el, str);
       } else {
         var el = med.h.addVideo(partnerName);
-        med.h.setVideoSrc(el,str);
+        med.h.setVideoSrc(el, str);
       }
     };
 
@@ -732,14 +738,14 @@ export default class Connection {
         case "new":
           // med.h.hideVideo(partnerName, true);
           /* objserved when certain clients are stuck disconnecting/reconnecting - do we need to trigger a new candidate? */
-  	      /* GC if state is stuck */
+          /* GC if state is stuck */
           break;
         case "failed":
           if (partnerName == med.socketId) {
             return;
           } // retry catch needed
           med.h.closeVideo(partnerName);
-  	      // Send presence to attempt a reconnection
+          // Send presence to attempt a reconnection
           med.damSocket.out("subscribe", {
             room: med.room,
             socketId: med.socketId,
@@ -767,26 +773,26 @@ export default class Connection {
       switch (pcPartnerName.signalingState) {
         case "have-local-offer":
           pcPartnerName.isNegotiating = true;
-  	      setTimeout(function(){
-  		        console.log('set GC for',partnerName);
-  		          if(pcPartnerName.signalingState == "have-local-offer"){
-  			             console.log('GC Stuck Peer '+partnerName, pcPartnerName.signalingState);
-  		               // pcMap.get(partnerName).close();
-  			             med.h.closeVideo(partnerName);
-  		          }
-  	    } , 5000, pcPartnerName, partnerName);
-  	/* GC if state is stuck */
+          setTimeout(function () {
+            console.log('set GC for', partnerName);
+            if (pcPartnerName.signalingState == "have-local-offer") {
+              console.log('GC Stuck Peer ' + partnerName, pcPartnerName.signalingState);
+              // pcMap.get(partnerName).close();
+              med.h.closeVideo(partnerName);
+            }
+          }, 5000, pcPartnerName, partnerName);
+          /* GC if state is stuck */
           break;
         case "stable":
           pcPartnerName.isNegotiating = false;
           break;
         case "closed":
           console.log("Signalling state is 'closed'");
-        	// Do we have a connection? If not kill the widget
-        	if (pcPartnerName.iceConnectionState !== "connected") {
-        		med.h.closeVideo(partnerName);
-        	  med.pcMap.delete(partnerName);
-        	}
+          // Do we have a connection? If not kill the widget
+          if (pcPartnerName.iceConnectionState !== "connected") {
+            med.h.closeVideo(partnerName);
+            med.pcMap.delete(partnerName);
+          }
           // Peers go down here and there - let's send a Subscribe, Just in case...
           med.damSocket.out("subscribe", {
             room: med.room,
@@ -797,10 +803,10 @@ export default class Connection {
           break;
       }
     };
-  ///////
+    ///////
   }
 
-  setMediaBitrates (sdp) {
+  setMediaBitrates(sdp) {
     if (med.videoBitrate == 'unlimited' || !self.calculateBitrate()) {
       console.log("Not changing bitrate max is set")
       return sdp;
@@ -809,7 +815,7 @@ export default class Connection {
     }
   }
 
-  calculateBitrate () {
+  calculateBitrate() {
     var oldBitrate = med.videoBitrate;
     switch (med.presence.users.size) {
       case 0:
@@ -836,7 +842,7 @@ export default class Connection {
     }
   }
 
-  setMediaBitrate (sdp, media, bitrate) {
+  setMediaBitrate(sdp, media, bitrate) {
     var lines = sdp.split("\n");
     var line = -1;
     for (var i = 0; lines.length; i++) {
@@ -874,7 +880,7 @@ export default class Connection {
     return newLines.join("\n")
   }
 
-  setBitrate (count) {
+  setBitrate(count) {
     if (calculateBitrate()) {
       console.log("Adapt to " + count + " users");
       if ((adapter.browserDetails.browser === 'chrome' ||
