@@ -10,12 +10,15 @@ import Modal from "./modal.js";
 import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
+import PoseDetector from "./poseDetection.js";
+
 let mGraph,
-    mModal,
-    mChat,
-    mConn,
-    mToggles,
-    mUex;
+  mModal,
+  mChat,
+  mConn,
+  mToggles,
+  mUex,
+  mPose;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -55,7 +58,7 @@ function Mediator() {
   this.toggles;
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
-  this.graph;
+    this.graph;
 
   /* Define 'Workflows' that consist of work across modules
   */
@@ -109,7 +112,7 @@ function Mediator() {
   }
 
   /* Call connection module to establish connection */
-  
+
   this.initComm = function () {
     mConn.establish();
   }
@@ -179,6 +182,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mConn = new Conn(meething);
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
+  mPose = new PoseDetector(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;

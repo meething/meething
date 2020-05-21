@@ -1,7 +1,15 @@
 /// VIP - Video should be square for this to work !!
 
-class PoseDetector {
-    constructor() {
+export default class PoseDetector {
+    constructor(mediator) {
+        // self = this;
+        window.ee.on('navigator:gotDevices', devices => {
+            this.init();
+            this.sampleAndDetect();
+        });
+    }
+
+    init() {
         this.video = document.getElementById("local");
         // Camera stream video element
 
@@ -38,6 +46,8 @@ class PoseDetector {
             this.faceModel = await facemesh.load();
             this.loadedModel = true;
         }
+
+
     }
     //var webWorker = new Worker('/assets/js/poseWorker.js');
     /**
@@ -121,4 +131,4 @@ class PoseDetector {
 
 }
 
-export { PoseDetector };
+// export { PoseDetector };
