@@ -28,9 +28,14 @@ export default class Modal {
     self._modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
-
+    
     if(toggleModal) toggleModal.addEventListener('click',e=>{
       e.preventDefault();
+      if(window.innerWidth < 412){
+        document.querySelector('#top-menu').style.display = 'none';
+        document.querySelector('.waiting').style.display = 'none';
+        document.querySelector('#top-menu').style.display ='none'
+      }
       _modal.open();
     })
 

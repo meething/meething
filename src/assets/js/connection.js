@@ -106,8 +106,11 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        med.h.swapDiv(data.socketId + "-widget");
+        med.h.swapGlow(data.socketId+"-talker");;
+        med.h.swapPiP(data.socketId + "-video")
+        med.h.swapDiv(data.socketId+"-widget");;
       }
+
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
         med.h.showNotification("Read-Only Join by " + data.username);
