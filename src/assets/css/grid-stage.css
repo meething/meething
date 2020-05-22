@@ -1,0 +1,6 @@
+/* CSS Grid Focus CSS Plugin */
+.grid-container div:first-child {
+  grid-column: auto / span 2;
+  grid-row: auto / span 2;
+}
+
