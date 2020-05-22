@@ -12,6 +12,7 @@ export default class Toggles {
     this.initToggleAudio();
     this.initToggleScreenShare();
     this.initToggleAudioRecording();
+    this.initTogglePiPMode();
   }
 
   initToggleVideo() {
@@ -89,5 +90,28 @@ export default class Toggles {
       med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
       window.ee.emit("record-audio-toggled")
     });
+  }
+
+  initTogglePiPMode() {
+    const togglePip = document.getElementById("pip-toggle");
+    const pipVideo = document.getElementById("pip");
+    if ("pictureInPictureEnabled" in document) {
+      togglePip.hidden = false;
+      togglePip.addEventListener("click", e => {
+        e.preventDefault();
+        window.ee.emit("pip-toggled")
+      });
+
+      pipVideo.addEventListener('enterpictureinpicture', function (event) {
+        togglePip.classList.add("text-success");
+        togglePip.classList.remove("text-white");
+      });
+
+      pipVideo.addEventListener('leavepictureinpicture', function (event) {
+        togglePip.classList.add("text-white");
+        togglePip.classList.remove("text-success");
+      });
+    }
+
   }
 }

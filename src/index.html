@@ -67,6 +67,11 @@
   <div class="container-fluid room-comm" hidden>
     <div class="row">
       <div id="localStream">
+        <video id="pip" class="local-video clipped" playsinline autoplay muted hidden="true">
+          <source src="/assets/video/muted.webm" type="video/webm">
+          <source src="/assets/video/muted.mp4" type="video/mp4">
+          <source src="/assets/video/muted.ogg" type="video/ogv">
+        </video>
       </div>
       <div id="localshadow"></div>
     </div>
@@ -133,6 +138,8 @@
       <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
         title="Mute/Unmute Audio">
       </button>
+
+      <button class="btn btn-lg btn-no-effect fab fa-pied-piper-pp text-white blue" id="pip-toggle"title="PiP mode"></button>
 
       <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
         onclick="window.location.href='/'">
