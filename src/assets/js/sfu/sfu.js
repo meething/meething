@@ -81,7 +81,19 @@ export default class SFU extends EventEmitter {
     }
 
     async startScreenShare() {
-        var stream = await helper.getDisplayMedia({ audio: true, video: true });
+        //WXGA 1280x720
+        var stream = await helper.getDisplayMedia({
+            audio: false,
+            video: {
+                height: {
+                    ideal: 720,
+                    max: 720
+                }, width: {
+                    ideal: 1280,
+                    max: 1280
+                }
+            }
+        });
         var screenTrack = stream.getVideoTracks()[0];
         this.screenProducer = await this.sfuRoom.sendScreen(screenTrack);
     }

@@ -19,8 +19,9 @@ export default class Room extends EventEmitter {
             var SFU_URL = "wss://" + window.location.hostname + ":2345";
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
-            if(!wsTransport.onopen){throw 'local connection not working'};
+            if(wsTransport.readyState == 2 || wsTransport.readyState == 3) {console.error('something not right with webSocket'); throw 'webSocket Local Error';}
             this.peer = new Peer(wsTransport);
+            console.log('peer',this.peer._transport._connected, wsTransport.readyState);
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
             var SFU_URL = 'wss://meething.space:2345'

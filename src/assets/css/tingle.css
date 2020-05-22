@@ -158,10 +158,6 @@
 }
 
 
-.tingle-enabled .tingle-content-wrapper {
-
-}
-
 .tingle-modal--visible {
   visibility: visible;
   opacity: 1;
@@ -233,6 +229,18 @@
 
 /* responsive
 -------------------------------------------------------------- */
+@media (max-height: 568px) {
+  #meethlogo {
+    margin-top:10px;
+    width:50px;
+  }
+  .speech-msg{
+    text-align:center;font-size:14px
+  }
+  p{
+    text-align:center;
+  }
+}
 
 @media (max-width: 540px) {
   .tingle-modal-box {
