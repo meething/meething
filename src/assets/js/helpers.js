@@ -1,8 +1,8 @@
 import config from './config.js';
-var cache, 
-  mutedStream, 
-  ac, 
-  mediaStreamDestination, 
+var cache,
+  mutedStream,
+  ac,
+  mediaStreamDestination,
   mediaRecorder,
   MutedAudioTrack,
   MutedVideoTrack,
@@ -12,7 +12,7 @@ var cache,
   isTouchScreen = ("ontouchstart" in document.documentElement) ? true : false,
   isiOS = (['iPad', 'iPhone', 'iPod'].indexOf(navigator.platform) >= 0) ? true : false,
   isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor),
-  isMobile = (window.orientation > -1) ? true :false,
+  isMobile = (window.orientation > -1) ? true : false,
   userMediaAvailable = function userMediaAvailable() {
     return !!(
       navigator.getUserMedia ||
@@ -21,15 +21,15 @@ var cache,
       navigator.msGetUserMedia
     );
   },
-  
+
   typeOf = function typeOf(o) {
     return Object.prototype.toString
       .call(o).match(/(\w+)\]/)[1].toLowerCase();
   },
-  t = function t(i,r){
+  t = function t(i, r) {
     return r.test(i);
   },
-  getWindowResolution = () => { return {width: window.innerWidth, height: window.innerHeight, pixelRatio: window.devicePixelRatio } },
+  getWindowResolution = () => { return { width: window.innerWidth, height: window.innerHeight, pixelRatio: window.devicePixelRatio } },
   fromPath = function fromPath(obj, path) {
     path = path.replace(/\[(\w+)\]/g, '.$1');
     path = path.replace(/^\./, '');
@@ -44,7 +44,7 @@ var cache,
     }
     return obj;
   },
-  sleep = async function sleep (time) {
+  sleep = async function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
   },
   toPath = function toPath(obj, path, value) {
@@ -53,12 +53,12 @@ var cache,
     if (path.length > 1) {
       var p = path.shift();
       //console.log("p",p,"path",path,"objp",obj[p]);
-      if (fromPath(obj,p) == null) {
+      if (fromPath(obj, p) == null) {
         //console.log("were in","typeof p is",typeOf(p),"p is",p);
         var r = /^\d$/;
-        if (t(p,r) || (path.length > 0 && t(path[0],r))) {
+        if (t(p, r) || (path.length > 0 && t(path[0], r))) {
           obj[p] = [];
-        } else if (!t(p,r) && typeOf(obj[p]) != 'object') {
+        } else if (!t(p, r) && typeOf(obj[p]) != 'object') {
           obj[p] = {};
         }
       }
@@ -66,7 +66,7 @@ var cache,
     } else {
       var p = path.shift();
       var r = /^\d$/;
-      if (t(p,r) || typeOf(obj[p]) == "array") {
+      if (t(p, r) || typeOf(obj[p]) == "array") {
         if (!obj[p] && typeOf(value) == "array") obj[p] = value;
         else if (!obj[p] && typeOf(value) == "string") obj[p] = [value];
         else obj[p] = value;
@@ -76,83 +76,83 @@ var cache,
     }
   },
   canCaptureCanvas = ('captureStream' in HTMLCanvasElement.prototype) ? true : false,
-  canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true :false,
+  canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true : false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
   canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
   canCreateMediaStream = ('MediaStream' in window) ? true : false;
-  
-  function getDevices() {
-    return new Promise(async(resolve,reject)=>{
-      if(!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices != "function") return reject('no mediaDevices');
-      let devices = await navigator.mediaDevices.enumerateDevices();
-      let grouped = {};
-      for (let i = 0; i !== Object.keys(devices).length; ++i) {
-        let asLength=0,aoLength=0,vsLength=0,oLength=0; 
-        const deviceInfo = devices[i];
-        if (deviceInfo.kind === 'audioinput') {
-          if(!grouped['as']) { 
-            grouped['as'] = {};
-          } 
-          let label = deviceInfo.label || `Mic ${asLength + 1}`;
-          grouped['as'][label] = deviceInfo;
-          asLength++;
-        } else if (deviceInfo.kind === 'audiooutput') {
-          if(!grouped['ao']) { 
-            grouped['ao'] = {};
-          } 
-          let label = deviceInfo.label || `Speaker ${aoLength + 1}`;
-          grouped['ao'][label] = deviceInfo;
-          aoLength++;
-        } else if (deviceInfo.kind === 'videoinput') {
-          if(!grouped['vs']) { 
-            grouped['vs'] = {};
-          } 
-          let label = deviceInfo.label || `Cam ${vsLength + 1}`;
-          grouped['vs'][label] = deviceInfo;
-          vsLength++;
-        } else {
-          if(!grouped['other']){
-            grouped['other'] = {}
-          }
-          let label = deviceInfo.label || `Other ${oLength + 1}`;
-          grouped['other']=deviceInfo;
-          oLength++;
+
+function getDevices() {
+  return new Promise(async (resolve, reject) => {
+    if (!navigator.mediaDevices || typeof navigator.mediaDevices.enumerateDevices != "function") return reject('no mediaDevices');
+    let devices = await navigator.mediaDevices.enumerateDevices();
+    let grouped = {};
+    for (let i = 0; i !== Object.keys(devices).length; ++i) {
+      let asLength = 0, aoLength = 0, vsLength = 0, oLength = 0;
+      const deviceInfo = devices[i];
+      if (deviceInfo.kind === 'audioinput') {
+        if (!grouped['as']) {
+          grouped['as'] = {};
         }
+        let label = deviceInfo.label || `Mic ${asLength + 1}`;
+        grouped['as'][label] = deviceInfo;
+        asLength++;
+      } else if (deviceInfo.kind === 'audiooutput') {
+        if (!grouped['ao']) {
+          grouped['ao'] = {};
+        }
+        let label = deviceInfo.label || `Speaker ${aoLength + 1}`;
+        grouped['ao'][label] = deviceInfo;
+        aoLength++;
+      } else if (deviceInfo.kind === 'videoinput') {
+        if (!grouped['vs']) {
+          grouped['vs'] = {};
+        }
+        let label = deviceInfo.label || `Cam ${vsLength + 1}`;
+        grouped['vs'][label] = deviceInfo;
+        vsLength++;
+      } else {
+        if (!grouped['other']) {
+          grouped['other'] = {}
+        }
+        let label = deviceInfo.label || `Other ${oLength + 1}`;
+        grouped['other'] = deviceInfo;
+        oLength++;
       }
-      return resolve(grouped);
-    });
-  }
-  var each = function each(o, fn) {
-    for (var i in o) fn(i, o[i]);
-  };
-  function removeElement(elementId) {
-    // Removes an element from the document
-    var element = document.getElementById(elementId);
-    if(element) element.parentNode.removeChild(element);
-  }
-  var copyToClipboard =  function copyToClipboard(text) {
-    if (window.clipboardData && window.clipboardData.setData) {
-        // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
-        return clipboardData.setData("Text", text);
     }
-    else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
-        var textarea = document.createElement("textarea");
-        textarea.textContent = text;
-        textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
-        document.body.appendChild(textarea);
-        textarea.select();
-        try {
-            return document.execCommand("copy");  // Security exception may be thrown by some browsers.
-        }
-        catch (ex) {
-            console.warn("Copy to clipboard failed.", ex);
-            return false;
-        }
-        finally {
-            document.body.removeChild(textarea);
-        }
+    return resolve(grouped);
+  });
+}
+var each = function each(o, fn) {
+  for (var i in o) fn(i, o[i]);
+};
+function removeElement(elementId) {
+  // Removes an element from the document
+  var element = document.getElementById(elementId);
+  if (element) element.parentNode.removeChild(element);
+}
+var copyToClipboard = function copyToClipboard(text) {
+  if (window.clipboardData && window.clipboardData.setData) {
+    // Internet Explorer-specific code path to prevent textarea being shown while dialog is visible.
+    return clipboardData.setData("Text", text);
+  }
+  else if (document.queryCommandSupported && document.queryCommandSupported("copy")) {
+    var textarea = document.createElement("textarea");
+    textarea.textContent = text;
+    textarea.style.position = "fixed";  // Prevent scrolling to bottom of page in Microsoft Edge.
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      return document.execCommand("copy");  // Security exception may be thrown by some browsers.
     }
-  };
+    catch (ex) {
+      console.warn("Copy to clipboard failed.", ex);
+      return false;
+    }
+    finally {
+      document.body.removeChild(textarea);
+    }
+  }
+};
 if (canCreateMediaStream && canCaptureCanvas) {
   MutedAudioTrack = ({ elevatorJingle = false } = {}) => {
     // TODO: if elevatorJingle, add some random track of annoying music instead :D
@@ -173,8 +173,8 @@ if (canCreateMediaStream && canCaptureCanvas) {
     ctx.font = '18px';
     ctx.fillStyle = 'rgb(' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ',' + parseInt(Math.random() * 255) + ')';
     ctx.textAlign = "center";
-    ctx.fillText("¯\\_(ツ)_/¯ ", width/2, c.height/2);
-    ctx.drawImage(document.getElementById('local'), 0, 0, width/2, c.height/2);
+    ctx.fillText("¯\\_(ツ)_/¯ ", width / 2, c.height / 2);
+    ctx.drawImage(document.getElementById('local'), 0, 0, width / 2, c.height / 2);
     if (window && window.meethrix == true) {
       //EASTER EGG
       var chars = "MEETHINGM33TH1NGGN1HT33MGNIHTEEM";
@@ -196,7 +196,7 @@ if (canCreateMediaStream && canCaptureCanvas) {
             drops[i] = 0;
           drops[i]++;
         }
-        setTimeout(draw,33);
+        setTimeout(draw, 33);
         //else
         //  setTimeout(draw,33);
       }
@@ -207,33 +207,33 @@ if (canCreateMediaStream && canCaptureCanvas) {
   MutedStream = (videoOpts, audioOpts) =>
     new MediaStream([MutedVideoTrack(videoOpts), MutedAudioTrack(audioOpts)]);
 } else {
-  
+
   console.warn("no MediaStream constructor, we're IE/Edge/Safari");
   // LOAD VIDEO
-  var mediaSource = new MediaSource(), 
+  var mediaSource = new MediaSource(),
     source,
     tmp = document.createElement("video");
-  if(isOldEdge){
-    console.log("typeOf mediasource",typeOf(mediaSource));
+  if (isOldEdge) {
+    console.log("typeOf mediasource", typeOf(mediaSource));
     var tof = typeOf(mediaSource);
     source = tof == "mediasource" ? URL.createObjectURL(mediaSource) : tof == "mediastream" ? mediaSource : null;
-    tmp[tof=="mediasource" ? "src" : "srcObject"] = source;
+    tmp[tof == "mediasource" ? "src" : "srcObject"] = source;
   } else {
-  if ("srcObject" in tmp) {
-    try {
-      source = mediaSource;
-      tmp.srcObject = source;
-    } catch (err) {
-      console.warn("error setting mediaSource",err);
-      source = URL.createObjectURL(mediaSource);
-      // Try to set mediaSource src instead
+    if ("srcObject" in tmp) {
+      try {
+        source = mediaSource;
+        tmp.srcObject = source;
+      } catch (err) {
+        console.warn("error setting mediaSource", err);
+        source = URL.createObjectURL(mediaSource);
+        // Try to set mediaSource src instead
+        tmp.src = source;
+      }
+    } else {
+      source = URL.createObjectURL(mediaSource)
       tmp.src = source;
     }
-  } else {
-    source = URL.createObjectURL(mediaSource)
-    tmp.src = source;
-  }
-  //	tmp.src=  /*(cpmp4) ? '/video/blank.mp4' : (cpogv) ? '/video/blank.ogg' : (cpwebm) ? '/video/blank.webm' : */  URL.createObjectURL(mediaSource);
+    //	tmp.src=  /*(cpmp4) ? '/video/blank.mp4' : (cpogv) ? '/video/blank.ogg' : (cpwebm) ? '/video/blank.webm' : */  URL.createObjectURL(mediaSource);
   }
   mutedStream = source;
 
@@ -349,8 +349,8 @@ export default {
         this.typeOf(mediaSource) == "mediasource"
           ? URL.createObjectURL(mediaSource)
           : this.typeOf(mediaSource) == "mediastream"
-          ? mediaSource
-          : null;
+            ? mediaSource
+            : null;
       video[tof == "mediastream" ? "srcObject" : "src"] = source;
       return { video, source };
     } else {
@@ -364,8 +364,8 @@ export default {
             this.typeOf(mediaSource) == "mediasource"
               ? URL.createObjectURL(mediaSource)
               : this.typeOf(mediaSource) == "mediastream"
-              ? mediaSource
-              : null;
+                ? mediaSource
+                : null;
           // Try to set mediaSource src instead
           video.src = source;
         }
@@ -374,8 +374,8 @@ export default {
           this.typeOf(mediaSource) == "mediasource"
             ? URL.createObjectURL(mediaSource)
             : this.typeOf(mediaSource) == "mediastream"
-            ? mediaSource
-            : null;
+              ? mediaSource
+              : null;
         video.src = source;
       }
       window.ee.emit("local-video-loaded");
@@ -406,7 +406,7 @@ export default {
     }
   },
   uuidv4() {
-    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
       var r = (Math.random() * 16) | 0,
         v = c == "x" ? r : (r & 0x3) | 0x8;
       return v.toString(16);
@@ -453,22 +453,22 @@ export default {
   userMediaAvailable,
   getUserMedia(opts) {
     if (this.userMediaAvailable()) {
-      opts = opts && this.typeOf(opts) == "object" ? opts: {
-              video: {
-                height: {
-                  ideal: 720,
-                  max: 720,
-                  min: 240,
-                  frameRate: {
-                    ideal: 15,
-                    min: 10,
-                  },
-                },
-              },
-              audio: {
-                echoCancellation: true,
-              },
-            };
+      opts = opts && this.typeOf(opts) == "object" ? opts : {
+        video: {
+          height: {
+            ideal: 720,
+            max: 720,
+            min: 240,
+            frameRate: {
+              ideal: 15,
+              min: 10,
+            },
+          },
+        },
+        audio: {
+          echoCancellation: true,
+        },
+      };
       return navigator.mediaDevices.getUserMedia(opts);
     } else {
       throw new Error("User media not available");
@@ -728,7 +728,7 @@ export default {
       let src = "assets/sounds/join.mp3";
       let audio = new Audio(src);
       audio.play();
-    } catch (err) {}
+    } catch (err) { }
 
     return newVid;
   },
@@ -870,15 +870,15 @@ export default {
       snackbar.className = snackbar.className.replace("show", "");
     }, 3000);
   },
-  showWarning(msg,color){
+  showWarning(msg, color) {
     var wSign = document.getElementById("warning-sign");
     console.log("silence please!")
     wSign.innerHTML = msg;
     wSign.hidden = false;
-   wSign.style.backgroundColor = color;
+    wSign.style.backgroundColor = color;
 
   },
-  hideWarning(){
+  hideWarning() {
     var wSign = document.getElementById("warning-sign");
     wSign.hidden = true
   },
@@ -890,6 +890,24 @@ export default {
     icon.className = iconName;
     button.appendChild(icon);
     return button;
+  },
+  swapPiP(id) {
+    if (!id) return;
+    const pipVid = document.getElementById("pip");
+    if (pipVid && pipVid.currentId !== id) {
+      const speakingVid = document.getElementById(id);
+      pipVid.currentId = id;
+      pipVid.srcObject = speakingVid.srcObject;
+      if (pipVid.paused) {
+        var playPromise = pipVid.play();
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+          })
+            .catch(error => {
+            });
+        }
+      }
+    }
   },
   swapDiv(id) {
     if (!id) return;
@@ -908,15 +926,15 @@ export default {
     if (!id) return;
     try {
       let glowed = document.getElementById(id);
-      if(glowed.classList.contains("lighter")){
+      if (glowed.classList.contains("lighter")) {
         glowed.classList.toggle("lighter");
         glowed.classList.remove("lighter")
       }
-        glowed.classList.toggle("lighter");
-        setTimeout(function () {
-          glowed.classList.remove("lighter");
-        }, 500);
-    
+      glowed.classList.toggle("lighter");
+      setTimeout(function () {
+        glowed.classList.remove("lighter");
+      }, 500);
+
     } catch (e) {
       console.log(e);
     }

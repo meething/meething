@@ -106,9 +106,8 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        //med.h.swapDiv(data.socketId + "-widget"); not switching div, just glow
-        med.h.swapGlow(data.socketId+"-talker");
-       // console.log(data.socketId,' is talking')
+        med.h.swapGlow(data.socketId+"-talker");;
+        med.h.swapPiP(data.socketId + "-video")
       }
 
       if (data.readonly) {
