@@ -306,6 +306,12 @@ export default class Mesh {
 
             });
 
+            document.getElementById("toggle-grid-stage").addEventListener("click", e => {
+                e.preventDefault();
+                document.getElementById("grid-stage-css").disabled = !document.getElementById("grid-stage-css").disabled;
+                if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
+            });
+            
             document.getElementById("toggle-invite").addEventListener("click", e => {
                 e.preventDefault();
                 //if (!myStream) return;
