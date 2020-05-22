@@ -3,9 +3,9 @@
 
 # Meething : dWebRTC
 
-Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and [MediaSoup](https://mediasoup.org/)
+Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](http://gun.eco) and [MediaSoup](https://mediasoup.org/) to produce a hybrid MESH-SFU with strong privacy, zero user data retention and powerful off-grid capabilities.
 
-<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=400>
+<img src="https://user-images.githubusercontent.com/1423657/78457103-3260a800-76a8-11ea-8c7a-c909c88ba716.png" width=500>
 
 ## Status
 * Working Status, _still dWeb-x-perimental!_
@@ -16,13 +16,16 @@ Meething is a semi-decentralized conference bridge using modern WebRTC, [GunDB](
 <img src="https://user-images.githubusercontent.com/1423657/82707584-a537d980-9c7c-11ea-8253-08f063ac8644.gif" width=600>
 
 
-Ready to try Meething? </a>
+Ready to try Meething? Join Now!</a>
 
 <br/>
 
 [![Remix on Glitch](https://cdn.glitch.com/2703baf2-b643-4da7-ab91-7ee2a2d00b5b%2Fremix-button.svg)](https://glitch.com/edit/#!/import/github/https://github.com/meething/webrtc-gun/gun-meething)
 
 ### Installation
+#### Docker
+Try Meething using [docker](https://github.com/meething/meething-docker) containers
+#### Manual
 * Clone the repository and install using `npm`
 ```
 npm install
@@ -47,11 +50,12 @@ The Meething  application will connect to community Gun nodes for user discovery
 #### SuperPeers
 SuperPeers can provide the network with services such as STUN/TURN/RELAY and in the future SFU/MCU features. For more details, check out the Project Wiki.
 
+<!--
+
 --------------
 
 ## Screenshots
 
-<!--
 
 #### Isolation Test @qxip @amark @qvdev
 <img src="https://user-images.githubusercontent.com/1423657/77968595-04661700-72e8-11ea-8226-b90fbe8011c8.png" width=500 />
@@ -66,10 +70,9 @@ SuperPeers can provide the network with services such as STUN/TURN/RELAY and in 
 
 
 
+#### Credits & Thanks
+* [Meething Team](https://github.com/meething/meething/graphs/contributors) on Discord for making this happen!
+* [Mozilla Builders](https://builders.mozilla.community/) for supporting our idea!
+* [Mediasoup](mediasoup.org) Team for their kickass SFU!
+* [Mark's GUN](https://gun.eco/) and its community!
 
-<!--
-##### Credits & Thanks
-* Mozilla for supporting our idea!
-* Mark Nadal + Gun Community
-* Amir Sanni for sharing his ideas from [Video-Call-App-NodeJS](https://github.com/amirsanni/Video-Call-App-NodeJS)
--->
