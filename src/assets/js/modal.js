@@ -34,6 +34,7 @@ export default class Modal {
       if(window.innerWidth < 412){
         document.querySelector('#top-menu').style.display = 'none';
         document.querySelector('.waiting').style.display = 'none';
+        document.querySelector('#top-menu').style.display ='none'
       }
       _modal.open();
     })
