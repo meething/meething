@@ -286,6 +286,9 @@
     vertical-align: middle;
     font-size: 0;
   }
+  .speech-bubble{
+    padding-top:0px;
+  }
 }
 
 
@@ -312,7 +315,11 @@
   transition:.5s ease all;
   overflow-y:auto;
 }
-
+@media (max-width: 540px){
+  .speech-bubble{
+    padding-top:0px;
+  }
+}
 .speech-bubble-open{
   left:0px;
 }
