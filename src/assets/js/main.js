@@ -10,12 +10,14 @@ import Modal from "./modal.js";
 import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
+import GunControl from "./gunControl.js";
 let mGraph,
     mModal,
     mChat,
     mConn,
     mToggles,
-    mUex;
+    mUex,
+    mGunControl;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -27,6 +29,7 @@ function Mediator() {
   this.enableHacks = config.enableHacks; // @jabis what is this?
   this.meethrix = config.meethrix; // lives here for now, video module?
   this.autoload = config.autoload; // okay here but likely should go to modal
+  this.config = config;
   this.root; //need this initiated as soon as possible
   this.room = ''; // need a random name?
   this.roompass;
@@ -66,6 +69,7 @@ function Mediator() {
 
   this.welcomeMat = function () {
     this.uex.initialRegister(); // attach dom listeners into ui/ux
+    this.gunControl.createInstance();
     this.modal.createModal(); // create and display
     this.uex.afterModalRegister(); // attach listeners to items in modal
   };
@@ -81,21 +85,17 @@ function Mediator() {
       var hash = null,
         creator = null;
       if (this.room) {
-        // TODO
-        // replace below logic
         hash = this.getSS('rooms.' + this.room + '.hash');
         creator = this.getSS('rooms.' + this.room + '.creator');
-
-        // replace above
         var r = (hash && creator) ? this.room + '?sig=' + encodeURIComponent(hash) + "&creator=" + encodeURIComponent(creator) : this.room;
         console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
       localStorage.clear();
-      var peers = [roomPeer];
-      var opt = { peers: peers, /*localStorage: false,*/ radisk: false };
       window.room = this.room;
-      this.root = window.root = Gun(opt);
+      window.root = this.gunControl.clearPeers();
+      this.gunControl.addPeer(roomPeer);
+
       // initiate graph
       mGraph.init();
 
@@ -109,7 +109,7 @@ function Mediator() {
   }
 
   /* Call connection module to establish connection */
-  
+
   this.initComm = function () {
     mConn.establish();
   }
@@ -179,12 +179,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mConn = new Conn(meething);
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
+  mGunControl = new GunControl(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
   meething.conn = mConn;
   meething.modal = mModal;
   meething.toggles = mToggles;
+  meething.gunControl = mGunControl;
   meething.uex = mUex;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();

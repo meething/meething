@@ -107,22 +107,11 @@ export default class Presence {
   }
 
   offGrid() {
-    const keys = Object.keys(self.root._.opt.peers)
-    for (const key of keys) {
-      var peer = self.root._.opt.peers[key];
-      peer.enabled = false;
-      self.root.on('bye', peer);
-      peer.url = '';
-    }
+    med.gunControl.clearPeers();
   }
 
   onGrid(peerUrl) {
-    let peers = self.root._.opt.peers;
-    let peer = {};
-    peerUrl = "https://gundb-multiserver.glitch.me/" + peerUrl; //TODO use import config.js for this
-    peer.id = peerUrl;
-    peer.url = peerUrl;
-    peers[peerUrl] = peer;
-    self.root._.opt.peers = peers;
+    peerUrl = med.config.multigun + peerUrl;
+    med.gunControl.addPeer(peerUrl);
   }
 }
