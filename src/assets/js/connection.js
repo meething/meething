@@ -108,7 +108,7 @@ export default class Connection {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
         med.h.swapGlow(data.socketId+"-talker");;
         med.h.swapPiP(data.socketId + "-video")
-        med.h.swapDiv(data.socketId+"-talker");;
+        med.h.swapDiv(data.socketId+"-widget");;
       }
 
       if (data.readonly) {
