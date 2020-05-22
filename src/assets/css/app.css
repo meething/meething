@@ -365,6 +365,7 @@ li {
 
 .v-user {
   font-family: Helvetica, Arial, sans-serif;
+  margin-left: 50px;
   font-size: 12px !important;
   opacity: 1;
 }
@@ -402,8 +403,9 @@ li {
 }
 
 .top-widget-toolbox {
-  display: flex;
-  justify-content: flex-start;
+  display: grid;
+  position: absolute;
+  bottom: 0;
   align-items: center;
   margin-left: 10px;
 }
@@ -425,7 +427,7 @@ li {
   margin-bottom: 10px;
   background: #3f069c;
   text-shadow: 1px 1px 2px black;
-  border-radius: 6px 6px 0px 0px;
+  border-radius: 0px 6px 6px 0px;
 }
 
 .widget-button:hover {
