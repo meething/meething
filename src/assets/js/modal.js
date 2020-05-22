@@ -51,7 +51,7 @@ export default class Modal {
       self.modalFilled(_modal);
     })
     window.ee.on("local-video-loaded", function () {
-      if (med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
+      if (med.root !== undefined && med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
         med.initComm();
       }
     });
@@ -369,6 +369,7 @@ export default class Modal {
     }
     med.initSocket().then(sock=>{
       info.modal.close();
+      window.ee.emit("local-video-loaded");
     })
     return this;
   }
