@@ -10,12 +10,14 @@ import Modal from "./modal.js";
 import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
+import PipMode from './ui/pipmode.js';
 let mGraph,
     mModal,
     mChat,
     mConn,
     mToggles,
-    mUex;
+    mUex,
+    mPipMode;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -53,6 +55,7 @@ function Mediator() {
   this.chat;
   this.conn;
   this.toggles;
+  this.pipMode;
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
   this.graph;
@@ -179,6 +182,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mConn = new Conn(meething);
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
+  mPipMode = new PipMode(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
@@ -186,6 +190,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.modal = mModal;
   meething.toggles = mToggles;
   meething.uex = mUex;
+  meething.pipMode = mPipMode;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 

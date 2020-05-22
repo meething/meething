@@ -860,6 +860,23 @@ export default {
     button.appendChild(icon);
     return button;
   },
+  swapPiP(id) {
+    const pipVid = document.getElementById("pip");
+    if (pipVid && pipVid.currentId !== id) {
+      const speakingVid = document.getElementById(id);
+      pipVid.currentId = id;
+      pipVid.srcObject = speakingVid.srcObject;
+      if(pipVid.paused) {
+        var playPromise = pipVid.play();
+        if (playPromise !== undefined) {
+          playPromise.then(_ => {
+          })
+          .catch(error => {
+          });
+        }
+      }
+    }
+  },
   swapDiv(id){
     if(!id) return;
     // console.log('Focusing grid widget with id '+id);
