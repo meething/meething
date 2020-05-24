@@ -121,9 +121,8 @@ body {
   position: relative;
   object-fit: cover !important;
   height: 100%;
-  width: 100%;
-  border-radius: 6px;
-  max-height: 80vh;
+  width: 100%; 
+   max-height: 80vh;
   background: #14101bbb;
 }
 
@@ -356,7 +355,6 @@ li {
   margin-right: 10px;
   text-transform: capitalize;
   font-weight: lighter;
-  padding: 0px 12px;
 }
 
 .dot-user {
@@ -525,8 +523,7 @@ meter {
 
 .grid-container {
   display: grid;
-  grid-gap: 5px;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
   padding: 0px;
   height: 100%;
 }
