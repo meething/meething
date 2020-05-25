@@ -122,7 +122,7 @@ body {
   object-fit: cover !important;
   height: 100%;
   width: 100%; 
-   max-height: 80vh;
+  max-height: 80vh;
   background: #14101bbb;
 }
 
@@ -522,10 +522,12 @@ meter {
 /* CSS Grid */
 
 .grid-container {
+  display:block;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); 
   padding: 0px;
   height: calc(100vh - 95px);
+  height: -moz-calc(100vh - 95px);
 }
 
 .grid-item {
