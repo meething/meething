@@ -22,7 +22,7 @@ export default class Room extends EventEmitter {
             var SFU_URL = "wss://" + window.location.hostname + ":2345";
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
-            if(wsTransport.readyState == 2 || wsTransport.readyState == 3) {console.error('something not right with webSocket'); throw 'webSocket Local Error';}            
+            if(wsTransport.readyState == 2 || wsTransport.readyState == 3) {console.error('something not right with webSocket'); throw 'webSocket Local Error';}
             this.peer = new Peer(wsTransport);
             console.log('peer',this.peer._transport._connected, wsTransport.readyState);
         } catch (e) {

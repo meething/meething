@@ -25,7 +25,7 @@ export default class Modal {
       onOpen: self.tingleOnOpen
     });
 
-    this._modal = _modal; //remove this later
+    self._modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
     
@@ -49,13 +49,13 @@ export default class Modal {
       devices = window.devices = devices;
       self.navigatorGotDevices(devices);
     });
-    this.ee.on('toggle-device-selection',function(event){
+    self.ee.on('toggle-device-selection',function(event){
       var el = document.getElementById('deviceSelection');
       if(el) el.hidden=false;
       self.resetDevices();
       self.modalFilled(_modal);
     })
-    window.ee.on("local-video-loaded", function () {
+    self.ee.on("local-video-loaded", function () {
       if (med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
         med.initComm();
       }
@@ -275,7 +275,7 @@ export default class Modal {
   }
 
   navigatorGotDevices (devices) {
-    this.ee.emit('navigator:gotDevices',devices);
+    self.ee.emit('navigator:gotDevices',devices);
       if(med.DEBUG){console.log('hello',devices);}
       ["as","ao","vs"].map(function(group){
         let devs = devices[group];
@@ -363,14 +363,14 @@ export default class Modal {
     med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     // stuff that is common
     if(!med.myStream){
-      await this.resetDevices();
+      await self.resetDevices();
     }
     var ve = document.getElementById('local');
     var vs = document.getElementById('localStream');
     if(ve && vs){
       ve.className="local-video clipped";
       vs.appendChild(ve);
-      window.ee.emit("local-video-loaded");
+      self.ee.emit("local-video-loaded");
     }
     med.initSocket().then(sock=>{
       info.modal.close();
