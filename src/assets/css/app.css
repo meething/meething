@@ -122,7 +122,6 @@ body {
   object-fit: cover !important;
   height: 100%;
   width: 100%; 
-  max-height: 80vh;
   background: #14101bbb;
 }
 
@@ -400,14 +399,24 @@ li {
   display: none;
 }
 
-.top-widget-toolbox {
+.top-widget-toolbox{
   display: grid;
   position: absolute;
   bottom: 0;
   align-items: center;
   margin-left: 10px;
-}
 
+  transition:.5s;
+
+}
+.top-widget-toolbox #close-video-button{
+  opacity:.1;
+}
+.top-widget-toolbox #close-video-button:hover{opacity:1}
+.top-widget-toolbox #full-screen-button{
+  opacity:.1;
+}
+.top-widget-toolbox #full-screen-button:hover{opacity:1}
 .widget-button {
   text-align: center;
   font-size: 18px;
