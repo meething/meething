@@ -523,9 +523,9 @@ meter {
 
 .grid-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); 
   padding: 0px;
-  height: 100%;
+  height: calc(100vh - 95px);
 }
 
 .grid-item {
