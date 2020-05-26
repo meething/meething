@@ -19,13 +19,13 @@
 		  // console.log('Resize Grid! New Element Count:',count);
 		  if(count > 7) {
 			  // we can fine adjust this
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(210px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if(count > 3) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(210px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if(count > 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(210px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if (count == 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(210px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if (count == 0) {
 			 console.log('no participants');
 			 document.getElementById('emptyroom').hidden = false;
