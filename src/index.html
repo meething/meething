@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <title>Gun: Multi-User Video Call</title>
 
   <meta content="width=device-width, initial-scale=1" name="viewport" />
@@ -20,34 +21,29 @@
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
   <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
   <script src="/assets/js/encoding.js" type="text/javascript"></script>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
-
-  <script src="/assets/js/tingle.js" type="text/javascript" />
+  <script
+    src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
+  <script src="/assets/js/observer.js" type="text/javascript"></script>
+  <script src="/assets/js/tingle.js" type="text/javascript"></script>
+  <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
   <script type="module" src="/assets/js/emitter.js"></script>
-  <script type="module" src="/assets/js/soundmeter.js"></script>
-  <script type="module" src="/assets/js/emitter.js"></script>
-  <script type="module" src="/assets/js/rtc.js"></script>
-  <script type="module" src="/assets/js/events.js"></script>
-
+  <script type="module" src="/assets/js/main.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
-  
-  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/gun.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.430/sea.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/gun.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/lib/then.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/gun/lib/unset.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/gun/lib/promise.js"></script>
 </head>
 
 <body>
   <div id="demo" class="demo" hidden>
-​    <div class="grid-box" class="grid-box">
+    ​ <div class="grid-box" class="grid-box">
       <div id="emptyroom" style="width: 50%; margin: 0 auto;" class="grid-bottom">
-	<center>
-		<span class="fa fa-restroom fa-2x"></span><br><span class="loading">Waiting for Participants</span></div>
-	</center>
+        <center class="waiting">
+          <span class="fa fa-restroom fa-2x"></span><br><span class="loading mt-4">Waiting for Participants</span>
+        </center>
+      </div>
       <div class="grid-container" id="grid">
       </div>
     </div>
@@ -60,74 +56,25 @@
     </div>
 
     <div class="pull-right room-comm" hidden>
-
-      <meter high="0.25" max="1" value="0" id="audiometer"></meter>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
-        title="Toggle Screensharing">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-video text-white" id="toggle-video"
-        title="Mute/Unmute Video">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-volume-up text-white" id="toggle-mute"
-        title="Mute/Unmute Audio">
-      </button>
-
-      <button class="btn btn-sm text-white pull-right btn-no-effect fa fa-comment" title="Toggle Chat"
+      <button class="btn btn-md text-white pull-right btn-no-effect fas fa-comment-alt" title="Toggle Chat"
         id="toggle-chat-pane">
         <span class="badge badge-danger very-small font-weight-lighter" id="new-chat-notification" hidden>New</span>
       </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
-        title="Toggle User List">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
-        title="Re-Invite All Users">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white fa fa-unlock text-white" id="private-toggle"
-        title="Toggle Off-Grid Mode">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
-        title="Toggle Recording">
-      </button>
-
-      <button class="btn btn-sm rounded-0 btn-no-effect" id="toggle-modal" title="Room Settings">
-        <i class="fa fa-cog text-white"></i>
-      </button>
-      
-      <button class="btn btn-sm rounded-0 btn-no-effect text-white" title="Leave Room">
-        <a href="/" class="text-danger text-decoration-none">
-          <i class="fas fa-sign-out-alt text-white"></i>
-        </a>
-      </button>
-
+      <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
-
-
   </nav>
 
   <div class="container-fluid room-comm" hidden>
     <div class="row">
-
-   
-    <div id="localStream">
-      <!--video class="local-video clipped" id="local" volume="0" autoplay playsinline muted>
-        <source src="/assets/video/muted.webm"
-        type="video/webm">
-        <source src="/assets/video/muted.mp4"
-        type="video/mp4">  
-        <source src="/assets/video/muted.ogg"
-        type="video/ogv">
-      </video-->
-      
+      <div id="localStream">
+        <video id="pip" class="local-video clipped" playsinline autoplay muted hidden="true">
+          <source src="/assets/video/muted.webm" type="video/webm">
+          <source src="/assets/video/muted.mp4" type="video/mp4">
+          <source src="/assets/video/muted.ogg" type="video/ogv">
+        </video>
+      </div>
+      <div id="localshadow"></div>
     </div>
-    <div id="localshadow"></div>
-  </div>
     <div class="row">
       <div class="col-md-10 mt-2 mb-2 main">
         <div class="row" id="videos"></div>
@@ -143,67 +90,73 @@
         <div id="chat-messages"></div>
 
         <div class="row">
-          <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="3"
-            placeholder="Type here..."></textarea>
+          <textarea id="chat-input" class="form-control rounded-0 chat-box border-info" rows="1"
+            placeholder="Type here..."></textarea><br>
+          <button id="chat-send" class="form-control btn btn-primary rounded-0 chat-button">
+            <i class="fas fa-paper-plane"></i>
+          </button>
         </div>
       </div>
     </div>
+  </div>
+  <div id="top-menu" style="display:none">
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
+      title="Toggle Screensharing">
+    </button>
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
+      title="Re-Invite All Users">
+    </button>
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-user-minus text-white" id="toggle-users"
+      title="Toggle User List">
+
+    </button>
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-unlock text-white" id="private-toggle"
+      title="Toggle Off-Grid Mode">
+
+    </button>
+
+    <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
+      title="Toggle Recording">
+    </button>
+
+    <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
+
+    </button>
+
+  </div>
+  <div id="bottom-menu" class="container-fluid mx-auto" hidden>
+    <div class="buttons-container d-flex justify-content-center mx-auto" style="pointer-events:none">
+
+
+
+      <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video" style="pointer-events:auto" title="Mute/Unmute Video">
+      </button>
+
+      <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute" style="pointer-events:auto"
+        title="Mute/Unmute Audio">
+      </button>
+
+      <button class="btn btn-lg btn-no-effect fab fa-pied-piper-pp text-white blue" id="pip-toggle"title="PiP mode" style="pointer-events:auto"></button>
+
+      <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room" style="pointer-events:auto"
+        onclick="window.location.href='/'">
+        </a>
+      </button>
+
+    </div>
+
   </div>
   <div id="mydiv" style="display: none;">
     <!-- Include a header DIV with the same name as the draggable DIV, followed by "header" -->
     <div id="mydivheader"><i class="fas fa-users"></i> Users</div>
     <ul id="dynamic-list" style="list-style-type:none ;margin-right: 3em;"></ul>
   </div>
+
   <div id="snackbar"></div>
-  <script src="assets/js/dragable.js"></script>
-  <script type="text/javascript">
-  window.addEventListener('DOMContentLoaded',function () {
-	console.log('DOM Ready');
-
-	var targetNode = document.getElementById('grid');
-
-	// Options for the observer (which mutations to observe)
-	var config = { childList: true };
-
-	// Callback function to execute when mutations are observed
-	var callback = function(mutationsList, observer) {
-	    for(var mutation of mutationsList) {
-	        if (mutation.type == 'childList') {
-	          // console.log('watch grid has changed or child has been added/removed');
-		  
-		  document.getElementById('emptyroom').hidden = true;
-
-		  var count = document.getElementById('grid').childElementCount;
-		  var container = document.getElementById('grid');
-		  // console.log('Resize Grid! New Element Count:',count);
-		  if(count > 7) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
-		  } else if(count > 3) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(400px, 1fr))"
-		  } else if(count > 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
-		  } else if (count == 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
-		  } else if (count == 0) {
-			 console.log('no participants');
-			 document.getElementById('emptyroom').hidden = false;
-		  }
-	        }
-	    }
-	};
-
-	// Create an observer instance linked to the callback function
-	var observer = new MutationObserver(callback);
-
-	// Start observing the target node for configured mutations
-	observer.observe(targetNode, config);
-
-
-
-    });
-  </script>
-
-  
+  <div id="warning-sign" hidden></div>
 </body>
 
 </html>

@@ -24,6 +24,10 @@ app.get('/', (req, res) => {
 	res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/:room', function(req, res) {
+      res.redirect('/?room=' + req.params.room);
+});
+
 if (!process.env.SSL) {
 	config.webserver = http.createServer({}, app);
 	config.webserver.listen(config.port, () => console.log(`Example HTTP app listening on port ${config.port}!`))
