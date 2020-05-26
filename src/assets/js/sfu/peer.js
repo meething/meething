@@ -74,7 +74,7 @@ export class Peer extends EventEmitter {
 
             this._connected = false;
 
-            self.emit('failed', currentAttempt);
+            self.emit('failed', event);
         };
 
         this._transport.onmessage = self._receiveMessage

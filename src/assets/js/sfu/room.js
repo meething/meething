@@ -11,21 +11,24 @@ export default class Room extends EventEmitter {
         this.recvTransport = null;
     }
 
-    join(roomId, peerId) {
+    join(roomId, peerId, retry) {
         console.warn("room.join()");
 
         try {
             // Select SFU Server from config or try self
+            if(retry) {
+                throw("Retry");
+            }
             var SFU_URL = "wss://" + window.location.hostname + ":2345";
             console.log("Joining Local SFU", SFU_URL);
-            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
+            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             if(wsTransport.readyState == 2 || wsTransport.readyState == 3) {console.error('something not right with webSocket'); throw 'webSocket Local Error';}
             this.peer = new Peer(wsTransport);
             console.log('peer',this.peer._transport._connected, wsTransport.readyState);
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
             var SFU_URL = 'wss://meething.space:2345'
-            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${room}&peerId=${peerId}`, "protoo");
+            const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             this.peer = new Peer(wsTransport);
         }
 
@@ -36,6 +39,7 @@ export default class Room extends EventEmitter {
         this.peer.on("disconnected", console.error);
         this.peer.on("close", console.error);
         this.peer.on("peers", this.onPeers.bind(this));
+        this.peer.on("failed", this.onFailed.bind(this));
 
         console.log(this.peer.id);
     }
@@ -85,6 +89,26 @@ export default class Room extends EventEmitter {
         });
         return screenProducer;
     }
+
+    async onFailed(event) {
+        if(event.target._connected !== "connected") {
+            console.log("Failing retry failback?")
+            const params = this.getParams(event.target.url);
+            this.join(params.roomId, params.peerId, true);
+        }
+    }
+    getParams(url) {
+        var params = {};
+        var parser = document.createElement('a');
+        parser.href = url;
+        var query = parser.search.substring(1);
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            params[pair[0]] = decodeURIComponent(pair[1]);
+        }
+        return params;
+    };
 
     async onPeerOpen() {
         console.warn("room.peer:open");
