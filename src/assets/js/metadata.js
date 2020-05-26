@@ -46,6 +46,12 @@ export default class MetaData {
         self.send(data);
     }
 
+    sendFaceMLData(data) {
+        data.ts = Date.now();
+        data.event = "faceML";
+        self.send(data);
+    }
+
     send(data) {
         data.socketId = self.socketId;
         data.pid = self.root._.opt.pid;

@@ -21,6 +21,13 @@ export default class Connection {
     this.initDamSocket();
     this.initMetaData();
     this.initPresence();
+    this.initListeners();
+  }
+
+  initListeners() {
+    window.ee.on("middle-face", function (data) {
+      med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
+    });
   }
 
   initDamSocket() {
@@ -106,9 +113,9 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        med.h.swapGlow(data.socketId+"-talker");;
+        med.h.swapGlow(data.socketId + "-talker");;
         med.h.swapPiP(data.socketId + "-video")
-        med.h.swapDiv(data.socketId+"-widget");;
+        med.h.swapDiv(data.socketId + "-widget");;
       }
 
       if (data.readonly) {
@@ -116,6 +123,8 @@ export default class Connection {
         med.h.showNotification("Read-Only Join by " + data.username);
         med.h.hideVideo(data.socketId, true);
       }
+    } else if (data.event == "faceML") {
+      console.log("Middle::" + data.coordinates.coordinates);
     }
     else {
       if (med.DEBUG) console.log("META::" + JSON.stringify(data));
