@@ -78,7 +78,7 @@ export default class UEX {
           document.querySelector('#chat-input').value = '';
           document.querySelector('#chat-input').blur();
         }
-        
+
     });
 
     // Show / Hide User List
@@ -154,6 +154,11 @@ export default class UEX {
     // Toggle Device Selection
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
       e.preventDefault();
+      if(event.target.classList.contains("fa-sliders-h")) {
+        e.state = "open";
+      } else {
+        e.state = "closed";
+      }
       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
       e.srcElement.classList.toggle("fa-sliders-h");
       e.srcElement.classList.toggle("fa-times");
