@@ -71,6 +71,9 @@ function Mediator() {
   */
 
   this.welcomeMat = function () {
+    // find out what the mode is
+    this.mode = this.h.getQString(location.href, "mode");
+    if(this.mode == "embed") {console.log("embed detected")};
     this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.gunControl.createInstance();
     this.modal.createModal(); // create and display
