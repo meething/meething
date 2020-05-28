@@ -18,13 +18,14 @@
 		  var container = document.getElementById('grid');
 		  // console.log('Resize Grid! New Element Count:',count);
 		  if(count > 7) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+			  // we can fine adjust this
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if(count > 3) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(400px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if(count > 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if (count == 1) {
-		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(320px, 1fr))"
+		  	container.style["grid-template-columns"] = "repeat(auto-fit, minmax(260px, 1fr))"
 		  } else if (count == 0) {
 			 console.log('no participants');
 			 document.getElementById('emptyroom').hidden = false;

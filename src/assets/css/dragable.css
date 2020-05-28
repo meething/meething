@@ -41,3 +41,12 @@
  border-radius:4px 4px 0px 0px;
   box-shadow:0px 2px 4px #14101bbb;
 }
+
+
+#dynamic-list>* {
+  color: grey;
+  letter-spacing: 1px;
+  font-size: 12px;
+  cursor: pointer;
+  margin-left: 18px;
+}

@@ -24,6 +24,14 @@ export default class UEX {
     *  into the app scope for modules to listen to
     *  via med.ee
     */
+    
+    // GRID: Load/Unload custom CSS classes (Chrome Only?)
+    document.getElementById("toggle-grid-stage").addEventListener("click", e => {
+        e.preventDefault();
+        document.getElementById("grid-stage-css").disabled = !document.getElementById("grid-stage-css").disabled;
+        if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
+    });
+    
 
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
@@ -70,7 +78,7 @@ export default class UEX {
           document.querySelector('#chat-input').value = '';
           document.querySelector('#chat-input').blur();
         }
-        
+
     });
 
     // Show / Hide User List
@@ -146,6 +154,11 @@ export default class UEX {
     // Toggle Device Selection
     document.getElementById("toggle-device-selection").addEventListener("click", e => {
       e.preventDefault();
+      if(event.target.classList.contains("fa-sliders-h")) {
+        e.state = "open";
+      } else {
+        e.state = "closed";
+      }
       document.getElementById("devices-selection").classList.toggle('speech-bubble-open');
       e.srcElement.classList.toggle("fa-sliders-h");
       e.srcElement.classList.toggle("fa-times");
