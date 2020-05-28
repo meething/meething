@@ -45,6 +45,7 @@ const renderPrediction = async () => {
     if (predictions !== undefined && predictions.length > 0) {
         // out("face", predictions[0].annotations);
         worker.postMessage([predictions[0].annotations]);//Local use debug
+        window.ee.emit("face-moving", { left: Math.floor(predictions[0].boundingBox.topLeft[0][0])}) // set the left position
         window.ee.emit("middle-face", { coordinates: predictions[0].annotations.midwayBetweenEyes })
     }
     requestAnimationFrame(renderPrediction);

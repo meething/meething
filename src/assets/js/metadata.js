@@ -52,6 +52,12 @@ export default class MetaData {
         self.send(data);
     }
 
+    sendFacePosition(data) {
+        data.ts = Date.now();
+        data.event = "leftPosition"
+        self.send(data)
+    }
+
     send(data) {
         data.socketId = self.socketId;
         data.pid = self.root._.opt.pid;
@@ -59,5 +65,6 @@ export default class MetaData {
         self.root.on("out", {
             metaData: data
         });
+    
     }
 }

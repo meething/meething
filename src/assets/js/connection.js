@@ -25,9 +25,14 @@ export default class Connection {
   }
 
   initListeners() {
+    
     window.ee.on("middle-face", function (data) {
       med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
     });
+     
+  window.ee.on("face-moving", function(data){
+    med.metaData.sendFacePosition({ username: med.username, sender: med.username, moving: data });
+      }) 
   }
 
   initDamSocket() {
@@ -116,8 +121,9 @@ export default class Connection {
         med.h.swapGlow(data.socketId + "-talker");;
         med.h.swapPiP(data.socketId + "-video")
         med.h.swapDiv(data.socketId + "-widget");;
+       
       }
-
+      
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
         med.h.showNotification("Read-Only Join by " + data.username);
@@ -125,6 +131,9 @@ export default class Connection {
       }
     } else if (data.event == "faceML") {
       console.log("Middle::" + data.coordinates.coordinates);
+    } else if (data.event == "leftPosition") {
+      med.h.swapCenter(data.socketId + '-video',data.socketId,data.moving.left ) // will have to change this to the id/class of container of cleaner version of face-detect
+      console.log(data.moving.left, " moving left")
     }
     else {
       if (med.DEBUG) console.log("META::" + JSON.stringify(data));

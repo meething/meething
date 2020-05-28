@@ -1,4 +1,5 @@
 import config from './config.js';
+import fitCamera from './faceposition.js'
 var cache,
   mutedStream,
   ac,
@@ -938,6 +939,14 @@ export default {
     } catch (e) {
       console.log(e);
     }
+  },
+  swapCenter(id, cont, movement) {
+    try{
+      fitCamera(id, cont, movement)
+    }
+   catch(e){
+     console.log(e)
+   }
   },
   swapUserDetails(id, metadata) {
     if (!id || !metadata) return;
