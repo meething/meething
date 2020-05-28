@@ -45,9 +45,7 @@ let nmsRadius = 30.0;
 
 // Misc
 let mobile = false;
-// const avatarSvgs = {
-//     'boy': boySVG.default
-// };
+const avatarSvgs = ["boy", "girl", "blathers", "tom-nook"];
 
 /**
  * Loads a the camera to be used in the demo
@@ -258,9 +256,9 @@ export async function bindPage(stream) {
     console.log('Loading FaceMesh model...');
     facemodel = await facemesh.load();
 
-    console.log('Loading Avatar file...');
-
-    await parseSVG("./assets/js/plugins/pose/resources/illustration/boy.svg");
+    const avatarName = sessionStorage.avatar ? sessionStorage.avatar : avatarSvgs[Math.floor(Math.random() * avatarSvgs.length)];
+    console.log(`Loading Avatar file...${avatarName}`);
+    await parseSVG(`./assets/js/plugins/pose/resources/illustration/${avatarName}.svg`);
 
     console.log('Setting up camera...');
     try {
@@ -276,7 +274,7 @@ export async function bindPage(stream) {
     // setupGui([], posenet);
     // setupFPS();
     // video.addEventListener('loadeddata', (event) => {
-        detectPoseInRealTime(video, posemodel);
+    detectPoseInRealTime(video, posemodel);
     //   });
     // toggleLoadingUI(false);    
 }
