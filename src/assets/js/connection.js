@@ -132,7 +132,7 @@ export default class Connection {
     } else if (data.event == "faceML") {
       console.log("Middle::" + data.coordinates.coordinates);
     } else if (data.event == "leftPosition") {
-      med.h.swapCenter(data.socketId + '-video',data.socketId,data.moving.left ) // will have to change this to the id/class of container of cleaner version of face-detect
+      med.h.swapCenter(data.socketId + '-video',data.socketId + "-widget",data.moving.left )
       console.log(data.moving.left, " moving left")
     }
     else {

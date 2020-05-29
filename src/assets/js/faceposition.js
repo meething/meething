@@ -2,8 +2,8 @@
       // center of the screen : 100
     var v = document.getElementById(id);
     var vcont = document.getElementById(cont);
-    var vrect = v.getBoundingClientRect().width;
-    var vcontrect = vcont.getBoundingClientRect().width;
+    var vrect = Math.floor( v.getBoundingClientRect().width);
+    var vcontrect = Math.floor(vcont.getBoundingClientRect().width);
     v.style.left = - vrect/2 + vcontrect/2 + 'px';  
     var m = movement;
     if (m > 100){

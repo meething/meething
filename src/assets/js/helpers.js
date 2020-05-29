@@ -938,6 +938,7 @@ export default {
   swapCenter(id, cont, movement) {
     try{
       fitCamera(id, cont, movement)
+      console.log(movement)
     }
    catch(e){
      console.log(e)
