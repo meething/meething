@@ -12,6 +12,7 @@ import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
 import PipMode from './ui/pipmode.js';
 import GunControl from "./gunControl.js";
+import Embed from "./ui/embed.js";
 let mGraph,
     mModal,
     mChat,
@@ -19,7 +20,8 @@ let mGraph,
     mToggles,
     mUex,
     mGunControl,
-    mPipMode;
+    mPipMode,
+    mEmbed;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -62,6 +64,7 @@ function Mediator() {
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
   this.graph;
+  this.embed;
 
   /* Define 'Workflows' that consist of work across modules
   */
@@ -74,7 +77,12 @@ function Mediator() {
     // find out what the mode is
     this.mode = this.h.getQString(location.href, "mode");
     this.room = this.h.getQString(location.href, "room");
-    if(this.mode == "embed" && this.room) {console.log("embed detected")};
+    if(this.mode == "embed" && this.room) {
+      //only embed if room is specified
+      console.log("embed detected");
+      this.embed.landingPage();
+      return;
+    };
     this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.gunControl.createInstance();
     this.modal.createModal(); // create and display
@@ -188,6 +196,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mUex = new UEX(meething);
   mPipMode = new PipMode(meething);
   mGunControl = new GunControl(meething);
+  mEmbed = new Embed(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
@@ -197,6 +206,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.gunControl = mGunControl;
   meething.uex = mUex;
   meething.pipMode = mPipMode;
+  meething.embed = mEmbed;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 

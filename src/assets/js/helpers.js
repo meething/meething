@@ -442,7 +442,7 @@ export default {
             }
           });
           if(typeof queryStringObj[keyToReturn] !== "undefined"){
-            return queryStringObj;
+            return queryStringObj[keyToReturn];
           }
         }
       }

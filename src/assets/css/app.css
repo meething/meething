@@ -1,12 +1,6 @@
 body {
   color: #fff;
-  background: url("../images/background.png") no-repeat center center fixed;
-  background-image: url("../images/background.png");
-  -webkit-background-image: url("../images/background.png");
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+  background-color: rgb(40, 35, 47);
 }
 
 .chat-col {
