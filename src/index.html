@@ -26,6 +26,14 @@
   <script src="/assets/js/encoding.js" type="text/javascript"></script>
   <script
     src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
+  <!-- Facemesh should be dynamic due to plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
+  <!-- Facemesh -->
+  <script src="./assets/js/plugins/facemask/custommedia.js"></script>
+  <script src="./assets/js/plugins/facemask/face.js"></script>
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
   <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
@@ -140,17 +148,19 @@
 
 
 
-      <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video" style="pointer-events:auto" title="Mute/Unmute Video">
+      <button class="btn btn-lg btn-no-effect fa fa-video text-white blue" id="toggle-video" style="pointer-events:auto"
+        title="Mute/Unmute Video">
       </button>
 
-      <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute" style="pointer-events:auto"
-        title="Mute/Unmute Audio">
+      <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
+        style="pointer-events:auto" title="Mute/Unmute Audio">
       </button>
 
-      <button class="btn btn-lg btn-no-effect fab fa-pied-piper-pp text-white blue" id="pip-toggle"title="PiP mode" style="pointer-events:auto"></button>
+      <button class="btn btn-lg btn-no-effect fab fa-pied-piper-pp text-white blue" id="pip-toggle" title="PiP mode"
+        style="pointer-events:auto"></button>
 
-      <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room" style="pointer-events:auto"
-        onclick="window.location.href='/'">
+      <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
+        style="pointer-events:auto" onclick="window.location.href='/'">
         </a>
       </button>
 
