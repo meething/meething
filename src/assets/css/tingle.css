@@ -7,7 +7,7 @@
 }
 
 .tingle-modal {
-  font-family: Helvetica, Arial, Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;
   position: fixed;
   top: 20px;
   margin: 0 auto;
@@ -18,7 +18,7 @@
   visibility: hidden;
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
-  background: rgba(68, 0, 255, 0.15);
+  background: rgba(0, 0, 0, 0.15);
   opacity: 0;
   user-select: none;
   -webkit-user-select: none;
@@ -59,9 +59,6 @@
   cursor: pointer;
 }
 
-.tingle-modal__close svg * {
-  fill: currentColor;
-}
 
 .tingle-modal__closeLabel {
   display: none;
@@ -82,13 +79,13 @@
 
 .tingle-modal-box__content {
   padding-bottom:0px !important;
-  color:  #3f2d5f;
+  color:  #3d3d3d;
 
 }
 
 .tingle-modal-box__content > h1 {
   margin-bottom: 10px;
-  font-family: Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;
   font-size: 2em;
   color: rgb(192, 191, 191);
   font-weight: lighter;
@@ -97,7 +94,7 @@
 .room-form{overflow-y:auto}
 @media (max-height:640px){
   .room-form{
-    overflow-y:scroll;
+    overflow-y:auto;
     font-size:14px;
   }
 }
@@ -169,7 +166,7 @@
 }
 
 .tingle-modal--overflow {
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 /* btn
@@ -177,20 +174,19 @@
 
 .tingle-btn {
   display: inline-block;
-  font-family:Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight:lighter;
-  background-color: #3f069c;
+  background-color: #353535;
   border:none;
-  box-shadow:2px 2px 4px #14101bbb;
-  border-radius:6px !important;
+  box-shadow:2px 2px 4px #1d1d1dbb;
   transition:.5s all;
   font-size:1em;
   margin:0 auto;
   color:white;
   cursor: pointer;
   transition: background-color 0.4s ease;
-  border-radius: 3px;
-  box-shadow: 2px 2px 4px #14101bbb;
+
+  box-shadow: 2px 2px 4px #1b1b1bbb;
   margin: 5px;
   padding: 10px;
 }
@@ -201,8 +197,8 @@
 }
 
 .tingle-btn--primary:hover {
-  background-color: #51b1ff;
-  text-shadow: 1px 1px 1px rgb(77, 28, 190);
+  background-color: #8a8a8a;
+  text-shadow: 1px 1px 1px rgb(73, 73, 73);
 }
 
 .tingle-btn--danger {
@@ -214,9 +210,9 @@
 }
 
 .tingle-btn--default:hover {
-  background: #e74c3c;
+  background: #727272;
   color: white;
-  text-shadow: 1px 1px 1px rgb(77, 28, 190);
+  text-shadow: 1px 1px 1px rgb(71, 71, 71);
 }
 
 .tingle-btn--pull-left {
@@ -248,7 +244,7 @@
   }
 
   .tingle-modal-box__content {
-    overflow-y: scroll;
+    overflow-y:auto;
   }
 
   .tingle-modal--noClose {
@@ -273,7 +269,7 @@
     width: 100%;
     height: 60px;
     border: none;
-    background-color: #2c3e50;
+    background-color: #333333;
     box-shadow: none;
     color: #fff;
   }
@@ -282,9 +278,7 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 1.6rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", sans-serif;
+    font-family:  'Assistant', sans-serif;
   }
 
   .tingle-modal__closeIcon {
@@ -310,7 +304,7 @@
   position: absolute;
   left: -100vw;
   top: 0px;
-  border-radius: 3px;
+ 
   color: rgb(58, 58, 58);
   display: grid;
   align-items:center;
@@ -341,7 +335,7 @@
 
 .speech-bubble-user {
   position: relative;
-  border-radius: 3px;
+
   color: rgb(58, 58, 58);
   padding: 20px 5px;
   margin-bottom: 20px;
@@ -350,7 +344,7 @@
 
 .speech-bubble-user p {
   margin-top: 20px;
-  color: rgb(89, 83, 102);
+  color: rgb(98, 98, 98);
   font-size: 35px;
   font-weight: lighter;
 }
@@ -358,13 +352,11 @@
 .preview-container {
   background: rgb(22, 22, 22);
   padding: 0px;
-  border-radius: 3px 3px 3px 3px;
   margin-bottom: 10px;
-  box-shadow: 2px 2px 4px #14101bbb;
+  box-shadow: 2px 2px 4px #1a1a1abb;
 }
 .preview-container video {
   max-width: 100%;
-  border-radius: 3px;
   border: 3px solid rgb(22, 22, 22);
 }
 
@@ -380,11 +372,10 @@
  border:none;
   height: 40px;
   width: 40px;
-  background: #3f069c;
+  background: #5d5d5d;;
   transition: 0.2s all;
   position: relative;
   z-index: 1000;
-  border-radius:6px;
 
 }
 .preview-video-buttons button {
@@ -396,12 +387,12 @@
 }
 
 .form-control {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-size: 0.9em !important;
   font-weight: lighter;
   color: grey;
   border: none;
-  box-shadow: 2px 2px 4px #14101bbb;
+  box-shadow: 2px 2px 4px #202020bb;
 }
 .form-control label {
   font-size: 0.6em !important;
@@ -410,7 +401,7 @@
   color: white;
 }
 .speech-msg {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight: lighter !important;
   line-height: 2em;
 }
@@ -422,17 +413,15 @@
   width: 35px;
   height: 35px;
   padding: 7px 0px;
-  border-radius: 15px;
   text-align: center;
   font-size: 12px;
   line-height: 1.42857;
   color: white !important;
   z-index:10000;
-
-  background-color: #3f069c;
+  background-color: #4d4d4d;
   border:none;
- box-shadow:2px 2px 4px #14101bbb;
-  border-radius:6px !important;
+  border-radius:0;
+ box-shadow:2px 2px 4px #292929bb;
   transition:.5s all;
   font-size:18px;
   margin:0 auto;

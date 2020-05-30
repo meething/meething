@@ -19,13 +19,14 @@ return isoldedge || autoload
 <div id="" class="preview-container">
 <div class="row">
   <div class="col-md-12 mx-auto">
+
 <video id="local" class="mx-auto" playsinline autoplay muted></video>
 </div>
   <div class="preview-video-buttons row col-md-12">
-  <div class="col m-1 mb-3 mx-auto">
+  <div class="col m-1 mb-3 mx-auto" hidden>
     <button id="sam" class="fa fa-volume-up mx-auto shadow" title="Mute/Unmute Audio"></button>
     </div>
-    <div class="col m-1 mb-3 mx-auto">
+    <div class="col m-1 mb-3 mx-auto" hidden>
     <button id="svm" class="fa fa-video mx-auto shadow" title="Mute/Unmute Video"></button>
     </div>
 </div>
@@ -57,11 +58,11 @@ return isoldedge || autoload
 <video id="local" class="mx-auto" playsinline autoplay muted></video>
 </div>
 <div class="preview-video-buttons row col-md-12">
-<div class="col m-1 mb-3 mx-auto">
+<div class="col m-1 mb-3 mx-auto" hidden>
 <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
 </button>
 </div>
-<div class="col m-1 mb-3 mx-auto">
+<div class="col m-1 mb-3 mx-auto" hidden>
 <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
 </button>
 </div>
@@ -102,6 +103,7 @@ let roometusername = (room, username, passwinput, title, camisset) => {
 
 <div class='mx-auto text-center mb-4'>
 <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='150' style='filter:invert(1);'  id="meethlogo"/>
+<p>Decentralized Real-Time Communications</p>
 
 </div>
 <h4 class="speech-msg">Welcome back, <input type="hidden" id="username" value="${username}"/>${username}! </h4>
@@ -120,6 +122,7 @@ let roometnusername = (room, joinnameinput, passwinput, title, camisset) => {
   <div class="col-md-4 mt-4 mx-auto room-form">
   <div class='mx-auto text-center mb-4'>
   <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo" />
+  <p>Decentralized Real-Time Communications</p>
 </div>
   <h4 class="speech-msg">
   Welcome, you're joining room <input type="hidden" id="room-name" value="${room}"/> ${title}</h4>
@@ -144,6 +147,7 @@ let roometnusername = (room, joinnameinput, passwinput, title, camisset) => {
         <div class='mx-auto text-center mb-4'>
         
           <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+          <p>Decentralized Real-Time Communications</p>
         </div>
       <h4 class='speech-msg'>
       Welcome back, <input type='hidden' id='username' value='${username}'/>${username}</h4>
@@ -166,6 +170,7 @@ let nroometnusername = (camisset, roomcreated, errmsg, createnameinput, roomcrea
   <div class='col-md-4 mx-auto mt-5 room-form'>
     <div class='mx-auto text-center mb-4'>
       <img src='https://camo.githubusercontent.com/057efe39855e1a06d6c7f264c4545fc435954717/68747470733a2f2f692e696d6775722e636f6d2f585337396654432e706e67' width='200' style='filter:invert(1); opacity:.5' id="meethlogo"/>
+      <p>Decentralized Real-Time Communications</p>
    </div>
    <p>${roomcreated}</p>
     ${errmsg}<br>

@@ -1,12 +1,7 @@
 body {
   color: #fff;
-  background: url("../images/background.png") no-repeat center center fixed;
-  background-image: url("../images/background.png");
-  -webkit-background-image: url("../images/background.png");
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+  background:rgb(31, 31, 31);
+  font-family: 'Assistant', sans-serif;
 }
 
 /* main div */
@@ -95,7 +90,7 @@ body {
   font-weight: bold;
   color: white;
   font-size: 1em;
-  border-bottom: 1px solid #807297;
+  border-bottom: 1px solid #7c7c7c;
 }
 
 .chat-box {
@@ -109,7 +104,7 @@ body {
 }
 
 .chat-box:focus {
-  background: #473761;
+  background: #3f3f3f;
   color: white;
 }
 
@@ -136,7 +131,7 @@ body {
 }
 
 .msg {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;;
   font-weight: 400;
   font-size: 12px;
   background: #ffffffda !important;
@@ -181,12 +176,7 @@ body {
   height: 100%;
   max-height:80vh;
   width: 100%; 
-  background: #14101bbb;
-  transition: .04s all;
-}
-.remote-widget{
-  overflow:hidden;
-  background: black;
+  background: #202020bb;
 }
 /* remote video toolbox */
 .toolbox {
@@ -213,7 +203,7 @@ body {
 }
 
 .v-user {
-  font-family: Helvetica, Arial, sans-serif;
+   font-family: 'Assistant', sans-serif;
   margin-left: 80px;
   font-size: 12px !important;
   opacity: 1;
@@ -253,9 +243,8 @@ body {
   transition: 0.5s all;
   margin: 5px;
   margin-bottom: 10px;
-  background: #3f069c;
+  background: #3b3b3b;
   text-shadow: 1px 1px 2px black;
-  border-radius: 0px 6px 6px 0px;
 }
 
 .widget-button:hover {
@@ -264,8 +253,8 @@ body {
 
 /* login styles */
 #login {
-  background: #473761bb !important;
-  box-shadow: 4px 0px 8px #14101bbb;
+  background: #2f2f2fbb !important;
+  box-shadow: 4px 0px 8px #202020bb;
 }
 
 #room-create img {
@@ -282,19 +271,20 @@ body {
 }
 
 #create-room {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight: lighter;
-  background-color: #3f069c;
   border: none;
-  box-shadow: 2px 2px 4px #14101bbb;
-  border-radius: 6px !important;
+  box-shadow: 2px 2px 4px #202020bb;
+  background: #3c2c5f;
   transition: 0.5s all;
   font-size: 22px;
   margin: 0 auto;
 }
 
 #create-room:hover {
-  background: #5610c5;
+  background: #5d5d5d;
+  background-color: #5e32a3;
+  border: radius 5;
 }
 
 /* Audio Meter */
@@ -389,8 +379,6 @@ meter {
 
 #bottom-menu button {
   display: block;
-  border-radius: 10px;
-
   padding: 10px;
   margin: 5px 10px;
   text-shadow: 1px 1px 2px black;
@@ -412,11 +400,10 @@ meter {
   padding: 15px;
 
   z-index: 100000;
-  background-color: #473761;
-  box-shadow: 10px 10px 40px #14101bbb;
+  background-color: #494949;
+  box-shadow: 10px 10px 40px #292929bb;
   color: white;
   transition: 0.5s all;
-  border-radius: 0px 0px 0px 10px;
   justify-content: space-between;
   transition: 0.5px all;
   right: 0px;
@@ -431,7 +418,7 @@ meter {
 }
 
 #top-menu button span {
-  font-family: Helvetica, Arial, sans-serif;
+   font-family: 'Assistant', sans-serif;
   font-weight: lighter;
   margin-left: 20px;
 }
@@ -453,7 +440,6 @@ meter {
   padding:5px 10px;
   font-size:14px;
   font-weight:bold;
-  border-radius:6px;
   transition:.5s all;
   box-shadow:3px 3px 8px black;
   text-shadow:1px 1px 2px black;
@@ -471,12 +457,12 @@ meter {
 }
 
 .bg-green {
-  background-color: #d7f7c5 !important;
+  background-color: #e2e2e2 !important;
 }
 
 .card {
   border: 0px !important;
-  background-color: #f0f8ff42;
+  background-color: #e6e6e642;
 }
 
 li {
@@ -496,7 +482,7 @@ li {
 }
 
 .blue {
-  background: #3f069c;
+  background: #414141;
 }
 
 .yellow {
@@ -515,7 +501,7 @@ li {
 }
 
 .gridtile {
-  background-color: #473761bb !important;
+  background-color: #444444bb !important;
 }
 
 .nd-logo {
@@ -523,7 +509,7 @@ li {
   display: inline-block;
   vertical-align: baseline;
   color: #fff;
-  font-family: "Helvetica-Neue-Bold";
+  font-family: 'Assistant', sans-serif;
 }
 
 .col-select {
@@ -562,12 +548,11 @@ li {
 
     right: 0px;
     z-index: 100000;
-    background-color: #473761;
-    box-shadow: 10px 10px 40px #14101bbb;
+    background-color: #444444;
+    box-shadow: 10px 10px 40px #181818bb;
     color: white;
 
     transition: 0.5s all;
-    border-radius: 10px 0px 0px 10px;
   }
 
   .chat-col.chat-opened {
@@ -644,10 +629,6 @@ li {
 
   .v-user {
     margin-left: 50px;
-  }
-
-  .widget-button {
-    border-radius: 0px 6px 6px 0px;
   }
 
   .top-widget-toolbox {
