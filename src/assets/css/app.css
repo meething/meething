@@ -30,6 +30,12 @@ body {
   padding-top: 40px;
 }
 
+.btn-text {
+  font-family: 'Assistant', sans-serif !important; 
+  font-weight:lighter !important;
+  font-size:13px !important;
+  letter-spacing:1px;
+}
 /* chat */
 .chat-col {
   right: 0;
@@ -163,11 +169,11 @@ body {
   z-index: 1000;
   transition: 0.5s all;
 }
-
+ /*
 .clipped {
-  clip-path: circle(30%);
+ clip-path: circle(30%);
 }
-
+*/
 /* remote video */
 
 .remote-video {
@@ -413,7 +419,8 @@ meter {
   margin: 5px;
   width: 100%;
   display: flex;
-
+  padding-bottom:15px;
+  border-bottom: 2px solid rgb(27, 27, 27);
   background: none;
 }
 
@@ -669,7 +676,7 @@ li {
 
 @media only screen and (min-width: 300px) {
   .local-video {
-    top: 35px;
+    top: 50px;
   }
 }
 
