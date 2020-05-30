@@ -7,7 +7,7 @@
 }
 
 .tingle-modal {
-  font-family: Helvetica, Arial, Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;
   position: fixed;
   top: 20px;
   margin: 0 auto;
@@ -59,9 +59,6 @@
   cursor: pointer;
 }
 
-.tingle-modal__close svg * {
-  fill: currentColor;
-}
 
 .tingle-modal__closeLabel {
   display: none;
@@ -88,7 +85,7 @@
 
 .tingle-modal-box__content > h1 {
   margin-bottom: 10px;
-  font-family: Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;
   font-size: 2em;
   color: rgb(192, 191, 191);
   font-weight: lighter;
@@ -177,19 +174,18 @@
 
 .tingle-btn {
   display: inline-block;
-  font-family:Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight:lighter;
   background-color: #353535;
   border:none;
   box-shadow:2px 2px 4px #1d1d1dbb;
-  border-radius:6px !important;
   transition:.5s all;
   font-size:1em;
   margin:0 auto;
   color:white;
   cursor: pointer;
   transition: background-color 0.4s ease;
-  border-radius: 3px;
+
   box-shadow: 2px 2px 4px #1b1b1bbb;
   margin: 5px;
   padding: 10px;
@@ -282,9 +278,7 @@
     display: inline-block;
     vertical-align: middle;
     font-size: 1.6rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-      "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-      "Helvetica Neue", sans-serif;
+    font-family:  'Assistant', sans-serif;
   }
 
   .tingle-modal__closeIcon {
@@ -310,7 +304,7 @@
   position: absolute;
   left: -100vw;
   top: 0px;
-  border-radius: 3px;
+ 
   color: rgb(58, 58, 58);
   display: grid;
   align-items:center;
@@ -341,7 +335,7 @@
 
 .speech-bubble-user {
   position: relative;
-  border-radius: 3px;
+
   color: rgb(58, 58, 58);
   padding: 20px 5px;
   margin-bottom: 20px;
@@ -358,13 +352,11 @@
 .preview-container {
   background: rgb(22, 22, 22);
   padding: 0px;
-  border-radius: 3px 3px 3px 3px;
   margin-bottom: 10px;
   box-shadow: 2px 2px 4px #1a1a1abb;
 }
 .preview-container video {
   max-width: 100%;
-  border-radius: 3px;
   border: 3px solid rgb(22, 22, 22);
 }
 
@@ -384,7 +376,6 @@
   transition: 0.2s all;
   position: relative;
   z-index: 1000;
-  border-radius:6px;
 
 }
 .preview-video-buttons button {
@@ -396,7 +387,7 @@
 }
 
 .form-control {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-size: 0.9em !important;
   font-weight: lighter;
   color: grey;
@@ -410,7 +401,7 @@
   color: white;
 }
 .speech-msg {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight: lighter !important;
   line-height: 2em;
 }
@@ -422,17 +413,15 @@
   width: 35px;
   height: 35px;
   padding: 7px 0px;
-  border-radius: 15px;
   text-align: center;
   font-size: 12px;
   line-height: 1.42857;
   color: white !important;
   z-index:10000;
-
   background-color: #4d4d4d;
   border:none;
+  border-radius:0;
  box-shadow:2px 2px 4px #292929bb;
-  border-radius:6px !important;
   transition:.5s all;
   font-size:18px;
   margin:0 auto;

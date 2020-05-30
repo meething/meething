@@ -3,11 +3,10 @@
   z-index: 9;
   background-color: #4d4d4d;
   color: white;
-  text-align: left;
-  border-radius:3px;
+
   cursor:pointer;
   box-shadow:10px 10px 40px #272727bb;
-  border-radius:10px 0px 0px 10px;
+
   right:0px;
   bottom:10%;
   padding-bottom:10px;
@@ -38,7 +37,6 @@
   background-color: #424242;
   color: #fff;
   border-bottom:3px solid #202020;
- border-radius:4px 4px 0px 0px;
   box-shadow:0px 2px 4px #202020bb;
 }
 

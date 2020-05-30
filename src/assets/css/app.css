@@ -1,11 +1,7 @@
 body {
   color: #fff;
-
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-  background:rgb(36, 36, 36);
+  background:rgb(31, 31, 31);
+  font-family: 'Assistant', sans-serif;
 }
 
 /* main div */
@@ -108,7 +104,7 @@ body {
 }
 
 .chat-box:focus {
-  background: #473761;
+  background: #3f3f3f;
   color: white;
 }
 
@@ -135,7 +131,7 @@ body {
 }
 
 .msg {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Assistant', sans-serif;;
   font-weight: 400;
   font-size: 12px;
   background: #ffffffda !important;
@@ -180,7 +176,7 @@ body {
   height: 100%;
   max-height:80vh;
   width: 100%; 
-  background: #14101bbb;
+  background: #202020bb;
 }
 
 /* remote video toolbox */
@@ -208,7 +204,7 @@ body {
 }
 
 .v-user {
-  font-family: Helvetica, Arial, sans-serif;
+   font-family: 'Assistant', sans-serif;
   margin-left: 80px;
   font-size: 12px !important;
   opacity: 1;
@@ -250,7 +246,6 @@ body {
   margin-bottom: 10px;
   background: #3b3b3b;
   text-shadow: 1px 1px 2px black;
-  border-radius: 0px 6px 6px 0px;
 }
 
 .widget-button:hover {
@@ -277,11 +272,11 @@ body {
 }
 
 #create-room {
-  font-family: Helvetica, Arial, sans-serif !important;
+  font-family: 'Assistant', sans-serif !important;
   font-weight: lighter;
   border: none;
   box-shadow: 2px 2px 4px #202020bb;
-  background: #5d5d5d;
+  background: #3c2c5f;
   transition: 0.5s all;
   font-size: 22px;
   margin: 0 auto;
@@ -290,6 +285,7 @@ body {
 #create-room:hover {
   background: #5d5d5d;
   background-color: #5e32a3;
+  border: radius 5;
 }
 
 /* Audio Meter */
@@ -384,8 +380,6 @@ meter {
 
 #bottom-menu button {
   display: block;
-  border-radius: 10px;
-
   padding: 10px;
   margin: 5px 10px;
   text-shadow: 1px 1px 2px black;
@@ -411,7 +405,6 @@ meter {
   box-shadow: 10px 10px 40px #292929bb;
   color: white;
   transition: 0.5s all;
-  border-radius: 0px 0px 0px 10px;
   justify-content: space-between;
   transition: 0.5px all;
   right: 0px;
@@ -426,7 +419,7 @@ meter {
 }
 
 #top-menu button span {
-  font-family: Helvetica, Arial, sans-serif;
+   font-family: 'Assistant', sans-serif;
   font-weight: lighter;
   margin-left: 20px;
 }
@@ -448,7 +441,6 @@ meter {
   padding:5px 10px;
   font-size:14px;
   font-weight:bold;
-  border-radius:6px;
   transition:.5s all;
   box-shadow:3px 3px 8px black;
   text-shadow:1px 1px 2px black;
@@ -518,7 +510,7 @@ li {
   display: inline-block;
   vertical-align: baseline;
   color: #fff;
-  font-family: "Helvetica-Neue-Bold";
+  font-family: 'Assistant', sans-serif;
 }
 
 .col-select {
@@ -562,7 +554,6 @@ li {
     color: white;
 
     transition: 0.5s all;
-    border-radius: 10px 0px 0px 10px;
   }
 
   .chat-col.chat-opened {
@@ -639,10 +630,6 @@ li {
 
   .v-user {
     margin-left: 50px;
-  }
-
-  .widget-button {
-    border-radius: 0px 6px 6px 0px;
   }
 
   .top-widget-toolbox {
