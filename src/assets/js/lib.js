@@ -19,13 +19,14 @@ return isoldedge || autoload
 <div id="" class="preview-container">
 <div class="row">
   <div class="col-md-12 mx-auto">
+
 <video id="local" class="mx-auto" playsinline autoplay muted></video>
 </div>
   <div class="preview-video-buttons row col-md-12">
-  <div class="col m-1 mb-3 mx-auto">
+  <div class="col m-1 mb-3 mx-auto" hidden>
     <button id="sam" class="fa fa-volume-up mx-auto shadow" title="Mute/Unmute Audio"></button>
     </div>
-    <div class="col m-1 mb-3 mx-auto">
+    <div class="col m-1 mb-3 mx-auto" hidden>
     <button id="svm" class="fa fa-video mx-auto shadow" title="Mute/Unmute Video"></button>
     </div>
 </div>
@@ -57,11 +58,11 @@ return isoldedge || autoload
 <video id="local" class="mx-auto" playsinline autoplay muted></video>
 </div>
 <div class="preview-video-buttons row col-md-12">
-<div class="col m-1 mb-3 mx-auto">
+<div class="col m-1 mb-3 mx-auto" hidden>
 <button id="sam" class="fa fa-volume-up mx-auto" title="Mute/Unmute Audio">
 </button>
 </div>
-<div class="col m-1 mb-3 mx-auto">
+<div class="col m-1 mb-3 mx-auto" hidden>
 <button id="svm" class="fa fa-video mx-auto" title="Mute/Unmute Video">
 </button>
 </div>
