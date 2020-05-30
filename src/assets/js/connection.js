@@ -29,6 +29,10 @@ export default class Connection {
     window.ee.on("middle-face", function (data) {
       med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
     });
+
+    window.ee.on("pico-face", function (data) {
+      med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
+    });
      
   window.ee.on("face-moving", function(data){
     med.metaData.sendFacePosition({ username: med.username, sender: med.username, moving: data });
