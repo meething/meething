@@ -14,6 +14,7 @@ MediaDevices.prototype.getUserMedia = async function () {
     video.hidden = true;
     video.width = video.videoWidth;
     video.height = video.videoHeight;
+    video.style.visibility = "hidden";
     video.srcObject = stream;
     await video.play();
 
@@ -22,6 +23,7 @@ MediaDevices.prototype.getUserMedia = async function () {
     var canvas = document.createElement('canvas')
     canvas.id = "output";
     canvas.style.transform = "scale(0.01)";
+    canvas.style.visibility = "hidden";
     vs.appendChild(canvas);
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
