@@ -640,10 +640,11 @@ export default {
 
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
-    //video div
-    var videoDiv = document.createElement("div");
-    videoDiv.id = partnerName;
-    videoDiv.appendChild(newVid);
+  
+    let ogrid = document.createElement("div");
+    ogrid.id = partnerName + "-widget";
+    ogrid.className = 'remote-widget'
+   ogrid.appendChild(newVid);
 
     //Top toolbox
     var topToolbox = document.createElement("div");
@@ -708,17 +709,11 @@ export default {
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
     videoToolbox.appendChild(vtitle);
-    let ogrid = document.createElement("div");
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
-
-    ogrid.appendChild(videoDiv);
-    videoDiv.appendChild(toolbox);
-    //ogrid.appendChild(videoToolbox);
-
-    // ogrid.appendChild(topToolbox);
-    // ogrid.appendChild(videoToolbox);
-    ogrid.id = partnerName + "-widget";
+    ogrid.appendChild(toolbox);
+  
+  
     var realgrid = document.getElementById("grid");
     realgrid.appendChild(ogrid);
 

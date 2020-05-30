@@ -28,7 +28,7 @@ export default class Modal {
     self._modal = _modal; //remove this later
 
     var toggleModal = document.getElementById('toggle-modal');
-    
+
     if(toggleModal) toggleModal.addEventListener('click',e=>{
       e.preventDefault();
       if(window.innerWidth < 412){
@@ -50,11 +50,14 @@ export default class Modal {
       self.navigatorGotDevices(devices);
     });
     self.ee.on('toggle-device-selection',function(event){
-      var el = document.getElementById('deviceSelection');
-      if(el) el.hidden=false;
-      self.resetDevices();
-      self.modalFilled(_modal);
-    })
+      debugger
+      if(event.state == "open"){
+        var el = document.getElementById('deviceSelection');
+        if(el) el.hidden=false;
+        self.resetDevices();
+        self.modalFilled(_modal);
+      }
+    });
     self.ee.on("local-video-loaded", function () {
       if (med.localVideo !== undefined && med.localVideo.srcObject && med.localVideo.classList.contains("clipped")) {
         med.initComm();
