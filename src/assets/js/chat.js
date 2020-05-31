@@ -78,6 +78,13 @@ export default class Chat {
             "/help - this will trigger this information";
           self.showInChat(data);
           return true;
+        case "share":
+          let link = location.href;
+          if(med.h.copyToClipboard) med.h.copyToClipboard(link);
+          if(window.anchorme) link = anchorme(link);
+          data.msg = "Room link > <strong>"+link+"</strong> < copied to clipboard!";
+          self.showInChat(data); 
+          return true;
         case "qxip":
         case "qvdev":
           self.showTime("Europe/Amsterdam", data)
