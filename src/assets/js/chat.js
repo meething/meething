@@ -34,8 +34,16 @@ export default class Chat {
     document.body.removeChild(sandbox);
     if(window.anchorme) {
       //SEE OPTIONS IN http://alexcorvi.github.io/anchorme.js/
-      trusted = window.anchorme(trusted);
-      console.log("trusted >?",trusted);
+      var parsed = window.anchorme({
+        input:trusted,
+        options:{
+          attributes: {
+              target: "_blank"
+          }
+        }
+      });
+      //console.log("trusted >?",parsed);
+      if(typeof parsed == "string") trusted = parsed; 
     }
     data.msg = trusted; 
     return data;
