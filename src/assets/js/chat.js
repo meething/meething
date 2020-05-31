@@ -34,26 +34,8 @@ export default class Chat {
     document.body.removeChild(sandbox);
     if(window.anchorme) {
       //SEE OPTIONS IN http://alexcorvi.github.io/anchorme.js/
-      trusted = window.anchorme({
-        trusted,
-        options: {
-          // any link that has with "google.com/search?"
-          // will be truncated to 40 characters,
-          // github links will not be truncated
-          // other links will truncated to 10 characters
-          truncate: function(string) {
-              if (string.indexOf("google.com/search?") > -1) {
-                  return 40;
-              } else if (string.indexOf("github.com/") > -1) {
-                  return Infinity;
-              } else {
-                  return 10;
-              }
-          },
-          // characters will be taken out of the end
-          middleTruncation: false
-        }
-      });
+      trusted = window.anchorme(trusted);
+      console.log("trusted >?",trusted);
     }
     data.msg = trusted; 
     return data;
