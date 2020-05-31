@@ -7,16 +7,61 @@ export default class Chat {
     med = this.mediator;
     self = this;
     self.cache = null;
-
     // subscribe to outSideChatMessages
     med.ee.on("chat:ExtMsg", self.receiver);
 
     return this;
   }
-
+  /* strip XSS */
+  stripTags(data){
+    const sandbox = document.createElement("iframe");
+    sandbox.sandbox = "allow-same-origin";
+    sandbox['allow-scripts'] = false;
+    sandbox.style.setProperty("display", "none", "important");
+    document.body.appendChild(sandbox);
+    const sandboxContent = sandbox.contentWindow.document;
+    let untrustedString = data.msg;
+    if (typeof untrustedString !== "string") data.msg = untrustedString = "";
+    let trusted = "";
+    sandboxContent.open();
+    try {
+      sandboxContent.write(untrustedString);
+    } catch (e) {
+      console.warn("error in shit",e);
+    }
+    sandboxContent.close();
+    trusted = sandboxContent.body.textContent || sandboxContent.body.innerText || "";
+    document.body.removeChild(sandbox);
+    if(window.anchorme) {
+      //SEE OPTIONS IN http://alexcorvi.github.io/anchorme.js/
+      trusted = window.anchorme({
+        trusted,
+        options: {
+          // any link that has with "google.com/search?"
+          // will be truncated to 40 characters,
+          // github links will not be truncated
+          // other links will truncated to 10 characters
+          truncate: function(string) {
+              if (string.indexOf("google.com/search?") > -1) {
+                  return 40;
+              } else if (string.indexOf("github.com/") > -1) {
+                  return Infinity;
+              } else {
+                  return 10;
+              }
+          },
+          // characters will be taken out of the end
+          middleTruncation: false
+        }
+      });
+    }
+    data.msg = trusted; 
+    return data;
+  }
   /* A message is sending out from me */
   broadcast(data) {
     let senderType = "local";
+    data = self.stripTags(data);
     if (!self.executeCommand(data)) {
       if (data.sender && data.to && data.sender == data.to) return;
       if (!data.ts) data.ts = Date.now();
@@ -30,6 +75,7 @@ export default class Chat {
   receiver(data) {
     if (data.event !== "chat") { return; }
     let senderType = "remote";
+    data = self.stripTags(data);
     self.showInChat(data, senderType);
   }
 
