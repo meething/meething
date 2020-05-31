@@ -24,14 +24,14 @@ export default class UEX {
     *  into the app scope for modules to listen to
     *  via med.ee
     */
-    
+
     // GRID: Load/Unload custom CSS classes (Chrome Only?)
     document.getElementById("toggle-grid-stage").addEventListener("click", e => {
         e.preventDefault();
         document.getElementById("grid-stage-css").disabled = !document.getElementById("grid-stage-css").disabled;
         if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
     });
-    
+
 
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
@@ -126,6 +126,40 @@ export default class UEX {
               }
           });
         }
+    });
+
+    med.ee.on('media:Got MediaStream', function(stream) {
+      var local = document.querySelector('#local');
+      local.srcObject = med.myStream;
+      local.play();
+      local.play();
+    });
+
+    var currentVideoDevice = '';
+    var currentAudioDevice = '';
+
+    med.ee.on('media:Got DeviceList', async function() {
+      let first = true;
+      for(let key in med.videoDevices) {
+        console.log(med.videoDevices[key].deviceId + "::" + med.videoDevices[key].label);
+        if(first) {
+          currentVideoDevice = med.videoDevices[key].deviceId;
+          document.querySelector('#currentVideoDevice').innerText = med.videoDevices[key].label;
+          first = false;
+        }
+      }
+      // set device to list
+      first = true;
+      for(let key in med.audioDevices) {
+        console.log(med.audioDevices[key].deviceId + "::" + med.audioDevices[key].label);
+        if(first) {
+          currentAudioDevice = med.audioDevices[key].deviceId;
+          document.querySelector('#currentAudioDevice').innerText = med.audioDevices[key].label;
+          first = false;
+        }
+      }
+
+      await med.getMediaStream(currentVideoDevice, currentAudioDevice)
     });
 
   }

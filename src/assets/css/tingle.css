@@ -24,7 +24,7 @@
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: pointer;
-  
+
 }
 
 /* confirm and alerts
@@ -112,7 +112,7 @@
   cursor: auto;
   display:none;
   width:100%;
- 
+
 }
 #meethlogo {
   width:150px;
@@ -128,7 +128,7 @@
     cursor: auto;
    display:none;
   }
-  
+
   #meethlogo {
     width:200px;
   }
@@ -383,9 +383,7 @@
   background: #3f069c;
   transition: 0.2s all;
   position: relative;
-  z-index: 1000;
   border-radius:6px;
-
 }
 .preview-video-buttons button {
   color: white;
@@ -437,5 +435,3 @@
   font-size:18px;
   margin:0 auto;
 }
-
-

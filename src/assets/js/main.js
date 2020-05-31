@@ -73,7 +73,7 @@ function Mediator() {
      Sets up the modal for the user.
   */
 
-  this.welcomeMat = function () {
+  this.welcomeMat = async function () {
     // find out what the mode is
     this.mode = this.h.getQString(location.href, "mode");
     this.room = this.h.getQString(location.href, "room");
@@ -83,10 +83,17 @@ function Mediator() {
       this.embed.landingPage();
       return;
     };
+    /* Flow
+       1. Find out who is coming in so we can present options accordingly (handle in this.h)
+       2. Set options from the start and set them to sessionStorage
+       3. Keep options around, so we do not have to call it again
+       */
     this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.gunControl.createInstance();
-    this.modal.createModal(); // create and display
-    this.uex.afterModalRegister(); // attach listeners to items in modal
+    await this.getMediaStream();
+    await this.getDeviceList(); // get and store devices for later use;
+    //this.modal.createModal(); // create and display
+    //this.uex.afterModalRegister(); // attach listeners to items in modal
   };
 
   /* Initiate sockets and get stuff set up for streaming
@@ -178,6 +185,23 @@ function Mediator() {
   }
 
   // End of Session Storage Helper
+
+  this.getDeviceList = async function () {
+    var devices = await this.h.getDevices();
+    this.videoDevices = devices.vs;
+    this.audioDevices = devices.as;
+    this.speakerDevices = devices.ao;
+    this.otherDevices = devices.other;
+    this.ee.emit("media:Got DeviceList")
+    return true;
+  }
+
+  this.getMediaStream = async function(videoDeviceId, audioDeviceId) {
+    var constraints = {video: videoDeviceId || {facingMode:{ideal:'user'}}, audio: audioDeviceId || true};
+    this.myStream = await navigator.mediaDevices.getUserMedia(constraints);
+    this.ee.emit("media:Got MediaStream", this.myStream);
+    return true;
+  }
 }
 
 // Initialize Mediator
