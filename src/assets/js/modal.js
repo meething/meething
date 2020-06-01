@@ -364,6 +364,7 @@ export default class Modal {
         break;
     }
     med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+    med.room = sessionStorage && sessionStorage.getItem("roomname") ? sessionStorage.getItem("roomname") : "";
     // stuff that is common
     if(!med.myStream){
       await self.resetDevices();
