@@ -6,6 +6,7 @@
     var vcontrect = Math.floor(vcont.getBoundingClientRect().width);
     v.style.left = - vrect/2 + vcontrect/2 + 'px';  
     var m = movement;
+    console.log(movement)
     if (m > 100){
         // move left
         v.style.left = (parseInt(v.style.left,10) - (m - 100)) + 'px';
