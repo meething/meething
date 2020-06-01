@@ -135,6 +135,7 @@ export default class Connection {
       }
     } else if (data.event == "faceML") {
       med.h.swapCenter(data.socketId + '-video',data.socketId + "-widget",data.coordinates.coordinates[3])
+      console.log(data.socketId)
     console.log(data.coordinates.coordinates[3], " moving left")
       console.log("Middle::" + data.coordinates.coordinates);
     } else if (data.event == "leftPosition") {

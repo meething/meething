@@ -183,6 +183,7 @@ body {
   max-height:95vh;
   width: 100%; 
   background: #202020bb;
+  transition:.5s all;
 }
 /* remote video toolbox */
 .toolbox {
