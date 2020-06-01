@@ -27,7 +27,7 @@ export default class Room extends EventEmitter {
             console.log('peer',this.peer._transport._connected, wsTransport.readyState);
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
-            var SFU_URL = 'wss://meething.space:2345'
+            var SFU_URL = 'wss://us.meething.space:2345'
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             this.peer = new Peer(wsTransport);
         }
