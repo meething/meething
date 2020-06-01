@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
+    integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous" />
+    <style>
+        body{
+            font-family: 'Assistant', sans-serif;
+            padding:0;
+            margin:0;
+        } 
+        header{
+            height:40px;
+            padding:10px;
+            display:flex;
+            justify-content: space-between;
+        }
+        .logo{
+            padding-left:10px;
+            color:rgb(68, 68, 68);
+            font-size:28px;
+            font-weight:bold;
+        }
+        .logo i{
+            color:purple;
+        }
+        .join-buttons {
+            float:right;
+          padding:5px;
+        }
+        .join-buttons button {
+            padding:15px;
+            font-weight:bold;
+            letter-spacing:1px;
+            margin-right:5px;
+            border:none;
+            border-radius:3px;
+        }
+        #create {
+            background:purple;
+            color:white;
+        }
+        #call-to-action {
+            margin-top:10px;
+            background:rgb(248, 224, 178);
+            color:rgb(70, 70, 70);
+            padding:20px;
+            text-align:center;
+        }
+        #call-to-action p {
+            padding:0;
+            margin:0;
+        }
+        #start-call{
+            margin-top:80px;
+            display:flex;
+            justify-content:space-around;
+        }
+        .main-message{
+            margin-top:20px;
+           width:100%;
+           display:flex;
+           justify-content: center;
+           display:grid;
+           justify-items:center;
+        }
+
+        .main-message h1{
+            font-size:45px;
+            width:60%;
+        }
+        .main-animation {
+            width:100%;
+          
+        }
+        button {
+        font-family: 'Assistant', sans-serif !important;
+        }
+        .main-video{
+         padding:20px;
+         border:1px solid grey;
+         margin-left:20px;
+         border-radius:3px;
+         }
+         #room-init{
+         width:60%;
+         display:grid;
+         grid-gap:15px;
+         }
+         #room-init button{
+        padding:15px;
+        font-weight:bold;
+        letter-spacing:1px;
+        margin-right:5px;
+        border:none;
+        border-radius:3px;
+         }
+         #room-init input {
+         padding: 15px;
+         border:none;
+         border: 1px solid black;
+         border-radius:3px;
+        width:50%;
+         }
+         .form-group {
+         display:flex;
+         justify-content: space-between;
+        }
+        #join-room{
+            width:30%;
+        }
+    </style>
+
+</head>
+<body>
+    <header>
+      <div class="logo"><i class="fa fa-bullhorn"></i> Meething</div>
+      <div class="join-buttons">
+          <button id="join">Join Room</button> <button id="create">Create Room</button>
+      </div>
+    </header>
+    <section id="call-to-action">
+        <p>We can give you benefits for educative, health,  ask us how</p>
+    </section>
+    <section id="start-call">
+       <div class="main-message">
+<h1>
+    Create Room for Friends,
+    Family and Work
+</h1>
+<div id="room-init">
+    <button id="create">Start a Meething</button>
+    <div classs="form-group">
+        <input type="text" placeholder="Paste room link">
+        <button id="join-room">Join</button>
+    </div>    
+</div>
+       </div>
+       
+       <div class="main-animation">
+        <video autoplay loop muted inline class="main-video" width="75%">
+            <source src="https://meething.github.io/meething-webpage/data/meething-demo.mp4" type="video/mp4">
+            <img src="https://user-images.githubusercontent.com/1423657/82707584-a537d980-9c7c-11ea-8253-08f063ac8644.gif" />
+          </video>
+ 
+       </div>
+    </section>
+    <section id="features">
+
+    </section>
+    <section id="why">
+
+    </section>
+    <footer></footer>
+
+</body>
+</html>

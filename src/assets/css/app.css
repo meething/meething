@@ -8,7 +8,9 @@ body {
   background-repeat: no-repeat;
   font-family: 'Assistant', sans-serif;
 }
-
+/*button {
+  font-family: 'Assistant', sans-serif !important;
+} */
 /* main div */
 .demo {
   position: fixed;
