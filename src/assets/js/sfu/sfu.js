@@ -128,7 +128,8 @@ export default class SFU extends EventEmitter {
             video = helper.addVideo(consumer._appData.peerId);
             return video;
         } else if (video.srcObject.getVideoTracks().length > 0 && consumer._track.kind == "video") {
-            video = helper.addVideo(consumer._id);
+            video = helper.addVideo(`${consumer._id}`);
+            video.id = `${consumer._id}-screenshare`
             return video;
         } else {
             return video;
