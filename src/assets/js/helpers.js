@@ -641,6 +641,7 @@ export default {
 
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
+    newVid.volume = 0.75;
   
     let ogrid = document.createElement("div");
     ogrid.id = partnerName + "-widget";
@@ -912,6 +913,8 @@ export default {
         fresh = document.getElementById(id),
         first = container.firstElementChild;
       // Move speaker to first position
+      first.getElementsByTagName("video")[0].volume = 0.75;
+      fresh.getElementsByTagName("video")[0].volume = 1.0;
       if (container && fresh && first) container.insertBefore(fresh, first);
     } catch (e) {
       console.log(e);
