@@ -1,3 +1,5 @@
+import {lib} from './lib.js';
+
 var med = null;
 var self = null;
 
@@ -103,6 +105,7 @@ export default class UEX {
         med.ee.emit('uex:MainMenuToggle', e);
     });
 
+    // picture in picture button on local
     med.ee.on('connection:VideoLoaded', function() {
       //When the video frame is clicked. This will enable picture-in-picture
       if ("pictureInPictureEnabled" in document
@@ -128,39 +131,166 @@ export default class UEX {
         }
     });
 
+    // options: we got the mediaStream
+
     med.ee.on('media:Got MediaStream', function(stream) {
       var local = document.querySelector('#local');
       local.srcObject = med.myStream;
-      local.play();
-      local.play();
+      local.play(); //not working in ios
     });
 
-    var currentVideoDevice = '';
-    var currentAudioDevice = '';
+    // options: got deviceList and set it on preview
+
+    med.currentVideoDevice = '';
+    med.currentAudioDevice = '';
 
     med.ee.on('media:Got DeviceList', async function() {
-      let first = true;
-      for(let key in med.videoDevices) {
-        console.log(med.videoDevices[key].deviceId + "::" + med.videoDevices[key].label);
-        if(first) {
-          currentVideoDevice = med.videoDevices[key].deviceId;
-          document.querySelector('#currentVideoDevice').innerText = med.videoDevices[key].label;
-          first = false;
+      var props = Object.keys(med.videoDevices);
+      for(let i=0; i < props.length; i++) {
+        console.log(med.videoDevices[props[i]].deviceId + "::" + med.videoDevices[props[i]].label);
+        if(i == 0) {
+          // add last item in array to prev of first
+          med.videoDevices[props[i]].prev = med.videoDevices[props[props.length-1]];
+          if(props[i+1] !== undefined) {
+            med.videoDevices[props[i]].next = med.videoDevices[props[i+1]];
+          }
+          // we don't currently have a currentVideoDevice
+          if(med.currentVideoDevice == '') {
+            med.currentVideoDevice = med.videoDevices[props[i]];
+            document.querySelector('#currentVideoDevice').innerText = med.videoDevices[props[i]].label;
+          }
+          // if it's the last not the first
+        } else if (i == props.length-1 ) {
+          med.videoDevices[props[i]].next = med.videoDevices[props[0]];
+          if(props[i-1] !== undefined) {
+            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+          }
+        }
+        // if it's also the last item
+        if(i == props.length-1) {
+          med.videoDevices[props[i]].next = med.videoDevices[props[0]];
+          if(props[i-1] !== undefined) {
+            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+          }
+        } else {
+          med.videoDevices[props[i]].next = med.videoDevices[props[i+1]];
+          med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
         }
       }
       // set device to list
-      first = true;
-      for(let key in med.audioDevices) {
-        console.log(med.audioDevices[key].deviceId + "::" + med.audioDevices[key].label);
-        if(first) {
-          currentAudioDevice = med.audioDevices[key].deviceId;
-          document.querySelector('#currentAudioDevice').innerText = med.audioDevices[key].label;
-          first = false;
+      var props = Object.keys(med.audioDevices);
+      for(let i=0; i < props.length; i++) {
+        console.log(med.audioDevices[props[i]].deviceId + "::" + med.audioDevices[props[i]].label);
+        if(i == 0) {
+          // add last item in array to prev of first
+          med.audioDevices[props[i]].prev = med.audioDevices[props[props.length-1]];
+          if(props[i+1] !== undefined) {
+            med.audioDevices[props[i]].next = med.audioDevices[props[i+1]];
+          }
+          // we don't currently have a currentVideoDevice
+          if(med.currentAudioDevice == '') {
+            med.currentAudioDevice = med.audioDevices[props[i]];
+            document.querySelector('#currentAudioDevice').innerText = med.audioDevices[props[i]].label;
+          }
+          // if it's the last not the first
+        } else if (i == props.length-1 ) {
+          med.audioDevices[props[i]].next = med.audioDevices[props[0]];
+          if(props[i-1] !== undefined) {
+            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+          }
+        }
+        // if it's also the last item
+        if(i == props.length-1) {
+          med.audioDevices[props[i]].next = med.audioDevices[props[0]];
+          if(props[i-1] !== undefined) {
+            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+          }
+        } else {
+          med.audioDevices[props[i]].next = med.audioDevices[props[i+1]];
+          med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
         }
       }
 
-      await med.getMediaStream(currentVideoDevice, currentAudioDevice)
+      await med.getMediaStream(currentVideoDevice.deviceId, currentAudioDevice.deviceId)
     });
+
+    /* options : navigating through cameras */
+
+    document.querySelector('#nextCam').addEventListener('click', async function (ev) {
+      med.currentVideoDevice = med.currentVideoDevice.next;
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId);
+      document.querySelector('#currentVideoDevice').innerText = med.currentVideoDevice.label;
+    });
+
+    document.querySelector('#prevCam').addEventListener('click', async function (ev) {
+      med.currentVideoDevice = med.currentVideoDevice.prev;
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId);
+      document.querySelector('#currentVideoDevice').innerText = med.currentVideoDevice.label;
+    });
+
+    /* options: navigating through microphones */
+
+    document.querySelector('#nextAudio').addEventListener('click', async function (ev) {
+      med.currentAudioDevice = med.currentAudioDevice.next;
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId);
+      document.querySelector('#currentAudioDevice').innerText = med.currentAudioDevice.label;
+    });
+
+    document.querySelector('#prevAudio').addEventListener('click', async function (ev) {
+      med.currentAudioDevice = med.currentAudioDevice.prev;
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId);
+      document.querySelector('#currentAudioDevice').innerText = med.currentAudioDevice.label;
+    });
+
+    // options: password on / off
+
+    document.querySelector('#password').addEventListener( 'change', function(ev) {
+      if(this.checked) {
+          document.querySelector('#pass').removeAttribute("hidden");
+      } else {
+          document.querySelector('#pass').setAttribute("hidden", "");
+      }
+    });
+
+    // options: go button pushed
+    document.querySelector('#randomGo').addEventListener('click', async function (ev) {
+      // When go is pushed, we get the values from the form and adjust accordingly
+      // get username, if empty make an random one
+      med.username = document.querySelector('#username').value || window.chance.name();
+      sessionStorage.setItem('username', med.username);
+      // get roomname, if empty make an random one
+      med.room = document.querySelector('#roomname').value || window.chance.city().trim() + "-" + window.chance.first().trim() + "-" + window.chance.city().trim();
+      sessionStorage.setItem('roomname', med.room);
+      window.history.pushState(null,'','?room='+med.room);
+
+      // if password option is on
+      let _pass = document.querySelector('#pass');
+
+      if(document.querySelector('#password').checked && _pass.value !== "") {
+        var pval = _pass && _pass.value ? _pass.value : false;
+        if(pval) await med.storePass(pval);
+      } else if (document.querySelector('#password').checked){
+        // get password, if empty alert that it is empty
+        alert('Password must be filled in')
+        return;
+      }
+      // otherwise ignore
+      // hide the options
+      document.querySelector('#menu').setAttribute("hidden","");
+      if(!med.myStream){
+        await self.resetDevices();
+      }
+      var ve = document.getElementById('local');
+      med.localVideo = ve;
+      var vs = document.getElementById('localStream');
+      if(ve && vs){
+        ve.className="local-video clipped";
+        vs.appendChild(ve);
+        med.ee.emit("local-video-loaded");
+      }
+      med.socket = await med.initSocket();
+      med.initComm();
+    })
 
   }
 

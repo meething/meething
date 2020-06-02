@@ -29,10 +29,12 @@
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
   <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
+
   <script type="module" src="/assets/js/emitter.js"></script>
   <script type="module" src="/assets/js/main.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://chancejs.com/chance.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
@@ -73,7 +75,8 @@
       <div id="title" class="floating-3">
 
         <div id="welcometext">
-          <span style="font-size:larger;font-weight:bolder;">Welcome to the Meething</span>
+          <span style="font-size:larger;font-weight:bolder;">Welcome to the Meething</span><br>
+          <span style="font-size: 10px;"><a href="https://meething.github.io/meething-webpage/" target="_blank">About Meething</a></span>
         </div>
 
       </div>
@@ -94,17 +97,16 @@
         <button id="randomGo" class="btn btn-primary margined" title="Jump right in">GO</button>
         <button class="btn btn-lg btn-dark fas fa-user-secret margined" title="Avatar Mode"></button>
         <div class="padded"> Name <span style="font-size:smaller;">(Optional)</span></div>
-        <input type="text" placeholder="To Be Or NOT To Be">
+        <input id="username" placeholder="To Be Or NOT To Be">
         <div class="padded"> Room Name <span style="font-size:smaller;">(Optional)</span> </div>
-        <input type="text" placeholder="Your Kingdom for a...">
+        <input id="roomname" placeholder="Your Kingdom for a...">
         <div class="padded">Password <span style="font-size:smaller;">(Optional)</span>
-          <label id="passwordSwitch" class="switch">
-            <input id="password" type="checkbox" title="Turn Password Protection for the room on/off">
+          <label id="passwordSwitch" class="switch" title="Turn Password Protection for the room on/off">
+            <input id="password" type="checkbox">
             <span class="slider round"></span>
           </label>
         </div>
-         <br>
-        <input type="text" placeholder="the secret..." hidden="">
+        <input id="pass" type="text" placeholder="the secret..." hidden="">
 
       </div>
     </div>

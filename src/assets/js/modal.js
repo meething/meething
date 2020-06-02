@@ -50,7 +50,6 @@ export default class Modal {
       self.navigatorGotDevices(devices);
     });
     self.ee.on('toggle-device-selection',function(event){
-      debugger
       if(event.state == "open"){
         var el = document.getElementById('deviceSelection');
         if(el) el.hidden=false;
@@ -364,6 +363,7 @@ export default class Modal {
         break;
     }
     med.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+    med.room = sessionStorage && sessionStorage.getItem("roomname") ? sessionStorage.getItem("roomname") : "";
     // stuff that is common
     if(!med.myStream){
       await self.resetDevices();

@@ -70,28 +70,32 @@ function Mediator() {
   */
 
   /* Roll out the welcomeMat is fired as soon as the DOM is loaded
-     Sets up the modal for the user.
+     Sets up the options for the user.
   */
 
   this.welcomeMat = async function () {
-    // find out what the mode is
+    // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
+    // 2. Set options from the start and set them to sessionStorage
     this.mode = this.h.getQString(location.href, "mode");
-    this.room = this.h.getQString(location.href, "room");
+    this.room = this.h.getQString(location.href, "room") || sessionStorage && sessionStorage.getItem("roomname") ? this.h.getQString(location.href, "room") || sessionStorage.getItem("roomname") : "";
+    document.querySelector('#roomname').setAttribute("value", this.room);
+    this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+    document.querySelector('#username').setAttribute("value", this.username);
+    this.title = this.room;
+    if (this.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerText = this.title;
+
+    // handle the embeded case with a embedded option screen
     if(this.mode == "embed" && this.room) {
       //only embed if room is specified
       console.log("embed detected");
       this.embed.landingPage();
       return;
     };
-    /* Flow
-       1. Find out who is coming in so we can present options accordingly (handle in this.h)
-       2. Set options from the start and set them to sessionStorage
-       3. Keep options around, so we do not have to call it again
-       */
     this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.gunControl.createInstance();
     await this.getMediaStream();
     await this.getDeviceList(); // get and store devices for later use;
+    /* the modal was great but buggy it needed a rewrite */
     //this.modal.createModal(); // create and display
     //this.uex.afterModalRegister(); // attach listeners to items in modal
   };
@@ -197,6 +201,7 @@ function Mediator() {
   }
 
   this.getMediaStream = async function(videoDeviceId, audioDeviceId) {
+    // TODO: On iOs seems to change device id but still show front camera
     var constraints = {video: videoDeviceId || {facingMode:{ideal:'user'}}, audio: audioDeviceId || true};
     this.myStream = await navigator.mediaDevices.getUserMedia(constraints);
     this.ee.emit("media:Got MediaStream", this.myStream);
