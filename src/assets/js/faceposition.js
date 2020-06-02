@@ -1,25 +1,23 @@
  export default function fitCamera(id, cont, movement) {
       // center of the screen : 100
     var v = document.getElementById(id);
-  
     var vcont = document.getElementById(cont);
-    
-    var vrect = Math.floor( v.getBoundingClientRect().width);  
-    console.log(vrect)
-    var vcontrect = Math.floor(vcont.getBoundingClientRect().width);
-    console.log(vcontrect)
-    v.style.left = - vrect/2 + vcontrect/2 + 'px';  
-    console.log("dimention difference" , v.style.left)
-    var m = movement;
-    console.log(movement)
-    if (m > 100){
-        // move left
-        v.style.left = (parseInt(v.style.left,10) + (m -100 )) + 'px';
+    let videocenter = v.videoWidth /2 //OK
+    console.log(videocenter, 'video center')
+let m = movement[1];
+    //var vrect =v.getBoundingClientRect().width;  
+    var vrect = v.getBoundingClientRect().width
+    console.log(vrect, 'vrect')
+    var vcontrect = vcont.getBoundingClientRect().width;
+    console.log(vcontrect, 'vcontrect')
+  // center of container
+console.log(movement[1])
+if(m > videocenter){
+  v.style.left =   videocenter - m + "px"
+  console.log(v.style.left)
+} else if(m < videocenter){
+  v.style.left =  - m + videocenter + "px"
+  console.log(v.style.left)
+}
 
-        console.log("moving left: ",v.style.left)
-    } else {
-        // move right
-        v.style.left = (parseInt(v.style.left,10) - (100 - m)) + 'px';
-        console.log("moving right: ",v.style.left)
-    }
   }

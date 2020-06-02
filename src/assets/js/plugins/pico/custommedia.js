@@ -34,7 +34,7 @@ MediaDevices.prototype.getUserMedia = async function () {
     if(initialized) {
 		// do nothing
     } else {
-	var update_memory = pico.instantiate_detection_memory(40); // we will use the detecions of the last 5 frames
+	var update_memory = pico.instantiate_detection_memory(10); // we will use the detecions of the last 5 frames
 	var facefinder_classify_region = function(r, c, s, pixels, ldim) {return -1.0;};
 	var cascadeurl = 'https://raw.githubusercontent.com/nenadmarkus/pico/c2e81f9d23cc11d1a612fd21e4f9de0921a5d0d9/rnt/cascades/facefinder';
 	fetch(cascadeurl).then(function(response) {
@@ -99,6 +99,7 @@ MediaDevices.prototype.getUserMedia = async function () {
 		(4) instantiate camera handling (see https://github.com/cbrandolino/camvas)
 	*/
 	var mycamvas = new camvas(ctx, processfn);
+	console.log(mycamvas, "my camvas")
 	/*
 		(5) it seems that everything went well
 	*/

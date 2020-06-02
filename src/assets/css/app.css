@@ -178,12 +178,15 @@ body {
 
 .remote-video {
  position:relative;
-  object-fit: cover !important;
+ object-fit:cover;
   height: 100%;
   max-height:95vh;
   width: 100%; 
   background: #202020bb;
-  transition:.5s all;
+ 
+}
+.remote-widget {
+  overflow:hidden;
 }
 /* remote video toolbox */
 .toolbox {
