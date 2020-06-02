@@ -60,15 +60,17 @@ MediaDevices.prototype.getUserMedia = async function () {
 		(3) this function is called each time a video frame becomes available
 	*/
 	var processfn = function(video, dt) {
+		video.width = video.videoWidth || 640;
+    		video.height = video.videoHeight || 480;
 		// render the video frame to the canvas element and extract RGBA pixel data
 		ctx.drawImage(video, 0, 0);
-		var rgba = ctx.getImageData(0, 0, 640, 480).data;
+		var rgba = ctx.getImageData(0, 0, video.width, video.height).data;
 		// prepare input to `run_cascade`
 		image = {
-			"pixels": rgba_to_grayscale(rgba, 480, 640),
-			"nrows": 480,
-			"ncols": 640,
-			"ldim": 640
+			"pixels": rgba_to_grayscale(rgba, video.height, video.width),
+			"nrows": video.height,
+			"ncols": video.width,
+			"ldim": video.width
 		}
 		params = {
 			"shiftfactor": 0.1, // move the detection window by 10% of its size
