@@ -75,8 +75,8 @@ export default class Chat {
       var trigger = data.msg.replace("/", "");
       switch (trigger) {
         case "help":
-          data.msg = "Welcome to chat commands these are your options:<br>" +
-            "/help - this will trigger this information" +
+          data.msg = "Welcome to chat commands these are your options:<br/>" +
+            "/help - this will trigger this information<br/>" +
             "/share - copies the room link to clipboard for you to share";
           self.showInChat(data);
           return true;
