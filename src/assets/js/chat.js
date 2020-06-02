@@ -7,16 +7,51 @@ export default class Chat {
     med = this.mediator;
     self = this;
     self.cache = null;
-
     // subscribe to outSideChatMessages
     med.ee.on("chat:ExtMsg", self.receiver);
 
     return this;
   }
-
+  /* strip XSS */
+  stripTags(data){
+    const sandbox = document.createElement("iframe");
+    sandbox.sandbox = "allow-same-origin";
+    sandbox['allow-scripts'] = false;
+    sandbox.style.setProperty("display", "none", "important");
+    document.body.appendChild(sandbox);
+    const sandboxContent = sandbox.contentWindow.document;
+    let untrustedString = data.msg;
+    if (typeof untrustedString !== "string") data.msg = untrustedString = "";
+    let trusted = "";
+    sandboxContent.open();
+    try {
+      sandboxContent.write(untrustedString);
+    } catch (e) {
+      console.warn("error in shit",e);
+    }
+    sandboxContent.close();
+    trusted = sandboxContent.body.textContent || sandboxContent.body.innerText || "";
+    document.body.removeChild(sandbox);
+    if(window.anchorme) {
+      //SEE OPTIONS IN http://alexcorvi.github.io/anchorme.js/
+      var parsed = window.anchorme({
+        input:trusted,
+        options:{
+          attributes: {
+              target: "_blank"
+          }
+        }
+      });
+      //console.log("trusted >?",parsed);
+      if(typeof parsed == "string") trusted = parsed; 
+    }
+    data.msg = trusted; 
+    return data;
+  }
   /* A message is sending out from me */
   broadcast(data) {
     let senderType = "local";
+    data = self.stripTags(data);
     if (!self.executeCommand(data)) {
       if (data.sender && data.to && data.sender == data.to) return;
       if (!data.ts) data.ts = Date.now();
@@ -30,6 +65,7 @@ export default class Chat {
   receiver(data) {
     if (data.event !== "chat") { return; }
     let senderType = "remote";
+    data = self.stripTags(data);
     self.showInChat(data, senderType);
   }
 
@@ -41,6 +77,13 @@ export default class Chat {
           data.msg = "Welcome to chat commands these are your options:<br>" +
             "/help - this will trigger this information";
           self.showInChat(data);
+          return true;
+        case "share":
+          let link = location.href;
+          if(med.h.copyToClipboard) med.h.copyToClipboard(link);
+          if(window.anchorme) link = anchorme(link);
+          data.msg = "Room link > <strong>"+link+"</strong> < copied to clipboard!";
+          self.showInChat(data); 
           return true;
         case "qxip":
         case "qvdev":
