@@ -17,7 +17,7 @@ export default class PipMode {
         if ("pictureInPictureEnabled" in document) {
             if (!document.pictureInPictureElement) {
                 await elem.requestPictureInPicture();
-                elem.srcObject = med.myStream
+                elem.srcObject = document.getElementsByClassName("remote-video")[0].srcObject
                 elem.play();
             } else {
                 document.exitPictureInPicture();
