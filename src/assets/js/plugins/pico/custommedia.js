@@ -61,7 +61,7 @@ MediaDevices.prototype.getUserMedia = async function () {
 	*/
 	var processfn = function(video, dt) {
 		//video.width = video.videoWidth || 640;
-    	//	video.height = video.videoHeight || 480;
+    	//video.height = video.videoHeight || 480;
 		// render the video frame to the canvas element and extract RGBA pixel data
 		ctx.drawImage(video, 0, 0);
 		var rgba = ctx.getImageData(0, 0, 640, 480).data;

@@ -2,7 +2,7 @@ export default function fitCamera(id, cont, movement) {
   // center of the screen : 100
   // var v = document.getElementById(id);
   var vcont = document.getElementById(cont);
-  let m = movement[2];
+  let m = movement[1];
   vcont.scrollTo({
     top: 0,
     left: m,

@@ -183,12 +183,12 @@ body {
   max-height:95vh;
   /* width: 100%;  */
   background: #202020bb;
+  transition:.5s all;
  
 }
 .remote-widget {
-  overflow-y:hidden;
-  overflow-x:hidden;
-  width: 200px;
+  overflow: hidden;
+
 }
 /* remote video toolbox */
 .toolbox {
