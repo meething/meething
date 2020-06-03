@@ -7,15 +7,18 @@
 let m = movement[1];
     //var vrect =v.getBoundingClientRect().width;  
     var vrect = v.getBoundingClientRect().width
+    var vrectLeft = v.getBoundingClientRect().left
+   
+    console.log(vrectLeft, 'vrectleft')
     console.log(vrect, 'vrect')
     var vcontrect = vcont.getBoundingClientRect().width;
     console.log(vcontrect, 'vcontrect')
   // center of container
 console.log(movement[1])
-if(m > videocenter){
+if(m > videocenter && vrectLeft <= 0){
   v.style.left =   videocenter - m + "px"
   console.log(v.style.left)
-} else if(m < videocenter){
+} else if(m < videocenter  && vrectLeft >= 0 ){
   v.style.left =  - m + videocenter + "px"
   console.log(v.style.left)
 }
