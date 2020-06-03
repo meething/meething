@@ -21,6 +21,22 @@ export default class Connection {
     this.initDamSocket();
     this.initMetaData();
     this.initPresence();
+    this.initListeners();
+  }
+
+  initListeners() {
+    
+    window.ee.on("middle-face", function (data) {
+      med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
+    });
+
+    window.ee.on("pico-face", function (data) {
+      med.metaData.sendFaceMLData({ username: med.username, sender: med.username, coordinates: data });
+    });
+     
+  window.ee.on("face-moving", function(data){
+    med.metaData.sendFacePosition({ username: med.username, sender: med.username, moving: data });
+      }) 
   }
 
   initDamSocket() {
@@ -106,16 +122,24 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        med.h.swapGlow(data.socketId+"-talker");;
+        med.h.swapGlow(data.socketId + "-talker");;
         med.h.swapPiP(data.socketId + "-video")
-        med.h.swapDiv(data.socketId+"-widget");;
+        med.h.swapDiv(data.socketId + "-widget");;
+       
       }
-
+      
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
         med.h.showNotification("Read-Only Join by " + data.username);
         med.h.hideVideo(data.socketId, true);
       }
+    } else if (data.event == "faceML") {
+      console.log(data.coordinates)
+      med.h.swapCenter(data.socketId + '-video',data.socketId + "-widget",data.coordinates.coordinates)
+  
+    } else if (data.event == "leftPosition") {
+      med.h.swapCenter(data.socketId + '-video',data.socketId + "-widget",data.moving.left )
+      console.log(data.moving.left, " moving left")
     }
     else {
       if (med.DEBUG) console.log("META::" + JSON.stringify(data));

@@ -33,6 +33,14 @@ export default class UEX {
     });
     
 
+    // Toggle CSS plugins
+    document.getElementById("toggle-grid-stage").addEventListener("click", e => {
+                e.preventDefault();
+                var state = document.getElementById("grid-stage-css").disabled;
+                document.getElementById("grid-stage-css").disabled = !state;
+                if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
+    });
+
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
