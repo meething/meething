@@ -43,9 +43,9 @@ export default class Video {
     // }
 
     // Immediately join room when loaded.
-    webrtc.on("readyToCall", function () {
+    webrtc.on("readyToCall", function (peerCount) {
       // webrtc.joinRoom(self.getRoom());
-      webrtc.startBroadcast();
+      webrtc.startBroadcast(peerCount);
     });
 
     // Display the volume meter.
