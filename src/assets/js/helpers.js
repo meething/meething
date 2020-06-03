@@ -425,28 +425,27 @@ export default {
     url = url ? url : location.href;
     let queryStrings = decodeURIComponent(url)
       .split("#", 2)[0]
-      .split("?", 2)[1];
+      .split("?");
+    queryStrings.shift(); // get rid of address
+    for(let string of queryStrings) {
+      if (string) {
+        let splittedQStrings = string.split("&");
 
-    if (queryStrings) {
-      let splittedQStrings = queryStrings.split("&");
+        if (splittedQStrings.length) {
+          let queryStringObj = {};
 
-      if (splittedQStrings.length) {
-        let queryStringObj = {};
+          splittedQStrings.forEach(function (keyValuePair) {
+            let keyValue = keyValuePair.split("=", 2);
 
-        splittedQStrings.forEach(function (keyValuePair) {
-          let keyValue = keyValuePair.split("=", 2);
-
-          if (keyValue.length) {
-            queryStringObj[keyValue[0]] = keyValue[1];
+            if (keyValue.length) {
+              queryStringObj[keyValue[0]] = keyValue[1];
+            }
+          });
+          if(typeof queryStringObj[keyToReturn] !== "undefined"){
+            return queryStringObj[keyToReturn];
           }
-        });
-        return keyToReturn
-          ? queryStringObj[keyToReturn]
-            ? queryStringObj[keyToReturn]
-            : null
-          : queryStringObj;
+        }
       }
-      return null;
     }
     return null;
   },
@@ -629,7 +628,7 @@ export default {
     // video element
     var videohtml = `<video id="${partnerName}-video" autoplay playsinline>
     <source src="/assets/video/muted.webm" type="video/webm">
-    <source src="/assets/video/muted.mp4" type="video/mp4">  
+    <source src="/assets/video/muted.mp4" type="video/mp4">
     <source src="/assets/video/muted.ogg" type="video/ogv">
     </video>`;
     var videoParent = document.createElement("div.offscreen");

@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Gun: Multi-User Video Call</title>
+  <title>Meething</title>
 
   <meta content="width=device-width, initial-scale=1" name="viewport" />
 
@@ -19,9 +19,9 @@
   <link rel="stylesheet" href="assets/css/tingle.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/snackbar.css" type="text/css" />
   <link rel="stylesheet" href="assets/css/dragable.css" type="text/css" />
-  
+
   <link rel="stylesheet" id="grid-stage-css" href="assets/css/grid-stage.css" type="text/css" disabled />
-  
+
   <script src="/assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
   <script src="/assets/js/encoding.js" type="text/javascript"></script>
   <script
@@ -30,10 +30,12 @@
   <script src="/assets/js/observer.js" type="text/javascript"></script>
   <script src="/assets/js/tingle.js" type="text/javascript"></script>
   <script src="/assets/js/soundmeter.js" type="text/javascript"></script>
+
   <script type="module" src="/assets/js/emitter.js"></script>
   <script type="module" src="/assets/js/main.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+  <script src="https://chancejs.com/chance.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/gun.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
@@ -67,7 +69,70 @@
       <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
   </nav>
+  <div id="menu" class="menu">
 
+
+    <div class="floating-2 selfview-containter">
+      <div id="title" class="floating-3">
+
+        <div id="welcometext">
+          <span style="font-size:larger;font-weight:bolder;">Welcome to the Meething</span><br>
+          <span style="font-size: 10px;"><a href="https://meething.github.io/meething-webpage/" target="_blank">About Meething</a></span>
+        </div>
+
+      </div>
+      <div id="selfview" class="selfview">
+        <div id="controlsAudio">
+          <button class="btn fa fa-arrow-circle-left ligthBg" id="prevAudio"></button>
+          <span id="currentAudioDevice"> No Audio Device selected </span>
+          <button class="btn fa fa-arrow-circle-right ligthBg" id="nextAudio"></button>
+        </div>
+        <video id="local" autoplay></video>
+        <div id="controlsVideo">
+          <button class="btn fa fa-arrow-circle-left ligthBg" id="prevCam"></button>
+          <span id="currentVideoDevice"> No Camera selected </span>
+          <button class="btn fa fa-arrow-circle-right ligthBg" id="nextCam"></button>
+        </div>
+      </div>
+      <div id="inputs" class="floating-3 inputs">
+        <button id="randomGo" class="btn btn-lg btn-primary margined" title="Jump right in">GO</button>
+        <button id="avatar" class="btn btn-lg btn-dark fas fa-user-secret margined" title="Avatar Mode"></button>
+        <button id="clear" class="btn btn-lg btn-warning fas fa-undo-alt margined" title="Reset"></button>
+        <div class="padded"> Name <span style="font-size:smaller;">(Optional)</span></div>
+        <input id="username" placeholder="To Be Or NOT To Be">
+        <div class="padded"> Room Name <span style="font-size:smaller;">(Optional)</span> </div>
+        <input id="roomname" placeholder="Your Kingdom for a...">
+        <div class="padded">Password <span style="font-size:smaller;">(Optional)</span>
+          <label id="passwordSwitch" class="switch" title="Turn Password Protection for the room on/off">
+            <input id="password" type="checkbox">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <input id="pass" type="text" placeholder="the secret..." hidden="">
+
+        <div id="options-button" class="btn btn-lg btn-secondary fas fa-tools"></div>
+
+      </div>
+    </div>
+
+    <div id="options" class="floating-1">
+      <span style="position:relative;left:110px;font-size: 25px;align-self:center;">Options</span><br><br>
+      <label class="switch" title="Turn on / off Bacon Mode">
+        <input id="bacon" type="checkbox" checked>
+        <span class="slider round"></span>
+      </label> Horizontal Squash (Bacon Strip) <br><br>
+      <label class="switch" title="Turn on / off Active Speaker to the left move">
+        <input id="bacon" type="checkbox" checked>
+        <span class="slider round"></span>
+      </label> Active Speaker Movement <br><br>
+      <label class="switch" title="Only allow Meshing via webRTC aka. P2P connections">
+        <input id="bacon" type="checkbox" >
+        <span class="slider round"></span>
+      </label> P2P Mesh Only <br><br>
+    </div>
+
+
+  </div>
   <div class="container-fluid room-comm" hidden>
     <div class="row">
       <div id="localStream">
@@ -108,11 +173,11 @@
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-desktop text-white" id="toggle-screen"
       title="Toggle Screensharing">
     </button>
-    
+
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-th text-white" id="toggle-grid-stage"
       title="Toggle Grid Stage">
     </button>
-    
+
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-recycle text-white" id="toggle-invite"
       title="Re-Invite All Users">
     </button>

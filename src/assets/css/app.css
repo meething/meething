@@ -1,12 +1,7 @@
 body {
   color: #fff;
-  background: url("../images/background.png") no-repeat center center fixed;
-  background-image: url("../images/background.png");
-  -webkit-background-image: url("../images/background.png");
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+  background-color: rgb(40, 35, 47);
+  overflow-y: auto;
 }
 
 /* main div */
@@ -180,7 +175,7 @@ body {
   object-fit: cover !important;
   height: 100%;
   max-height:80vh;
-  width: 100%; 
+  width: 100%;
   background: #14101bbb;
 }
 
@@ -317,7 +312,7 @@ meter {
 .grid-container {
   display:block;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   padding: 0px;
   height: calc(100vh - 95px);
   height: -moz-calc(100vh - 95px);
@@ -404,11 +399,11 @@ meter {
 }
 
 #top-menu {
-  position: absolute;
+  position: fixed;
   padding: 15px;
-
-  z-index: 100000;
-  background-color: #473761;
+  top: 46px;
+  z-index: 10000;
+  background-color: #473761bb !important;
   box-shadow: 10px 10px 40px #14101bbb;
   color: white;
   transition: 0.5s all;
@@ -455,6 +450,247 @@ meter {
   text-shadow:1px 1px 2px black;
 
 }
+
+/* Options */
+
+#local {
+  display: block;
+  height:250px;
+  margin: auto;
+}
+
+.menu {
+  position: relative;
+  top:60px;
+  width: 320px;
+  margin: auto;
+}
+
+#title {
+  font-family: Helvetica;
+  padding: 10px;
+}
+
+#welcometext {
+  position: relative;
+  text-align: center;
+}
+
+#inputs {
+  padding: 10px;
+  text-align: center;
+  top:0px;
+}
+
+.inputs {
+  top: 250px;
+}
+
+.noBoShadow {
+  box-shadow: 7px 0px 8px black;
+}
+
+.selfview-container {
+  height: 320px;
+}
+
+.selfview {
+  position: relative;
+  top: 0px;
+  width: 280px;
+  margin:auto;
+}
+
+#controlsAudio {
+  position: absolute;
+  top: 31px;
+  left: 15px;
+  width: 250px;
+  text-align: center;
+  margin:auto;
+  color: white;
+  font-size: small;
+}
+
+#currentAudioDevice {
+  position: relative;
+  margin: auto;
+  top: 5px;
+}
+
+#prevAudio {
+  position: absolute;
+  left:0px;
+}
+
+#nextAudio {
+  position: absolute;
+  right:0px;
+}
+
+#local {
+  width: 250px;
+}
+
+#controlsVideo {
+  position: absolute;
+  bottom: 31px;
+  left: 15px;
+  width: 250px;
+  text-align: center;
+  margin: auto;
+  color: white;
+  font-size: small;
+}
+
+#prevCam {
+  position: absolute;
+  left:0px;
+  bottom:0px;
+}
+
+#nextCam {
+  position: absolute;
+  right:0px;
+  bottom:0px;
+}
+
+#currentVideoDevice {
+  position: relative;
+  margin: auto;
+  bottom: 5px;
+}
+
+.padded {
+  padding: 10px;
+}
+
+.margined {
+  margin: 10px;
+}
+
+/* button for options to slide out */
+
+#options-button {
+  position: absolute;
+  right: -50px;
+  bottom: 0px;
+  box-shadow: 7px 7px 20px black;
+}
+
+/* Slider for options */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:disabled + .slider {
+  background-color: red;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.ligthBg {
+  background-color: rgba(240,240,240,.3);
+}
+
+.floating-1 {
+  position: relative;
+  margin: auto;
+  margin-top: 15px;
+  padding: 5px;
+  align-content: left;
+  text-align: left;
+  z-index: 2;
+  border-radius: 6px;
+  box-shadow: 3px 3px 20px black;
+  background-color: rgba(52, 40, 53, 1);
+  top: -250px;
+  transition: top 2s;
+}
+
+.floating-1.out {
+  top:0px;
+}
+
+.floating-2 {
+  position: relative;
+  margin: auto;
+  margin-top: 15px;
+  align-content: center;
+  z-index: 12;
+  border-radius: 4px;
+  box-shadow: 5px 5px 20px black;
+  background-color: rgba(62, 50, 63, 1);
+}
+
+.floating-3 {
+  position: relative;
+  margin: auto;
+  z-index: 14;
+  border-radius: 2px;
+  box-shadow: 7px 7px 20px black;
+  background-color: rgba(72, 60, 73, 1);
+}
+
+
 
 /* general styles */
 
@@ -687,4 +923,3 @@ li {
     top: 35px;
   }
 }
-

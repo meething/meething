@@ -50,7 +50,6 @@ export default class Modal {
       self.navigatorGotDevices(devices);
     });
     self.ee.on('toggle-device-selection',function(event){
-      debugger
       if(event.state == "open"){
         var el = document.getElementById('deviceSelection');
         if(el) el.hidden=false;
