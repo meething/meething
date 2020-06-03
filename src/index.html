@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Gun: Multi-User Video Call</title>
+  <title>Meething</title>
 
   <meta content="width=device-width, initial-scale=1" name="viewport" />
 
@@ -80,7 +80,7 @@
         </div>
 
       </div>
-      <div class="selfview">
+      <div id="selfview" class="selfview">
         <div id="controlsAudio">
           <button class="btn fa fa-arrow-circle-left ligthBg" id="prevAudio"></button>
           <span id="currentAudioDevice"> No Audio Device selected </span>
@@ -94,8 +94,9 @@
         </div>
       </div>
       <div id="inputs" class="floating-3 inputs">
-        <button id="randomGo" class="btn btn-primary margined" title="Jump right in">GO</button>
-        <button class="btn btn-lg btn-dark fas fa-user-secret margined" title="Avatar Mode"></button>
+        <button id="randomGo" class="btn btn-lg btn-primary margined" title="Jump right in">GO</button>
+        <button id="avatar" class="btn btn-lg btn-dark fas fa-user-secret margined" title="Avatar Mode"></button>
+        <button id="clear" class="btn btn-lg btn-warning fas fa-undo-alt margined" title="Reset"></button>
         <div class="padded"> Name <span style="font-size:smaller;">(Optional)</span></div>
         <input id="username" placeholder="To Be Or NOT To Be">
         <div class="padded"> Room Name <span style="font-size:smaller;">(Optional)</span> </div>
@@ -108,12 +109,25 @@
         </div>
         <input id="pass" type="text" placeholder="the secret..." hidden="">
 
+        <div id="options-button" class="btn btn-lg btn-secondary fas fa-tools"></div>
+
       </div>
     </div>
 
-    <div class="floating-1">
-      Options
-
+    <div id="options" class="floating-1">
+      <span style="position:relative;left:110px;font-size: 25px;align-self:center;">Options</span><br><br>
+      <label class="switch" title="Turn on / off Bacon Mode">
+        <input id="bacon" type="checkbox" checked>
+        <span class="slider round"></span>
+      </label> Horizontal Squash (Bacon Strip) <br><br>
+      <label class="switch" title="Turn on / off Active Speaker to the left move">
+        <input id="bacon" type="checkbox" checked>
+        <span class="slider round"></span>
+      </label> Active Speaker Movement <br><br>
+      <label class="switch" title="Only allow Meshing via webRTC aka. P2P connections">
+        <input id="bacon" type="checkbox" >
+        <span class="slider round"></span>
+      </label> P2P Mesh Only <br><br>
     </div>
 
 

@@ -1,6 +1,7 @@
 body {
   color: #fff;
   background-color: rgb(40, 35, 47);
+  overflow-y: auto;
 }
 
 /* main div */
@@ -398,11 +399,11 @@ meter {
 }
 
 #top-menu {
-  position: absolute;
+  position: fixed;
   padding: 15px;
-
-  z-index: 100000;
-  background-color: #473761;
+  top: 46px;
+  z-index: 10000;
+  background-color: #473761bb !important;
   box-shadow: 10px 10px 40px #14101bbb;
   color: white;
   transition: 0.5s all;
@@ -568,6 +569,15 @@ meter {
   margin: 10px;
 }
 
+/* button for options to slide out */
+
+#options-button {
+  position: absolute;
+  right: -50px;
+  bottom: 0px;
+  box-shadow: 7px 7px 20px black;
+}
+
 /* Slider for options */
 
 .switch {
@@ -608,6 +618,12 @@ meter {
   transition: .4s;
 }
 
+input:disabled + .slider {
+  background-color: red;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
 input:checked + .slider {
   background-color: #2196F3;
 }
@@ -639,12 +655,19 @@ input:checked + .slider:before {
   position: relative;
   margin: auto;
   margin-top: 15px;
-  align-content: center;
-  text-align: center;
+  padding: 5px;
+  align-content: left;
+  text-align: left;
   z-index: 2;
   border-radius: 6px;
   box-shadow: 3px 3px 20px black;
   background-color: rgba(52, 40, 53, 1);
+  top: -250px;
+  transition: top 2s;
+}
+
+.floating-1.out {
+  top:0px;
 }
 
 .floating-2 {
@@ -655,7 +678,7 @@ input:checked + .slider:before {
   z-index: 12;
   border-radius: 4px;
   box-shadow: 5px 5px 20px black;
-  background-color: rgba(55, 42, 55, 1);
+  background-color: rgba(62, 50, 63, 1);
 }
 
 .floating-3 {
@@ -664,8 +687,9 @@ input:checked + .slider:before {
   z-index: 14;
   border-radius: 2px;
   box-shadow: 7px 7px 20px black;
-  background-color: rgba(57, 44, 57, 1);
+  background-color: rgba(72, 60, 73, 1);
 }
+
 
 
 /* general styles */

@@ -174,7 +174,9 @@ export default class UEX {
           }
         } else {
           med.videoDevices[props[i]].next = med.videoDevices[props[i+1]];
-          med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+          if(props[i-1] !== undefined) {
+            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+          }
         }
       }
       // set device to list
@@ -207,7 +209,9 @@ export default class UEX {
           }
         } else {
           med.audioDevices[props[i]].next = med.audioDevices[props[i+1]];
-          med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+          if(props[i-1] !== undefined) {
+            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+          }
         }
       }
 
@@ -252,6 +256,34 @@ export default class UEX {
       }
     });
 
+    // options: clear button
+
+    document.querySelector('#clear').addEventListener('click', function (ev) {
+      //remove sessionStorage
+      sessionStorage.clear()
+      med.room = '';
+      med.username = '';
+      window.location = '/';
+      if(document.querySelector('#username')){document.querySelector('#username').setAttribute('value', '')}
+      if(document.querySelector('#username')){document.querySelector('#roomname').setAttribute('value', '')}
+      if(document.querySelector('#pass')){document.querySelector('#pass').setAttribute('value', '')}
+    });
+
+    // options: avatar button
+
+    document.querySelector('#avatar').addEventListener('click', function (ev) {
+      //remove sessionStorage
+      alert("Coming Soon: Use an Avatar to allow for expressions, but also Anonimity. Only your face coordinates and Audio will stream to others. Caution, it's CPU intensive");
+    });
+
+    // options: slide out options
+
+    document.querySelector('#options-button').addEventListener('click', function(ev) {
+      var opt = document.querySelector('#options');
+      opt.classList.toggle('out')
+    });
+
+
     // options: go button pushed
     document.querySelector('#randomGo').addEventListener('click', async function (ev) {
       // When go is pushed, we get the values from the form and adjust accordingly
@@ -276,7 +308,11 @@ export default class UEX {
       }
       // otherwise ignore
       // hide the options
-      document.querySelector('#menu').setAttribute("hidden","");
+      if(document.querySelector('#inputs')){document.querySelector('#inputs').setAttribute("hidden","");}
+      if(document.querySelector('#title')){document.querySelector('#title').setAttribute("hidden","");}
+      if(document.querySelector('#selfview')){document.querySelector('#selfview').setAttribute("hidden","");}
+      if(document.querySelector('#options')){document.querySelector('#options').setAttribute("hidden","");}
+      if(document.querySelector('#options')){document.querySelector('#options').setAttribute("class","floating-1 out");}
       if(!med.myStream){
         await self.resetDevices();
       }
@@ -290,9 +326,43 @@ export default class UEX {
       }
       med.socket = await med.initSocket();
       med.initComm();
-    })
+    });
+
+    // options: show options or hide options from room
+
+    self.optShown = false;
+
+    document.querySelector('#toggle-modal').addEventListener('click', function(ev){
+      // TODO: disable Mesh selection in options?
+      if(!self.optShown) {
+        if(document.querySelector('#selfview')){document.querySelector('#selfview').removeAttribute("hidden");}
+        if(document.querySelector('#options')){document.querySelector('#options').removeAttribute("hidden");}
+        self.optShown = true;
+        var ve = document.getElementById('local');
+        med.localVideo = ve;
+        var el = document.getElementById('selfview');
+        if(ve && el){
+          ve.className="";
+          el.appendChild(ve);
+        }
+      } else {
+        if(document.querySelector('#selfview')){document.querySelector('#selfview').setAttribute("hidden","");}
+        if(document.querySelector('#options')){document.querySelector('#options').setAttribute("hidden","");}
+        var ve = document.getElementById('local');
+        med.localVideo = ve;
+        var vs = document.getElementById('localStream');
+        if(ve && vs){
+          ve.className="local-video clipped";
+          vs.appendChild(ve);
+          med.ee.emit("local-video-loaded");
+        }
+        self.optShown = false;
+      }
+    });
 
   }
+
+
 
   /* Since some of the buttons we care about don't exist until modal
   *  is created. We call this to register the buttons after creation

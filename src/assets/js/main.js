@@ -76,11 +76,11 @@ function Mediator() {
   this.welcomeMat = async function () {
     // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
     // 2. Set options from the start and set them to sessionStorage
-    this.mode = this.h.getQString(location.href, "mode");
+    this.mode = this.h.getQString(location.href, "mode") || "";
     this.room = this.h.getQString(location.href, "room") || sessionStorage && sessionStorage.getItem("roomname") ? this.h.getQString(location.href, "room") || sessionStorage.getItem("roomname") : "";
-    document.querySelector('#roomname').setAttribute("value", this.room);
+    if(document.querySelector('#roomname')){document.querySelector('#roomname').setAttribute("value", this.room);}
     this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-    document.querySelector('#username').setAttribute("value", this.username);
+    if(document.querySelector('#username')){document.querySelector('#username').setAttribute("value", this.username);}
     this.title = this.room;
     if (this.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerText = this.title;
 
