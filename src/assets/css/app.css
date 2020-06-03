@@ -1,9 +1,16 @@
 body {
   color: #fff;
   background:rgb(31, 31, 31);
+  background-image: url("./assets/images/gradient-black.jpg");
+  background: url("/assets/images/gradient-black.jpg");
+ 
+  background-position:top;
+  background-repeat: no-repeat;
   font-family: 'Assistant', sans-serif;
 }
-
+/*button {
+  font-family: 'Assistant', sans-serif !important;
+} */
 /* main div */
 .demo {
   position: fixed;
@@ -163,17 +170,20 @@ body {
 .local-video {
   left: -30px;
   bottom: 10%;
+  top: 45px;
+  left: -8px;
   position: absolute;
   height: 100px;
   width: 150px;
   z-index: 1000;
   transition: 0.5s all;
+ 
 }
  /*
 .clipped {
  clip-path: circle(30%);
 }
-*/
+
 /* remote video */
 
 .remote-video {
@@ -265,8 +275,8 @@ body {
 
 /* login styles */
 #login {
-  background: #2f2f2fbb !important;
-  box-shadow: 4px 0px 8px #202020bb;
+  background: #3c2856bb !important;
+  box-shadow: 4px 0px 16px #040404;
 }
 
 #room-create img {
@@ -287,7 +297,7 @@ body {
   font-weight: lighter;
   border: none;
   box-shadow: 2px 2px 4px #202020bb;
-  background: #3c2c5f;
+  background: #6646ab;
   transition: 0.5s all;
   font-size: 22px;
   margin: 0 auto;
@@ -397,7 +407,6 @@ meter {
   transition: 0.5s all;
   position: relative;
   z-index: 1000;
-
   box-shadow: 3px 3px 8px black;
   margin-bottom: 10px;
 }
@@ -410,14 +419,14 @@ meter {
 #top-menu {
   position: absolute;
   padding: 15px;
-
+  top:50px;
   z-index: 100000;
   background-color: #494949;
   box-shadow: 10px 10px 40px #292929bb;
   color: white;
   transition: 0.5s all;
   justify-content: space-between;
-  transition: 0.5px all;
+  transition: 0.5s all;
   right: 0px;
 }
 
@@ -428,8 +437,12 @@ meter {
   padding-bottom:15px;
   border-bottom: 2px solid rgb(27, 27, 27);
   background: none;
+  transition:.3s all;
 }
 
+#top-menu button:hover{
+  background:grey;
+}
 #top-menu button span {
    font-family: 'Assistant', sans-serif;
   font-weight: lighter;
