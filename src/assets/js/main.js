@@ -210,7 +210,8 @@ function Mediator() {
     let addMutedVideo = false;
     let addMutedAudio = false;
 
-    if (this.myStream) {
+    if (this.myStream && typeof this.myStream =="mediastream") {
+      console.log(this.myStream);
       this.myStream.getTracks().forEach(track => {
         track.stop();
       });
