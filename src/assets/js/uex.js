@@ -135,8 +135,14 @@ export default class UEX {
 
     med.ee.on('media:Got MediaStream', function(stream) {
       var local = document.querySelector('#local');
-      local.srcObject = med.myStream;
-      local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
+      if(local) {
+        var _stream = med.myStream;
+        if(med.DEBUG) console.log(_stream,med.h.typeOf(_stream))
+        if(_stream && med.h.typeOf(_stream) == "mediastream") { 
+          local.srcObject =_stream;
+          local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
+        }
+      }
     });
 
     // options: got deviceList and set it on preview
