@@ -114,14 +114,14 @@ function Mediator() {
     //NOTE Promise loses relations to med
     return new Promise((res, rej) => {
       var roomPeer = config.multigun + "gun";
-      var hash = null,
-        creator = null;
+      var hash = "",
+        creator = "";
       if (self.room) {
-        hash = self.getSS('rooms.' + self.room + '.hash');
-        creator = self.getSS('rooms.' + self.room + '.creator') || self.username || false;
-        var r = (hash) ? self.room + '?sig=' + encodeURIComponent(hash) : self.room;
-        if(self.DEBUG) console.log("creator",creator);
-        r = (creator) ? r + "&creator=" + encodeURIComponent(creator) : r; 
+        hash = self.getSS('rooms.' + self.room + '.hash') || "";
+        creator = self.getSS('rooms.' + self.room + '.creator') || self.username || "";
+        var r = self.room + '?';
+        if(hash) r = r + '&sig=' + encodeURIComponent(hash);
+        if(creator) r = r + "&creator=" + encodeURIComponent(creator); 
         if(self.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
@@ -145,7 +145,7 @@ function Mediator() {
   /* Call connection module to establish connection */
 
   this.initComm = function () {
-    mConn.establish();
+    mConn.init();
   }
 
   /* Helper functions that need to be here for now until modules are more split
