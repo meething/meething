@@ -110,33 +110,35 @@ function Mediator() {
   */
 
   this.initSocket = async function () {
+    var self = this;
+    //NOTE Promise loses relations to med
     return new Promise((res, rej) => {
       var roomPeer = config.multigun + "gun";
       var hash = null,
         creator = null;
-      if (this.room) {
-        hash = this.getSS('rooms.' + this.room + '.hash');
-        creator = this.getSS('rooms.' + this.room + '.creator') || this.username || false;
-        var r = (hash) ? this.room + '?sig=' + encodeURIComponent(hash) : this.room;
-        if(this.DEBUG) console.log("creator",creator);
+      if (self.room) {
+        hash = self.getSS('rooms.' + self.room + '.hash');
+        creator = self.getSS('rooms.' + self.room + '.creator') || self.username || false;
+        var r = (hash) ? self.room + '?sig=' + encodeURIComponent(hash) : self.room;
+        if(self.DEBUG) console.log("creator",creator);
         r = (creator) ? r + "&creator=" + encodeURIComponent(creator) : r; 
-        if(this.DEBUG) console.log(r);
+        if(self.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
       localStorage.clear();
-      window.room = this.room;
-      window.root = this.gunControl.clearPeers();
-      this.gunControl.addPeer(roomPeer);
+      window.room = self.room;
+      window.root = self.gunControl.clearPeers();
+      self.gunControl.addPeer(roomPeer);
 
       // initiate graph
       mGraph.init();
 
-      this.socket = window.socket = this.root
+      self.socket = window.socket = self.root
         .get("meething")
-        .get(this.room)
+        .get(self.room)
         .get("socket");
-      if (this.DEBUG) { console.log('initiating Socket', this.root, this.room, this.socket) }
-      return res({ root: this.root, room: this.room, socket: this.socket });
+      if (self.DEBUG) { console.log('initiating Socket', self.root, self.room, self.socket) }
+      return res({ root: self.root, room: self.room, socket: self.socket });
     })
   }
 
@@ -210,8 +212,8 @@ function Mediator() {
     let addMutedVideo = false;
     let addMutedAudio = false;
 
-    if (this.myStream && typeof this.myStream =="mediastream") {
-      console.log(this.myStream);
+    if (this.myStream && this.h.typeOf(this.myStream) =="mediastream") {
+      if(this.DEBUG) console.log(this.myStream);
       this.myStream.getTracks().forEach(track => {
         track.stop();
       });
