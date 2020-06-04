@@ -138,7 +138,7 @@ export default class UEX {
       if(local) {
         var _stream = med.myStream;
         if(med.DEBUG) console.log(_stream,med.h.typeOf(_stream))
-        if(_stream && med.h.typeOf(_stream) != "mediastreamerror") { 
+        if(_stream && med.h.typeOf(_stream) == "mediastream") { 
           local.srcObject =_stream;
           local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
         }
