@@ -57,7 +57,8 @@ export default class Chat {
       if (!data.ts) data.ts = Date.now();
       med.ee.emit("chat:IntMsg", data);
       med.metaData.sendChatData(data);
-      if(!this.remoteCommand(data))
+      self.remoteCommand(data);
+      if(data.msg && !data.msg.match(/^(\!|\/)/))
         self.showInChat(data, senderType);
     }
 
@@ -67,11 +68,9 @@ export default class Chat {
     if (data.event !== "chat") { return; }
     let senderType = "remote";
     data = self.stripTags(data);
-    if(!self.remoteCommand(data)){
+    self.remoteCommand(data);
+    if(data.msg && !data.msg.match(/^(\!|\/)/))
       self.showInChat(data,senderType);
-    }
-    //self.showInChat(data, senderType);
-
   }
 
   async remoteCommand(data){
@@ -153,8 +152,9 @@ export default class Chat {
         case "breakout":
         break;
       }
+    } else {
+      return false;
     }
-    return false;
   }
 
   executeCommand(data) {
