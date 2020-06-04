@@ -84,7 +84,7 @@ export default class Chat {
       if(!trigger) return true;
       switch (trigger) {
         case "mute": 
-          var who = parts.length>0 ? parts.shift() : null;
+          var who = parts.length>0 ? parts.join(" ") : null;
           console.log("asking to mute",who);
           if(who != med.username) {
             data.msg = data.sender+" is voting to mute:"+who;
@@ -100,7 +100,7 @@ export default class Chat {
           window.meethrix = med.meethrix = true;
           window.meethrixStream = med.meethrixStream = med.h.resetMutedStream();
           //med.meethrixStreams = med.meethrixStreams ? med.meethrixStreams : {};
-          var who = parts.length>0 ? parts.shift() : null;
+          var who = parts.length>0 ? parts.join(" ") : null;
           console.log("asking to meethrix",who,presence.users);
           if(presence.users) presence.users.forEach((data,key) => {
             console.log("key",key,"data",data);
@@ -126,6 +126,7 @@ export default class Chat {
           } else {
             
           }
+          return true;
         break;
 
         case "breakout":
