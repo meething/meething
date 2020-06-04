@@ -57,7 +57,8 @@ export default class Chat {
       if (!data.ts) data.ts = Date.now();
       med.ee.emit("chat:IntMsg", data);
       med.metaData.sendChatData(data);
-      self.showInChat(data, senderType);
+      if(!this.remoteCommand(data))
+        self.showInChat(data, senderType);
     }
 
   }
@@ -66,7 +67,94 @@ export default class Chat {
     if (data.event !== "chat") { return; }
     let senderType = "remote";
     data = self.stripTags(data);
-    self.showInChat(data, senderType);
+    if(!self.remoteCommand(data)){
+      self.showInChat(data,senderType);
+    }
+    //self.showInChat(data, senderType);
+
+  }
+
+  async remoteCommand(data){
+    if(!data.msg) return true;
+    if (data.msg.startsWith("!")) {
+      let msg = data.msg.replace("!", "");
+      let parts = msg.split(" ");
+      let trigger = (parts.length) ? parts.shift() : "";
+      const room = med.root.get("meething").get(med.room);
+      let roomdata = await room.promOnce();
+      //console.log("roomdata",roomdata);
+      roomdata = roomdata?.data || {};
+      console.log("roomdata",roomdata);
+      let sender = data.sender;
+      let commandFromOwner = sender == roomdata.creator;
+      console.log("sender?",sender,"sender is owner?", commandFromOwner,"roomdata.owner",roomdata.creator); 
+      //console.log(msg,parts,trigger)
+      if(!trigger) return true;
+      switch (trigger) {
+        case "mute": 
+          var who = parts.length>0 ? parts.join(" ") : null;
+          console.log("asking to mute",who);
+          if(who != med.username) {
+            data.msg = data.sender+" is voting to mute:"+who;
+            return false;
+          } else {
+            alert('you just got muted by: '+data.sender);
+            return true;
+          }
+        break;
+        case "kick": 
+          var who = parts.length>0 ? parts.join(" ") : null;
+          if(who == med.username || who == med.socketId) {
+            if(commandFromOwner) window.location = 'https://lmgtfy.com?q=asshole';
+            return false;
+          } else {
+            if(commandFromOwner) {
+              data.msg = "Room Owner is kicking :"+who 
+              this.showInChat(data);
+            }
+            return false
+          }
+        break;
+        case "meethrix":
+          let presence = med.presence ? med.presence : false;
+          if(!presence) return true;
+          window.meethrix = med.meethrix = true;
+          window.meethrixStream = med.meethrixStream = med.h.resetMutedStream();
+          //med.meethrixStreams = med.meethrixStreams ? med.meethrixStreams : {};
+          var who = parts.length>0 ? parts.join(" ") : null;
+          console.log("asking to meethrix",who,presence.users);
+          if(presence.users) presence.users.forEach((data,key) => {
+            console.log("key",key,"data",data);
+            if(data.username && data.username == who) {
+              var sock = data.socketId;
+              var sockVideo = sock+'-video';
+              var sockEl = document.getElementById(sockVideo);
+              if(sockEl) {
+                console.log("meethrixing",sockVideo);
+                sockEl.srcObject = med.meethrixStream
+              }
+            }
+          });
+          return true;
+        break;
+        case "bluepill":
+          window.meethrix = med.meethrix = false;
+          window.mutedStream = meething.h.resetMutedStream();
+          var who = parts.length>0 ? parts.shift() : null;
+          console.log("asking to bluepill",who);
+          if(who != med.username) {
+            //pls gib uuid
+          } else {
+            
+          }
+          return true;
+        break;
+
+        case "breakout":
+        break;
+      }
+    }
+    return false;
   }
 
   executeCommand(data) {
