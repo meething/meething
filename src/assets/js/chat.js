@@ -74,12 +74,20 @@ export default class Chat {
 
   }
 
-  remoteCommand(data){
+  async remoteCommand(data){
     if(!data.msg) return true;
     if (data.msg.startsWith("!")) {
       let msg = data.msg.replace("!", "");
       let parts = msg.split(" ");
       let trigger = (parts.length) ? parts.shift() : "";
+      const room = med.root.get("meething").get(med.room);
+      let roomdata = await room.promOnce();
+      //console.log("roomdata",roomdata);
+      roomdata = roomdata?.data || {};
+      console.log("roomdata",roomdata);
+      let sender = data.sender;
+      let commandFromOwner = sender == roomdata.creator;
+      console.log("sender?",sender,"sender is owner?", commandFromOwner,"roomdata.owner",roomdata.creator); 
       //console.log(msg,parts,trigger)
       if(!trigger) return true;
       switch (trigger) {
@@ -92,6 +100,19 @@ export default class Chat {
           } else {
             alert('you just got muted by: '+data.sender);
             return true;
+          }
+        break;
+        case "kick": 
+          var who = parts.length>0 ? parts.join(" ") : null;
+          if(who == med.username || who == med.socketId) {
+            if(commandFromOwner) window.location = 'https://lmgtfy.com?q=asshole';
+            return false;
+          } else {
+            if(commandFromOwner) {
+              data.msg = "Room Owner is kicking :"+who 
+              this.showInChat(data);
+            }
+            return false
           }
         break;
         case "meethrix":

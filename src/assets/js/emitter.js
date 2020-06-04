@@ -39,7 +39,7 @@ export default class DamEventEmitter extends EventEmitter {
         if(!data.passwordProtected) { 
           return self.emit('auth:ok',data);
         } else {
-          self = await self.reinit(); // let the magic happen reconnecting gun because of reasons
+          //self = await self.reinit(); // let the magic happen reconnecting gun because of reasons
           console.log("OK searching for user hash");
           var hash = self.get('rooms['+self.room+'].hash');
           console.log("hash found?",hash);
