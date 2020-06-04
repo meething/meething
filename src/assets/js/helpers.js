@@ -891,6 +891,7 @@ export default {
     const pipVid = document.getElementById("pip");
     if (pipVid && pipVid.currentId !== id) {
       const speakingVid = document.getElementById(id);
+      if(!speakingVid) return;
       pipVid.currentId = id;
       pipVid.srcObject = speakingVid.srcObject;
       if (pipVid.paused) {
