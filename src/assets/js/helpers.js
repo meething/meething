@@ -563,7 +563,6 @@ export default {
         }
       });
     } else {
-      //@TODO add click event to button on video
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         elem.className = /fullscreen/.test(elem.className)
