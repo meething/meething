@@ -134,11 +134,14 @@ export default class UEX {
     // options: we got the mediaStream
 
     med.ee.on('media:Got MediaStream', function(stream) {
-      var local = document.getElementById('local');
+      var local = document.querySelector('#local');
       if(local) {
-        var _stream = (stream && typeof stream =="mediastream") ? stream : (med.myStream && typeof med.myStream =="mediastream" ? med.myStream : med.h.getMutedStream());
-        local.srcObject = _stream;
-        local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
+        var _stream = med.myStream;
+        if(med.DEBUG) console.log(_stream,med.h.typeOf(_stream))
+        if(_stream && med.h.typeOf(_stream) != "mediastreamerror") { 
+          local.srcObject =_stream;
+          local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
+        }
       }
     });
 
