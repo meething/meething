@@ -125,6 +125,11 @@ export default class Video {
       webrtc.toggleScreen();
     });
 
+    med.ee.on('media:Got MediaStream', function(stream) {
+      console.log("Media Stream changed SFU");
+      webrtc.changeStream(stream);
+    });
+
     webrtc.init();
   }
 }
