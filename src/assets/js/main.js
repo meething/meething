@@ -118,9 +118,9 @@ function Mediator() {
         hash = this.getSS('rooms.' + this.room + '.hash');
         creator = this.getSS('rooms.' + this.room + '.creator') || this.username || false;
         var r = (hash) ? this.room + '?sig=' + encodeURIComponent(hash) : this.room;
-        console.log("creator",creator);
+        if(this.DEBUG) console.log("creator",creator);
         r = (creator) ? r + "&creator=" + encodeURIComponent(creator) : r; 
-        console.log(r);
+        if(this.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
       localStorage.clear();
