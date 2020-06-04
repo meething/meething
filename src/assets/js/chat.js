@@ -132,6 +132,7 @@ export default class Chat {
         break;
       }
     }
+    return false;
   }
 
   executeCommand(data) {
