@@ -660,7 +660,7 @@ export default {
     );
     closeButton.addEventListener("click", function () {
       // do fullscreen
-      var elem = document.getElementById(`${partnerName}-video`);
+      var elem = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (elem) {
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -683,7 +683,7 @@ export default {
     fullscreenBtn.addEventListener("click", function () {
       var doubleClickEvent = document.createEvent("MouseEvents");
       doubleClickEvent.initEvent("dblclick", true, true);
-      var vselect = document.getElementById(`${partnerName}-video`);
+      var vselect = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (vselect) vselect.dispatchEvent(doubleClickEvent);
     });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
