@@ -25,6 +25,9 @@ export default class Connection {
 
   initDamSocket() {
     med.damSocket = new DamEventEmitter(med.root, med.room);
+    med.damSocket.on('postauth', function (auth) {
+      self.establish();
+    });
   }
 
   initMetaData() {
@@ -37,7 +40,6 @@ export default class Connection {
   establish() {
     if (self.inited) return;
     self.inited = true;
-    this.init();
     this.unhide();
     if (med.SFU_ENABLED) {
       console.log("Start SFU");
@@ -106,9 +108,9 @@ export default class Connection {
       }
       if (data.talking) {
         if (med.DEBUG) console.log('Speaker Focus on ' + data.username);
-        med.h.swapGlow(data.socketId+"-talker");;
+        med.h.swapGlow(data.socketId + "-talker");;
         med.h.swapPiP(data.socketId + "-video")
-        med.h.swapDiv(data.socketId+"-widget");;
+        med.h.swapDiv(data.socketId + "-widget");;
       }
 
       if (data.readonly) {
