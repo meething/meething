@@ -309,6 +309,10 @@ export default {
       return "landscape";
     }
   },
+  resetMutedStream(){
+    mutedStream = null;
+    return mutedStream = MutedStream();
+  },
   attachSinkToVideo(video, sinkId, select) {
     if (typeof video.sinkId !== "undefined") {
       return video
@@ -628,7 +632,7 @@ export default {
     // video element
     var videohtml = `<video id="${partnerName}-video" autoplay playsinline>
     <source src="/assets/video/muted.webm" type="video/webm">
-    <source src="/assets/video/muted.mp4" type="video/mp4">
+    <source src="/assets/video/muted.mp4" type="video/mp4">  
     <source src="/assets/video/muted.ogg" type="video/ogv">
     </video>`;
     var videoParent = document.createElement("div.offscreen");
@@ -743,9 +747,7 @@ export default {
   },
 
   getMutedStream() {
-    let stream = mutedStream ? mutedStream : MutedStream();
-    mutedStream = stream;
-    return stream;
+    return this.resetMutedStream();
   },
 
   setMutedStream(elem) {
@@ -891,6 +893,7 @@ export default {
     const pipVid = document.getElementById("pip");
     if (pipVid && pipVid.currentId !== id) {
       const speakingVid = document.getElementById(id);
+      if(!speakingVid) return;
       pipVid.currentId = id;
       pipVid.srcObject = speakingVid.srcObject;
       if (pipVid.paused) {

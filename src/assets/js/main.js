@@ -77,7 +77,11 @@ function Mediator() {
     // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
     // 2. Set options from the start and set them to sessionStorage
     this.mode = this.h.getQString(location.href, "mode") || "";
-    this.room = this.h.getQString(location.href, "room") || sessionStorage && sessionStorage.getItem("roomname") ? this.h.getQString(location.href, "room") || sessionStorage.getItem("roomname") : "";
+    this.room = this.h.getQString(location.href, "room") 
+      ? this.h.getQString(location.href, "room") : 
+        (sessionStorage && sessionStorage.getItem("roomname")) 
+        ? sessionStorage.getItem("roomname") : 
+        "";
     if(document.querySelector('#roomname')){document.querySelector('#roomname').setAttribute("value", this.room);}
     this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
     if(document.querySelector('#username')){document.querySelector('#username').setAttribute("value", this.username);}
@@ -112,8 +116,10 @@ function Mediator() {
         creator = null;
       if (this.room) {
         hash = this.getSS('rooms.' + this.room + '.hash');
-        creator = this.getSS('rooms.' + this.room + '.creator');
-        var r = (hash && creator) ? this.room + '?sig=' + encodeURIComponent(hash) + "&creator=" + encodeURIComponent(creator) : this.room;
+        creator = this.getSS('rooms.' + this.room + '.creator') || this.username || false;
+        var r = (hash) ? this.room + '?sig=' + encodeURIComponent(hash) : this.room;
+        console.log("creator",creator);
+        r = (creator) ? r + "&creator=" + encodeURIComponent(creator) : r; 
         console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
@@ -228,18 +234,28 @@ function Mediator() {
     } else {
       constraints.audio = true;
     }
+    if(this.DEBUG) console.log("constraints",constraints);
+    var stream = null;
+    var fullmute = false;
     // fetch stream with the chosen constraints
-    var stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
+    if(constraints && (constraints.audio === false && constraints.video === false)){
+      stream = this.h.getMutedStream();
+      fullmute = true;
+    } else {
+      fullmute = false;
+      stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
+    }
+    //console.log("Stream",stream);
     // if video should be muted (but we still want self-view)
-    if(addMutedVideo){
+    if(addMutedVideo && !fullmute){
       var muted = this.h.getMutedStream();
-      console.log(muted);
+      if(this.DEBUG) console.log(muted);
       stream.addTrack(muted.getVideoTracks()[0]);
     }
 
-    if(addMutedAudio){
+    if(addMutedAudio && !fullmute){
       var muted = this.h.getMutedStream();
-      console.log(muted);
+      if(this.DEBUG) console.log(muted);
       stream.addTrack(muted.getAudioTracks()[0]);
     }
 
