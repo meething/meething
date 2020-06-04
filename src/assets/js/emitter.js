@@ -88,7 +88,10 @@ export default class DamEventEmitter extends EventEmitter {
     const self = this;
     this.pid = this.root._.opt.pid;
     this.on('auth:ok',function(auth){
-      self.emit('postauth',auth);
+      //self.emit('postauth',auth);
+      window.addEventListener('DOMContentLoaded',function(){
+        self.emit('postauth',auth);
+      })
       self.root.on("in", function (msg) {
         if (msg && msg.event && self.getPresence()) {
           let presence = self.getPresence();

@@ -72,7 +72,7 @@ body {
 }
 
 #chat-send {
-  bottom: 30px;
+  bottom: 10%;
   color: white;
 }
 
@@ -359,6 +359,9 @@ meter {
 
 .waiting {
   margin-top: 40px;
+  position:absolute;
+  left:-50%;
+  right:-50%;
 }
 
 .grid-bottom {
@@ -400,25 +403,32 @@ meter {
 
 #top-menu {
   position: fixed;
-  padding: 15px;
+
   top: 46px;
   z-index: 10000;
   background-color: #473761bb !important;
   box-shadow: 10px 10px 40px #14101bbb;
   color: white;
   transition: 0.5s all;
-  border-radius: 0px 0px 0px 10px;
   justify-content: space-between;
   transition: 0.5px all;
   right: 0px;
 }
 
 #top-menu button {
-  margin: 5px;
+
   width: 100%;
   display: flex;
-
   background: none;
+  border-bottom:2px solid #14101bbb;
+  padding-right:20px;
+  padding-top:20px;
+  padding-bottom: 20px;
+  transition:.5s all;
+}
+
+#top-menu button:hover {
+  background: #604d7e;
 }
 
 #top-menu button span {
@@ -663,7 +673,7 @@ input:checked + .slider:before {
   box-shadow: 3px 3px 20px black;
   background-color: rgba(52, 40, 53, 1);
   top: -250px;
-  transition: top 2s;
+  transition: top 1.5s;
 }
 
 .floating-1.out {
@@ -788,18 +798,9 @@ li {
     z-index: 1000;
   }
 
-  #top-menu {
-    position: absolute;
-    padding: 15px;
 
-    right: 0px;
-    z-index: 100000;
-    background-color: #473761;
-    box-shadow: 10px 10px 40px #14101bbb;
-    color: white;
-
-    transition: 0.5s all;
-    border-radius: 10px 0px 0px 10px;
+  #chat-send { 
+    bottom: 20%;
   }
 
   .chat-col.chat-opened {
@@ -874,10 +875,10 @@ li {
     bottom: 65px;
   }
 
-  .v-user {
-    margin-left: 50px;
-  }
 
+#chat-send { 
+  bottom: 15%;
+}
   .widget-button {
     border-radius: 0px 6px 6px 0px;
   }

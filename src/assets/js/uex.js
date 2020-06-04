@@ -26,15 +26,14 @@ export default class UEX {
     *  into the app scope for modules to listen to
     *  via med.ee
     */
-
+/*
     // GRID: Load/Unload custom CSS classes (Chrome Only?)
     document.getElementById("toggle-grid-stage").addEventListener("click", e => {
         e.preventDefault();
         document.getElementById("grid-stage-css").disabled = !document.getElementById("grid-stage-css").disabled;
         if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
     });
-
-
+*/
     // CHAT: Open and Close Chat
     document.querySelector('#toggle-chat-pane').addEventListener('click', (e) => {
         document.querySelector('#chat-pane').classList.toggle('chat-opened');
@@ -89,8 +88,7 @@ export default class UEX {
         var div = document.getElementById('mydiv');
         if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
         else div.style.display = 'block';
-        e.srcElement.classList.toggle("fa-user-plus");
-        e.srcElement.classList.toggle("fa-user-minus");
+       
         med.ee.emit('uex:UserListToggle', e);
     });
 
