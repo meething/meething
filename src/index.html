@@ -82,15 +82,16 @@
 
       </div>
       <div id="selfview" class="selfview">
+        <video id="local" autoplay="" muted="" playsinline="" style="pointer-events:none;"></video>
         <div id="controlsAudio">
           <button class="btn fa fa-arrow-circle-left ligthBg" id="prevAudio"></button>
-          <span id="currentAudioDevice"> No Audio Device selected </span>
+          <span id="currentAudioDevice" style="overflow-x: hidden;white-space: nowrap;"> No Audio Device selected </span>
           <button class="btn fa fa-arrow-circle-right ligthBg" id="nextAudio"></button>
         </div>
-        <video id="local" autoplay></video>
+
         <div id="controlsVideo">
           <button class="btn fa fa-arrow-circle-left ligthBg" id="prevCam"></button>
-          <span id="currentVideoDevice"> No Camera selected </span>
+          <span id="currentVideoDevice" style="overflow-x: hidden;white-space: nowrap;"> No Camera selected </span>
           <button class="btn fa fa-arrow-circle-right ligthBg" id="nextCam"></button>
         </div>
       </div>

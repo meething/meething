@@ -136,7 +136,7 @@ export default class UEX {
     med.ee.on('media:Got MediaStream', function(stream) {
       var local = document.querySelector('#local');
       local.srcObject = med.myStream;
-      local.play(); //not working in ios
+      local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
     });
 
     // options: got deviceList and set it on preview
@@ -145,77 +145,79 @@ export default class UEX {
     med.currentAudioDevice = '';
 
     med.ee.on('media:Got DeviceList', async function() {
-      var props = Object.keys(med.videoDevices);
-      for(let i=0; i < props.length; i++) {
-        console.log(med.videoDevices[props[i]].deviceId + "::" + med.videoDevices[props[i]].label);
+      med.videoDevices['Muted Video'] = {deviceId:false, label:'Mute Video'};
+      var propsV = Object.keys(med.videoDevices);
+      for(let i=0; i < propsV.length; i++) {
+        console.log(med.videoDevices[propsV[i]].deviceId + "::" + med.videoDevices[propsV[i]].label);
         if(i == 0) {
           // add last item in array to prev of first
-          med.videoDevices[props[i]].prev = med.videoDevices[props[props.length-1]];
-          if(props[i+1] !== undefined) {
-            med.videoDevices[props[i]].next = med.videoDevices[props[i+1]];
+          med.videoDevices[propsV[i]].prev = med.videoDevices[propsV[propsV.length-1]];
+          if(propsV[i+1] !== undefined) {
+            med.videoDevices[propsV[i]].next = med.videoDevices[propsV[i+1]];
           }
           // we don't currently have a currentVideoDevice
           if(med.currentVideoDevice == '') {
-            med.currentVideoDevice = med.videoDevices[props[i]];
-            document.querySelector('#currentVideoDevice').innerText = med.videoDevices[props[i]].label;
+            med.currentVideoDevice = med.videoDevices[propsV[i]];
+            document.querySelector('#currentVideoDevice').innerText = med.videoDevices[propsV[i]].label;
           }
           // if it's the last not the first
-        } else if (i == props.length-1 ) {
-          med.videoDevices[props[i]].next = med.videoDevices[props[0]];
-          if(props[i-1] !== undefined) {
-            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+        } else if (i == propsV.length-1 ) {
+          med.videoDevices[propsV[i]].next = med.videoDevices[propsV[0]];
+          if(propsV[i-1] !== undefined) {
+            med.videoDevices[propsV[i]].prev = med.videoDevices[propsV[i-1]];
           }
         }
         // if it's also the last item
-        if(i == props.length-1) {
-          med.videoDevices[props[i]].next = med.videoDevices[props[0]];
-          if(props[i-1] !== undefined) {
-            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+        if(i == propsV.length-1) {
+          med.videoDevices[propsV[i]].next = med.videoDevices[propsV[0]];
+          if(propsV[i-1] !== undefined) {
+            med.videoDevices[propsV[i]].prev = med.videoDevices[propsV[i-1]];
           }
         } else {
-          med.videoDevices[props[i]].next = med.videoDevices[props[i+1]];
-          if(props[i-1] !== undefined) {
-            med.videoDevices[props[i]].prev = med.videoDevices[props[i-1]];
+          med.videoDevices[propsV[i]].next = med.videoDevices[propsV[i+1]];
+          if(propsV[i-1] !== undefined) {
+            med.videoDevices[propsV[i]].prev = med.videoDevices[propsV[i-1]];
           }
         }
       }
       // set device to list
-      var props = Object.keys(med.audioDevices);
-      for(let i=0; i < props.length; i++) {
-        console.log(med.audioDevices[props[i]].deviceId + "::" + med.audioDevices[props[i]].label);
-        if(i == 0) {
+      med.audioDevices['Muted Audio'] = {deviceId:false, label:'Mute Audio'};
+      var propsA = Object.keys(med.audioDevices);
+      for(let y=0; y < propsA.length; y++) {
+        console.log(med.audioDevices[propsA[y]].deviceId + "::" + med.audioDevices[propsA[y]].label);
+        if(y == 0) {
           // add last item in array to prev of first
-          med.audioDevices[props[i]].prev = med.audioDevices[props[props.length-1]];
-          if(props[i+1] !== undefined) {
-            med.audioDevices[props[i]].next = med.audioDevices[props[i+1]];
+          med.audioDevices[propsA[y]].prev = med.audioDevices[propsA[propsA.length-1]];
+          if(propsA[y+1] !== undefined) {
+            med.audioDevices[propsA[y]].next = med.audioDevices[propsA[y+1]];
           }
           // we don't currently have a currentVideoDevice
           if(med.currentAudioDevice == '') {
-            med.currentAudioDevice = med.audioDevices[props[i]];
-            document.querySelector('#currentAudioDevice').innerText = med.audioDevices[props[i]].label;
+            med.currentAudioDevice = med.audioDevices[propsA[y]];
+            document.querySelector('#currentAudioDevice').innerText = med.audioDevices[propsA[y]].label;
           }
           // if it's the last not the first
-        } else if (i == props.length-1 ) {
-          med.audioDevices[props[i]].next = med.audioDevices[props[0]];
-          if(props[i-1] !== undefined) {
-            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+        } else if (y == propsA.length-1 ) {
+          med.audioDevices[propsA[y]].next = med.audioDevices[propsA[0]];
+          if(propsA[y-1] !== undefined) {
+            med.audioDevices[propsA[y]].prev = med.audioDevices[propsA[y-1]];
           }
         }
         // if it's also the last item
-        if(i == props.length-1) {
-          med.audioDevices[props[i]].next = med.audioDevices[props[0]];
-          if(props[i-1] !== undefined) {
-            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+        if(y == propsA.length-1) {
+          med.audioDevices[propsA[y]].next = med.audioDevices[propsA[0]];
+          if(propsA[y-1] !== undefined) {
+            med.audioDevices[propsA[y]].prev = med.audioDevices[propsA[y-1]];
           }
         } else {
-          med.audioDevices[props[i]].next = med.audioDevices[props[i+1]];
-          if(props[i-1] !== undefined) {
-            med.audioDevices[props[i]].prev = med.audioDevices[props[i-1]];
+          med.audioDevices[propsA[y]].next = med.audioDevices[propsA[y+1]];
+          if(propsA[y-1] !== undefined) {
+            med.audioDevices[propsA[y]].prev = med.audioDevices[propsA[y-1]];
           }
         }
       }
 
-      await med.getMediaStream(currentVideoDevice.deviceId, currentAudioDevice.deviceId)
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId)
     });
 
     /* options : navigating through cameras */
