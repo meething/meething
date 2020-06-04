@@ -201,10 +201,52 @@ function Mediator() {
   }
 
   this.getMediaStream = async function(videoDeviceId, audioDeviceId) {
-    // TODO: On iOs seems to change device id but still show front camera
-    var constraints = {video: videoDeviceId || {facingMode:{ideal:'user'}}, audio: audioDeviceId || true};
-    this.myStream = await navigator.mediaDevices.getUserMedia(constraints);
-    this.ee.emit("media:Got MediaStream", this.myStream);
+    let addMutedVideo = false;
+    let addMutedAudio = false;
+
+    if (this.myStream) {
+      this.myStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
+
+    var constraints = {};
+    if(typeof videoDeviceId == 'string') {
+      constraints.video = {deviceId: { ideal: videoDeviceId }};
+    } else if(typeof videoDeviceId == 'boolean') {
+      constraints.video = videoDeviceId;
+      addMutedVideo = true;
+    } else {
+      constraints.video = {facingMode:{ideal:'user'}};
+    }
+
+    if(typeof audioDeviceId == 'string') {
+      constraints.audio = { deviceId: { ideal: audioDeviceId }};
+    } else if(typeof videoDeviceId == 'boolean') {
+      constraints.audio = videoDeviceId;
+      addMutedAudio = true;
+    } else {
+      constraints.audio = true;
+    }
+    // fetch stream with the chosen constraints
+    var stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
+    // if video should be muted (but we still want self-view)
+    if(addMutedVideo){
+      var muted = this.h.getMutedStream();
+      console.log(muted);
+      stream.addTrack(muted.getVideoTracks()[0]);
+    }
+
+    if(addMutedAudio){
+      var muted = this.h.getMutedStream();
+      console.log(muted);
+      stream.addTrack(muted.getAudioTracks()[0]);
+    }
+
+    // check if stream exists
+    if(stream) { this.myStream = stream };
+    this.ee.emit("media:Got MediaStream", stream);
+    this.ee.emit("localStream changed", stream);
     return true;
   }
 }

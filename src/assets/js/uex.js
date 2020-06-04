@@ -136,7 +136,7 @@ export default class UEX {
     med.ee.on('media:Got MediaStream', function(stream) {
       var local = document.querySelector('#local');
       local.srcObject = med.myStream;
-      local.play().then().catch((err)=>{console.log(err);}); //not working in ios
+      local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
     });
 
     // options: got deviceList and set it on preview
@@ -145,6 +145,7 @@ export default class UEX {
     med.currentAudioDevice = '';
 
     med.ee.on('media:Got DeviceList', async function() {
+      med.videoDevices['Muted Video'] = {deviceId:false, label:'Mute Video'};
       var propsV = Object.keys(med.videoDevices);
       for(let i=0; i < propsV.length; i++) {
         console.log(med.videoDevices[propsV[i]].deviceId + "::" + med.videoDevices[propsV[i]].label);
@@ -180,6 +181,7 @@ export default class UEX {
         }
       }
       // set device to list
+      med.audioDevices['Muted Audio'] = {deviceId:false, label:'Mute Audio'};
       var propsA = Object.keys(med.audioDevices);
       for(let y=0; y < propsA.length; y++) {
         console.log(med.audioDevices[propsA[y]].deviceId + "::" + med.audioDevices[propsA[y]].label);
@@ -215,7 +217,7 @@ export default class UEX {
         }
       }
 
-      await med.getMediaStream(currentVideoDevice.deviceId, currentAudioDevice.deviceId)
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId)
     });
 
     /* options : navigating through cameras */
