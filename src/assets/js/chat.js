@@ -104,7 +104,7 @@ export default class Chat {
         case "kick": 
           var who = parts.length>0 ? parts.join(" ") : null;
           if(who == med.username || who == med.socketId) {
-            if(commandFromOwner) window.location = 'https://lmgtfy.com?q=asshole';
+            if(commandFromOwner) window.location = 'https://builders.mozilla.community/index.html';
             return false;
           } else {
             if(commandFromOwner) {
