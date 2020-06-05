@@ -44,10 +44,11 @@ export default class Room extends EventEmitter {
         console.log(this.peer.id);
     }
 
-    async sendAudio(track) {
+    async sendAudio(track, data) {
         console.warn("room.sendAudio()");
         const audioProducer = await this.sendTransport.produce({
-            track: track
+            track: track,
+            appData: data
         });
         audioProducer.on("trackended", async () => {
             console.warn("producer.close() by trackended");
@@ -56,10 +57,11 @@ export default class Room extends EventEmitter {
         return audioProducer;
     }
 
-    async sendVideo(track) {
+    async sendVideo(track, data) {
         console.warn("room.sendVideo()");
         const videoProducer = await this.sendTransport.produce({
             track: track,
+            appData: data,
             encodings:
                 [
                     { maxBitrate: 90000 },
