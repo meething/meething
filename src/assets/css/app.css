@@ -222,7 +222,10 @@ body {
 
 .top-widget-toolbox #close-video-button,
 .top-widget-toolbox #full-screen-button{
-  opacity:.1;
+background:black;
+cursor:pointer;
+pointer-events:auto;
+
 }
 .top-widget-toolbox #close-video-button:hover,
 .top-widget-toolbox #full-screen-button:hover {
@@ -240,13 +243,13 @@ body {
   background: none;
   margin-right: 3px;
   color: white;
-  opacity: 0.5;
   transition: 0.5s all;
   margin: 5px;
   margin-bottom: 10px;
   background: #3f069c;
   text-shadow: 1px 1px 2px black;
   border-radius: 0px 6px 6px 0px;
+  pointer-events:none;
 }
 
 .widget-button:hover {
@@ -709,8 +712,9 @@ input:checked + .slider:before {
   right: 75px;
   padding: 10px;
   border-radius: 5px 5px 0px 0px;
+  color:white;
   z-index: 10000;
-  background-color: rgba(57, 45, 64, .9);
+  background-color: #673ab7;
 }
 
 /* general styles */

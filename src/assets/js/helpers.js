@@ -694,7 +694,7 @@ export default {
     var autopilotBtn = this.addButton(
       `${partnerName}-talker`,
       "widget-button",
-      "fas fa-bullhorn"
+      "fas fa-bullhorn talker"
     );
     // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
 
