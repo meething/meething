@@ -372,7 +372,7 @@ meter {
 
 #bottom-menu {
   position: absolute;
-
+  pointer-events: none;
   bottom: 0px;
   left:-50%;
   right:-50%;
@@ -700,7 +700,18 @@ input:checked + .slider:before {
   background-color: rgba(72, 60, 73, 1);
 }
 
-
+#feedback {
+  position: fixed;
+  height: 45px;
+  width: 155px;
+  text-align: center;
+  bottom: 0px;
+  right: 75px;
+  padding: 10px;
+  border-radius: 5px 5px 0px 0px;
+  z-index: 10000;
+  background-color: rgba(57, 45, 64, .9);
+}
 
 /* general styles */
 
