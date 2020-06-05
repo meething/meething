@@ -513,11 +513,11 @@ meter {
 
 #controlsAudio {
   position: absolute;
-  top: 31px;
-  left: 15px;
-  width: 250px;
+  top: 5px;
+  left: 0px;
+  width: 280px;
   text-align: center;
-  margin:auto;
+  margin: auto;
   color: white;
   font-size: small;
 }
@@ -544,9 +544,9 @@ meter {
 
 #controlsVideo {
   position: absolute;
-  bottom: 31px;
-  left: 15px;
-  width: 250px;
+  bottom: 5px;
+  left: 0px;
+  width: 280px;
   text-align: center;
   margin: auto;
   color: white;
@@ -696,7 +696,7 @@ input:checked + .slider:before {
   margin: auto;
   z-index: 14;
   border-radius: 2px;
-  box-shadow: 7px 7px 20px black;
+  box-shadow: 7px 7px 20px rgba(10,10,10,.4);
   background-color: rgba(72, 60, 73, 1);
 }
 
@@ -799,7 +799,7 @@ li {
   }
 
 
-  #chat-send { 
+  #chat-send {
     bottom: 20%;
   }
 
@@ -876,7 +876,7 @@ li {
   }
 
 
-#chat-send { 
+#chat-send {
   bottom: 15%;
 }
   .widget-button {
