@@ -309,6 +309,10 @@ export default {
       return "landscape";
     }
   },
+  resetMutedStream(){
+    mutedStream = null;
+    return mutedStream = MutedStream();
+  },
   attachSinkToVideo(video, sinkId, select) {
     if (typeof video.sinkId !== "undefined") {
       return video
@@ -425,28 +429,27 @@ export default {
     url = url ? url : location.href;
     let queryStrings = decodeURIComponent(url)
       .split("#", 2)[0]
-      .split("?", 2)[1];
+      .split("?");
+    queryStrings.shift(); // get rid of address
+    for(let string of queryStrings) {
+      if (string) {
+        let splittedQStrings = string.split("&");
 
-    if (queryStrings) {
-      let splittedQStrings = queryStrings.split("&");
+        if (splittedQStrings.length) {
+          let queryStringObj = {};
 
-      if (splittedQStrings.length) {
-        let queryStringObj = {};
+          splittedQStrings.forEach(function (keyValuePair) {
+            let keyValue = keyValuePair.split("=", 2);
 
-        splittedQStrings.forEach(function (keyValuePair) {
-          let keyValue = keyValuePair.split("=", 2);
-
-          if (keyValue.length) {
-            queryStringObj[keyValue[0]] = keyValue[1];
+            if (keyValue.length) {
+              queryStringObj[keyValue[0]] = keyValue[1];
+            }
+          });
+          if(typeof queryStringObj[keyToReturn] !== "undefined"){
+            return queryStringObj[keyToReturn];
           }
-        });
-        return keyToReturn
-          ? queryStringObj[keyToReturn]
-            ? queryStringObj[keyToReturn]
-            : null
-          : queryStringObj;
+        }
       }
-      return null;
     }
     return null;
   },
@@ -560,7 +563,6 @@ export default {
         }
       });
     } else {
-      //@TODO add click event to button on video
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         elem.className = /fullscreen/.test(elem.className)
@@ -744,9 +746,7 @@ export default {
   },
 
   getMutedStream() {
-    let stream = mutedStream ? mutedStream : MutedStream();
-    mutedStream = stream;
-    return stream;
+    return this.resetMutedStream();
   },
 
   setMutedStream(elem) {
@@ -892,6 +892,7 @@ export default {
     const pipVid = document.getElementById("pip");
     if (pipVid && pipVid.currentId !== id) {
       const speakingVid = document.getElementById(id);
+      if(!speakingVid) return;
       pipVid.currentId = id;
       pipVid.srcObject = speakingVid.srcObject;
       if (pipVid.paused) {

@@ -1,12 +1,7 @@
 body {
   color: #fff;
-  background: url("../images/background.png") no-repeat center center fixed;
-  background-image: url("../images/background.png");
-  -webkit-background-image: url("../images/background.png");
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+  background-color: rgb(40, 35, 47);
+  overflow-y: auto;
 }
 
 /* main div */
@@ -77,7 +72,7 @@ body {
 }
 
 #chat-send {
-  bottom: 30px;
+  bottom: 10%;
   color: white;
 }
 
@@ -364,6 +359,9 @@ meter {
 
 .waiting {
   margin-top: 40px;
+  position:absolute;
+  left:-50%;
+  right:-50%;
 }
 
 .grid-bottom {
@@ -404,26 +402,33 @@ meter {
 }
 
 #top-menu {
-  position: absolute;
-  padding: 15px;
+  position: fixed;
 
-  z-index: 100000;
-  background-color: #473761;
+  top: 46px;
+  z-index: 10000;
+  background-color: #473761bb !important;
   box-shadow: 10px 10px 40px #14101bbb;
   color: white;
   transition: 0.5s all;
-  border-radius: 0px 0px 0px 10px;
   justify-content: space-between;
   transition: 0.5px all;
   right: 0px;
 }
 
 #top-menu button {
-  margin: 5px;
+
   width: 100%;
   display: flex;
-
   background: none;
+  border-bottom:2px solid #14101bbb;
+  padding-right:20px;
+  padding-top:20px;
+  padding-bottom: 20px;
+  transition:.5s all;
+}
+
+#top-menu button:hover {
+  background: #604d7e;
 }
 
 #top-menu button span {
@@ -454,6 +459,245 @@ meter {
   box-shadow:3px 3px 8px black;
   text-shadow:1px 1px 2px black;
 
+}
+
+/* Options */
+
+#local {
+  display: block;
+  height:250px;
+  margin: auto;
+}
+
+.menu {
+  position: relative;
+  top:60px;
+  width: 320px;
+  margin: auto;
+}
+
+#title {
+  font-family: Helvetica;
+  padding: 10px;
+}
+
+#welcometext {
+  position: relative;
+  text-align: center;
+}
+
+#inputs {
+  padding: 10px;
+  text-align: center;
+  top:0px;
+}
+
+.inputs {
+  top: 250px;
+}
+
+.noBoShadow {
+  box-shadow: 7px 0px 8px black;
+}
+
+.selfview-container {
+  height: 320px;
+}
+
+.selfview {
+  position: relative;
+  top: 0px;
+  width: 280px;
+  margin:auto;
+}
+
+#controlsAudio {
+  position: absolute;
+  top: 5px;
+  left: 0px;
+  width: 280px;
+  text-align: center;
+  margin: auto;
+  color: white;
+  font-size: small;
+}
+
+#currentAudioDevice {
+  position: relative;
+  margin: auto;
+  top: 5px;
+}
+
+#prevAudio {
+  position: absolute;
+  left:0px;
+}
+
+#nextAudio {
+  position: absolute;
+  right:0px;
+}
+
+#local {
+  width: 250px;
+}
+
+#controlsVideo {
+  position: absolute;
+  bottom: 5px;
+  left: 0px;
+  width: 280px;
+  text-align: center;
+  margin: auto;
+  color: white;
+  font-size: small;
+}
+
+#prevCam {
+  position: absolute;
+  left:0px;
+  bottom:0px;
+}
+
+#nextCam {
+  position: absolute;
+  right:0px;
+  bottom:0px;
+}
+
+#currentVideoDevice {
+  position: relative;
+  margin: auto;
+  bottom: 5px;
+}
+
+.padded {
+  padding: 10px;
+}
+
+.margined {
+  margin: 10px;
+}
+
+/* button for options to slide out */
+
+#options-button {
+  position: absolute;
+  right: -50px;
+  bottom: 0px;
+  box-shadow: 7px 7px 20px black;
+}
+
+/* Slider for options */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:disabled + .slider {
+  background-color: red;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(20px);
+  -ms-transform: translateX(20px);
+  transform: translateX(20px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.ligthBg {
+  background-color: rgba(240,240,240,.3);
+}
+
+.floating-1 {
+  position: relative;
+  margin: auto;
+  margin-top: 15px;
+  padding: 5px;
+  align-content: left;
+  text-align: left;
+  z-index: 2;
+  border-radius: 6px;
+  box-shadow: 3px 3px 20px black;
+  background-color: rgba(52, 40, 53, 1);
+  top: -250px;
+  transition: top 1.5s;
+}
+
+.floating-1.out {
+  top:0px;
+}
+
+.floating-2 {
+  position: relative;
+  margin: auto;
+  margin-top: 15px;
+  align-content: center;
+  z-index: 12;
+  border-radius: 4px;
+  box-shadow: 5px 5px 20px black;
+  background-color: rgba(62, 50, 63, 1);
+}
+
+.floating-3 {
+  position: relative;
+  margin: auto;
+  z-index: 14;
+  border-radius: 2px;
+  box-shadow: 7px 7px 20px rgba(10,10,10,.4);
+  background-color: rgba(72, 60, 73, 1);
 }
 
 #feedback {
@@ -565,18 +809,9 @@ li {
     z-index: 1000;
   }
 
-  #top-menu {
-    position: absolute;
-    padding: 15px;
 
-    right: 0px;
-    z-index: 100000;
-    background-color: #473761;
-    box-shadow: 10px 10px 40px #14101bbb;
-    color: white;
-
-    transition: 0.5s all;
-    border-radius: 10px 0px 0px 10px;
+  #chat-send {
+    bottom: 20%;
   }
 
   .chat-col.chat-opened {
@@ -651,10 +886,10 @@ li {
     bottom: 65px;
   }
 
-  .v-user {
-    margin-left: 50px;
-  }
 
+#chat-send {
+  bottom: 15%;
+}
   .widget-button {
     border-radius: 0px 6px 6px 0px;
   }

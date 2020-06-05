@@ -169,4 +169,22 @@ export default class SFU extends EventEmitter {
             this.screenProducer._events.trackended()
         }
     }
+
+    async changeStream(stream) {
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack.readyState === "live") {
+            this.videoProducer.replaceTrack({ track: videoTrack });
+            this.videoProducer.resume();
+        } else {
+            this.videoProducer.pause();
+        }
+
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack.readyState === "live") {
+            this.audioProducer.replaceTrack({ track: audioTrack });
+            this.audioProducer.resume();
+        } else {
+            this.audioProducer.pause();
+        }
+    }
 }

@@ -11,7 +11,7 @@ export default class GunControl {
   }
 
   createInstance () {
-    var opt = { radisk: false };
+    var opt = { radisk: false, localStorage:false };
     var gun = Gun(opt);
     med.root = gun;
     return gun;
