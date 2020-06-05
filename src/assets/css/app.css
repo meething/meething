@@ -180,7 +180,7 @@ body {
   object-fit: cover !important;
   height: 100%;
   max-height:80vh;
-  width: 100%; 
+  width: 100%;
   background: #14101bbb;
 }
 
@@ -317,7 +317,7 @@ meter {
 .grid-container {
   display:block;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); 
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   padding: 0px;
   height: calc(100vh - 95px);
   height: -moz-calc(100vh - 95px);
@@ -374,7 +374,7 @@ meter {
 
 #bottom-menu {
   position: absolute;
-
+  pointer-events: none;
   bottom: 0px;
   left:-50%;
   right:-50%;
@@ -454,6 +454,19 @@ meter {
   box-shadow:3px 3px 8px black;
   text-shadow:1px 1px 2px black;
 
+}
+
+#feedback {
+  position: fixed;
+  height: 45px;
+  width: 155px;
+  text-align: center;
+  bottom: 0px;
+  right: 75px;
+  padding: 10px;
+  border-radius: 5px 5px 0px 0px;
+  z-index: 10000;
+  background-color: rgba(57, 45, 64, .9);
 }
 
 /* general styles */
@@ -687,4 +700,3 @@ li {
     top: 35px;
   }
 }
-
