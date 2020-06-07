@@ -7,22 +7,59 @@ export default class Chat {
     med = this.mediator;
     self = this;
     self.cache = null;
-
     // subscribe to outSideChatMessages
     med.ee.on("chat:ExtMsg", self.receiver);
 
     return this;
   }
-
+  /* strip XSS */
+  stripTags(data){
+    const sandbox = document.createElement("iframe");
+    sandbox.sandbox = "allow-same-origin";
+    sandbox['allow-scripts'] = false;
+    sandbox.style.setProperty("display", "none", "important");
+    document.body.appendChild(sandbox);
+    const sandboxContent = sandbox.contentWindow.document;
+    let untrustedString = data.msg;
+    if (typeof untrustedString !== "string") data.msg = untrustedString = "";
+    let trusted = "";
+    sandboxContent.open();
+    try {
+      sandboxContent.write(untrustedString);
+    } catch (e) {
+      console.warn("error in shit",e);
+    }
+    sandboxContent.close();
+    trusted = sandboxContent.body.textContent || sandboxContent.body.innerText || "";
+    document.body.removeChild(sandbox);
+    if(window.anchorme) {
+      //SEE OPTIONS IN http://alexcorvi.github.io/anchorme.js/
+      var parsed = window.anchorme({
+        input:trusted,
+        options:{
+          attributes: {
+              target: "_blank"
+          }
+        }
+      });
+      //console.log("trusted >?",parsed);
+      if(typeof parsed == "string") trusted = parsed; 
+    }
+    data.msg = trusted; 
+    return data;
+  }
   /* A message is sending out from me */
   broadcast(data) {
     let senderType = "local";
+    data = self.stripTags(data);
     if (!self.executeCommand(data)) {
       if (data.sender && data.to && data.sender == data.to) return;
       if (!data.ts) data.ts = Date.now();
       med.ee.emit("chat:IntMsg", data);
       med.metaData.sendChatData(data);
-      self.showInChat(data, senderType);
+      self.remoteCommand(data);
+      if(data.msg && !data.msg.match(/^(\!|\/)/))
+        self.showInChat(data, senderType);
     }
 
   }
@@ -30,17 +67,113 @@ export default class Chat {
   receiver(data) {
     if (data.event !== "chat") { return; }
     let senderType = "remote";
-    self.showInChat(data, senderType);
+    data = self.stripTags(data);
+    self.remoteCommand(data);
+    if(data.msg && !data.msg.match(/^(\!|\/)/))
+      self.showInChat(data,senderType);
+  }
+
+  async remoteCommand(data){
+    if(!data.msg) return true;
+    if (data.msg.startsWith("!")) {
+      let msg = data.msg.replace("!", "");
+      let parts = msg.split(" ");
+      let trigger = (parts.length) ? parts.shift() : "";
+      const room = med.root.get("meething").get(med.room);
+      let roomdata = await room.promOnce();
+      //console.log("roomdata",roomdata);
+      roomdata = roomdata?.data || {};
+      console.log("roomdata",roomdata);
+      let sender = data.sender;
+      let commandFromOwner = sender == roomdata.creator;
+      console.log("sender?",sender,"sender is owner?", commandFromOwner,"roomdata.owner",roomdata.creator); 
+      //console.log(msg,parts,trigger)
+      if(!trigger) return true;
+      switch (trigger) {
+        case "mute": 
+          var who = parts.length>0 ? parts.join(" ") : null;
+          console.log("asking to mute",who);
+          if(who != med.username) {
+            data.msg = data.sender+" is voting to mute:"+who;
+            return false;
+          } else {
+            alert('you just got muted by: '+data.sender);
+            return true;
+          }
+        break;
+        case "kick": 
+          var who = parts.length>0 ? parts.join(" ") : null;
+          if(who == med.username || who == med.socketId) {
+            if(commandFromOwner) window.location = 'https://builders.mozilla.community/index.html';
+            return false;
+          } else {
+            if(commandFromOwner) {
+              data.msg = "Room Owner is kicking :"+who 
+              this.showInChat(data);
+            }
+            return false
+          }
+        break;
+        case "meethrix":
+          let presence = med.presence ? med.presence : false;
+          if(!presence) return true;
+          window.meethrix = med.meethrix = true;
+          window.meethrixStream = med.meethrixStream = med.h.resetMutedStream();
+          //med.meethrixStreams = med.meethrixStreams ? med.meethrixStreams : {};
+          var who = parts.length>0 ? parts.join(" ") : null;
+          console.log("asking to meethrix",who,presence.users);
+          if(presence.users) presence.users.forEach((data,key) => {
+            console.log("key",key,"data",data);
+            if(data.username && data.username == who) {
+              var sock = data.socketId;
+              var sockVideo = sock+'-video';
+              var sockEl = document.getElementById(sockVideo);
+              if(sockEl) {
+                console.log("meethrixing",sockVideo);
+                sockEl.srcObject = med.meethrixStream
+              }
+            }
+          });
+          return true;
+        break;
+        case "bluepill":
+          window.meethrix = med.meethrix = false;
+          window.mutedStream = meething.h.resetMutedStream();
+          var who = parts.length>0 ? parts.shift() : null;
+          console.log("asking to bluepill",who);
+          if(who != med.username) {
+            //pls gib uuid
+          } else {
+            
+          }
+          return true;
+        break;
+
+        case "breakout":
+        break;
+      }
+    } else {
+      return false;
+    }
   }
 
   executeCommand(data) {
+    if(!data.msg) return true;
     if (data.msg.startsWith("/")) {
       var trigger = data.msg.replace("/", "");
       switch (trigger) {
         case "help":
-          data.msg = "Welcome to chat commands these are your options:<br>" +
-            "/help - this will trigger this information";
+          data.msg = "Welcome to chat commands these are your options:<br/>" +
+            "/help - this will trigger this information<br/>" +
+            "/share - copies the room link to clipboard for you to share";
           self.showInChat(data);
+          return true;
+        case "share":
+          let link = location.href;
+          if(med.h.copyToClipboard) med.h.copyToClipboard(link);
+          if(window.anchorme) link = anchorme(link);
+          data.msg = "Room link > <strong>"+link+"</strong> < copied to clipboard!";
+          self.showInChat(data); 
           return true;
         case "qxip":
         case "qvdev":

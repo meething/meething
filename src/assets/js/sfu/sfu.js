@@ -14,7 +14,7 @@ export default class SFU extends EventEmitter {
         console.log("SFU::Init");
         this.sfuRoom.on("@open", ({ peers }) => {
             console.log(`${peers.length} peers in this room.`);
-            this.emit("readyToCall");
+            this.emit("readyToCall", peers.length);
         });
 
         this.sfuRoom.on("@consumer", async consumer => {
@@ -45,7 +45,7 @@ export default class SFU extends EventEmitter {
         });
 
         this.sfuRoom.on("@peerJoined", async id => {
-            this.emit("readyToCall");
+            this.emit("readyToCall", -1);
         });
 
     }
@@ -56,11 +56,20 @@ export default class SFU extends EventEmitter {
         this.sfuRoom.join(room, peerId);
     }
 
-    async startBroadcast() {
+    async startBroadcast(peerCount) {
         if (!this.broadcasting) {
             try {
                 this.broadcasting = true;
                 const video = this.config.localVideoEl;
+                if (peerCount > 4) {
+                    video.srcObject.getVideoTracks()[0].enabled = false;
+                    document.getElementById("toggle-video").click()
+                }
+                if (peerCount > 12) {
+                    video.srcObject.getAudioTracks()[0].enabled = false;
+                    document.getElementById("toggle-mute").click()
+                }
+
                 this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
                 this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
 
@@ -128,7 +137,8 @@ export default class SFU extends EventEmitter {
             video = helper.addVideo(consumer._appData.peerId);
             return video;
         } else if (video.srcObject.getVideoTracks().length > 0 && consumer._track.kind == "video") {
-            video = helper.addVideo(consumer._id);
+            video = helper.addVideo(`${consumer._id}`);
+            video.id = `${consumer._id}-screenshare`
             return video;
         } else {
             return video;
@@ -157,6 +167,24 @@ export default class SFU extends EventEmitter {
         } else {
             this.screenProducer.close();
             this.screenProducer._events.trackended()
+        }
+    }
+
+    async changeStream(stream) {
+        const videoTrack = stream.getVideoTracks()[0];
+        if (videoTrack.readyState === "live") {
+            this.videoProducer.replaceTrack({ track: videoTrack });
+            this.videoProducer.resume();
+        } else {
+            this.videoProducer.pause();
+        }
+
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack.readyState === "live") {
+            this.audioProducer.replaceTrack({ track: audioTrack });
+            this.audioProducer.resume();
+        } else {
+            this.audioProducer.pause();
         }
     }
 }

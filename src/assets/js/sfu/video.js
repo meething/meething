@@ -43,9 +43,9 @@ export default class Video {
     // }
 
     // Immediately join room when loaded.
-    webrtc.on("readyToCall", function () {
+    webrtc.on("readyToCall", function (peerCount) {
       // webrtc.joinRoom(self.getRoom());
-      webrtc.startBroadcast();
+      webrtc.startBroadcast(peerCount);
     });
 
     // Display the volume meter.
@@ -123,6 +123,11 @@ export default class Video {
 
     window.ee.on("screen-toggled", function () {
       webrtc.toggleScreen();
+    });
+
+    med.ee.on('media:Got MediaStream', function(stream) {
+      console.log("Media Stream changed SFU");
+      webrtc.changeStream(stream);
     });
 
     webrtc.init();

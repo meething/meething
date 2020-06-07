@@ -309,6 +309,10 @@ export default {
       return "landscape";
     }
   },
+  resetMutedStream(){
+    mutedStream = null;
+    return mutedStream = MutedStream();
+  },
   attachSinkToVideo(video, sinkId, select) {
     if (typeof video.sinkId !== "undefined") {
       return video
@@ -425,28 +429,27 @@ export default {
     url = url ? url : location.href;
     let queryStrings = decodeURIComponent(url)
       .split("#", 2)[0]
-      .split("?", 2)[1];
+      .split("?");
+    queryStrings.shift(); // get rid of address
+    for(let string of queryStrings) {
+      if (string) {
+        let splittedQStrings = string.split("&");
 
-    if (queryStrings) {
-      let splittedQStrings = queryStrings.split("&");
+        if (splittedQStrings.length) {
+          let queryStringObj = {};
 
-      if (splittedQStrings.length) {
-        let queryStringObj = {};
+          splittedQStrings.forEach(function (keyValuePair) {
+            let keyValue = keyValuePair.split("=", 2);
 
-        splittedQStrings.forEach(function (keyValuePair) {
-          let keyValue = keyValuePair.split("=", 2);
-
-          if (keyValue.length) {
-            queryStringObj[keyValue[0]] = keyValue[1];
+            if (keyValue.length) {
+              queryStringObj[keyValue[0]] = keyValue[1];
+            }
+          });
+          if(typeof queryStringObj[keyToReturn] !== "undefined"){
+            return queryStringObj[keyToReturn];
           }
-        });
-        return keyToReturn
-          ? queryStringObj[keyToReturn]
-            ? queryStringObj[keyToReturn]
-            : null
-          : queryStringObj;
+        }
       }
-      return null;
     }
     return null;
   },
@@ -560,7 +563,6 @@ export default {
         }
       });
     } else {
-      //@TODO add click event to button on video
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         elem.className = /fullscreen/.test(elem.className)
@@ -641,10 +643,12 @@ export default {
 
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
-    //video div
-    var videoDiv = document.createElement("div");
-    videoDiv.id = partnerName;
-    videoDiv.appendChild(newVid);
+    newVid.volume = 0.75;
+  
+    let ogrid = document.createElement("div");
+    ogrid.id = partnerName + "-widget";
+    ogrid.className = 'remote-widget'
+   ogrid.appendChild(newVid);
 
     //Top toolbox
     var topToolbox = document.createElement("div");
@@ -658,7 +662,7 @@ export default {
     );
     closeButton.addEventListener("click", function () {
       // do fullscreen
-      var elem = document.getElementById(`${partnerName}-video`);
+      var elem = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (elem) {
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -681,7 +685,7 @@ export default {
     fullscreenBtn.addEventListener("click", function () {
       var doubleClickEvent = document.createEvent("MouseEvents");
       doubleClickEvent.initEvent("dblclick", true, true);
-      var vselect = document.getElementById(`${partnerName}-video`);
+      var vselect = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (vselect) vselect.dispatchEvent(doubleClickEvent);
     });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
@@ -690,7 +694,7 @@ export default {
     var autopilotBtn = this.addButton(
       `${partnerName}-talker`,
       "widget-button",
-      "fas fa-bullhorn"
+      "fas fa-bullhorn talker"
     );
     // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
 
@@ -709,17 +713,11 @@ export default {
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
     videoToolbox.appendChild(vtitle);
-    let ogrid = document.createElement("div");
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
-
-    ogrid.appendChild(videoDiv);
-    videoDiv.appendChild(toolbox);
-    //ogrid.appendChild(videoToolbox);
-
-    // ogrid.appendChild(topToolbox);
-    // ogrid.appendChild(videoToolbox);
-    ogrid.id = partnerName + "-widget";
+    ogrid.appendChild(toolbox);
+  
+  
     var realgrid = document.getElementById("grid");
     realgrid.appendChild(ogrid);
 
@@ -748,9 +746,7 @@ export default {
   },
 
   getMutedStream() {
-    let stream = mutedStream ? mutedStream : MutedStream();
-    mutedStream = stream;
-    return stream;
+    return this.resetMutedStream();
   },
 
   setMutedStream(elem) {
@@ -896,6 +892,7 @@ export default {
     const pipVid = document.getElementById("pip");
     if (pipVid && pipVid.currentId !== id) {
       const speakingVid = document.getElementById(id);
+      if(!speakingVid) return;
       pipVid.currentId = id;
       pipVid.srcObject = speakingVid.srcObject;
       if (pipVid.paused) {
@@ -917,6 +914,8 @@ export default {
         fresh = document.getElementById(id),
         first = container.firstElementChild;
       // Move speaker to first position
+      first.getElementsByTagName("video")[0].volume = 0.75;
+      fresh.getElementsByTagName("video")[0].volume = 1.0;
       if (container && fresh && first) container.insertBefore(fresh, first);
     } catch (e) {
       console.log(e);

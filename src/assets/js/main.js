@@ -12,6 +12,7 @@ import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
 import PipMode from './ui/pipmode.js';
 import GunControl from "./gunControl.js";
+import Embed from "./ui/embed.js";
 let mGraph,
     mModal,
     mChat,
@@ -19,7 +20,8 @@ let mGraph,
     mToggles,
     mUex,
     mGunControl,
-    mPipMode;
+    mPipMode,
+    mEmbed;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -62,19 +64,44 @@ function Mediator() {
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
   this.graph;
+  this.embed;
 
   /* Define 'Workflows' that consist of work across modules
   */
 
   /* Roll out the welcomeMat is fired as soon as the DOM is loaded
-     Sets up the modal for the user.
+     Sets up the options for the user.
   */
 
-  this.welcomeMat = function () {
+  this.welcomeMat = async function () {
+    // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
+    // 2. Set options from the start and set them to sessionStorage
+    this.mode = this.h.getQString(location.href, "mode") || "";
+    this.room = this.h.getQString(location.href, "room") 
+      ? this.h.getQString(location.href, "room") : 
+        (sessionStorage && sessionStorage.getItem("roomname")) 
+        ? sessionStorage.getItem("roomname") : 
+        "";
+    if(document.querySelector('#roomname')){document.querySelector('#roomname').setAttribute("value", this.room);}
+    this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
+    if(document.querySelector('#username')){document.querySelector('#username').setAttribute("value", this.username);}
+    this.title = this.room;
+    if (this.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerText = this.title;
+
+    // handle the embeded case with a embedded option screen
+    if(this.mode == "embed" && this.room) {
+      //only embed if room is specified
+      console.log("embed detected");
+      this.embed.landingPage();
+      return;
+    };
     this.uex.initialRegister(); // attach dom listeners into ui/ux
     this.gunControl.createInstance();
-    this.modal.createModal(); // create and display
-    this.uex.afterModalRegister(); // attach listeners to items in modal
+    await this.getMediaStream();
+    await this.getDeviceList(); // get and store devices for later use;
+    /* the modal was great but buggy it needed a rewrite */
+    //this.modal.createModal(); // create and display
+    //this.uex.afterModalRegister(); // attach listeners to items in modal
   };
 
   /* Initiate sockets and get stuff set up for streaming
@@ -83,38 +110,42 @@ function Mediator() {
   */
 
   this.initSocket = async function () {
+    var self = this;
+    //NOTE Promise loses relations to med
     return new Promise((res, rej) => {
       var roomPeer = config.multigun + "gun";
-      var hash = null,
-        creator = null;
-      if (this.room) {
-        hash = this.getSS('rooms.' + this.room + '.hash');
-        creator = this.getSS('rooms.' + this.room + '.creator');
-        var r = (hash && creator) ? this.room + '?sig=' + encodeURIComponent(hash) + "&creator=" + encodeURIComponent(creator) : this.room;
-        console.log(r);
+      var hash = "",
+        creator = "";
+      if (self.room) {
+        hash = self.getSS('rooms.' + self.room + '.hash') || "";
+        creator = self.getSS('rooms.' + self.room + '.creator') || self.username || "";
+        var r = self.room + '?';
+        if(hash) r = r + '&sig=' + encodeURIComponent(hash);
+        if(creator) r = r + "&creator=" + encodeURIComponent(creator); 
+        if(self.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
       localStorage.clear();
-      window.room = this.room;
-      window.root = this.gunControl.clearPeers();
-      this.gunControl.addPeer(roomPeer);
+      window.room = self.room;
+      window.root = self.gunControl.clearPeers();
+      self.gunControl.addPeer(roomPeer);
 
       // initiate graph
       mGraph.init();
 
-      this.socket = window.socket = this.root
+      self.socket = window.socket = self.root
         .get("meething")
-        .get(this.room)
+        .get(self.room)
         .get("socket");
-      if (this.DEBUG) { console.log('initiating Socket', this.root, this.room, this.socket) }
-      return res({ root: this.root, room: this.room, socket: this.socket });
+      if (self.DEBUG) { console.log('initiating Socket', self.root, self.room, self.socket) }
+      return res({ root: self.root, room: self.room, socket: self.socket });
     })
   }
 
   /* Call connection module to establish connection */
 
   this.initComm = function () {
-    mConn.establish();
+    mConn.init();
   }
 
   /* Helper functions that need to be here for now until modules are more split
@@ -166,6 +197,77 @@ function Mediator() {
   }
 
   // End of Session Storage Helper
+
+  this.getDeviceList = async function () {
+    var devices = await this.h.getDevices();
+    this.videoDevices = devices.vs;
+    this.audioDevices = devices.as;
+    this.speakerDevices = devices.ao;
+    this.otherDevices = devices.other;
+    this.ee.emit("media:Got DeviceList")
+    return true;
+  }
+
+  this.getMediaStream = async function(videoDeviceId, audioDeviceId) {
+    let addMutedVideo = false;
+    let addMutedAudio = false;
+
+    if (this.myStream && this.h.typeOf(this.myStream) =="mediastream") {
+      if(this.DEBUG) console.log(this.myStream);
+      this.myStream.getTracks().forEach(track => {
+        track.stop();
+      });
+    }
+
+    var constraints = {};
+    if(typeof videoDeviceId == 'string') {
+      constraints.video = {deviceId: { ideal: videoDeviceId }};
+    } else if(typeof videoDeviceId == 'boolean') {
+      constraints.video = videoDeviceId;
+      addMutedVideo = true;
+    } else {
+      constraints.video = {facingMode:{ideal:'user'}};
+    }
+
+    if(typeof audioDeviceId == 'string') {
+      constraints.audio = { deviceId: { ideal: audioDeviceId }};
+    } else if(typeof videoDeviceId == 'boolean') {
+      constraints.audio = videoDeviceId;
+      addMutedAudio = true;
+    } else {
+      constraints.audio = true;
+    }
+    if(this.DEBUG) console.log("constraints",constraints);
+    var stream = null;
+    var fullmute = false;
+    // fetch stream with the chosen constraints
+    if(constraints && (constraints.audio === false && constraints.video === false)){
+      stream = this.h.getMutedStream();
+      fullmute = true;
+    } else {
+      fullmute = false;
+      stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
+    }
+    //console.log("Stream",stream);
+    // if video should be muted (but we still want self-view)
+    if(addMutedVideo && !fullmute){
+      var muted = this.h.getMutedStream();
+      if(this.DEBUG) console.log(muted);
+      stream.addTrack(muted.getVideoTracks()[0]);
+    }
+
+    if(addMutedAudio && !fullmute){
+      var muted = this.h.getMutedStream();
+      if(this.DEBUG) console.log(muted);
+      stream.addTrack(muted.getAudioTracks()[0]);
+    }
+
+    // check if stream exists
+    if(stream) { this.myStream = stream };
+    this.ee.emit("media:Got MediaStream", stream);
+    this.ee.emit("localStream changed", stream);
+    return true;
+  }
 }
 
 // Initialize Mediator
@@ -184,6 +286,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mUex = new UEX(meething);
   mPipMode = new PipMode(meething);
   mGunControl = new GunControl(meething);
+  mEmbed = new Embed(meething);
 
   meething.graph = mGraph;
   meething.chat = mChat;
@@ -193,6 +296,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.gunControl = mGunControl;
   meething.uex = mUex;
   meething.pipMode = mPipMode;
+  meething.embed = mEmbed;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();
 
