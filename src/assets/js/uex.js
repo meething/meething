@@ -299,7 +299,7 @@ export default class UEX {
       // get roomname, if empty make an random one
       med.room = document.querySelector('#roomname').value || window.chance.city().trim() + "-" + window.chance.first().trim() + "-" + window.chance.city().trim();
       sessionStorage.setItem('roomname', med.room);
-      window.history.pushState(null,'','?room='+med.room);
+      window.history.pushState(null,'',`?room=+${med.room}&mesh=${document.getElementById("mesh-toggle").checked}`);
 
       // if password option is on
       let _pass = document.querySelector('#pass');

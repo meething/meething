@@ -13,6 +13,7 @@ export default class Toggles {
     this.initToggleScreenShare();
     this.initToggleAudioRecording();
     this.initTogglePiPMode();
+    this.initToggleMesh();
   }
 
   initToggleVideo() {
@@ -121,6 +122,14 @@ export default class Toggles {
         togglePip.classList.remove("text-success");
       });
     }
+  }
 
+  initToggleMesh() {
+    const mesh = med.h.getQString(location.href, "mesh") || "false";
+    if (mesh == "true") {
+      document.getElementById("mesh-toggle").checked = true;
+    } else {
+      document.getElementById("mesh-toggle").checked = false;
+    }
   }
 }
