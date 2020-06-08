@@ -80,26 +80,26 @@ export default class Connection {
       if (data.subEvent == "recording") {
         if (data.isRecording) {
           var notification = data.username + " started recording this meething";
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         } else {
           var notification = data.username + " stopped recording this meething"
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         }
       } else if (data.subEvent == "grid") {
         if (data.isOngrid) {
           var notification = data.username + " is going off the grid";
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         } else {
           var notification = data.username + " is back on the grid"
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         }
       } else if (data.subEvent == "mute") {
         if (data.muted) {
           var notification = data.username + " is going silence";
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         } else {
           var notification = data.username + " is on speaking terms"
-          med.h.showNotification(notification);
+          med.h.showNotification(notification, "remote");
         }
       }
     } else if (data.event == "control") {
@@ -115,7 +115,7 @@ export default class Connection {
 
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
-        med.h.showNotification("Read-Only Join by " + data.username);
+        med.h.showNotification("Read-Only Join by " + data.username, "remote");
         med.h.hideVideo(data.socketId, true);
       }
     }
