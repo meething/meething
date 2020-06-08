@@ -82,7 +82,7 @@ export default class Chat {
       const room = med.root.get("meething").get(med.room);
       let roomdata = await room.promOnce();
       //console.log("roomdata",roomdata);
-      roomdata = roomdata?.data || {};
+      roomdata = med.h.fromPath(roomdata,'data') || {};
       console.log("roomdata",roomdata);
       let sender = data.sender;
       let commandFromOwner = sender == roomdata.creator;
