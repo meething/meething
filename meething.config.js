@@ -9,5 +9,6 @@ module.exports = {
       SSLCERT  : 'src/assets/fullchain.pm',
       SFU_URL : false,
       DEBUG : false
-  }]
-};
+  }
+}]
+}
