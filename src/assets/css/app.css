@@ -879,7 +879,7 @@ li {
 
 /* mobile overrides */
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 645px) {
   .chat-col {
     border-top: 2px solid orange;
     right: -100vw;
