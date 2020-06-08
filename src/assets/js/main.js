@@ -220,22 +220,23 @@ function Mediator() {
     }
 
     var constraints = {};
-    if(typeof videoDeviceId == 'string') {
+    if(typeof videoDeviceId == 'string' && !this.videoMuted) {
       constraints.video = {deviceId: { ideal: videoDeviceId }};
     } else if(typeof videoDeviceId == 'boolean') {
       constraints.video = videoDeviceId;
       addMutedVideo = true;
     } else {
-      constraints.video = {facingMode:{ideal:'user'}};
+      if(!this.videoMuted)
+        constraints.video = {facingMode:{ideal:'user'}};
     }
 
-    if(typeof audioDeviceId == 'string') {
+    if(typeof audioDeviceId == 'string' && !this.audioMuted) {
       constraints.audio = { deviceId: { ideal: audioDeviceId }};
-    } else if(typeof videoDeviceId == 'boolean') {
-      constraints.audio = videoDeviceId;
+    } else if(typeof audioDeviceId == 'boolean') {
+      constraints.audio = audioDeviceId;
       addMutedAudio = true;
     } else {
-      constraints.audio = true;
+      constraints.audio = !this.audioMuted;
     }
     if(this.DEBUG) console.log("constraints",constraints);
     var stream = null;
