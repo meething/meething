@@ -890,6 +890,20 @@ li {
     bottom: 65px;
   }
 
+#feedback {
+  position: fixed;
+  height: 25px;
+  width: 155px;
+  text-align: center;
+  top: 47px;
+  left: 0px;
+  font-size: 12px;
+  padding: 3px;
+  border-radius: 0px 0px 5px 0px;
+  color: white;
+  z-index: 100;
+  }
+
 
 #chat-send {
   bottom: 15%;
