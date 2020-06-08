@@ -97,6 +97,7 @@ export default class Chat {
             data.msg = data.sender+" is voting to mute:"+who;
             return false;
           } else {
+            // TODO: Actually mute the person
             alert('you just got muted by: '+data.sender);
             return true;
           }
