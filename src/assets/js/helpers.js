@@ -707,9 +707,17 @@ export default {
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = "v-toolbox";
+    var mutedSpan = document.createElement("span")
+    mutedSpan.style.display = "none"
+    mutedSpan.innerText = "MUTED"
+    mutedSpan.style.color = "white"
+    mutedSpan.style.backgroundColor = "#DE0046"
+      mutedSpan.style.padding="3px";
+      mutedSpan.style.margin = "3px"
     var vtitle = document.createElement("p");
     var vuser = partnerName;
     vtitle.textContent = `● ${vuser}`;
+    vtitle.appendChild(mutedSpan)
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
     videoToolbox.appendChild(vtitle);
@@ -876,12 +884,29 @@ export default {
     }, 3000);
   },
   showUserMutedNotification(data) {
+    let title = document.getElementById(data.socketId + "-title").childNodes[1]
+    let glowed = document.getElementById(data.socketId + "-talker");
     if(data.videoMuted || data.audioMuted) {
-      let glowed = document.getElementById(data.socketId + "-talker");
       glowed.style.color = "red";
-    } else {
+    }
+   if(data.videoMuted && data.audioMuted) {
+      title.style.display = "inline";
+        title.innerText = "Audio and Video MUTED"
+    } 
+    else if(data.videoMuted){
+      title.style.display = "inline";
+      title.innerText = "Video MUTED"
+    }
+    else if(data.audioMuted){
+      title.style.display = "inline";
+      title.innerText = "Audio MUTED"
+     
+    }
+    else {
       let glowed = document.getElementById(data.socketId + "-talker");
       glowed.style.color = "white";
+      title.style.display = "none";
+ 
     }
   },
   showWarning(msg, color) {

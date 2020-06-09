@@ -20,12 +20,14 @@ export default class Toggles {
       e.preventDefault();
       if (!med.videoMuted) {
         med.videoMuted = true;
+        e.srcElement.style.backgroundColor = "#DE0046";
         e.srcElement.classList.remove("fa-video");
         e.srcElement.classList.add("fa-video-slash");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
         med.h.showLocalNotification("Video Disabled");
       } else {
         med.videoMuted = false;
+        e.srcElement.style.backgroundColor = "#3F069C";
         e.srcElement.classList.add("fa-video");
         e.srcElement.classList.remove("fa-video-slash");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
@@ -36,10 +38,12 @@ export default class Toggles {
   }
 
   initToggleAudio() {
+
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
       if (!med.audioMuted) {
         med.audioMuted = true;
+        e.srcElement.style.backgroundColor = "#DE0046";
         e.srcElement.classList.remove("fa-volume-up");
         e.srcElement.classList.add("fa-volume-mute");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
@@ -47,6 +51,7 @@ export default class Toggles {
         med.h.showWarning("Audio Muted","#de0046")
       } else {
         med.audioMuted = false;
+        e.srcElement.style.backgroundColor = "#3F069C";
         e.srcElement.classList.add("fa-volume-up");
         e.srcElement.classList.remove("fa-volume-mute");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
