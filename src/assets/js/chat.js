@@ -82,7 +82,7 @@ export default class Chat {
       const room = med.root.get("meething").get(med.room);
       let roomdata = await room.promOnce();
       //console.log("roomdata",roomdata);
-      roomdata = roomdata?.data || {};
+      roomdata = med.h.fromPath(roomdata,'data') || {};
       console.log("roomdata",roomdata);
       let sender = data.sender;
       let commandFromOwner = sender == roomdata.creator;
@@ -97,6 +97,7 @@ export default class Chat {
             data.msg = data.sender+" is voting to mute:"+who;
             return false;
           } else {
+            // TODO: Actually mute the person
             alert('you just got muted by: '+data.sender);
             return true;
           }
