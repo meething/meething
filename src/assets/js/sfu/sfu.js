@@ -146,19 +146,28 @@ export default class SFU extends EventEmitter {
     }
 
     toggleVideo() {
+      try{
         if (this.videoProducer.paused) {
             this.videoProducer.resume();
         } else {
             this.videoProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }
+
     }
 
     toggleAudio() {
+      try {
         if (this.audioProducer.paused) {
             this.audioProducer.resume();
         } else {
             this.audioProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }  
     }
 
     async toggleScreen() {
