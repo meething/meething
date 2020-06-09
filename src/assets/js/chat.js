@@ -81,7 +81,7 @@ export default class Chat {
       let trigger = (parts.length) ? parts.shift() : "";
       const room = med.root.get("meething").get(med.room);
       let roomdata = await room.promOnce();
-      //console.log("roomdata",roomdata);
+      if(!roomdata) roomdata = {}; //just as security were not pulling 'data' out of undefined
       roomdata = med.h.fromPath(roomdata,'data') || {};
       console.log("roomdata",roomdata);
       let sender = data.sender;
