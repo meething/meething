@@ -41,13 +41,12 @@ export default class Connection {
     if (self.inited) return;
     self.inited = true;
     this.unhide();
-    const isSFUEnabled = document.getElementById("mesh-toggle").checked ? !document.getElementById("mesh-toggle").checked : med.SFU_ENABLED;
-    if (isSFUEnabled) {
-      console.log("Start SFU");
-      this.video = new Video(med).establish();
-    } else {
+    if (med.mesh) {
       console.log("Start MESH");
       new Mesh(med).establish();
+    } else {
+      console.log("Start SFU");
+      this.video = new Video(med).establish();
     }
   }
 

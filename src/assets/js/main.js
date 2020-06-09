@@ -26,9 +26,9 @@ let mGraph,
 function Mediator() {
   // state tracking should occur in here for global state
   // module specific state should be kept in the module (I think?)
-  this.SFU_ENABLED = true;
   this.DEBUG = true;
   this.TIMEGAP = 6000; //RTC Module?
+  this.mesh = config.mesh;
   this.allUsers = []; // needs to live here
   this.enableHacks = config.enableHacks; // @jabis what is this?
   this.meethrix = config.meethrix; // lives here for now, video module?

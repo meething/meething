@@ -5,6 +5,7 @@ const config = {
   autoload: false,
   meethrix:false,
   enableHacks: false,
+  mesh: false,
   iceServers:{
     
   }
