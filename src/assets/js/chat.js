@@ -83,16 +83,16 @@ export default class Chat {
       let roomdata = await room.promOnce();
       if(!roomdata) roomdata = {}; //just as security were not pulling 'data' out of undefined
       roomdata = med.h.fromPath(roomdata,'data') || {};
-      console.log("roomdata",roomdata);
+      if(med.DEBUG) console.log("roomdata",roomdata);
       let sender = data.sender;
       let commandFromOwner = sender == roomdata.creator;
-      console.log("sender?",sender,"sender is owner?", commandFromOwner,"roomdata.owner",roomdata.creator); 
+      if(med.DEBUG) console.log("sender?",sender,"sender is owner?", commandFromOwner,"roomdata.owner",roomdata.creator); 
       //console.log(msg,parts,trigger)
       if(!trigger) return true;
       switch (trigger) {
         case "mute": 
           var who = parts.length>0 ? parts.join(" ") : null;
-          console.log("asking to mute",who);
+          if(med.DEBUG) console.log("asking to mute",who);
           if(who != med.username) {
             data.msg = data.sender+" is voting to mute:"+who;
             return false;
@@ -122,9 +122,9 @@ export default class Chat {
           window.meethrixStream = med.meethrixStream = med.h.resetMutedStream();
           //med.meethrixStreams = med.meethrixStreams ? med.meethrixStreams : {};
           var who = parts.length>0 ? parts.join(" ") : null;
-          console.log("asking to meethrix",who,presence.users);
+          if(med.DEBUG) console.log("asking to meethrix",who,presence.users);
           if(presence.users) presence.users.forEach((data,key) => {
-            console.log("key",key,"data",data);
+            if(med.DEBUG) console.log("key",key,"data",data);
             if(data.username && data.username == who) {
               var sock = data.socketId;
               var sockVideo = sock+'-video';
@@ -141,7 +141,7 @@ export default class Chat {
           window.meethrix = med.meethrix = false;
           window.mutedStream = meething.h.resetMutedStream();
           var who = parts.length>0 ? parts.shift() : null;
-          console.log("asking to bluepill",who);
+          if(med.DEBUG) console.log("asking to bluepill",who);
           if(who != med.username) {
             //pls gib uuid
           } else {
