@@ -61,17 +61,20 @@ export default class SFU extends EventEmitter {
             try {
                 this.broadcasting = true;
                 const video = this.config.localVideoEl;
+                const appdata = {audioMuted:false, audioMuted:false}
                 if (peerCount > 4) {
                     video.srcObject.getVideoTracks()[0].enabled = false;
                     document.getElementById("toggle-video").click()
+                    appdata.videoMuted = true;
                 }
                 if (peerCount > 12) {
                     video.srcObject.getAudioTracks()[0].enabled = false;
                     document.getElementById("toggle-mute").click()
+                    appdata.audioMuted = true;
                 }
 
-                this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
-                this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
+                this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0], appdata);
+                this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0], appdata);
 
                 var self = this;
                 // Attach SoundMeter to Local Stream
@@ -135,6 +138,9 @@ export default class SFU extends EventEmitter {
         var video = document.getElementById(consumer._appData.peerId + "-video");
         if (video == undefined) {
             video = helper.addVideo(consumer._appData.peerId);
+            if(consumer._appData.videoMuted) {
+                video.parentElement.hidden = true;
+            }
             return video;
         } else if (video.srcObject.getVideoTracks().length > 0 && consumer._track.kind == "video") {
             video = helper.addVideo(`${consumer._id}`);

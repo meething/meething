@@ -103,6 +103,23 @@ export default class Connection {
           med.h.showNotification(notification, "remote");
         }
       }
+      else if (data.subEvent == "video-mute") {
+        if (data.muted) {
+          var notification = data.username + " is hiding";
+          med.h.showNotification(notification, "remote");
+          const widget = document.getElementById(`${data.socketId}-widget`);
+          if (widget) {
+            widget.hidden = true;
+          }
+        } else {
+          var notification = data.username + " is back"
+          med.h.showNotification(notification, "remote");
+          const widget = document.getElementById(`${data.socketId}-widget`);
+          if (widget) {
+            widget.hidden = false;
+          }
+        }
+      }
     } else if (data.event == "control") {
       if (data.username && data.socketId) {
         med.h.swapUserDetails(data.socketId + "-title", data);

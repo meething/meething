@@ -23,11 +23,13 @@ export default class Toggles {
         med.videoMuted = true;
         e.srcElement.classList.remove("fa-video");
         e.srcElement.classList.add("fa-video-slash");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "video-mute", muted: med.videoMuted });
         med.h.showNotification("Video Disabled");
       } else {
         med.videoMuted = false;
         e.srcElement.classList.add("fa-video");
         e.srcElement.classList.remove("fa-video-slash");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "video-mute", muted: med.videoMuted });
         med.h.showNotification("Video Enabled");
       }
       window.ee.emit("video-toggled")
