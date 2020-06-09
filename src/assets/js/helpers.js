@@ -725,6 +725,7 @@ export default {
     try {
       let src = "assets/sounds/join.mp3";
       let audio = new Audio(src);
+      audio.volume = 0;
       audio.play();
     } catch (err) { }
 
@@ -857,7 +858,12 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
-  showNotification(msg) {
+  showNotification(msg, senderType) {
+    // if(senderType) {
+      const data = {sender: "system", msg : msg}
+      this.addChat(data, senderType);
+      return
+    // }
     //Snackbar notification
     var snackbar = document.getElementById("snackbar");
     snackbar.innerHTML = msg;
