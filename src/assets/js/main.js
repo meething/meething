@@ -77,10 +77,10 @@ function Mediator() {
     // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
     // 2. Set options from the start and set them to sessionStorage
     this.mode = this.h.getQString(location.href, "mode") || "";
-    this.room = this.h.getQString(location.href, "room") 
-      ? this.h.getQString(location.href, "room") : 
-        (sessionStorage && sessionStorage.getItem("roomname")) 
-        ? sessionStorage.getItem("roomname") : 
+    this.room = this.h.getQString(location.href, "room")
+      ? this.h.getQString(location.href, "room") :
+        (sessionStorage && sessionStorage.getItem("roomname"))
+        ? sessionStorage.getItem("roomname") :
         "";
     if(document.querySelector('#roomname')){document.querySelector('#roomname').setAttribute("value", this.room);}
     this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
@@ -121,7 +121,7 @@ function Mediator() {
         creator = self.getSS('rooms.' + self.room + '.creator') || self.username || "";
         var r = self.room + '?';
         if(hash) r = r + '&sig=' + encodeURIComponent(hash);
-        if(creator) r = r + "&creator=" + encodeURIComponent(creator); 
+        if(creator) r = r + "&creator=" + encodeURIComponent(creator);
         if(self.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
@@ -249,18 +249,18 @@ function Mediator() {
       fullmute = false;
       stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
     }
-    //console.log("Stream",stream);
+    if(this.DEBUG) console.log("Stream",stream);
     // if video should be muted (but we still want self-view)
     if(addMutedVideo && !fullmute){
       var muted = this.h.getMutedStream();
       if(this.DEBUG) console.log(muted);
-      stream.addTrack(muted.getVideoTracks()[0]);
+      if(stream.addTrack !== undefined) stream.addTrack(muted.getVideoTracks()[0]);
     }
 
     if(addMutedAudio && !fullmute){
       var muted = this.h.getMutedStream();
       if(this.DEBUG) console.log(muted);
-      stream.addTrack(muted.getAudioTracks()[0]);
+      if(stream.addTrack !== undefined) stream.addTrack(muted.getAudioTracks()[0]);
     }
 
     // check if stream exists
