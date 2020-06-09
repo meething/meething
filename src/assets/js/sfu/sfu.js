@@ -146,19 +146,28 @@ export default class SFU extends EventEmitter {
     }
 
     toggleVideo() {
+      try{
         if (this.videoProducer.paused) {
             this.videoProducer.resume();
         } else {
             this.videoProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }
+
     }
 
     toggleAudio() {
+      try {
         if (this.audioProducer.paused) {
             this.audioProducer.resume();
         } else {
             this.audioProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     async toggleScreen() {
@@ -171,20 +180,28 @@ export default class SFU extends EventEmitter {
     }
 
     async changeStream(stream) {
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack.readyState === "live") {
-            this.videoProducer.replaceTrack({ track: videoTrack });
-            this.videoProducer.resume();
+        if (stream.getVideoTracks !== undefined) {
+          const videoTrack = stream.getVideoTracks()[0];
+          if (videoTrack.readyState === "live") {
+              this.videoProducer.replaceTrack({ track: videoTrack });
+              this.videoProducer.resume();
+          } else {
+              this.videoProducer.pause();
+          }
         } else {
-            this.videoProducer.pause();
+          console.log('stream does not have videoTrack');
         }
 
-        const audioTrack = stream.getAudioTracks()[0];
-        if (audioTrack.readyState === "live") {
-            this.audioProducer.replaceTrack({ track: audioTrack });
-            this.audioProducer.resume();
+        if (stream.getAudioTracks !== undefined) {
+          const audioTrack = stream.getAudioTracks()[0];
+          if (audioTrack.readyState === "live") {
+              this.audioProducer.replaceTrack({ track: audioTrack });
+              this.audioProducer.resume();
+          } else {
+              this.audioProducer.pause();
+          }
         } else {
-            this.audioProducer.pause();
+          console.log('stream does not have audioTrack');
         }
     }
 }
