@@ -13,6 +13,7 @@ export default class Toggles {
     this.initToggleScreenShare();
     this.initToggleAudioRecording();
     this.initTogglePiPMode();
+    this.initToggleMesh();
   }
 
   initToggleVideo() {
@@ -42,7 +43,7 @@ export default class Toggles {
         e.srcElement.classList.add("fa-volume-mute");
         med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
         med.h.showNotification("Audio Muted");
-        med.h.showWarning("Audio Muted","#de0046")
+        med.h.showWarning("Audio Muted", "#de0046")
       } else {
         med.audioMuted = false;
         e.srcElement.classList.add("fa-volume-up");
@@ -114,6 +115,14 @@ export default class Toggles {
         togglePip.classList.remove("text-success");
       });
     }
+  }
 
+  initToggleMesh() {
+    const mesh = med.h.getQString(location.href, "mesh") || "false";
+    if (mesh == "true") {
+      document.getElementById("mesh-toggle").checked = true;
+    } else {
+      document.getElementById("mesh-toggle").checked = false;
+    }
   }
 }
