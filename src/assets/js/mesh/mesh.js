@@ -238,7 +238,7 @@ export default class Mesh {
                     med.h.setVideoSrc(med.localVideo, muted);
                     e.srcElement.classList.remove("fa-video");
                     e.srcElement.classList.add("fa-video-slash");
-                    med.h.showNotification("Video Disabled");
+                    med.h.showLocalNotification("Video Disabled");
                 });
             } else {
                 med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
@@ -246,7 +246,7 @@ export default class Mesh {
                     med.videoMuted = false;
                     e.srcElement.classList.add("fa-video");
                     e.srcElement.classList.remove("fa-video-slash");
-                    med.h.showNotification("Video Enabled");
+                    med.h.showLocalNotification("Video Enabled");
                 });
             }
         });
@@ -282,7 +282,7 @@ export default class Mesh {
                     e.srcElement.classList.remove("fa-volume-up");
                     e.srcElement.classList.add("fa-volume-mute");
                     med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-                    med.h.showNotification("Audio Muted");
+                    med.h.showLocalNotification("Audio Muted");
                     med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
                 });
             } else {
@@ -292,7 +292,7 @@ export default class Mesh {
                     e.srcElement.classList.add("fa-volume-up");
                     e.srcElement.classList.remove("fa-volume-mute");
                     med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-                    med.h.showNotification("Audio Unmuted");
+                    med.h.showLocalNotification("Audio Unmuted");
                     med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
                 });
             }
@@ -348,27 +348,21 @@ export default class Mesh {
             if (data.subEvent == "recording") {
                 if (data.isRecording) {
                     var notification = data.username + " started recording this meething";
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 } else {
                     var notification = data.username + " stopped recording this meething"
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 }
             } else if (data.subEvent == "grid") {
                 if (data.isOngrid) {
                     var notification = data.username + " is going off the grid";
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 } else {
                     var notification = data.username + " is back on the grid"
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 }
             } else if (data.subEvent == "mute") {
-                if (data.muted) {
-                    var notification = data.username + " is going silence";
-                    med.h.showNotification(notification);
-                } else {
-                    var notification = data.username + " is on speaking terms"
-                    med.h.showNotification(notification);
-                }
+                med.h.showUserMutedNotification(data);
             }
         } else if (data.event == "control") {
             if (data.username && data.socketId) {
@@ -380,7 +374,7 @@ export default class Mesh {
             }
             if (data.readonly) {
                 if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
-                med.h.showNotification("Read-Only Join by " + data.username);
+                med.h.showRemoteNotification("Read-Only Join by " + data.username);
                 med.h.hideVideo(data.socketId, true);
             }
         }

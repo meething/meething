@@ -22,12 +22,14 @@ export default class Toggles {
         med.videoMuted = true;
         e.srcElement.classList.remove("fa-video");
         e.srcElement.classList.add("fa-video-slash");
-        med.h.showNotification("Video Disabled");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+        med.h.showLocalNotification("Video Disabled");
       } else {
         med.videoMuted = false;
         e.srcElement.classList.add("fa-video");
         e.srcElement.classList.remove("fa-video-slash");
-        med.h.showNotification("Video Enabled");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
+        med.h.showLocalNotification("Video Enabled");
       }
       window.ee.emit("video-toggled")
     });
@@ -40,15 +42,15 @@ export default class Toggles {
         med.audioMuted = true;
         e.srcElement.classList.remove("fa-volume-up");
         e.srcElement.classList.add("fa-volume-mute");
-        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-        med.h.showNotification("Audio Muted");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
+        med.h.showLocalNotification("Audio Muted");
         med.h.showWarning("Audio Muted","#de0046")
       } else {
         med.audioMuted = false;
         e.srcElement.classList.add("fa-volume-up");
         e.srcElement.classList.remove("fa-volume-mute");
-        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-        med.h.showNotification("Audio Unmuted");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+        med.h.showLocalNotification("Audio Unmuted");
         med.h.hideWarning();
       }
       window.ee.emit("audio-toggled")
@@ -81,13 +83,13 @@ export default class Toggles {
         med.isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
-        med.h.showNotification("Recording Started");
+        med.h.showLocalNotification("Recording Started");
       } else {
         med.h.stopRecordAudio()
         med.isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
-        med.h.showNotification("Recording Stopped");
+        med.h.showLocalNotification("Recording Stopped");
       }
       med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
       window.ee.emit("record-audio-toggled")

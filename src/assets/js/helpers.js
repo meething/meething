@@ -857,7 +857,7 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
-  showNotification(msg) {
+  showLocalNotification(msg) {
     //Snackbar notification
     var snackbar = document.getElementById("snackbar");
     snackbar.innerHTML = msg;
@@ -865,6 +865,24 @@ export default {
     setTimeout(function () {
       snackbar.className = snackbar.className.replace("show", "");
     }, 3000);
+  },
+  showRemoteNotification(msg) {
+    //Snackbar notification
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerHTML = msg;
+    snackbar.className = "show";
+    setTimeout(function () {
+      snackbar.className = snackbar.className.replace("show", "");
+    }, 3000);
+  },
+  showUserMutedNotification(data) {
+    if(data.videoMuted || data.audioMuted) {
+      let glowed = document.getElementById(data.socketId + "-talker");
+      glowed.style.color = "red";
+    } else {
+      let glowed = document.getElementById(data.socketId + "-talker");
+      glowed.style.color = "white";
+    }
   },
   showWarning(msg, color) {
     var wSign = document.getElementById("warning-sign");
