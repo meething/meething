@@ -41,12 +41,12 @@ export default class Connection {
     if (self.inited) return;
     self.inited = true;
     this.unhide();
-    if (med.SFU_ENABLED) {
-      console.log("Start SFU");
-      this.video = new Video(med).establish();
-    } else {
+    if (med.mesh) {
       console.log("Start MESH");
       new Mesh(med).establish();
+    } else {
+      console.log("Start SFU");
+      this.video = new Video(med).establish();
     }
   }
 
