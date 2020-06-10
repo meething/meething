@@ -159,7 +159,7 @@ if (canCreateMediaStream && canCaptureCanvas) {
     let audio = new AudioContext();
     let oscillator = audio.createOscillator();
     let destination = oscillator.connect(audio.createMediaStreamDestination());
-    oscillator.start();
+    // oscillator.start(); Uncomment to create buzz :)
     return Object.assign(destination.stream.getAudioTracks()[0], {
       enabled: false,
     });
