@@ -13,6 +13,7 @@ export default class Toggles {
     this.initToggleScreenShare();
     this.initToggleAudioRecording();
     this.initTogglePiPMode();
+    this.initToggleSpacebar();
   }
 
   initToggleVideo() {
@@ -55,6 +56,33 @@ export default class Toggles {
     });
   }
 
+  initToggleSpacebar() {
+        document.body.onkeyup = function(e){
+          e.preventDefault();
+          let soundbtn = document.querySelector('#toggle-mute')
+          if(e.keyCode == 32){
+            if(document.activeElement.tagName !== 'TEXTAREA') {
+              if (!med.audioMuted) {
+                med.audioMuted = true;
+                soundbtn.classList.remove("fa-volume-up");
+                soundbtn.classList.add("fa-volume-mute");
+                med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+                med.h.showNotification("Audio Muted");
+                med.h.showWarning("Audio Muted","#de0046")
+              } else {
+                med.audioMuted = false;
+                soundbtn.classList.add("fa-volume-up");
+                soundbtn.classList.remove("fa-volume-mute");
+                med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+                med.h.showNotification("Audio Unmuted");
+                med.h.hideWarning();
+              }
+              window.ee.emit("audio-toggled")
+            }
+        }
+  }
+  }
+
   initToggleScreenShare() {
     document.getElementById("toggle-screen").addEventListener("click", async e => {
       e.preventDefault();
@@ -72,7 +100,6 @@ export default class Toggles {
       window.ee.emit("screen-toggled")
     });
   }
-
   initToggleAudioRecording() {
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
