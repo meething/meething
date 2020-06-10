@@ -1,6 +1,7 @@
 import EventEmitter from "../ee.js";
 import Room from "./room.js";
 import helper from "../helpers.js"
+import config from '../config.js';
 
 export default class SFU extends EventEmitter {
     constructor(config) {
@@ -61,17 +62,19 @@ export default class SFU extends EventEmitter {
             try {
                 this.broadcasting = true;
                 const video = this.config.localVideoEl;
-                if (peerCount > 4) {
-                    video.srcObject.getVideoTracks()[0].enabled = false;
-                    document.getElementById("toggle-video").click()
-                }
-                if (peerCount > 12) {
+                const isMutedStart = peerCount > config.autoMuteCount;
+                if (isMutedStart) {
                     video.srcObject.getAudioTracks()[0].enabled = false;
-                    document.getElementById("toggle-mute").click()
+                    video.srcObject.getVideoTracks()[0].enabled = false;
                 }
 
                 this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
                 this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
+
+                if (isMutedStart) {
+                    document.getElementById("toggle-video").click()
+                    document.getElementById("toggle-mute").click()
+                }
 
                 var self = this;
                 // Attach SoundMeter to Local Stream
