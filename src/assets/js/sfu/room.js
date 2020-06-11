@@ -21,6 +21,9 @@ export default class Room extends EventEmitter {
                 throw ("Retry");
             }
             var SFU_URL = "wss://" + window.location.hostname + ":2345";
+            if(window.location.hostname.indexOf("meething.space") > 0) {
+                SFU_URL = `${config.wssFailover}`
+            }
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             if (wsTransport.readyState == 2 || wsTransport.readyState == 3) { console.error('something not right with webSocket'); throw 'webSocket Local Error'; }
