@@ -715,11 +715,19 @@ export default {
       mutedSpan.style.padding="3px";
       mutedSpan.style.margin = "3px"
     var vtitle = document.createElement("p");
-    var vuser = partnerName;
+    if(partnerName.length > 35)
+    {
+      var vuser = partnerName.substring(0,10) + '...';
+      vtitle.title = partnerName;
+    } else {
+      var vuser = partnerName
+    }
+   
     vtitle.textContent = `● ${vuser}`;
     vtitle.appendChild(mutedSpan)
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
+    
     videoToolbox.appendChild(vtitle);
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
@@ -891,15 +899,15 @@ export default {
     }
    if(data.videoMuted && data.audioMuted) {
       title.style.display = "inline";
-        title.innerText = "Audio and Video MUTED"
+        title.innerText = " Audio and Video MUTED"
     } 
     else if(data.videoMuted){
       title.style.display = "inline";
-      title.innerText = "Video MUTED"
+      title.innerText = " Video MUTED"
     }
     else if(data.audioMuted){
-      title.style.display = "inline";
-      title.innerText = "Audio MUTED"
+     title.style.display = "inline";
+      title.innerText = " Audio MUTED"
      
     }
     else {
