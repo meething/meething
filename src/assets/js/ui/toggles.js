@@ -114,20 +114,22 @@ export default class Toggles {
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
       if (!med.isRecording) {
-        med.h.recordAudio();
+        // med.h.recordAudio();
         med.isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
         med.h.showLocalNotification("Recording Started");
+        window.ee.emit("start-record-active-speaker")
       } else {
-        med.h.stopRecordAudio()
+        // med.h.stopRecordAudio()
         med.isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
         med.h.showLocalNotification("Recording Stopped");
+        window.ee.emit("stop-record-active-speaker")
       }
-      med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
-      window.ee.emit("record-audio-toggled")
+      // med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
+      // window.ee.emit("record-audio-toggled")
     });
   }
 

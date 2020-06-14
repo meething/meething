@@ -11,17 +11,19 @@ import UEX from "./uex.js";
 import EventEmitter from './ee.js';
 import Toggles from "./ui/toggles.js";
 import PipMode from './ui/pipmode.js';
+import PiPRecorder from './plugins/recorder/pipRecorder.js';
 import GunControl from "./gunControl.js";
 import Embed from "./ui/embed.js";
 let mGraph,
-    mModal,
-    mChat,
-    mConn,
-    mToggles,
-    mUex,
-    mGunControl,
-    mPipMode,
-    mEmbed;
+  mModal,
+  mChat,
+  mConn,
+  mToggles,
+  mUex,
+  mGunControl,
+  mPipMode,
+  mPiPRecorder,
+  mEmbed;
 // define Mediator
 function Mediator() {
   // state tracking should occur in here for global state
@@ -63,7 +65,7 @@ function Mediator() {
   this.pipMode;
   this.h = h;
   this.ee = window.ee = new EventEmitter(),
-  this.graph;
+    this.graph;
   this.embed;
 
   /* Define 'Workflows' that consist of work across modules
@@ -79,17 +81,17 @@ function Mediator() {
     this.mode = this.h.getQString(location.href, "mode") || "";
     this.room = this.h.getQString(location.href, "room")
       ? this.h.getQString(location.href, "room") :
-        (sessionStorage && sessionStorage.getItem("roomname"))
+      (sessionStorage && sessionStorage.getItem("roomname"))
         ? sessionStorage.getItem("roomname") :
         "";
-    if(document.querySelector('#roomname')){document.querySelector('#roomname').setAttribute("value", this.room);}
+    if (document.querySelector('#roomname')) { document.querySelector('#roomname').setAttribute("value", this.room); }
     this.username = sessionStorage && sessionStorage.getItem("username") ? sessionStorage.getItem("username") : "";
-    if(document.querySelector('#username')){document.querySelector('#username').setAttribute("value", this.username);}
+    if (document.querySelector('#username')) { document.querySelector('#username').setAttribute("value", this.username); }
     this.title = this.room;
     if (this.title && document.getElementById('chat-title')) document.getElementById('chat-title').innerText = this.title;
 
     // handle the embeded case with a embedded option screen
-    if(this.mode == "embed" && this.room) {
+    if (this.mode == "embed" && this.room) {
       //only embed if room is specified
       console.log("embed detected");
       this.embed.landingPage();
@@ -120,9 +122,9 @@ function Mediator() {
         hash = self.getSS('rooms.' + self.room + '.hash') || "";
         creator = self.getSS('rooms.' + self.room + '.creator') || self.username || "";
         var r = self.room + '?';
-        if(hash) r = r + '&sig=' + encodeURIComponent(hash);
-        if(creator) r = r + "&creator=" + encodeURIComponent(creator);
-        if(self.DEBUG) console.log(r);
+        if (hash) r = r + '&sig=' + encodeURIComponent(hash);
+        if (creator) r = r + "&creator=" + encodeURIComponent(creator);
+        if (self.DEBUG) console.log(r);
         roomPeer = config.multigun + r; //"https://gundb-multiserver.glitch.me/" + room;
       }
       localStorage.clear();
@@ -208,63 +210,63 @@ function Mediator() {
     return true;
   }
 
-  this.getMediaStream = async function(videoDeviceId, audioDeviceId) {
+  this.getMediaStream = async function (videoDeviceId, audioDeviceId) {
     let addMutedVideo = false;
     let addMutedAudio = false;
 
-    if (this.myStream && this.h.typeOf(this.myStream) =="mediastream") {
-      if(this.DEBUG) console.log(this.myStream);
+    if (this.myStream && this.h.typeOf(this.myStream) == "mediastream") {
+      if (this.DEBUG) console.log(this.myStream);
       this.myStream.getTracks().forEach(track => {
         track.stop();
       });
     }
 
     var constraints = {};
-    if(typeof videoDeviceId == 'string' && !this.videoMuted) {
-      constraints.video = {deviceId: { ideal: videoDeviceId }};
-    } else if(typeof videoDeviceId == 'boolean') {
+    if (typeof videoDeviceId == 'string' && !this.videoMuted) {
+      constraints.video = { deviceId: { ideal: videoDeviceId } };
+    } else if (typeof videoDeviceId == 'boolean') {
       constraints.video = videoDeviceId;
       addMutedVideo = true;
     } else {
-      if(!this.videoMuted)
-        constraints.video = {facingMode:{ideal:'user'}};
+      if (!this.videoMuted)
+        constraints.video = { facingMode: { ideal: 'user' } };
     }
 
-    if(typeof audioDeviceId == 'string' && !this.audioMuted) {
-      constraints.audio = { deviceId: { ideal: audioDeviceId }};
-    } else if(typeof audioDeviceId == 'boolean') {
+    if (typeof audioDeviceId == 'string' && !this.audioMuted) {
+      constraints.audio = { deviceId: { ideal: audioDeviceId } };
+    } else if (typeof audioDeviceId == 'boolean') {
       constraints.audio = audioDeviceId;
       addMutedAudio = true;
     } else {
       constraints.audio = !this.audioMuted;
     }
-    if(this.DEBUG) console.log("constraints",constraints);
+    if (this.DEBUG) console.log("constraints", constraints);
     var stream = null;
     var fullmute = false;
     // fetch stream with the chosen constraints
-    if(constraints && (constraints.audio === false && constraints.video === false)){
+    if (constraints && (constraints.audio === false && constraints.video === false)) {
       stream = this.h.getMutedStream();
       fullmute = true;
     } else {
       fullmute = false;
-      stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err)=>{return err;});
+      stream = await navigator.mediaDevices.getUserMedia(constraints).catch((err) => { return err; });
     }
-    if(this.DEBUG) console.log("Stream",stream);
+    if (this.DEBUG) console.log("Stream", stream);
     // if video should be muted (but we still want self-view)
-    if(addMutedVideo && !fullmute){
+    if (addMutedVideo && !fullmute) {
       var muted = this.h.getMutedStream();
-      if(this.DEBUG) console.log(muted);
-      if(stream.addTrack !== undefined) stream.addTrack(muted.getVideoTracks()[0]);
+      if (this.DEBUG) console.log(muted);
+      if (stream.addTrack !== undefined) stream.addTrack(muted.getVideoTracks()[0]);
     }
 
-    if(addMutedAudio && !fullmute){
+    if (addMutedAudio && !fullmute) {
       var muted = this.h.getMutedStream();
-      if(this.DEBUG) console.log(muted);
-      if(stream.addTrack !== undefined) stream.addTrack(muted.getAudioTracks()[0]);
+      if (this.DEBUG) console.log(muted);
+      if (stream.addTrack !== undefined) stream.addTrack(muted.getAudioTracks()[0]);
     }
 
     // check if stream exists
-    if(stream) { this.myStream = stream };
+    if (stream) { this.myStream = stream };
     this.ee.emit("media:Got MediaStream", stream);
     this.ee.emit("localStream changed", stream);
     return true;
@@ -286,6 +288,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   mToggles = new Toggles(meething);
   mUex = new UEX(meething);
   mPipMode = new PipMode(meething);
+  mPiPRecorder = new PiPRecorder(meething);
   mGunControl = new GunControl(meething);
   mEmbed = new Embed(meething);
 
@@ -297,6 +300,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   meething.gunControl = mGunControl;
   meething.uex = mUex;
   meething.pipMode = mPipMode;
+  meething.piPRecorder = mPiPRecorder;
   meething.embed = mEmbed;
   console.log('DOM fully loaded and parsed');
   meething.welcomeMat();

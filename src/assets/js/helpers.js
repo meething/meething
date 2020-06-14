@@ -943,18 +943,10 @@ export default {
     const pipVid = document.getElementById("pip");
     if (pipVid && pipVid.currentId !== id) {
       const speakingVid = document.getElementById(id);
-      if(!speakingVid) return;
+      if(!speakingVid) return;      
       pipVid.currentId = id;
-      pipVid.srcObject = speakingVid.srcObject;
-      if (pipVid.paused) {
-        var playPromise = pipVid.play();
-        if (playPromise !== undefined) {
-          playPromise.then(_ => {
-          })
-            .catch(error => {
-            });
-        }
-      }
+      pipVid.srcObject = speakingVid.srcObject;      
+      window.ee.emit("done-switch-pip");
     }
   },
   swapDiv(id) {
