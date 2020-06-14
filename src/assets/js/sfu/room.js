@@ -1,6 +1,7 @@
 import "./mediasoup.js";
 import EventEmitter from "../ee.js";
 import { Peer } from './peer.js'
+import config from '../config.js';
 
 export default class Room extends EventEmitter {
     constructor() {
@@ -16,18 +17,23 @@ export default class Room extends EventEmitter {
 
         try {
             // Select SFU Server from config or try self
-            if(retry) {
-                throw("Retry");
+            if (retry) {
+                throw ("Retry");
             }
             var SFU_URL = "wss://" + window.location.hostname + ":2345";
+            if(window.location.hostname.indexOf("meething.space") > 0) {
+                SFU_URL = `${config.wssFailover}`
+            }
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
-            if(wsTransport.readyState == 2 || wsTransport.readyState == 3) {console.error('something not right with webSocket'); throw 'webSocket Local Error';}
+            if (wsTransport.readyState == 2 || wsTransport.readyState == 3) { console.error('something not right with webSocket'); throw 'webSocket Local Error'; }
             this.peer = new Peer(wsTransport);
-            console.log('peer',this.peer._transport._connected, wsTransport.readyState);
+            console.log('peer', this.peer._transport._connected, wsTransport.readyState);
+            this.checkTimeOut();
+
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
-            var SFU_URL = 'wss://us.meething.space:2345'
+            var SFU_URL = `${config.wssFailover}`
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             this.peer = new Peer(wsTransport);
         }
@@ -40,8 +46,18 @@ export default class Room extends EventEmitter {
         this.peer.on("close", console.error);
         this.peer.on("peers", this.onPeers.bind(this));
         this.peer.on("failed", this.onFailed.bind(this));
+        this.peer.on("timeout", this.onFailed.bind(this));
 
         console.log(this.peer.id);
+    }
+
+    checkTimeOut() {
+        setTimeout(function () {
+            if (!self._transport._connected) {
+                console.warn("Connection timeout, connecting to wss seems taking to long force failover");
+                self.emit("timeout", { target: self._transport });
+            }
+        }, 5000);
     }
 
     async sendAudio(track) {
@@ -91,7 +107,7 @@ export default class Room extends EventEmitter {
     }
 
     async onFailed(event) {
-        if(event.target._connected !== "connected") {
+        if (event.target._connected !== "connected") {
             console.log("Failing retry failback?")
             const params = this.getParams(event.target.url);
             this.join(params.roomId, params.peerId, true);
@@ -275,7 +291,7 @@ export default class Room extends EventEmitter {
         if (notification.method == "consumerClosed") {
             this.emit("@consumerClosed", notification.data.consumerId);
         }
-        if(notification.method == "peerJoined") {
+        if (notification.method == "peerJoined") {
             this.emit("@peerJoined", notification.data.peerId);
         }
     }

@@ -1,8 +1,11 @@
 const config = {
-  multigun: "https://gundb-multiserver.glitch.me/",
+  multigun: "https://us.meething.space:8787/",
+  wssFailover: "wss://sfu.meething.space:2345",
+  autoMuteCount: 10,
   autoload: false,
   meethrix:false,
   enableHacks: false,
+  mesh: false,
   iceServers:{
     
   }

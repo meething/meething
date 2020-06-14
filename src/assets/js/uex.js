@@ -299,7 +299,7 @@ export default class UEX {
       // get roomname, if empty make an random one
       med.room = document.querySelector('#roomname').value || window.chance.city().trim() + "-" + window.chance.first().trim() + "-" + window.chance.city().trim();
       sessionStorage.setItem('roomname', med.room);
-      window.history.pushState(null,'','?room='+med.room);
+      window.history.pushState(null,'',`?room=${med.room}&mesh=${med.mesh}`);
 
       // if password option is on
       let _pass = document.querySelector('#pass');
@@ -347,6 +347,8 @@ export default class UEX {
         var ve = document.getElementById('local');
         med.localVideo = ve;
         var el = document.getElementById('selfview');
+        document.querySelector("#top-menu").style.display = 'none'
+        document.querySelector("#toggle-ok-option").style.display = "inline-block"
         if(ve && el){
           ve.className="";
           el.appendChild(ve);
@@ -355,6 +357,7 @@ export default class UEX {
         if(document.querySelector('#selfview')){document.querySelector('#selfview').setAttribute("hidden","");}
         if(document.querySelector('#options')){document.querySelector('#options').setAttribute("hidden","");}
         var ve = document.getElementById('local');
+        document.querySelector("#toggle-ok-option").style.display = 'none';
         med.localVideo = ve;
         var vs = document.getElementById('localStream');
         if(ve && vs){
@@ -365,6 +368,20 @@ export default class UEX {
         self.optShown = false;
       }
     });
+    document.querySelector("#toggle-ok-option").addEventListener("click",function(){
+      document.querySelector("#toggle-ok-option").style.display = 'none';
+     if(document.querySelector('#selfview')){document.querySelector('#selfview').setAttribute("hidden","");}
+     if(document.querySelector('#options')){document.querySelector('#options').setAttribute("hidden","");}
+     var ve = document.getElementById('local');
+     med.localVideo = ve;
+     var vs = document.getElementById('localStream');
+     if(ve && vs){
+       ve.className="local-video clipped";
+       vs.appendChild(ve);
+       med.ee.emit("local-video-loaded");
+     }
+
+    })
 
   }
 

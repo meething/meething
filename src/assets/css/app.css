@@ -222,7 +222,10 @@ body {
 
 .top-widget-toolbox #close-video-button,
 .top-widget-toolbox #full-screen-button{
-  opacity:.1;
+background:black;
+cursor:pointer;
+pointer-events:auto;
+
 }
 .top-widget-toolbox #close-video-button:hover,
 .top-widget-toolbox #full-screen-button:hover {
@@ -240,13 +243,13 @@ body {
   background: none;
   margin-right: 3px;
   color: white;
-  opacity: 0.5;
   transition: 0.5s all;
   margin: 5px;
   margin-bottom: 10px;
   background: #3f069c;
   text-shadow: 1px 1px 2px black;
   border-radius: 0px 6px 6px 0px;
+  pointer-events:none;
 }
 
 .widget-button:hover {
@@ -372,7 +375,7 @@ meter {
 
 #bottom-menu {
   position: absolute;
-
+  pointer-events: none;
   bottom: 0px;
   left:-50%;
   right:-50%;
@@ -464,9 +467,7 @@ meter {
 /* Options */
 
 #local {
-  display: block;
-  height:250px;
-  margin: auto;
+top:55px;
 }
 
 .menu {
@@ -507,15 +508,19 @@ meter {
 .selfview {
   position: relative;
   top: 0px;
-  width: 280px;
-  margin:auto;
+width:100%;
+display:grid;
+justify-items: center;
+}
+.selfview > video {
+  width:100%;
 }
 
 #controlsAudio {
   position: absolute;
   top: 5px;
   left: 0px;
-  width: 280px;
+  width:100%;
   text-align: center;
   margin: auto;
   color: white;
@@ -538,15 +543,13 @@ meter {
   right:0px;
 }
 
-#local {
-  width: 250px;
-}
+
 
 #controlsVideo {
   position: absolute;
   bottom: 5px;
   left: 0px;
-  width: 280px;
+  width: 100%;
   text-align: center;
   margin: auto;
   color: white;
@@ -700,7 +703,19 @@ input:checked + .slider:before {
   background-color: rgba(72, 60, 73, 1);
 }
 
-
+#feedback {
+  position: fixed;
+  height: 45px;
+  width: 155px;
+  text-align: center;
+  bottom: 0px;
+  right: 75px;
+  padding: 10px;
+  border-radius: 5px 5px 0px 0px;
+  color:white;
+  z-index: 10000;
+  background-color: #673ab7;
+}
 
 /* general styles */
 
@@ -864,7 +879,7 @@ li {
 
 /* mobile overrides */
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 645px) {
   .chat-col {
     border-top: 2px solid orange;
     right: -100vw;
@@ -875,9 +890,30 @@ li {
     bottom: 65px;
   }
 
+  #options-button {
+    position: absolute;
+    right: 0px;
+    bottom: 0px;
+    box-shadow: 7px 7px 20px black;
+  }
+
+#feedback {
+  position: fixed;
+  height: 25px;
+  width: 155px;
+  text-align: center;
+  top: 40px;
+  left: 0px;
+  font-size: 12px;
+  padding: 3px;
+  border-radius: 0px 0px 5px 0px;
+  color: white;
+  z-index: 100;
+  }
+
 
 #chat-send {
-  bottom: 15%;
+  bottom: 7%;
 }
   .widget-button {
     border-radius: 0px 6px 6px 0px;

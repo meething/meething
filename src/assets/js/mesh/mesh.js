@@ -15,360 +15,312 @@ export default class Mesh {
         if (self.inited) return;
         self.inited = true;
 
-        med.damSocket.on("postauth", function (auth) {
-
         console.log("Starting! you are", med.socketId);
 
-            // Initialize Session
-            med.damSocket.out("subscribe", {
-                room: room,
-                socketId: med.socketId,
-                name: med.username || med.socketId
+        // Initialize Session
+        med.damSocket.out("subscribe", {
+            room: room,
+            socketId: med.socketId,
+            name: med.username || med.socketId
+        });
+
+
+        //Do we do this here this is now triggered from DAM?
+        med.damSocket.on('Subscribe', function (data) {
+            console.log("Got channel subscribe", data);
+            if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
+                console.log("discarding old sub", data);
+                return;
+            }
+            if (
+                med.pcMap.get(data.socketId) !== undefined &&
+                med.pcMap.get(data.socketId).connectionState == "connected"
+            ) {
+                console.log(
+                    "Existing peer subscribe, discarding...",
+                    med.pcMap.get(data.socketId)
+                );
+                return;
+            }
+            // Ignore self-generated subscribes
+            if (data.socketId == med.socketId || data.sender == med.socketId) return;
+            if (med.DEBUG) console.log("got subscribe!", data);
+
+            if (data.to && data.to != med.socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
+            /* discard new user for connected parties? */
+            if (
+                med.pcMap.get(data.socketId) &&
+                med.pcMap.get(data.socketId).iceConnectionState == "connected"
+            ) {
+                if (med.DEBUG) console.log("already connected to peer", data.socketId);
+                //return;
+            }
+            // New Peer, setup peerConnection
+            med.damSocket.out("newUserStart", {
+                to: data.socketId,
+                sender: med.socketId,
+                name: data.name || data.socketId
             });
 
+            self.init(true, data.socketId);
+        });
 
-            //Do we do this here this is now triggered from DAM?
-            med.damSocket.on('Subscribe', function (data) {
-                console.log("Got channel subscribe", data);
-                if (data.ts && Date.now() - data.ts > TIMEGAP * 2) {
-                    console.log("discarding old sub", data);
-                    return;
-                }
+        med.damSocket.on('NewUserStart', function (data) {
+            if (data.ts && Date.now() - data.ts > TIMEGAP) return;
+            if (data.socketId == med.socketId || data.sender == med.socketId) return;
+            if (
+                med.pcMap.get(data.sender) &&
+                med.pcMap.get(data.sender).connectionState == "connected" &&
+                med.pcMap.get(data.sender).iceConnectionState == "connected"
+            ) {
+                if (med.DEBUG) console.log("already connected to peer? bypass", data.socketId);
+                return; // We don't need another round of Init for existing peers
+            }
+
+            self.init(false, data.sender);
+        });
+
+        med.damSocket.on('IceCandidates', function (data) {
+            try {
                 if (
-                    med.pcMap.get(data.socketId) !== undefined &&
-                    med.pcMap.get(data.socketId).connectionState == "connected"
-                ) {
-                    console.log(
-                        "Existing peer subscribe, discarding...",
-                        med.pcMap.get(data.socketId)
-                    );
+                    (data.ts && Date.now() - data.ts > TIMEGAP) ||
+                    !data.sender ||
+                    !data.to
+                )
                     return;
+                if (med.DEBUG) console.log(
+                    data.sender.trim() + " is trying to connect with " + data.to.trim()
+                );
+                if (data.candidate && data.candidate.hasOwnProperty('candidate')) {
+                    if (!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
                 }
-                // Ignore self-generated subscribes
-                if (data.socketId == med.socketId || data.sender == med.socketId) return;
-                if (med.DEBUG) console.log("got subscribe!", data);
+                data.candidate = new RTCIceCandidate(data.candidate);
+                if (!data.candidate) return;
+            } catch (e) {
+                console.log(e, data);
+                return;
+            }
+            if (data.socketId == med.socketId || data.to != med.socketId) return;
+            if (med.DEBUG) console.log("ice candidate", data);
+            //data.candidate ? pcMap.get(data.sender).addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
+            data.candidate ? med.pcMap.get(data.sender).addIceCandidate(data.candidate) : "";
+        });
 
-                if (data.to && data.to != med.socketId) return; // experimental on-to-one reinvite (handle only messages target to us)
-                /* discard new user for connected parties? */
-                if (
-                    med.pcMap.get(data.socketId) &&
-                    med.pcMap.get(data.socketId).iceConnectionState == "connected"
-                ) {
-                    if (med.DEBUG) console.log("already connected to peer", data.socketId);
-                    //return;
-                }
-                // New Peer, setup peerConnection
-                med.damSocket.out("newUserStart", {
-                    to: data.socketId,
-                    sender: med.socketId,
-                    name: data.name || data.socketId
-                });
-
-                self.init(true, data.socketId);
-            });
-
-            med.damSocket.on('NewUserStart', function (data) {
+        med.damSocket.on('SDP', function (data) {
+            try {
                 if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-                if (data.socketId == med.socketId || data.sender == med.socketId) return;
                 if (
-                    med.pcMap.get(data.sender) &&
-                    med.pcMap.get(data.sender).connectionState == "connected" &&
-                    med.pcMap.get(data.sender).iceConnectionState == "connected"
-                ) {
-                    if (med.DEBUG) console.log("already connected to peer? bypass", data.socketId);
-                    return; // We don't need another round of Init for existing peers
-                }
-
-                self.init(false, data.sender);
-            });
-
-            med.damSocket.on('IceCandidates', function (data) {
-                try {
-                    if (
-                        (data.ts && Date.now() - data.ts > TIMEGAP) ||
-                        !data.sender ||
-                        !data.to
-                    )
-                        return;
-                    if (med.DEBUG) console.log(
-                        data.sender.trim() + " is trying to connect with " + data.to.trim()
-                    );
-                    if (data.candidate && data.candidate.hasOwnProperty('candidate')) {
-                        if (!data.candidate.candidate) return; //Edge receiving BLANK candidates from STUN/TURN - ice fails if we pass it along to non-EDGE clients
-                    }
-                    data.candidate = new RTCIceCandidate(data.candidate);
-                    if (!data.candidate) return;
-                } catch (e) {
-                    console.log(e, data);
+                    !data ||
+                    data.socketId == med.socketId ||
+                    data.sender == med.socketId ||
+                    !data.description
+                )
+                    return;
+                if (data.to !== med.socketId) {
+                    if (med.DEBUG) console.log("not for us? dropping sdp");
                     return;
                 }
-                if (data.socketId == med.socketId || data.to != med.socketId) return;
-                if (med.DEBUG) console.log("ice candidate", data);
-                //data.candidate ? pcMap.get(data.sender).addIceCandidate(new RTCIceCandidate(data.candidate)) : "";
-                data.candidate ? med.pcMap.get(data.sender).addIceCandidate(data.candidate) : "";
-            });
+            } catch (e) {
+                console.log(e, data);
+                return;
+            }
 
-            med.damSocket.on('SDP', function (data) {
-                try {
-                    if (data.ts && Date.now() - data.ts > TIMEGAP) return;
-                    if (
-                        !data ||
-                        data.socketId == med.socketId ||
-                        data.sender == med.socketId ||
-                        !data.description
-                    )
-                        return;
-                    if (data.to !== med.socketId) {
-                        if (med.DEBUG) console.log("not for us? dropping sdp");
-                        return;
-                    }
-                } catch (e) {
-                    console.log(e, data);
-                    return;
-                }
-
-                if (data.description.type === "offer") {
-                    data.description
-                        ? med.pcMap.get(data.sender).setRemoteDescription(
-                            new RTCSessionDescription(data.description)
-                        )
-                        : "";
-
-                    med.h.getUserMedia()
-                        .then(async stream => {
-                            if (med.localVideo) med.h.setVideoSrc(med.localVideo, stream);
-
-                            //save my stream
-                            med.myStream = stream;
-
-                            stream.getTracks().forEach(track => {
-                                med.pcMap.get(data.sender).addTrack(track, stream);
-                            });
-
-                            let answer = await med.pcMap.get(data.sender).createAnswer();
-                            answer.sdp = self.setMediaBitrates(answer.sdp);
-                            // SDP Interop
-                            // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
-                            // SDP Bitrate Hack
-                            // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
-
-                            await med.pcMap.get(data.sender).setLocalDescription(answer);
-
-                            med.damSocket.out("sdp", {
-                                description: med.pcMap.get(data.sender).localDescription,
-                                to: data.sender,
-                                sender: med.socketId
-                            });
-                        })
-                        .catch(async e => {
-                            console.error(`answer stream error: ${e}`);
-                            if (!med.enableHacks) {
-                                var r = confirm("No Media Devices! Join as Viewer?");
-                                if (r) {
-                                    med.enableHacks = true;
-                                    med.metaData.sendControlData({ username: med.username + "(readonly)", id: med.socketId, readonly: true });
-                                } else { location.replace("/"); return; }
-                            }
-                            // start crazy mode lets answer anyhow
-                            console.log(
-                                "no media devices! answering receive only"
-                            );
-                            var answerConstraints = {
-                                OfferToReceiveAudio: true,
-                                OfferToReceiveVideo: true
-                            };
-                            let answer = await med.pcMap.get(data.sender).createAnswer(answerConstraints);
-                            answer.sdp = self.setMediaBitrates(answer.sdp);
-                            // SDP Interop
-                            // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
-                            await med.pcMap.get(data.sender).setLocalDescription(answer);
-
-                            med.damSocket.out("sdp", {
-                                description: med.pcMap.get(data.sender).localDescription,
-                                to: data.sender,
-                                sender: med.socketId
-                            });
-                            // end crazy mode
-                        });
-                } else if (data.description.type === "answer") {
-                    med.pcMap.get(data.sender).setRemoteDescription(
+            if (data.description.type === "offer") {
+                data.description
+                    ? med.pcMap.get(data.sender).setRemoteDescription(
                         new RTCSessionDescription(data.description)
-                    );
-                }
-            });
+                    )
+                    : "";
 
-            document.getElementById("chat-input").addEventListener("keypress", e => {
-                if (e.which === 13 && e.target.value.trim()) {
-                    e.preventDefault();
-                    // split out into Chat interface
-                    med.sendMsg(e.target.value);
+                med.h.getUserMedia()
+                    .then(async stream => {
+                        if (med.localVideo) med.h.setVideoSrc(med.localVideo, stream);
 
-                    setTimeout(() => {
-                        e.target.value = "";
-                    }, 50);
-                }
-            });
+                        //save my stream
+                        med.myStream = stream;
 
-            window.ee.on("video-toggled", function () {
-                var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
-                var mine = med.myStream ? med.myStream : muted;
-                if (!mine) {
-                    return;
-                }
-                if (med.videoMuted) {
-                    med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
-                        med.h.setVideoSrc(med.localVideo, muted);
-                        med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
-                    });
-                } else {
-                    med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
-                        med.h.setVideoSrc(med.localVideo, mine);
-                        med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
-                    });
-                }
-            });
+                        stream.getTracks().forEach(track => {
+                            med.pcMap.get(data.sender).addTrack(track, stream);
+                        });
 
-            document.getElementById("svm").addEventListener("click", e => {
-                e.preventDefault();
-                var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
-                var mine = med.myStream ? med.myStream : muted;
-                if (!mine) {
-                    return;
-                }
-                if (!med.videoMuted) {
-                    med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
-                        med.videoMuted = true;
-                        med.h.setVideoSrc(med.localVideo, muted);
-                        e.srcElement.classList.remove("fa-video");
-                        e.srcElement.classList.add("fa-video-slash");
-                        med.h.showNotification("Video Disabled");
-                    });
-                } else {
-                    med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
-                        med.h.setVideoSrc(med.localVideo, mine);
-                        med.videoMuted = false;
-                        e.srcElement.classList.add("fa-video");
-                        e.srcElement.classList.remove("fa-video-slash");
-                        med.h.showNotification("Video Enabled");
-                    });
-                }
+                        let answer = await med.pcMap.get(data.sender).createAnswer();
+                        answer.sdp = self.setMediaBitrates(answer.sdp);
+                        // SDP Interop
+                        // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+                        // SDP Bitrate Hack
+                        // if (answer.sdp) answer.sdp = h.setMediaBitrate(answer.sdp, 'video', 500);
 
-            });
+                        await med.pcMap.get(data.sender).setLocalDescription(answer);
 
-            window.ee.on("audio-toggled", function () {
-                var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
-                var mine = med.myStream ? med.myStream : muted;
-                if (!mine) {
-                    return;
-                }
-                if (med.audioMuted) {
-                    med.h.replaceAudioTrackForPeers(med.pcMap, muted.getAudioTracks()[0]).then(r => {
-                        med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
-                    });
-                } else {
-                    med.h.replaceAudioTrackForPeers(med.pcMap, mine.getAudioTracks()[0]).then(r => {
-                        med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
-                    });
-                }
-            });
-
-
-
-
-            document.getElementById("sam").addEventListener("click", e => {
-                e.preventDefault();
-                var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
-                var mine = med.myStream ? med.myStream : muted;
-                if (!mine) {
-                    return;
-                }
-                if (!med.audioMuted) {
-                    med.h.replaceAudioTrackForPeers(med.pcMap, muted.getAudioTracks()[0]).then(r => {
-                        med.audioMuted = true;
-                        //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
-                        e.srcElement.classList.remove("fa-volume-up");
-                        e.srcElement.classList.add("fa-volume-mute");
-                        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-                        med.h.showNotification("Audio Muted");
-                        med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
-                    });
-                } else {
-                    med.h.replaceAudioTrackForPeers(med.pcMap, mine.getAudioTracks()[0]).then(r => {
-                        med.audioMuted = false;
-                        //localVideo.srcObject = mine;
-                        e.srcElement.classList.add("fa-volume-up");
-                        e.srcElement.classList.remove("fa-volume-mute");
-                        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-                        med.h.showNotification("Audio Unmuted");
-                        med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
-                    });
-                }
-
-            });
-
-            document.getElementById("toggle-grid-stage").addEventListener("click", e => {
-                e.preventDefault();
-                document.getElementById("grid-stage-css").disabled = !document.getElementById("grid-stage-css").disabled;
-                if (med.DEBUG) console.log("Local Grid Stage changed", !document.getElementById("grid-stage-css").disabled);
-            });
-            
-            document.getElementById("toggle-invite").addEventListener("click", e => {
-                e.preventDefault();
-                //if (!myStream) return;
-                if (med.DEBUG) console.log("Re-Send presence to all users...");
-                var r = confirm("Re-Invite ALL room participants?");
-                if (r == true) {
-                    med.damSocket.out("subscribe", {
-                        room: med.room,
-                        socketId: med.socketId,
-                        name: med.username || med.socketId
-                    });
-                }
-            });
-
-            window.ee.on("screen-toggled", async function () {
-                if (med.screenStream) {
-                    med.screenStream.getTracks().forEach(t => {
-                        t.stop();
-                        t.onended();
-                    });
-                } else {
-                    var stream = await med.h.getDisplayMedia({ audio: true, video: true });
-                    var atrack = stream.getAudioTracks()[0];
-                    var vtrack = stream.getVideoTracks()[0];
-                    if (false) med.h.replaceAudioTrackForPeers(med.pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
-                    med.h.replaceVideoTrackForPeers(med.pcMap, vtrack);
-                    med.h.setVideoSrc(med.localVideo, stream);
-                    vtrack.onended = function (event) {
-                        if (med.DEBUG) console.log("Screensharing ended via the browser UI");
-                        med.screenStream = null;
-                        if (med.myStream) {
-                            med.h.setVideoSrc(med.localVideo, med.myStream);
-                            med.h.replaceStreamForPeers(med.pcMap, med.myStream);
+                        med.damSocket.out("sdp", {
+                            description: med.pcMap.get(data.sender).localDescription,
+                            to: data.sender,
+                            sender: med.socketId
+                        });
+                    })
+                    .catch(async e => {
+                        console.error(`answer stream error: ${e}`);
+                        if (!med.enableHacks) {
+                            var r = confirm("No Media Devices! Join as Viewer?");
+                            if (r) {
+                                med.enableHacks = true;
+                                med.metaData.sendControlData({ username: med.username + "(readonly)", id: med.socketId, readonly: true });
+                            } else { location.replace("/"); return; }
                         }
-                    };
-                    med.screenStream = stream;
-                }
-            });
+                        // start crazy mode lets answer anyhow
+                        console.log(
+                            "no media devices! answering receive only"
+                        );
+                        var answerConstraints = {
+                            OfferToReceiveAudio: true,
+                            OfferToReceiveVideo: true
+                        };
+                        let answer = await med.pcMap.get(data.sender).createAnswer(answerConstraints);
+                        answer.sdp = self.setMediaBitrates(answer.sdp);
+                        // SDP Interop
+                        // if (navigator.mozGetUserMedia) answer = Interop.toUnifiedPlan(answer);
+                        await med.pcMap.get(data.sender).setLocalDescription(answer);
 
-            document.getElementById("private-toggle").addEventListener("click", e => {
+                        med.damSocket.out("sdp", {
+                            description: med.pcMap.get(data.sender).localDescription,
+                            to: data.sender,
+                            sender: med.socketId
+                        });
+                        // end crazy mode
+                    });
+            } else if (data.description.type === "answer") {
+                med.pcMap.get(data.sender).setRemoteDescription(
+                    new RTCSessionDescription(data.description)
+                );
+            }
+        });
+
+        document.getElementById("chat-input").addEventListener("keypress", e => {
+            if (e.which === 13 && e.target.value.trim()) {
                 e.preventDefault();
-                // Detect if we are already in private mode
-                let keys = Object.keys(med.presence.root._.opt.peers);
-                if (keys.length == 0) {
-                    //if in private mode, go public
-                    med.presence.onGrid(med.presence.room);
-                    e.srcElement.classList.remove("fa-lock");
-                    e.srcElement.classList.add("fa-unlock");
-                    med.metaData.sendNotificationData({ username: med.username, subEvent: "grid", isOngrid: false })
-                } else {
-                    //if public, go private
-                    med.metaData.sendNotificationData({ username: med.username, subEvent: "grid", isOngrid: true })
-                    med.presence.offGrid();
-                    e.srcElement.classList.remove("fa-unlock");
-                    e.srcElement.classList.add("fa-lock");
-                }
-            });
+                // split out into Chat interface
+                med.sendMsg(e.target.value);
+
+                setTimeout(() => {
+                    e.target.value = "";
+                }, 50);
+            }
+        });
+
+        window.ee.on("video-toggled", function () {
+            var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+            var mine = med.myStream ? med.myStream : muted;
+            if (!mine) {
+                return;
+            }
+            if (med.videoMuted) {
+                med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
+                    med.h.setVideoSrc(med.localVideo, muted);
+                    med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
+                });
+            } else {
+                med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
+                    med.h.setVideoSrc(med.localVideo, mine);
+                    med.myStream.getVideoTracks()[0].enabled = !med.videoMuted;
+                });
+            }
+        });
+
+        window.ee.on("uex:VideoMuteToggle", function () {
+            var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+            var mine = med.myStream ? med.myStream : muted;
+            if (!mine) {
+                return;
+            }
+            if (!med.videoMuted) {
+                med.h.replaceVideoTrackForPeers(med.pcMap, muted.getVideoTracks()[0]).then(r => {
+                    med.videoMuted = true;
+                    med.h.setVideoSrc(med.localVideo, muted);
+                    e.srcElement.classList.remove("fa-video");
+                    e.srcElement.classList.add("fa-video-slash");
+                    med.h.showLocalNotification("Video Disabled");
+                });
+            } else {
+                med.h.replaceVideoTrackForPeers(med.pcMap, mine.getVideoTracks()[0]).then(r => {
+                    med.h.setVideoSrc(med.localVideo, mine);
+                    med.videoMuted = false;
+                    e.srcElement.classList.add("fa-video");
+                    e.srcElement.classList.remove("fa-video-slash");
+                    med.h.showLocalNotification("Video Enabled");
+                });
+            }
+        });
+
+
+        window.ee.on("audio-toggled", function () {
+            var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+            var mine = med.myStream ? med.myStream : muted;
+            if (!mine) {
+                return;
+            }
+            if (med.audioMuted) {
+                med.h.replaceAudioTrackForPeers(med.pcMap, muted.getAudioTracks()[0]).then(r => {
+                    med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+                });
+            } else {
+                med.h.replaceAudioTrackForPeers(med.pcMap, mine.getAudioTracks()[0]).then(r => {
+                    med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+                });
+            }
+        });
+
+        window.ee.on("uex:AudioMuteToggle", function () {
+            var muted = med.mutedStream ? med.mutedStream : med.h.getMutedStream();
+            var mine = med.myStream ? med.myStream : muted;
+            if (!mine) {
+                return;
+            }
+            if (!med.audioMuted) {
+                med.h.replaceAudioTrackForPeers(med.pcMap, muted.getAudioTracks()[0]).then(r => {
+                    med.audioMuted = true;
+                    //localVideo.srcObject = muted; // TODO: Show voice muted icon on top of the video or something
+                    e.srcElement.classList.remove("fa-volume-up");
+                    e.srcElement.classList.add("fa-volume-mute");
+                    med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+                    med.h.showLocalNotification("Audio Muted");
+                    med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+                });
+            } else {
+                med.h.replaceAudioTrackForPeers(med.pcMap, mine.getAudioTracks()[0]).then(r => {
+                    med.audioMuted = false;
+                    //localVideo.srcObject = mine;
+                    e.srcElement.classList.add("fa-volume-up");
+                    e.srcElement.classList.remove("fa-volume-mute");
+                    med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
+                    med.h.showLocalNotification("Audio Unmuted");
+                    med.myStream.getAudioTracks()[0].enabled = !med.audioMuted;
+                });
+            }
+        });
+
+        window.ee.on("screen-toggled", async function () {
+            if (med.screenStream) {
+                med.screenStream.getTracks().forEach(t => {
+                    t.stop();
+                    t.onended();
+                });
+            } else {
+                var stream = await med.h.getDisplayMedia({ audio: true, video: true });
+                var atrack = stream.getAudioTracks()[0];
+                var vtrack = stream.getVideoTracks()[0];
+                if (false) med.h.replaceAudioTrackForPeers(med.pcMap, atrack); // TODO: decide somewhere whether to stream audio from DisplayMedia or not
+                med.h.replaceVideoTrackForPeers(med.pcMap, vtrack);
+                med.h.setVideoSrc(med.localVideo, stream);
+                vtrack.onended = function (event) {
+                    if (med.DEBUG) console.log("Screensharing ended via the browser UI");
+                    med.screenStream = null;
+                    if (med.myStream) {
+                        med.h.setVideoSrc(med.localVideo, med.myStream);
+                        med.h.replaceStreamForPeers(med.pcMap, med.myStream);
+                    }
+                };
+                med.screenStream = stream;
+            }
         });
 
         var _ev = med.h.isiOS() ? 'pagehide' : 'beforeunload';
@@ -396,27 +348,21 @@ export default class Mesh {
             if (data.subEvent == "recording") {
                 if (data.isRecording) {
                     var notification = data.username + " started recording this meething";
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 } else {
                     var notification = data.username + " stopped recording this meething"
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 }
             } else if (data.subEvent == "grid") {
                 if (data.isOngrid) {
                     var notification = data.username + " is going off the grid";
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 } else {
                     var notification = data.username + " is back on the grid"
-                    med.h.showNotification(notification);
+                    med.h.showRemoteNotification(notification);
                 }
             } else if (data.subEvent == "mute") {
-                if (data.muted) {
-                    var notification = data.username + " is going silence";
-                    med.h.showNotification(notification);
-                } else {
-                    var notification = data.username + " is on speaking terms"
-                    med.h.showNotification(notification);
-                }
+                med.h.showUserMutedNotification(data);
             }
         } else if (data.event == "control") {
             if (data.username && data.socketId) {
@@ -428,7 +374,7 @@ export default class Mesh {
             }
             if (data.readonly) {
                 if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
-                med.h.showNotification("Read-Only Join by " + data.username);
+                med.h.showRemoteNotification("Read-Only Join by " + data.username);
                 med.h.hideVideo(data.socketId, true);
             }
         }

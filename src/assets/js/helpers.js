@@ -159,7 +159,7 @@ if (canCreateMediaStream && canCaptureCanvas) {
     let audio = new AudioContext();
     let oscillator = audio.createOscillator();
     let destination = oscillator.connect(audio.createMediaStreamDestination());
-    oscillator.start();
+    // oscillator.start(); Uncomment to create buzz :)
     return Object.assign(destination.stream.getAudioTracks()[0], {
       enabled: false,
     });
@@ -662,7 +662,7 @@ export default {
     );
     closeButton.addEventListener("click", function () {
       // do fullscreen
-      var elem = document.getElementById(`${partnerName}-video`);
+      var elem = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (elem) {
         if (elem.requestFullscreen) {
           elem.requestFullscreen();
@@ -685,7 +685,7 @@ export default {
     fullscreenBtn.addEventListener("click", function () {
       var doubleClickEvent = document.createEvent("MouseEvents");
       doubleClickEvent.initEvent("dblclick", true, true);
-      var vselect = document.getElementById(`${partnerName}-video`);
+      var vselect = document.getElementById(`${partnerName}-video`) ? document.getElementById(`${partnerName}-video`) : document.getElementById(`${partnerName}-screenshare`);
       if (vselect) vselect.dispatchEvent(doubleClickEvent);
     });
     //fullscreenBtn.addEventListener('click',()=>this.fullScreen(`${partnerName}-widget`));
@@ -694,7 +694,7 @@ export default {
     var autopilotBtn = this.addButton(
       `${partnerName}-talker`,
       "widget-button",
-      "fas fa-bullhorn"
+      "fas fa-bullhorn talker"
     );
     // autopilotBtn.addEventListener('click',()=>this.autoPilot(`${partnerName}-widget`));
 
@@ -707,11 +707,27 @@ export default {
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = "v-toolbox";
+    var mutedSpan = document.createElement("span")
+    mutedSpan.style.display = "none"
+    mutedSpan.innerText = "MUTED"
+    mutedSpan.style.color = "white"
+    mutedSpan.style.backgroundColor = "#DE0046"
+      mutedSpan.style.padding="3px";
+      mutedSpan.style.margin = "3px"
     var vtitle = document.createElement("p");
-    var vuser = partnerName;
+    if(partnerName.length > 35)
+    {
+      var vuser = partnerName.substring(0,10) + '...';
+      vtitle.title = partnerName;
+    } else {
+      var vuser = partnerName
+    }
+   
     vtitle.textContent = `● ${vuser}`;
+    vtitle.appendChild(mutedSpan)
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
+    
     videoToolbox.appendChild(vtitle);
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
@@ -857,7 +873,7 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
-  showNotification(msg) {
+  showLocalNotification(msg) {
     //Snackbar notification
     var snackbar = document.getElementById("snackbar");
     snackbar.innerHTML = msg;
@@ -865,6 +881,41 @@ export default {
     setTimeout(function () {
       snackbar.className = snackbar.className.replace("show", "");
     }, 3000);
+  },
+  showRemoteNotification(msg) {
+    //Snackbar notification
+    var snackbar = document.getElementById("snackbar");
+    snackbar.innerHTML = msg;
+    snackbar.className = "show";
+    setTimeout(function () {
+      snackbar.className = snackbar.className.replace("show", "");
+    }, 3000);
+  },
+  showUserMutedNotification(data) {
+    let title = document.getElementById(data.socketId + "-title").childNodes[1]
+    let glowed = document.getElementById(data.socketId + "-talker");
+    if(data.videoMuted || data.audioMuted) {
+      glowed.style.color = "red";
+    }
+   if(data.videoMuted && data.audioMuted) {
+      title.style.display = "inline";
+        title.innerText = " Audio and Video MUTED"
+    } 
+    else if(data.videoMuted){
+      title.style.display = "inline";
+      title.innerText = " Video MUTED"
+    }
+    else if(data.audioMuted){
+     title.style.display = "inline";
+      title.innerText = " Audio MUTED"
+     
+    }
+    else {
+      let glowed = document.getElementById(data.socketId + "-talker");
+      glowed.style.color = "white";
+      title.style.display = "none";
+ 
+    }
   },
   showWarning(msg, color) {
     var wSign = document.getElementById("warning-sign");
