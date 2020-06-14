@@ -252,6 +252,10 @@ export default class UEX {
       document.querySelector('#currentAudioDevice').innerText = med.currentAudioDevice.label;
     });
 
+    document.querySelector('#customAudio').addEventListener('click', async function (ev) {
+      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId);
+    });
+
     // options: password on / off
 
     document.querySelector('#password').addEventListener( 'change', function(ev) {
