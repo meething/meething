@@ -33,7 +33,7 @@ npm install
 #### Configuration
 * Copy the example `meething.config.example.js` to `meething.config.js`
 * Customize `meething.config.js` to set the desired port and other environment variables
-* Configure your SSL certificate&key in certs/ by either copying fullchain/privkey.pem.example to fullchain/privkey.pem or use your own certificate
+* Configure your SSL certificate&key in certs/ by either copying fullchain/privkey.pem.example to fullchain/privkey.pem or use your own certificate&key
 * Run using pm2
 ```
 pm2 start meething.config.js
