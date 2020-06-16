@@ -15,13 +15,18 @@ export default class PipMode {
         const elem = document.getElementById("pip");
         elem.play();
         if ("pictureInPictureEnabled" in document) {
-            if (!document.pictureInPictureElement) {
-                await elem.requestPictureInPicture();
-                var tempStream = new MediaStream();
-                elem.srcObject = tempStream.remoteStream;
-                elem.play();
-            } else {
-                document.exitPictureInPicture();
+            try {
+                if (!document.pictureInPictureElement) {
+                    await elem.requestPictureInPicture();
+                    var tempStream = new MediaStream();
+                    elem.srcObject = tempStream.remoteStream;
+                    elem.srcObject.replaceVideoTrack(document.getElementsByClassName("remote-video")[0].srcObject.getVideoTracks()[0])
+                    elem.play();
+                } else {
+                    document.exitPictureInPicture();
+                }
+            } catch (e) {
+                console.log(e);
             }
         }
     }
