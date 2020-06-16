@@ -602,7 +602,12 @@ export default {
     for (var i = 0, max = all.length; i < max; i++) {
       this.addAudio(all[i].captureStream());
     }
-    mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
+    var pip = document.getElementById("pip")
+    if(pip.srcObject) {
+      mediaStreamDestination.stream.addTrack(pip.srcObject.getVideoTracks()[0])
+    }
+    var recordingStream = new MediaStream(mediaStreamDestination.stream)
+    mediaRecorder = new MediaRecorder(recordingStream);
     console.log(mediaRecorder.state);
     console.log("recorder started");
     var chunks = [];
@@ -975,11 +980,12 @@ export default {
     try {
       if (!id) return;
       const pipVid = document.getElementById("pip");
+      if (!pipVid.srcObject) return;
       if (pipVid && pipVid.currentId !== id) {
         const speakingVid = document.getElementById(id);
-        if(!speakingVid) return;
+        if (!speakingVid) return;
         pipVid.currentId = id;
-        pipVid.srcObject = speakingVid.srcObject;
+        pipVid.srcObject.replaceVideoTrack(speakingVid.srcObject.getVideoTracks()[0])
         if (pipVid.paused) {
           var playPromise = pipVid.play();
           if (playPromise !== undefined) {
@@ -991,7 +997,7 @@ export default {
         }
       }
     } catch (e) {
-      console.warn('error swapPiP: ',e);
+      console.warn('error swapPiP: ', e);
     }
   },
   swapDiv(id) {
