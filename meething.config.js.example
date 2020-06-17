@@ -9,7 +9,7 @@ module.exports = {
       SSLKEY : 'certs/privkey.pem',
       SSLCERT  : 'certs/fullchain.pem',
       SFU_URL : false,
-      DEBUG : true
+      DEBUG : false
   }
 }]
 }
