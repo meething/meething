@@ -717,6 +717,23 @@ input:checked + .slider:before {
   background-color: #673ab7;
 }
 
+/* graphed Video Bubbles
+
+*/
+
+.graphVideo {
+  position: fixed;
+  background-color: black;
+  border-radius: 45%;
+  width: 260px;
+  border: solid 2px white;
+}
+
+.speaking {
+  width: 400px;
+  border: solid 2px orange;
+}
+
 /* general styles */
 
 .hidden {

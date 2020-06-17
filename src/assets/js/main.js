@@ -146,6 +146,7 @@ function Mediator() {
 
   this.initComm = function () {
     mConn.init();
+    mGraph.init();
   }
 
   /* Helper functions that need to be here for now until modules are more split

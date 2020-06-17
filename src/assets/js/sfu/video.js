@@ -46,6 +46,7 @@ export default class Video {
     webrtc.on("readyToCall", function (peerCount) {
       // webrtc.joinRoom(self.getRoom());
       webrtc.startBroadcast(peerCount);
+      med.ee.emit("sfu:peer");
     });
 
     // Display the volume meter.
@@ -133,4 +134,3 @@ export default class Video {
     webrtc.init();
   }
 }
-

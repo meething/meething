@@ -1,19 +1,117 @@
+var self;
+var med;
+
 export default class Graph {
   constructor (mediator) {
     this.mediator = mediator;
+    med = this.mediator;
+    self = this;
+
+    return this;
   }
 
   init () {
-    console.log('fix the Graph')
+    console.log('fix the Graph');
+
+    med.ee.on("graph:toggle", self.snatch)
+
+    med.ee.on("sfu:peer", function(ev) {
+      console.log("peer added", ev);
+      if(med.graphedVideo) med.ee.emit("graph:toggle", "no data");
+    });
+
+    med.ee.on('speaking', function(data) {
+      console.log('speaking', data);
+      if(med.graphedVideo) {
+        var videoArray = document.querySelectorAll('video');
+
+        videoArray.forEach((item, i) => {
+          //if this video is the one speaking
+          if(item.id == data.socketId + '-video') {
+            // check if it's not already speaking
+            if(item.classList.contains('speaking')){
+              // already speaking
+               return;
+             } else {
+               // turn speaking on (makes it bigger and orange)
+               item.classList.add('speaking');
+             }
+          } else {
+            item.classList.remove('speaking');
+          }
+        });
+        self.snatch();
+      }
+    });
+  }
+
+  async snatch (data) {
+    med.graphedVideo = true;
+    self.graphWorker = new Worker('/assets/workers/workerGraph.js');
+    // create Graph Div to make the graph area??
+    if(!document.querySelector('#graphDiv')) {
+      var div = document.createElement('div');
+      div.setAttribute('style', 'width:100%;height:100%;z-index:1000;')
+      div.setAttribute('id', 'graphDiv');
+      document.body.appendChild(div);
+    } else {
+      var div = document.querySelector('#graphDiv');
+    }
+    // gather video elements (aka visible peers)
+    try {
+      var videoArray = document.querySelectorAll('video');
+      var obj = {nodes:[], edges:[]};
+      // attach them to a graph and add bubble style
+      videoArray.forEach((item, i, arr) => {
+        var speaking = false;
+        var r = 80;
+        if(item.classList.contains('speaking')){r = 180; speaking = true;};
+        console.log('r is', r);
+        obj.nodes.push({id:i, r:r});
+        for(let y=0;y<arr.length;y++){
+          if(i != y) {
+            obj.edges.push({source:i, target:y})
+          }
+        }
+        div.appendChild(item);
+        if(speaking) {
+          item.setAttribute('class', 'graphVideo speaking')
+        } else {
+          item.setAttribute('class', 'graphVideo')
+        }
+
+      });
+
+    } catch (e) {
+      console.warn('no video found');
+      return;
+    }
+
+    //handle data when it comes back
+    self.graphWorker.onmessage = function(ev) {
+      var nodes = ev.data.nodes;
+      for(let i=0; i<nodes.length; i++) {
+        let string = `left: ${nodes[i].x - (nodes[i].r/2)}px;top: ${nodes[i].y - (nodes[i].r/2)}px;`;
+        videoArray[i].setAttribute('style', string);
+      }
+    }
+    // send data to worker and await return
+    self.graphWorker.postMessage({
+      type:'pre-processed',
+      nodes:obj.nodes,
+      edges:obj.edges,
+      size: {width:window.innerWidth, height:window.innerHeight}
+    });
+
   }
 
   start () {
-    this.eventEmitter.on('graph:update', async function () {
+    self.ee.on('graph:update', async function () {
       // initialize web worker in upper scope
       var graphWorker = new Worker('/assets/workers/workerGraph.js');
       // handle result from graphworker
       graphWorker.onmessage = function (event) {
-        if(this.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
+        if(self.mediator.DEBUG) {console.log('worker returned', event.data.svgString)}
         // parse result into an element
         var parser = new DOMParser();
         var el = parser.parseFromString(event.data.svgString, "image/svg+xml");
@@ -48,7 +146,7 @@ export default class Graph {
       /* Version 2 - traverse the room and all of its children
           enumerate into nodes and edges array as you go */
 
-      if(this.mediator.DEBUG) { console.log('Worker Version 2')}
+      if(med.DEBUG) { console.log('Worker Version 2')}
         // Breadth First Search
       var stack;
       var nodes;
@@ -58,16 +156,16 @@ export default class Graph {
       var label;
       var opt = true;
 
-      if(this.mediator.DEBUG) { console.log('Worker Version 2: Starting traversal')}
+      if(med.DEBUG) { console.log('Worker Version 2: Starting traversal')}
 
-      if(this.mediator.DEBUG) { console.log('Starting with: meething')}
+      if(med.DEBUG) { console.log('Starting with: meething')}
 
       label = 'label';
       start = 'meething';
       stack = [];
       nodes = new Map();
       edges = new Map();
-      start = await this.mediator.root.get(start).promOnce();
+      start = await med.root.get(start).promOnce();
       nodes.set(start.key, {id:start.key, label:start.data.label, data:start.data});
       u = start;
       stack.push(u);
@@ -142,7 +240,7 @@ export default class Graph {
         })
       }
     });
-    this.eventEmitter.on('graph:toggle', function () {
+    self.ee.on('graph:toggle', function () {
       var graphDiv = document.getElementById('graphDiv');
       if(graphDiv) {
         if(graphDiv.style.visibility == 'hidden') {

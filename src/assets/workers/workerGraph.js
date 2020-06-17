@@ -34,14 +34,14 @@ self.onmessage = async function (event) {
 
   simulate(nodes, edges, width, height);
 
-  /* Build the svg string */
+  /* Build the svg string
 
   var svgString = buildString(nodes, edges, width, height);
   if(!svgString){
     self.postMessage({err: "No nodes"});
     self.close()
-  }
-  self.postMessage({svgString:svgString})
+  }*/
+  self.postMessage({nodes, edges})
   self.close()
 }
 
@@ -54,10 +54,12 @@ function delay (ms) {
 function simulate (nodes, edges, width, height) {
 
   var simulation = d3.forceSimulation(nodes, (d)=>{return d.id})
-    .force("charge", d3.forceCollide().radius(50))
-    .force("r", d3.forceCenter(width/2, height/2))
-    .force('link', d3.forceLink().links(edges).id(function(d){return d.id}))
-    .stop()
+      .force('charge', d3.forceManyBody().strength(5))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide().radius(function(d) {
+        return d.r;
+      }))
+      .stop()
 
   var n = Math.ceil(Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay()))
   for(var i=0;i<n;i++){
