@@ -726,13 +726,27 @@ input:checked + .slider:before {
   background-color: black;
   border-radius: 45%;
   width: 260px;
-  border: solid 2px white;
+  height: 260px;
+  clip-path: circle(37%);
 }
 
 .speaking {
   width: 400px;
-  border: solid 2px orange;
+  height: 400px;
+  clip-path: circle(37%);
 }
+
+.speaking-cont {
+  filter: drop-shadow(0 0 0.75rem orange);
+  animation: glow 2s infinite alternate;
+}
+
+@keyframes glow {
+  from {filter: drop-shadow(0 0 0.75rem orange);}
+  to {filter: drop-shadow(0 0 0.5rem orange)}
+}
+
+
 
 /* general styles */
 

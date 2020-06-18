@@ -46,8 +46,21 @@ export default class Graph {
   }
 
   async snatch (data) {
+    if(!med.graphedVideo) {
+      var div = document.createElement('div');
+      var selfview = document.getElementById('local');
+      selfview.classList.remove('local-video');
+      selfview.classList.remove('clipped');
+      div.appendChild(selfview);
+      document.getElementById('grid').appendChild(div);
+    }
     med.graphedVideo = true;
     self.graphWorker = new Worker('/assets/workers/workerGraph.js');
+    /* Prototype
+    *
+    *
+    *
+
     // create Graph Div to make the graph area??
     if(!document.querySelector('#graphDiv')) {
       var div = document.createElement('div');
@@ -64,9 +77,9 @@ export default class Graph {
       // attach them to a graph and add bubble style
       videoArray.forEach((item, i, arr) => {
         var speaking = false;
-        var r = 80;
-        if(item.classList.contains('speaking')){r = 180; speaking = true;};
-        console.log('r is', r);
+        var r = 196/2;
+        if(item.classList.contains('speaking')){r = 298/2; speaking = true;};
+        //console.log('r is', r);
         obj.nodes.push({id:i, r:r});
         for(let y=0;y<arr.length;y++){
           if(i != y) {
@@ -85,13 +98,43 @@ export default class Graph {
     } catch (e) {
       console.warn('no video found');
       return;
+    } */
+
+    var videoArray = [];
+    var obj = {nodes:[], edges:[]};
+
+    try {
+      var grid = document.getElementById('grid').children;
+      var length = document.getElementById('grid').children.length;
+
+      for(let i=0; i < length; i++) {
+        var item = document.getElementById('grid').children[i];
+        videoArray.push(item);
+        var speaking = false;
+        var r = 196/2;
+        if(item.children[0].classList.contains('speaking')){r = 298/2; speaking = true;};
+        obj.nodes.push({id:i, r:r});
+        // item is a container
+        item.children[0].classList.remove('remote-video');
+        item.children[0].classList.add('graphVideo');
+        if(item.children[1]){item.children[1].setAttribute('hidden', 'true');}
+        if(speaking) {
+          item.classList.add('speaking-cont');
+          item.children[0].classList.add('speaking');
+        } else {
+          item.classList.remove('speaking-cont');
+        }
+      }
+    } catch (e) {
+      console.log('video not found', e);
     }
 
     //handle data when it comes back
     self.graphWorker.onmessage = function(ev) {
       var nodes = ev.data.nodes;
       for(let i=0; i<nodes.length; i++) {
-        let string = `left: ${nodes[i].x - (nodes[i].r/2)}px;top: ${nodes[i].y - (nodes[i].r/2)}px;`;
+        let string = `position:fixed;left: ${nodes[i].x - (nodes[i].r)}px;top: ${nodes[i].y - (nodes[i].r)}px;`;
+
         videoArray[i].setAttribute('style', string);
       }
     }
