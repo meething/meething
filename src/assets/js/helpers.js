@@ -79,7 +79,8 @@ var cache,
   canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true : false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
   canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
-  canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  canCreateMediaStream = ('MediaStream' in window) ? true : false,
+  canReplaceTracks = (('replaceVideoTrack' in MediaStream.prototype) && ('replaceAudioTrack' in MediaStream.prototype)) ? true : false;
 
 function getDevices() {
   return new Promise(async (resolve, reject) => {
@@ -280,6 +281,9 @@ export default {
   },
   canCaptureAudio() {
     return canCaptureAudio;
+  },
+  canReplaceTracks() {
+    return canReplaceTracks;
   },
   canSelectAudioDevices() {
     return canSelectAudioDevices;
@@ -604,7 +608,7 @@ export default {
         this.addAudio(all[i].captureStream());
       }
       var pip = document.getElementById("pip")
-      if(pip.srcObject) {
+      if(pip.srcObject && canCaptureStream && canReplaceTracks) {
         mediaStreamDestination.stream.addTrack(pip.srcObject.getVideoTracks()[0])
       }
       var recordingStream = new MediaStream(mediaStreamDestination.stream)
@@ -989,7 +993,12 @@ export default {
         const speakingVid = document.getElementById(id);
         if (!speakingVid) return;
         pipVid.currentId = id;
-        pipVid.srcObject.replaceVideoTrack(speakingVid.srcObject.getVideoTracks()[0])
+        if(canReplaceTracks) {
+          pipVid.srcObject.replaceVideoTrack(speakingVid.srcObject.getVideoTracks()[0])
+          pipVid.srcObject.replaceAudioTrack(speakingVid.srcObject.getAudioTracks()[0])
+        } else {
+          pipVid.srcObject = speakingVid.srcObject;
+        }
         if (pipVid.paused) {
           var playPromise = pipVid.play();
           if (playPromise !== undefined) {
