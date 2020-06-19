@@ -4,9 +4,10 @@ module.exports = {
     script: 'src/app.js',
     watch: './src',
     env : {
+      PORT: 3443,
       SSL : true,
-      SSLKEY : 'src/assets/privkey.pem',
-      SSLCERT  : 'src/assets/fullchain.pm',
+      SSLKEY : 'certs/privkey.pem',
+      SSLCERT  : 'certs/fullchain.pem',
       SFU_URL : false,
       DEBUG : false
   }
