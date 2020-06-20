@@ -74,6 +74,6 @@ SuperPeers can provide the network with services such as STUN/TURN/RELAY and in 
 #### Credits & Thanks
 * [Meething Team](https://github.com/meething/meething/graphs/contributors) on Discord for making this happen!
 * [Mozilla Builders](https://builders.mozilla.community/) for supporting our idea!
-* [Mediasoup](mediasoup.org) Team for their kickass SFU!
+* [Mediasoup](https://mediasoup.org) Team for their kickass SFU!
 * [Mark's GUN](https://gun.eco/) and its community!
 
