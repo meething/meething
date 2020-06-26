@@ -79,7 +79,8 @@ var cache,
   canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true : false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
   canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
-  canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  canCreateMediaStream = ('MediaStream' in window) ? true : false,
+  canReplaceTracks = (('replaceVideoTrack' in MediaStream.prototype) && ('replaceAudioTrack' in MediaStream.prototype)) ? true : false;
 
 function getDevices() {
   return new Promise(async (resolve, reject) => {
@@ -280,6 +281,9 @@ export default {
   },
   canCaptureAudio() {
     return canCaptureAudio;
+  },
+  canReplaceTracks() {
+    return canReplaceTracks;
   },
   canSelectAudioDevices() {
     return canSelectAudioDevices;
@@ -597,33 +601,42 @@ export default {
   },
   recordAudio() {
     if (!this.canCaptureAudio()) return stream;
-    this.collectAudio();
-    var all = document.getElementsByTagName("video");
-    for (var i = 0, max = all.length; i < max; i++) {
-      this.addAudio(all[i].captureStream());
+    try {
+      this.collectAudio();
+      var all = document.getElementsByTagName("video");
+      for (var i = 0, max = all.length; i < max; i++) {
+        this.addAudio(all[i].captureStream());
+      }
+      var pip = document.getElementById("pip")
+      if(pip.srcObject && canCaptureStream && canReplaceTracks) {
+        mediaStreamDestination.stream.addTrack(pip.srcObject.getVideoTracks()[0])
+      }
+      var recordingStream = new MediaStream(mediaStreamDestination.stream)
+      mediaRecorder = new MediaRecorder(recordingStream);
+      console.log(mediaRecorder.state);
+      console.log("recorder started");
+      var chunks = [];
+      mediaRecorder.onstop = function (e) {
+        var blob = new Blob(chunks, {
+          type: "video/webm"
+        });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        a.href = url;
+        a.download = "test.webm";
+        a.click();
+        window.URL.revokeObjectURL(url);
+        chunks = [];
+      };
+      mediaRecorder.ondataavailable = function (e) {
+        chunks.push(e.data);
+      };
+      mediaRecorder.start();
+    } catch(e) {
+      console.log(e);
     }
-    mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
-    console.log(mediaRecorder.state);
-    console.log("recorder started");
-    var chunks = [];
-    mediaRecorder.onstop = function (e) {
-      var blob = new Blob(chunks, {
-        type: "video/webm"
-      });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      document.body.appendChild(a);
-      a.style = "display: none";
-      a.href = url;
-      a.download = "test.webm";
-      a.click();
-      window.URL.revokeObjectURL(url);
-      chunks = [];
-    };
-    mediaRecorder.ondataavailable = function (e) {
-      chunks.push(e.data);
-    };
-    mediaRecorder.start();
   },
   stopRecordAudio() {
     mediaRecorder.stop();
@@ -972,14 +985,20 @@ export default {
 
   },
   swapPiP(id) {
+    if (!id) return;
     try {
-      if (!id) return;
       const pipVid = document.getElementById("pip");
+      if (!pipVid.srcObject) return;
       if (pipVid && pipVid.currentId !== id) {
         const speakingVid = document.getElementById(id);
-        if(!speakingVid) return;
+        if (!speakingVid) return;
         pipVid.currentId = id;
-        pipVid.srcObject = speakingVid.srcObject;
+        if(canReplaceTracks) {
+          pipVid.srcObject.replaceVideoTrack(speakingVid.srcObject.getVideoTracks()[0])
+          pipVid.srcObject.replaceAudioTrack(speakingVid.srcObject.getAudioTracks()[0])
+        } else {
+          pipVid.srcObject = speakingVid.srcObject;
+        }
         if (pipVid.paused) {
           var playPromise = pipVid.play();
           if (playPromise !== undefined) {
@@ -991,7 +1010,7 @@ export default {
         }
       }
     } catch (e) {
-      console.warn('error swapPiP: ',e);
+      console.warn('error swapPiP: ', e);
     }
   },
   swapDiv(id) {
