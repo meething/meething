@@ -31,15 +31,16 @@ Try Meething using [docker](https://github.com/meething/meething-docker) contain
 npm install
 ```
 #### Configuration
-* Copy the example `meething.config.js` to `custom.config.js`
-* Configure your SSL certificates
+* Copy the example `meething.config.example.js` to `meething.config.js`
+* Customize `meething.config.js` to set the desired port and other environment variables
+* Configure your SSL certificate&key in certs/ by either copying fullchain/privkey.pem.example to fullchain/privkey.pem or use your own certificate & key
 * Run using pm2
 ```
-pm2 start custom.config.js
+pm2 start meething.config.js
 ```
 
 ### Usage
-* Browse to the configured HTTPS port _(default 8443)_
+* Browse to the configured HTTPS port _(default 3443)_
 * Accept the self-signed certificates _(if needed)_
 * Choose a Room and User name
 * Share link with other participants
@@ -71,8 +72,8 @@ SuperPeers can provide the network with services such as STUN/TURN/RELAY and in 
 
 
 #### Credits & Thanks
-* [Meething Team](https://github.com/meething/meething/graphs/contributors) on Discord for making this happen!
+* [Meething Team](https://discord.gg/4vTnfry) on Discord for making this happen!
 * [Mozilla Builders](https://builders.mozilla.community/) for supporting our idea!
-* [Mediasoup](mediasoup.org) Team for their kickass SFU!
+* [Mediasoup](https://mediasoup.org) Team for their kickass SFU!
 * [Mark's GUN](https://gun.eco/) and its community!
 

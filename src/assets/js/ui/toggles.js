@@ -13,6 +13,8 @@ export default class Toggles {
     this.initToggleScreenShare();
     this.initToggleAudioRecording();
     this.initTogglePiPMode();
+    this.initToggleSpacebar();
+    this.initToggleMesh();
   }
 
   initToggleVideo() {
@@ -20,39 +22,75 @@ export default class Toggles {
       e.preventDefault();
       if (!med.videoMuted) {
         med.videoMuted = true;
+        e.srcElement.style.backgroundColor = "#DE0046";
         e.srcElement.classList.remove("fa-video");
         e.srcElement.classList.add("fa-video-slash");
-        med.h.showNotification("Video Disabled");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+        med.h.showLocalNotification("Video Disabled");
       } else {
         med.videoMuted = false;
+        e.srcElement.style.backgroundColor = "#3F069C";
         e.srcElement.classList.add("fa-video");
         e.srcElement.classList.remove("fa-video-slash");
-        med.h.showNotification("Video Enabled");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
+        med.h.showLocalNotification("Video Enabled");
       }
       window.ee.emit("video-toggled")
     });
   }
 
   initToggleAudio() {
+
     document.getElementById("toggle-mute").addEventListener("click", e => {
       e.preventDefault();
       if (!med.audioMuted) {
         med.audioMuted = true;
+        e.srcElement.style.backgroundColor = "#DE0046";
         e.srcElement.classList.remove("fa-volume-up");
         e.srcElement.classList.add("fa-volume-mute");
-        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-        med.h.showNotification("Audio Muted");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
+        med.h.showLocalNotification("Audio Muted");
         med.h.showWarning("Audio Muted","#de0046")
       } else {
         med.audioMuted = false;
+        e.srcElement.style.backgroundColor = "#3F069C";
         e.srcElement.classList.add("fa-volume-up");
         e.srcElement.classList.remove("fa-volume-mute");
-        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", muted: med.audioMuted });
-        med.h.showNotification("Audio Unmuted");
+        med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+        med.h.showLocalNotification("Audio Unmuted");
         med.h.hideWarning();
       }
       window.ee.emit("audio-toggled")
     });
+  }
+
+  initToggleSpacebar() {
+        document.body.onkeyup = function(e){
+          e.preventDefault();
+          let soundbtn = document.querySelector('#toggle-mute')
+          if(e.keyCode == 32){
+            if(document.activeElement.tagName !== 'TEXTAREA') {
+              if (!med.audioMuted) {
+                med.audioMuted = true;
+                soundbtn.style.backgroundColor = "#DE0046";
+                soundbtn.classList.remove("fa-volume-up");
+                soundbtn.classList.add("fa-volume-mute");
+                med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted});
+                med.h.showLocalNotification("Audio Muted");
+                med.h.showWarning("Audio Muted","#de0046")
+              } else {
+                med.audioMuted = false;
+                soundbtn.style.backgroundColor = "#3F069C";
+                soundbtn.classList.add("fa-volume-up");
+                soundbtn.classList.remove("fa-volume-mute");
+                med.metaData.sendNotificationData({ username: med.username, subEvent: "mute", audioMuted: med.audioMuted, videoMuted: med.videoMuted });
+                med.h.showLocalNotification("Audio Unmuted");
+                med.h.hideWarning();
+              }
+              window.ee.emit("audio-toggled")
+            }
+        }
+  }
   }
 
   initToggleScreenShare() {
@@ -72,7 +110,6 @@ export default class Toggles {
       window.ee.emit("screen-toggled")
     });
   }
-
   initToggleAudioRecording() {
     document.getElementById("record-toggle").addEventListener("click", e => {
       e.preventDefault();
@@ -81,13 +118,13 @@ export default class Toggles {
         med.isRecording = true
         e.srcElement.classList.add("text-danger");
         e.srcElement.classList.remove("text-white");
-        med.h.showNotification("Recording Started");
+        med.h.showLocalNotification("Recording Started");
       } else {
         med.h.stopRecordAudio()
         med.isRecording = false
         e.srcElement.classList.add("text-white");
         e.srcElement.classList.remove("text-danger");
-        med.h.showNotification("Recording Stopped");
+        med.h.showLocalNotification("Recording Stopped");
       }
       med.metaData.sendNotificationData({ username: med.username, subEvent: "recording", isRecording: med.isRecording })
       window.ee.emit("record-audio-toggled")
@@ -114,6 +151,19 @@ export default class Toggles {
         togglePip.classList.remove("text-success");
       });
     }
+  }
 
+  initToggleMesh() {
+    const mesh = med.h.getQString(location.href, "mesh") || "false";
+    if (mesh == "true") {
+      med.mesh = true;
+      document.getElementById("mesh-toggle").checked = true;
+    } else {
+      med.mesh = false;
+      document.getElementById("mesh-toggle").checked = false;
+    }
+    document.getElementById("mesh-toggle").addEventListener("click", e => {
+      med.mesh = e.srcElement.checked;
+    });
   }
 }

@@ -1,6 +1,7 @@
 import EventEmitter from "../ee.js";
 import Room from "./room.js";
 import helper from "../helpers.js"
+import config from '../config.js';
 
 export default class SFU extends EventEmitter {
     constructor(config) {
@@ -61,17 +62,19 @@ export default class SFU extends EventEmitter {
             try {
                 this.broadcasting = true;
                 const video = this.config.localVideoEl;
-                if (peerCount > 4) {
-                    video.srcObject.getVideoTracks()[0].enabled = false;
-                    document.getElementById("toggle-video").click()
-                }
-                if (peerCount > 12) {
+                const isMutedStart = peerCount > config.autoMuteCount;
+                if (isMutedStart) {
                     video.srcObject.getAudioTracks()[0].enabled = false;
-                    document.getElementById("toggle-mute").click()
+                    video.srcObject.getVideoTracks()[0].enabled = false;
                 }
 
                 this.videoProducer = await this.sfuRoom.sendVideo(video.srcObject.getVideoTracks()[0]);
                 this.audioProducer = await this.sfuRoom.sendAudio(video.srcObject.getAudioTracks()[0]);
+
+                if (isMutedStart) {
+                    document.getElementById("toggle-video").click()
+                    document.getElementById("toggle-mute").click()
+                }
 
                 var self = this;
                 // Attach SoundMeter to Local Stream
@@ -146,19 +149,28 @@ export default class SFU extends EventEmitter {
     }
 
     toggleVideo() {
+      try{
         if (this.videoProducer.paused) {
             this.videoProducer.resume();
         } else {
             this.videoProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }
+
     }
 
     toggleAudio() {
+      try {
         if (this.audioProducer.paused) {
             this.audioProducer.resume();
         } else {
             this.audioProducer.pause();
         }
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     async toggleScreen() {
@@ -171,20 +183,28 @@ export default class SFU extends EventEmitter {
     }
 
     async changeStream(stream) {
-        const videoTrack = stream.getVideoTracks()[0];
-        if (videoTrack.readyState === "live") {
-            this.videoProducer.replaceTrack({ track: videoTrack });
-            this.videoProducer.resume();
+        if (stream.getVideoTracks !== undefined) {
+          const videoTrack = stream.getVideoTracks()[0];
+          if (videoTrack.readyState === "live") {
+              this.videoProducer.replaceTrack({ track: videoTrack });
+              this.videoProducer.resume();
+          } else {
+              this.videoProducer.pause();
+          }
         } else {
-            this.videoProducer.pause();
+          console.log('stream does not have videoTrack');
         }
 
-        const audioTrack = stream.getAudioTracks()[0];
-        if (audioTrack.readyState === "live") {
-            this.audioProducer.replaceTrack({ track: audioTrack });
-            this.audioProducer.resume();
+        if (stream.getAudioTracks !== undefined) {
+          const audioTrack = stream.getAudioTracks()[0];
+          if (audioTrack.readyState === "live") {
+              this.audioProducer.replaceTrack({ track: audioTrack });
+              this.audioProducer.resume();
+          } else {
+              this.audioProducer.pause();
+          }
         } else {
-            this.audioProducer.pause();
+          console.log('stream does not have audioTrack');
         }
     }
 }

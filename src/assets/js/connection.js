@@ -41,12 +41,12 @@ export default class Connection {
     if (self.inited) return;
     self.inited = true;
     this.unhide();
-    if (med.SFU_ENABLED) {
-      console.log("Start SFU");
-      this.video = new Video(med).establish();
-    } else {
+    if (med.mesh) {
       console.log("Start MESH");
       new Mesh(med).establish();
+    } else {
+      console.log("Start SFU");
+      this.video = new Video(med).establish();
     }
   }
 
@@ -80,27 +80,21 @@ export default class Connection {
       if (data.subEvent == "recording") {
         if (data.isRecording) {
           var notification = data.username + " started recording this meething";
-          med.h.showNotification(notification);
+          med.h.showRemoteNotification(notification);
         } else {
           var notification = data.username + " stopped recording this meething"
-          med.h.showNotification(notification);
+          med.h.showRemoteNotification(notification);
         }
       } else if (data.subEvent == "grid") {
         if (data.isOngrid) {
           var notification = data.username + " is going off the grid";
-          med.h.showNotification(notification);
+          med.h.showRemoteNotification(notification);
         } else {
           var notification = data.username + " is back on the grid"
-          med.h.showNotification(notification);
+          med.h.showRemoteNotification(notification);
         }
       } else if (data.subEvent == "mute") {
-        if (data.muted) {
-          var notification = data.username + " is going silence";
-          med.h.showNotification(notification);
-        } else {
-          var notification = data.username + " is on speaking terms"
-          med.h.showNotification(notification);
-        }
+        med.h.showUserMutedNotification(data);
       }
     } else if (data.event == "control") {
       if (data.username && data.socketId) {
@@ -115,7 +109,7 @@ export default class Connection {
 
       if (data.readonly) {
         if (med.DEBUG) console.log('Read-Only Joined: ' + data.username);
-        med.h.showNotification("Read-Only Join by " + data.username);
+        med.h.showRemoteNotification("Read-Only Join by " + data.username);
         med.h.hideVideo(data.socketId, true);
       }
     }

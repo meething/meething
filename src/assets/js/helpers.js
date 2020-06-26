@@ -79,7 +79,8 @@ var cache,
   canCaptureStream = ('captureStream' in HTMLMediaElement.prototype) ? true : false,
   canCaptureAudio = ('MediaStreamAudioDestinationNode' in window) ? true : false,
   canSelectAudioDevices = ('sinkId' in HTMLMediaElement.prototype) ? true : false,
-  canCreateMediaStream = ('MediaStream' in window) ? true : false;
+  canCreateMediaStream = ('MediaStream' in window) ? true : false,
+  canReplaceTracks = (('replaceVideoTrack' in MediaStream.prototype) && ('replaceAudioTrack' in MediaStream.prototype)) ? true : false;
 
 function getDevices() {
   return new Promise(async (resolve, reject) => {
@@ -159,7 +160,7 @@ if (canCreateMediaStream && canCaptureCanvas) {
     let audio = new AudioContext();
     let oscillator = audio.createOscillator();
     let destination = oscillator.connect(audio.createMediaStreamDestination());
-    oscillator.start();
+    // oscillator.start(); Uncomment to create buzz :)
     return Object.assign(destination.stream.getAudioTracks()[0], {
       enabled: false,
     });
@@ -280,6 +281,9 @@ export default {
   },
   canCaptureAudio() {
     return canCaptureAudio;
+  },
+  canReplaceTracks() {
+    return canReplaceTracks;
   },
   canSelectAudioDevices() {
     return canSelectAudioDevices;
@@ -506,48 +510,53 @@ export default {
     };
   },
   addChat(data, senderType) {
-    if (data == cache) {
-      cache = null;
-      return;
-    }
-    let chatMsgDiv = document.querySelector("#chat-messages");
-    let contentAlign = "justify-content-end";
-    let senderName = "You";
-    let msgBg = "bg-white";
+    try {
+      if (data == cache) {
+        cache = null;
+        return;
+      }
+      let chatMsgDiv = document.querySelector("#chat-messages");
+      let contentAlign = "justify-content-end";
+      let senderName = "You";
+      let msgBg = "bg-white";
 
-    if (senderType === "remote") {
-      contentAlign = "justify-content-start";
-      senderName = data.sender;
-      msgBg = "bg-green";
+      if (senderType === "remote") {
+        contentAlign = "justify-content-start";
+        senderName = data.sender;
+        msgBg = "bg-green";
 
-      this.toggleChatNotificationBadge();
+        this.toggleChatNotificationBadge();
+      }
+      let infoDiv = document.createElement("div");
+      infoDiv.className = "sender-info";
+      infoDiv.innerHTML = `${senderName} - ${moment().format(
+        "Do MMMM, YYYY h:mm a"
+      )}`;
+      let colDiv = document.createElement("div");
+      colDiv.className = `col-10 card chat-card msg ${msgBg}`;
+      colDiv.innerHTML = data.msg;
+      let rowDiv = document.createElement("div");
+      rowDiv.className = `row ${contentAlign} mb-2`;
+      colDiv.appendChild(infoDiv);
+      rowDiv.appendChild(colDiv);
+      chatMsgDiv.appendChild(rowDiv);
+      /**
+       * Move focus to the newly added message but only if:
+       * 1. Page has focus
+       * 2. User has not moved scrollbar upward. This is to prevent moving the scroll position if user is reading previous messages.
+       */
+      if (this.pageHasFocus) {
+        rowDiv.scrollIntoView();
+      }
+      cache = data;
+    } catch (e) {
+      console.warn('chat error:',e);
     }
-    let infoDiv = document.createElement("div");
-    infoDiv.className = "sender-info";
-    infoDiv.innerHTML = `${senderName} - ${moment().format(
-      "Do MMMM, YYYY h:mm a"
-    )}`;
-    let colDiv = document.createElement("div");
-    colDiv.className = `col-10 card chat-card msg ${msgBg}`;
-    colDiv.innerHTML = data.msg;
-    let rowDiv = document.createElement("div");
-    rowDiv.className = `row ${contentAlign} mb-2`;
-    colDiv.appendChild(infoDiv);
-    rowDiv.appendChild(colDiv);
-    chatMsgDiv.appendChild(rowDiv);
-    /**
-     * Move focus to the newly added message but only if:
-     * 1. Page has focus
-     * 2. User has not moved scrollbar upward. This is to prevent moving the scroll position if user is reading previous messages.
-     */
-    if (this.pageHasFocus) {
-      rowDiv.scrollIntoView();
-    }
-    cache = data;
   },
 
   addVideoElementEvent(elem, type = "pip") {
-    if ("pictureInPictureEnabled" in document && type == "pip") {
+
+    if ("pictureInPictureEnabled" in document && type == "pip" && elem) {
       elem.addEventListener("dblclick", (e) => {
         e.preventDefault();
         if (!document.pictureInPictureElement) {
@@ -592,33 +601,42 @@ export default {
   },
   recordAudio() {
     if (!this.canCaptureAudio()) return stream;
-    this.collectAudio();
-    var all = document.getElementsByTagName("video");
-    for (var i = 0, max = all.length; i < max; i++) {
-      this.addAudio(all[i].captureStream());
+    try {
+      this.collectAudio();
+      var all = document.getElementsByTagName("video");
+      for (var i = 0, max = all.length; i < max; i++) {
+        this.addAudio(all[i].captureStream());
+      }
+      var pip = document.getElementById("pip")
+      if(pip.srcObject && canCaptureStream && canReplaceTracks) {
+        mediaStreamDestination.stream.addTrack(pip.srcObject.getVideoTracks()[0])
+      }
+      var recordingStream = new MediaStream(mediaStreamDestination.stream)
+      mediaRecorder = new MediaRecorder(recordingStream);
+      console.log(mediaRecorder.state);
+      console.log("recorder started");
+      var chunks = [];
+      mediaRecorder.onstop = function (e) {
+        var blob = new Blob(chunks, {
+          type: "video/webm"
+        });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        a.href = url;
+        a.download = "test.webm";
+        a.click();
+        window.URL.revokeObjectURL(url);
+        chunks = [];
+      };
+      mediaRecorder.ondataavailable = function (e) {
+        chunks.push(e.data);
+      };
+      mediaRecorder.start();
+    } catch(e) {
+      console.log(e);
     }
-    mediaRecorder = new MediaRecorder(mediaStreamDestination.stream);
-    console.log(mediaRecorder.state);
-    console.log("recorder started");
-    var chunks = [];
-    mediaRecorder.onstop = function (e) {
-      var blob = new Blob(chunks, {
-        type: "video/webm"
-      });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
-      document.body.appendChild(a);
-      a.style = "display: none";
-      a.href = url;
-      a.download = "test.webm";
-      a.click();
-      window.URL.revokeObjectURL(url);
-      chunks = [];
-    };
-    mediaRecorder.ondataavailable = function (e) {
-      chunks.push(e.data);
-    };
-    mediaRecorder.start();
   },
   stopRecordAudio() {
     mediaRecorder.stop();
@@ -631,7 +649,7 @@ export default {
     // video element
     var videohtml = `<video id="${partnerName}-video" autoplay playsinline>
     <source src="/assets/video/muted.webm" type="video/webm">
-    <source src="/assets/video/muted.mp4" type="video/mp4">  
+    <source src="/assets/video/muted.mp4" type="video/mp4">
     <source src="/assets/video/muted.ogg" type="video/ogv">
     </video>`;
     var videoParent = document.createElement("div.offscreen");
@@ -644,7 +662,7 @@ export default {
     this.addVideoElementEvent(newVid, "pip");
     newVid.className = "remote-video";
     newVid.volume = 0.75;
-  
+
     let ogrid = document.createElement("div");
     ogrid.id = partnerName + "-widget";
     ogrid.className = 'remote-widget'
@@ -707,17 +725,33 @@ export default {
     // bottom toolbox
     var videoToolbox = document.createElement("div");
     videoToolbox.className = "v-toolbox";
+    var mutedSpan = document.createElement("span")
+    mutedSpan.style.display = "none"
+    mutedSpan.innerText = "MUTED"
+    mutedSpan.style.color = "white"
+    mutedSpan.style.backgroundColor = "#DE0046"
+      mutedSpan.style.padding="3px";
+      mutedSpan.style.margin = "3px"
     var vtitle = document.createElement("p");
-    var vuser = partnerName;
+    if(partnerName.length > 35)
+    {
+      var vuser = partnerName.substring(0,10) + '...';
+      vtitle.title = partnerName;
+    } else {
+      var vuser = partnerName
+    }
+
     vtitle.textContent = `● ${vuser}`;
+    vtitle.appendChild(mutedSpan)
     vtitle.className = "v-user";
     vtitle.id = `${partnerName}-title`;
+
     videoToolbox.appendChild(vtitle);
     toolbox.appendChild(topToolbox);
     toolbox.appendChild(videoToolbox);
     ogrid.appendChild(toolbox);
-  
-  
+
+
     var realgrid = document.getElementById("grid");
     realgrid.appendChild(ogrid);
 
@@ -732,17 +766,22 @@ export default {
   },
 
   toggleChatNotificationBadge() {
-    if (
-      document.querySelector("#chat-pane").classList.contains("chat-opened")
-    ) {
-      document
-        .querySelector("#new-chat-notification")
-        .setAttribute("hidden", true);
-    } else {
-      document
-        .querySelector("#new-chat-notification")
-        .removeAttribute("hidden");
+    try{
+      if (
+        document.querySelector("#chat-pane").classList.contains("chat-opened")
+      ) {
+        document
+          .querySelector("#new-chat-notification")
+          .setAttribute("hidden", true);
+      } else {
+        document
+          .querySelector("#new-chat-notification")
+          .removeAttribute("hidden");
+      }
+    } catch (e) {
+      console.warn('chatNotification:', e)
     }
+
   },
 
   getMutedStream() {
@@ -857,68 +896,140 @@ export default {
       throw new Error("Display media not available");
     }
   }, //End screensharing
-  showNotification(msg) {
-    //Snackbar notification
-    var snackbar = document.getElementById("snackbar");
-    snackbar.innerHTML = msg;
-    snackbar.className = "show";
-    setTimeout(function () {
-      snackbar.className = snackbar.className.replace("show", "");
-    }, 3000);
+  showLocalNotification(msg) {
+    try {
+      //Snackbar notification
+      var snackbar = document.getElementById("snackbar");
+      snackbar.innerHTML = msg;
+      snackbar.className = "show";
+      setTimeout(function () {
+        snackbar.className = snackbar.className.replace("show", "");
+      }, 3000);
+    } catch (e) {
+      console.warn('snackbar error: ', e);
+    }
+  },
+  showRemoteNotification(msg) {
+    try {
+      //Snackbar notification
+      var snackbar = document.getElementById("snackbar");
+      snackbar.innerHTML = msg;
+      snackbar.className = "show";
+      setTimeout(function () {
+        snackbar.className = snackbar.className.replace("show", "");
+      }, 3000);
+    } catch (e) {
+      console.warn('snackbar error: ', e);
+    }
+  },
+  showUserMutedNotification(data) {
+    try {
+      let title = document.getElementById(data.socketId + "-title").childNodes[1]
+      let glowed = document.getElementById(data.socketId + "-talker");
+      if(data.videoMuted || data.audioMuted) {
+        glowed.style.color = "red";
+      }
+     if(data.videoMuted && data.audioMuted) {
+        title.style.display = "inline";
+          title.innerText = " Audio and Video MUTED"
+      }
+      else if(data.videoMuted){
+        title.style.display = "inline";
+        title.innerText = " Video MUTED"
+      }
+      else if(data.audioMuted){
+       title.style.display = "inline";
+        title.innerText = " Audio MUTED"
+
+      }
+      else {
+        let glowed = document.getElementById(data.socketId + "-talker");
+        glowed.style.color = "white";
+        title.style.display = "none";
+      }
+    } catch (e) {
+      console.warn('mutedNotification error:', e);
+    }
   },
   showWarning(msg, color) {
-    var wSign = document.getElementById("warning-sign");
-    console.log("silence please!")
-    wSign.innerHTML = msg;
-    wSign.hidden = false;
-    wSign.style.backgroundColor = color;
-
+    try {
+      var wSign = document.getElementById("warning-sign");
+      console.log("silence please!")
+      wSign.innerHTML = msg;
+      wSign.hidden = false;
+      wSign.style.backgroundColor = color;
+    } catch (e) {
+      console.warn('warning error: ', e);
+    }
   },
   hideWarning() {
-    var wSign = document.getElementById("warning-sign");
-    wSign.hidden = true
+    try {
+      var wSign = document.getElementById("warning-sign");
+      wSign.hidden = true
+    } catch (e) {
+      console.warn('warning error: ', e);
+    }
   },
   addButton(id, className, iconName) {
-    let button = document.createElement("button");
-    button.id = id;
-    button.className = className;
-    let icon = document.createElement("i");
-    icon.className = iconName;
-    button.appendChild(icon);
-    return button;
+    try {
+      let button = document.createElement("button");
+      button.id = id;
+      button.className = className;
+      let icon = document.createElement("i");
+      icon.className = iconName;
+      button.appendChild(icon);
+      return button;
+    } catch (e) {
+      console.warn('error adding Button: ',e);
+    }
+
   },
   swapPiP(id) {
     if (!id) return;
-    const pipVid = document.getElementById("pip");
-    if (pipVid && pipVid.currentId !== id) {
-      const speakingVid = document.getElementById(id);
-      if(!speakingVid) return;
-      pipVid.currentId = id;
-      pipVid.srcObject = speakingVid.srcObject;
-      if (pipVid.paused) {
-        var playPromise = pipVid.play();
-        if (playPromise !== undefined) {
-          playPromise.then(_ => {
-          })
-            .catch(error => {
-            });
+    try {
+      const pipVid = document.getElementById("pip");
+      if (!pipVid.srcObject) return;
+      if (pipVid && pipVid.currentId !== id) {
+        const speakingVid = document.getElementById(id);
+        if (!speakingVid) return;
+        pipVid.currentId = id;
+        if(canReplaceTracks) {
+          pipVid.srcObject.replaceVideoTrack(speakingVid.srcObject.getVideoTracks()[0])
+          pipVid.srcObject.replaceAudioTrack(speakingVid.srcObject.getAudioTracks()[0])
+        } else {
+          pipVid.srcObject = speakingVid.srcObject;
+        }
+        if (pipVid.paused) {
+          var playPromise = pipVid.play();
+          if (playPromise !== undefined) {
+            playPromise.then(_ => {
+            })
+              .catch(error => {
+              });
+          }
         }
       }
+    } catch (e) {
+      console.warn('error swapPiP: ', e);
     }
   },
   swapDiv(id) {
-    if (!id) return;
-    // console.log('Focusing grid widget with id '+id);
     try {
-      var container = document.getElementById("grid"),
-        fresh = document.getElementById(id),
-        first = container.firstElementChild;
-      // Move speaker to first position
-      first.getElementsByTagName("video")[0].volume = 0.75;
-      fresh.getElementsByTagName("video")[0].volume = 1.0;
-      if (container && fresh && first) container.insertBefore(fresh, first);
+      if (!id) return;
+      // console.log('Focusing grid widget with id '+id);
+      try {
+        var container = document.getElementById("grid"),
+          fresh = document.getElementById(id),
+          first = container.firstElementChild;
+        // Move speaker to first position
+        first.getElementsByTagName("video")[0].volume = 0.75;
+        fresh.getElementsByTagName("video")[0].volume = 1.0;
+        if (container && fresh && first) container.insertBefore(fresh, first);
+      } catch (e) {
+        console.log(e);
+      }
     } catch (e) {
-      console.log(e);
+      console.warn('error swapDiv: ',e);
     }
   },
   swapGlow(id) {

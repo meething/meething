@@ -33,6 +33,7 @@
 
   <script type="module" src="./assets/js/emitter.js"></script>
   <script type="module" src="./assets/js/main.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
   <script src="https://chancejs.com/chance.min.js"></script>
@@ -82,6 +83,7 @@
         </div>
 
       </div>
+      <button id="toggle-ok-option" class="btn float-right" style="display:none; background:#673ab7; color:white"> OK </button>
       <div id="selfview" class="selfview">
         <video id="local" autoplay="" muted="" playsinline="" style="pointer-events:none;"></video>
         <div id="controlsAudio">
@@ -98,9 +100,9 @@
         </div>
       </div>
       <div id="inputs" class="floating-3 inputs">
-        <button id="randomGo" class="btn btn-lg btn-primary margined" title="Jump right in">GO</button>
-        <button id="avatar" class="btn btn-lg btn-dark fas fa-user-secret margined" title="Avatar Mode"></button>
-        <button id="clear" class="btn btn-lg btn-warning fas fa-undo-alt margined" title="Reset"></button>
+        <button id="randomGo" class="btn btn-lg margined" style="background:#673ab7; color:white; box-shadow:1px 1px 3px black; font-weight:bold" title="Jump right in">GO</button>
+        <button id="avatar" class="btn btn-lg btn-dark fas fa-user-secret margined" style="box-shadow:1px 1px 3px black" title="Avatar Mode"></button>
+        <button id="clear" class="btn btn-lg fas fa-undo-alt margined" style="background:grey; text-shadow:1px 1px 3px black; color:white; box-shadow:1px 1px 3px black" title="Reset"></button>
         <div class="padded"> Name <span style="font-size:smaller;">(Optional)</span></div>
         <input id="username" placeholder="To Be Or NOT To Be">
         <div class="padded"> Room Name <span style="font-size:smaller;">(Optional)</span> </div>
@@ -129,7 +131,7 @@
         <span class="slider round"></span>
       </label> Active Speaker Movement <br><br>
       <label class="switch" title="Only allow Meshing via webRTC aka. P2P connections">
-        <input id="bacon" type="checkbox">
+        <input id="mesh-toggle" type="checkbox">
         <span class="slider round"></span>
       </label> P2P Mesh Only <br><br>
     </div>
@@ -202,7 +204,7 @@
 
     <button class="btn btn-md rounded-0 btn-no-effect fa fa-save text-white" id="record-toggle"
       title="Toggle Recording">
-      <span>Record Audio</span>
+      <span>Record</span>
     </button>
 
     <button class="btn btn-md rounded-0 btn-no-effect text-white fa fa-cog" id="toggle-modal" title="Room Settings">
@@ -218,7 +220,7 @@
       </button>
 
       <button class="btn btn-lg btn-no-effect fa fa-volume-up text-white blue" id="toggle-mute"
-        style="pointer-events:auto" title="Mute/Unmute Audio">
+        style="pointer-events:auto" title="press SPACEBAR to Mute/Unmute">
       </button>
 
       <button class="btn btn-lg btn-no-effect fab fa-pied-piper-pp text-white blue" id="pip-toggle" title="PiP mode"
