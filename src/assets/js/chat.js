@@ -195,6 +195,9 @@ export default class Chat {
         case "graphU":
           med.ee.emit("graph:update", data)
           return true;
+        case "background":
+          med.ee.emit("background:update", data)
+          return true;
         default:
           return false;
       }

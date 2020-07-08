@@ -79,6 +79,7 @@ MediaDevices.prototype.getUserMedia = async function () {
     newStream.addTrack(stream.getAudioTracks()[0]);
     newStream.addTrack(canvas.captureStream(24).getVideoTracks()[0]);
 
+    window.ee.on("background:update", () => changeBackground())
     updateCanvas()
 
     return newStream;
@@ -115,5 +116,15 @@ async function updateCanvas() {
             });
             updateCanvas();
         });
+    });
+}
+
+function changeBackground(url) {
+    if (url == undefined) {
+        url = "https://source.unsplash.com/random"
+    }
+    worker.postMessage({
+        event: "background",
+        url: url
     });
 }
