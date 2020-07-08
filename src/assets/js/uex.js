@@ -150,6 +150,8 @@ export default class UEX {
 
     med.ee.on('media:Got DeviceList', async function() {
       med.videoDevices['Muted Video'] = {deviceId:false, label:'Mute Video'};
+      med.videoDevices['VR Video'] = {deviceId:"vr-video", label:'VR Video'};
+
       var propsV = Object.keys(med.videoDevices);
       for(let i=0; i < propsV.length; i++) {
         console.log(med.videoDevices[propsV[i]].deviceId + "::" + med.videoDevices[propsV[i]].label);
