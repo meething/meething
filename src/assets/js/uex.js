@@ -154,6 +154,7 @@ export default class UEX {
       med.videoDevices['Avatar Girl'] = {deviceId:"avatar-girl", label:'Girl'};
       med.videoDevices['Avatar Blathers'] = {deviceId:"avatar-blathers", label:'Blathers'};
       med.videoDevices['Avatar Tom Nook'] = {deviceId:"avatar-tom-nook", label:'Tom Nook'};
+      med.videoDevices['VR Video'] = {deviceId:"vr-video", label:'VR Video'};
 
       var propsV = Object.keys(med.videoDevices);
       for(let i=0; i < propsV.length; i++) {
