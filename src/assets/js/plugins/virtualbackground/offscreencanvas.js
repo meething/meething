@@ -7,6 +7,9 @@ onmessage = async function (evt) {
         this.imageData = new ImageData(canvas.width, canvas.height);
         await getImage('/assets/images/background.png');
     }
+    else if(evt.data.event == "background") {
+        await getImage(evt.data.url);
+    }
     else {
         this.segmentation = evt.data.segmentation
         this.img_width = evt.data.img_width
