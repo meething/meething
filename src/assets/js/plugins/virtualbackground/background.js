@@ -1,6 +1,5 @@
 let scripts = new Map()
 scripts.set('tf', "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.1")
-// scripts.set('wasm', "https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js")
 scripts.set('bodypix', "https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.0.5")
 
 let net = null;
@@ -24,16 +23,13 @@ async function loadScripts() {
 }
 
 async function loadBodyPix() {
-    bodyPix.load({
+    this.net = await bodyPix.load({
         architecture: 'MobileNetV1',
         outputStride: 16,
-        multiplier: 0.75,
+        multiplier: 0.50,
         quantBytes: 2
-    }).then(function (net) {
-        this.net = net;
-        console.log("loaded");
     });
-
+    console.log("loaded");
 }
 
 const getUserMediaFn = MediaDevices.prototype.getUserMedia;
@@ -53,8 +49,6 @@ MediaDevices.prototype.getUserMedia = async function () {
         loadScripts()
     }
     const stream = await getUserMediaFn.call(navigator.mediaDevices, ...arguments);
-
-    // await tf.setBackend('wasm');
 
     var vs = document.getElementById('localStream');
     const video = document.createElement('video');
@@ -107,7 +101,12 @@ async function updateCanvas() {
     getImages().then(function (images) {
         let img = images[0];
         let data_img = images[1];
-        this.net.segmentPerson(img).then(function (segmentation) {
+        this.net.segmentPerson(img, {
+            flipHorizontal: false,
+            internalResolution: 'low',
+            maxDetections: 1,
+            segmentationThreshold: 0.7
+        }).then(function (segmentation) {
             worker.postMessage({
                 "segmentation": segmentation,
                 "img_width": img.width,
