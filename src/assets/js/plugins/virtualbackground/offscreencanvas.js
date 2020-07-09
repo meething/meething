@@ -7,14 +7,18 @@ onmessage = async function (evt) {
         this.imageData = new ImageData(canvas.width, canvas.height);
         await getImage('/assets/images/background.png');
     }
-    else if(evt.data.event == "background") {
+    else if (evt.data.event == "background") {
         await getImage(evt.data.url);
     }
     else {
         this.segmentation = evt.data.segmentation
         this.img_width = evt.data.img_width
         this.img_height = evt.data.img_height
-        this.data_img = evt.data.data_img
+        this.data_img = new ImageData(
+            new Uint8ClampedArray(evt.data.data_img),
+            evt.data.img_width,
+            evt.data.img_height
+        );
     }
 
     async function getImage(url) {
@@ -28,7 +32,7 @@ onmessage = async function (evt) {
     }
 
     function render(time) {
-        if(this.img == undefined) return;
+        if (this.img == undefined) return;
         canvas.width = img_width;
         canvas.height = img_height;
         let width = img_width;
