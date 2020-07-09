@@ -32,7 +32,7 @@ async function loadBodyPix() {
     console.log("loaded");
 }
 
-const getUserMediaFn = MediaDevices.prototype.getUserMedia;
+const getUserMediaBackground = MediaDevices.prototype.getUserMedia;
 
 MediaDevices.prototype.getUserMedia = async function () {
     if (worker !== undefined) {
@@ -41,25 +41,29 @@ MediaDevices.prototype.getUserMedia = async function () {
     }
 
     if (arguments[0].video.deviceId == undefined || arguments[0].video.deviceId.ideal !== "vr-video") {
-        return await getUserMediaFn.call(navigator.mediaDevices, ...arguments);
+        return await getUserMediaBackground.call(navigator.mediaDevices, ...arguments);
     }
+
+    var vs = document.getElementById('local');
+    vs.poster = "https://media.giphy.com/media/wqzktGaaBDEF9TpCyK/giphy.gif"
 
     arguments[0].video.width = { max: 640 };
     if (window.bodyPix == undefined) {
         loadScripts()
     }
-    const stream = await getUserMediaFn.call(navigator.mediaDevices, ...arguments);
+    const stream = await getUserMediaBackground.call(navigator.mediaDevices, ...arguments);
 
     var vs = document.getElementById('localStream');
     const video = document.createElement('video');
-    video.id = "local_video";
+    video.id = "vr_video";
     video.autoplay = true;
     video.muted = true;
     video.hidden = true;
-    video.width = video.videoWidth;
-    video.height = video.videoHeight;
     video.srcObject = stream;
     await video.play();
+
+    video.width = video.videoWidth;
+    video.height = video.videoHeight;
 
     vs.appendChild(video);
 
@@ -86,9 +90,7 @@ MediaDevices.prototype.getUserMedia = async function () {
 }
 
 async function getImages() {
-    const img = await document.getElementById('local_video');
-    img.width = img.videoWidth;
-    img.height = img.videoHeight;
+    const img = await document.getElementById('vr_video');
     const cv_img = document.createElement('canvas');
     cv_img.width = img.width;
     cv_img.height = img.height;
@@ -109,11 +111,11 @@ async function updateCanvas() {
             segmentationThreshold: 0.7
         }).then(function (segmentation) {
             worker.postMessage({
-                "segmentation": segmentation,
-                "img_width": img.width,
-                "img_height": img.height,
-                "data_img": data_img
-            });
+                data_img: data_img.data.buffer,
+                segmentation: segmentation,
+                img_width: img.width,
+                img_height: img.height
+            }, [data_img.data.buffer]);
             updateCanvas();
         });
     });
