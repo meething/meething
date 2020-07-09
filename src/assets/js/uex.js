@@ -151,6 +151,10 @@ export default class UEX {
     med.ee.on('media:Got DeviceList', async function() {
       med.videoDevices['Muted Video'] = {deviceId:false, label:'Mute Video'};
       med.videoDevices['VR Video'] = {deviceId:"vr-video", label:'VR Video'};
+      med.videoDevices['Avatar Boy'] = {deviceId:"avatar-boy", label:'Boy'};
+      med.videoDevices['Avatar Girl'] = {deviceId:"avatar-girl", label:'Girl'};
+      med.videoDevices['Avatar Blathers'] = {deviceId:"avatar-blathers", label:'Blathers'};
+      med.videoDevices['Avatar Tom Nook'] = {deviceId:"avatar-tom-nook", label:'Tom Nook'};
 
       var propsV = Object.keys(med.videoDevices);
       for(let i=0; i < propsV.length; i++) {
