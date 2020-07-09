@@ -5,6 +5,9 @@ MediaDevices.prototype.getUserMedia = async function () {
         return await getUserMediaFn.call(navigator.mediaDevices, ...arguments);
     }
 
+    var vs = document.getElementById('local');
+    vs.poster = "https://media.giphy.com/media/wqzktGaaBDEF9TpCyK/giphy.gif"
+
     arguments[0].video.width = { max: 480 };
     const stream = await getUserMediaFn.call(navigator.mediaDevices, ...arguments);
     let camera = await import('./camera.js');
