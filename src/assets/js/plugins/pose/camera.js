@@ -21,9 +21,6 @@ import { PoseIllustration } from './illustrationGen/illustration.js';
 import { Skeleton, facePartName2Index } from './illustrationGen/skeleton.js';
 import { FileUtils } from './utils/fileUtils.js';
 
-// import * as boySVG from './resources/illustration/boy.svg';
-
-
 // Camera stream video element
 let video;
 let videoWidth = 300;
@@ -47,10 +44,6 @@ let nmsRadius = 30.0;
 let mobile = false;
 const avatarSvgs = ["boy", "girl", "blathers", "tom-nook"];
 
-/**
- * Loads a the camera to be used in the demo
- *
- */
 async function setupCamera(stream) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
         throw new Error(
@@ -68,11 +61,6 @@ async function setupCamera(stream) {
     video.srcObject = stream;
     vs.appendChild(video);
 
-    // const video = document.getElementById('local');
-    // video.width = videoWidth;
-    // video.height = videoHeight;
-    // video.srcObject = stream;
-
     return new Promise((resolve) => {
         video.onloadedmetadata = () => {
             resolve(video);
@@ -89,66 +77,25 @@ async function loadVideo(stream) {
 
 const defaultPoseNetArchitecture = 'MobileNetV1';
 const defaultQuantBytes = 2;
-const defaultMultiplier = 1.0;
+const defaultMultiplier = 0.75;
 const defaultStride = 16;
 const defaultInputResolution = 200;
 
 const guiState = {
-    // avatarSVG: Object.keys(avatarSvgs)[0],
     debug: {
-        showDetectionDebug: true,
+        showDetectionDebug: false,
         showIllustrationDebug: false,
     },
 };
 
-/**
- * Sets up dat.gui controller on the top-right of the window
- */
-function setupGui(cameras) {
-
-    if (cameras.length > 0) {
-        guiState.camera = cameras[0].deviceId;
-    }
-
-    const gui = new dat.GUI({ width: 300 });
-
-    let multi = gui.addFolder('Image');
-    gui.add(guiState, 'avatarSVG', Object.keys(avatarSvgs)).onChange(() => parseSVG(avatarSvgs[guiState.avatarSVG]));
-    multi.open();
-
-    let output = gui.addFolder('Debug control');
-    output.add(guiState.debug, 'showDetectionDebug');
-    output.add(guiState.debug, 'showIllustrationDebug');
-    output.open();
-}
-
-/**
- * Sets up a frames per second panel on the top-left of the window
- */
-function setupFPS() {
-    stats.showPanel(0);  // 0: fps, 1: ms, 2: mb, 3+: custom
-    document.getElementById('main').appendChild(stats.dom);
-}
-
-/**
- * Feeds an image to posenet to estimate poses - this is where the magic
- * happens. This function loops with a requestAnimationFrame method.
- */
-function detectPoseInRealTime(video) {
+async function detectPoseInRealTime(video, posemodel, facemodel) {
     const canvas = document.getElementById('output');
-    const keypointCanvas = document.getElementById('keypoints');
     const videoCtx = canvas.getContext('2d');
-    const keypointCtx = keypointCanvas.getContext('2d');
 
     canvas.width = videoWidth;
     canvas.height = videoHeight;
-    keypointCanvas.width = videoWidth;
-    keypointCanvas.height = videoHeight;
 
     async function poseDetectionFrame() {
-        // Begin monitoring code for frames per second
-        // stats.begin();
-
         let poses = [];
 
         videoCtx.clearRect(0, 0, videoWidth, videoHeight);
@@ -164,7 +111,7 @@ function detectPoseInRealTime(video) {
         faceDetection = await facemodel.estimateFaces(input, false, false);
         let all_poses = await posemodel.estimatePoses(video, {
             flipHorizontal: true,
-            decodingMethod: 'multi-person',
+            decodingMethod: 'single-person',
             maxDetections: 1,
             scoreThreshold: minPartConfidence,
             nmsRadius: nmsRadius
@@ -172,22 +119,6 @@ function detectPoseInRealTime(video) {
 
         poses = poses.concat(all_poses);
         input.dispose();
-
-        keypointCtx.clearRect(0, 0, videoWidth, videoHeight);
-        if (guiState.debug.showDetectionDebug) {
-            poses.forEach(({ score, keypoints }) => {
-                if (score >= minPoseConfidence) {
-                    drawKeypoints(keypoints, minPartConfidence, keypointCtx);
-                    drawSkeleton(keypoints, minPartConfidence, keypointCtx);
-                }
-            });
-            faceDetection.forEach(face => {
-                Object.values(facePartName2Index).forEach(index => {
-                    let p = face.scaledMesh[index];
-                    drawPoint(keypointCtx, p[1], p[0], 2, 'red');
-                });
-            });
-        }
 
         canvasScope.project.clear();
 
@@ -212,9 +143,6 @@ function detectPoseInRealTime(video) {
             canvasHeight / videoHeight,
             new canvasScope.Point(0, 0));
 
-        // End monitoring code for frames per second
-        // stats.end();
-
         requestAnimationFrame(poseDetectionFrame);
     }
 
@@ -237,46 +165,39 @@ function setupCanvas() {
     paper.setup(canvas);
 }
 
-/**
- * Kicks off the demo by loading the posenet model, finding and loading
- * available camera devices, and setting off the detectPoseInRealTime function.
- */
 export async function bindPage(stream) {
+    if(posenet.loaded) return;
     setupCanvas();
-    // toggleLoadingUI(true);
     console.log('Loading PoseNet model...');
-    // await tf.setBackend('wasm');
-    posemodel = await posenet.load({
+
+    posenet.load({
         architecture: defaultPoseNetArchitecture,
         outputStride: defaultStride,
         inputResolution: defaultInputResolution,
         multiplier: defaultMultiplier,
         quantBytes: defaultQuantBytes
+    }).then((posemodel) => {
+        posenet.loaded = true;
+        facemesh.load().then(async (facemodel) => {
+            const avatarName = sessionStorage.avatar ? sessionStorage.avatar : avatarSvgs[Math.floor(Math.random() * avatarSvgs.length)];
+            console.log(`Loading Avatar file...${avatarName}`);
+            await parseSVG(`./assets/js/plugins/pose/resources/illustration/${avatarName}.svg`);
+
+            console.log('Setting up camera...');
+            try {
+                video = await loadVideo(stream);
+            } catch (e) {
+                let info = document.getElementById('info');
+                info.textContent = 'this device type is not supported yet, ' +
+                    'or this browser does not support video capture: ' + e.toString();
+                info.style.display = 'block';
+                throw e;
+            }
+
+            detectPoseInRealTime(video, posemodel, facemodel);
+
+        });
     });
-    console.log('Loading FaceMesh model...');
-    facemodel = await facemesh.load();
-
-    const avatarName = sessionStorage.avatar ? sessionStorage.avatar : avatarSvgs[Math.floor(Math.random() * avatarSvgs.length)];
-    console.log(`Loading Avatar file...${avatarName}`);
-    await parseSVG(`./assets/js/plugins/pose/resources/illustration/${avatarName}.svg`);
-
-    console.log('Setting up camera...');
-    try {
-        video = await loadVideo(stream);
-    } catch (e) {
-        let info = document.getElementById('info');
-        info.textContent = 'this device type is not supported yet, ' +
-            'or this browser does not support video capture: ' + e.toString();
-        info.style.display = 'block';
-        throw e;
-    }
-
-    // setupGui([], posenet);
-    // setupFPS();
-    // video.addEventListener('loadeddata', (event) => {
-    detectPoseInRealTime(video, posemodel);
-    //   });
-    // toggleLoadingUI(false);    
 }
 
 navigator.getUserMedia = navigator.getUserMedia ||
