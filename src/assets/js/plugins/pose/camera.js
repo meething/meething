@@ -111,7 +111,7 @@ async function detectPoseInRealTime(video, posemodel, facemodel) {
         faceDetection = await facemodel.estimateFaces(input, false, false);
         let all_poses = await posemodel.estimatePoses(video, {
             flipHorizontal: true,
-            decodingMethod: 'multi-person',
+            decodingMethod: 'single-person',
             maxDetections: 1,
             scoreThreshold: minPartConfidence,
             nmsRadius: nmsRadius
@@ -165,8 +165,11 @@ function setupCanvas() {
     paper.setup(canvas);
 }
 
-export async function bindPage(stream) {
-    if(posenet.loaded) return;
+export async function bindPage(stream, avatarName) {
+    if(posenet.loaded) {
+        await parseSVG(`./assets/js/plugins/pose/resources/illustration/${avatarName}.svg`);
+        return;
+    }
     setupCanvas();
     console.log('Loading PoseNet model...');
 
@@ -179,7 +182,7 @@ export async function bindPage(stream) {
     }).then((posemodel) => {
         posenet.loaded = true;
         facemesh.load().then(async (facemodel) => {
-            const avatarName = sessionStorage.avatar ? sessionStorage.avatar : avatarSvgs[Math.floor(Math.random() * avatarSvgs.length)];
+            // const avatarName = sessionStorage.avatar ? sessionStorage.avatar : avatarSvgs[Math.floor(Math.random() * avatarSvgs.length)];
             console.log(`Loading Avatar file...${avatarName}`);
             await parseSVG(`./assets/js/plugins/pose/resources/illustration/${avatarName}.svg`);
 
