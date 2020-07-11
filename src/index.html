@@ -24,8 +24,21 @@
 
   <script src="./assets/js/encoding-indexes.js" type="text/javascript"></script><!-- NEEDED FOR EDGE WITH GUN/SEA -->
   <script src="./assets/js/encoding.js" type="text/javascript"></script>
+
   <script
     src="https://polyfill.io/v3/polyfill.min.js?features=blissfuljs%2Cdefault%2Ces2015%2Ces2016%2Ces2017%2Ces2018%2Ces2019%2Ces5%2Ces6%2Ces7"></script>
+
+  <script src="./assets/js/plugins/virtualbackground/background.js" type="text/javascript"></script>
+  <!-- Posenet should be dynamic due to plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-wasm/dist/tf-backend-wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+  <script src="https://cdn.jsdelivr.net/npm/paper@0.12.7/dist/paper-full.min.js"></script>
+  <script src="./assets/js/plugins/pose/posemedia.js"></script>
+  <!-- Posenet -->
+  
   <script src="./assets/js/util/anchorme.min.js" type="text/javascript"></script>
   <script src="./assets/js/observer.js" type="text/javascript"></script>
   <script src="./assets/js/tingle.js" type="text/javascript"></script>
@@ -33,6 +46,7 @@
 
   <script type="module" src="./assets/js/emitter.js"></script>
   <script type="module" src="./assets/js/main.js"></script>
+
   <script src="https://cdn.jsdelivr.net/gh/meething/StreamSwitcher@latest/js/ReplaceableMediaStream.js"></script>
   <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
@@ -41,6 +55,7 @@
   <script src="https://cdn.jsdelivr.net/npm/gun@0.2020.514/sea.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/nts.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gun/lib/promise.js"></script>
+
 </head>
 
 <body>
@@ -141,11 +156,14 @@
   <div class="container-fluid room-comm" hidden>
     <div class="row">
       <div id="localStream">
+        <canvas id="canvas"></canvas>
         <video id="pip" class="local-video clipped" playsinline autoplay muted hidden="true">
           <source src="./assets/video/muted.webm" type="video/webm">
           <source src="./assets/video/muted.mp4" type="video/mp4">
           <source src="./assets/video/muted.ogg" type="video/ogv">
         </video>
+        <canvas id="output" class="camera-canvas" style="transform: scale(0.01);"></canvas>
+        <canvas id="illustration-canvas" style="transform: scale(0.01);"></cavnas>
       </div>
       <div id="localshadow"></div>
     </div>
