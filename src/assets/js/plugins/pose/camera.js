@@ -42,7 +42,7 @@ let nmsRadius = 30.0;
 
 // Misc
 let mobile = false;
-const avatarSvgs = ["boy", "girl", "blathers", "tom-nook"];
+const avatarSvgs = ["boy", "girl", "blathers", "tom-nook", "lego"];
 
 async function setupCamera(stream) {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
