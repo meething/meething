@@ -81,7 +81,7 @@ function Mediator() {
         document.getElementById('exit-menu').style.display = "block";
         document.getElementById('menu').style.display = "none";
         return;
-    }
+    } else { document.getElementById('exit-menu').style.display = "none"; }
     // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
     // 2. Set options from the start and set them to sessionStorage
     this.mode = this.h.getQString(location.href, "mode") || "";
