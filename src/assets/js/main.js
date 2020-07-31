@@ -74,6 +74,14 @@ function Mediator() {
   */
 
   this.welcomeMat = async function () {
+    // 0. Find if this is an exited session
+    this.exit = this.h.getQString(location.href, "exit") || false;
+     // handle the embeded case with a embedded option screen
+    if(this.exit) {
+        document.getElementById('exit-menu').style.display = "block";
+        document.getElementById('menu').style.display = "none";
+        return;
+    }
     // 1. Find out who is coming in so we can present options accordingly (handle in this.h)
     // 2. Set options from the start and set them to sessionStorage
     this.mode = this.h.getQString(location.href, "mode") || "";
