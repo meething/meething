@@ -165,7 +165,7 @@ body {
 }
 
 .clipped {
-  clip-path: circle(30%);
+  /* clip-path: circle(30%); */
 }
 
 /* remote video */
@@ -465,10 +465,6 @@ meter {
 }
 
 /* Options */
-
-#local {
-top:55px;
-}
 
 .menu {
   position: relative;
