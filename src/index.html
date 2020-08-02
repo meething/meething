@@ -85,9 +85,22 @@
       <button id="toggle-main-menu" class="btn btn-md fas fa-ellipsis-v rounded-0 btn-no-effect text-white"></button>
     </div>
   </nav>
+  
+  <!-- Exit Menu -->
+  <div id="exit-menu" class="menu" style="display: none;">
+     <div class="floating-2 selfview-containter">
+      <div id="title-exit" class="floating-3">
+        <div id="welcometext">
+           <span class="fa fa-cat fa-3x"></span><br>
+          <span style="font-size:larger;font-weight:bolder;">Thank You for using Meething!</span><br>
+          <span style="font-size: 20px;"><a href="javascript:history.back()">Join Again?</a></span>
+        </div>
+       </div>
+    </div>
+  </div>
+  
+  <!-- Login Menu -->
   <div id="menu" class="menu">
-
-
     <div class="floating-2 selfview-containter">
       <div id="title" class="floating-3">
 
@@ -245,7 +258,7 @@
         style="pointer-events:auto"></button>
 
       <button class="btn btn-lg btn-no-effect text-white fas fa-phone red" title="Leave Room"
-        style="pointer-events:auto" onclick="window.location.href='/'">
+        style="pointer-events:auto" onclick="window.location.href='/?exit=true'">
         </a>
       </button>
 
