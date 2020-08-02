@@ -155,17 +155,17 @@ body {
 /* local video */
 
 .local-video {
-  left: -30px;
-  bottom: 10%;
+  left: -2px;
+  top: 26px;
   position: absolute;
-  height: 100px;
-  width: 150px;
+  height: 150px;
   z-index: 1000;
   transition: 0.5s all;
+  border-radius: 4px;
 }
 
 .clipped {
-  clip-path: circle(30%);
+  /* clip-path: circle(30%); */
 }
 
 /* remote video */
@@ -465,10 +465,6 @@ meter {
 }
 
 /* Options */
-
-#local {
-top:55px;
-}
 
 .menu {
   position: relative;
@@ -804,16 +800,6 @@ li {
     top: 47px;
   }
 
-  .local-video {
-    bottom: 35px;
-    right: 30px;
-    position: fixed;
-    height: 150px;
-    width: 200px;
-    z-index: 1000;
-  }
-
-
   #chat-send {
     bottom: 20%;
   }
@@ -873,7 +859,7 @@ li {
 
 @media only screen and (min-width: 768px) {
   .local-video {
-    top: 35px;
+    top: 25px;
   }
 }
 
@@ -957,6 +943,6 @@ li {
 
 @media only screen and (min-width: 300px) {
   .local-video {
-    top: 35px;
+    top: 46px;
   }
 }
