@@ -174,7 +174,7 @@ body {
   position: relative;
   object-fit: cover !important;
   height: 100%;
-  max-height:80vh;
+  max-height: 80vh;
   width: 100%;
   background: #14101bbb;
 }
@@ -210,26 +210,24 @@ body {
   opacity: 1;
 }
 
-.top-widget-toolbox{
+.top-widget-toolbox {
   display: grid;
   position: absolute;
   bottom: 0;
   align-items: center;
   margin-left: 10px;
-  transition:.5s;
-
+  transition: 0.5s;
 }
 
 .top-widget-toolbox #close-video-button,
-.top-widget-toolbox #full-screen-button{
-background:black;
-cursor:pointer;
-pointer-events:auto;
-
+.top-widget-toolbox #full-screen-button {
+  background: black;
+  cursor: pointer;
+  pointer-events: auto;
 }
 .top-widget-toolbox #close-video-button:hover,
 .top-widget-toolbox #full-screen-button:hover {
-  opacity:1;
+  opacity: 1;
 }
 
 .widget-button {
@@ -249,7 +247,7 @@ pointer-events:auto;
   background: #3f069c;
   text-shadow: 1px 1px 2px black;
   border-radius: 0px 6px 6px 0px;
-  pointer-events:none;
+  pointer-events: none;
 }
 
 .widget-button:hover {
@@ -313,7 +311,7 @@ meter {
 /* CSS Grid */
 
 .grid-container {
-  display:block;
+  display: block;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   padding: 0px;
@@ -334,7 +332,6 @@ meter {
 }
 
 @keyframes dots {
-
   0%,
   20% {
     color: rgba(0, 0, 0, 0);
@@ -362,9 +359,9 @@ meter {
 
 .waiting {
   margin-top: 40px;
-  position:absolute;
-  left:-50%;
-  right:-50%;
+  position: absolute;
+  left: -50%;
+  right: -50%;
 }
 
 .grid-bottom {
@@ -377,9 +374,9 @@ meter {
   position: absolute;
   pointer-events: none;
   bottom: 0px;
-  left:-50%;
-  right:-50%;
-  width:fit-content;
+  left: -50%;
+  right: -50%;
+  width: fit-content;
   z-index: 10000;
   font-size: 24px;
 }
@@ -419,15 +416,14 @@ meter {
 }
 
 #top-menu button {
-
   width: 100%;
   display: flex;
   background: none;
-  border-bottom:2px solid #14101bbb;
-  padding-right:20px;
-  padding-top:20px;
+  border-bottom: 2px solid #14101bbb;
+  padding-right: 20px;
+  padding-top: 20px;
   padding-bottom: 20px;
-  transition:.5s all;
+  transition: 0.5s all;
 }
 
 #top-menu button:hover {
@@ -448,31 +444,30 @@ meter {
 }
 
 /* warning sign - video muted */
-#warning-sign{
-  position:absolute;
-  right:10px;
-  top:60px;
-  background:#de0046;
-  color:white;
-  padding:5px 10px;
-  font-size:14px;
-  font-weight:bold;
-  border-radius:6px;
-  transition:.5s all;
-  box-shadow:3px 3px 8px black;
-  text-shadow:1px 1px 2px black;
-
+#warning-sign {
+  position: absolute;
+  right: 10px;
+  top: 60px;
+  background: #de0046;
+  color: white;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 6px;
+  transition: 0.5s all;
+  box-shadow: 3px 3px 8px black;
+  text-shadow: 1px 1px 2px black;
 }
 
 /* Options */
 
 #local {
-top:55px;
+  top: 55px;
 }
 
 .menu {
   position: relative;
-  top:60px;
+  top: 60px;
   width: 320px;
   margin: auto;
 }
@@ -485,12 +480,39 @@ top:55px;
 #welcometext {
   position: relative;
   text-align: center;
+  border-radius: 3px;
+}
+#welcometext .cat {
+  padding: 20px;
+}
+#welcometext .text {
+  font-size: 20px;
+}
+#welcometext .joinagain {
+  cursor: pointer;
+  padding: 15px;
+  font-size: 18px;
+  border-radius: 3px;
+  margin: 25px;
+  background: #673ab7;
+  color: white;
+  transition: 0.5s all;
+  opacity: 0.75;
+  box-shadow: 2px 2px 6px black;
+}
+#welcometext .joinagain a {
+  margin-top: 10px;
+  color: white;
+}
+
+#welcometext .joinagain:hover {
+  opacity: 1;
 }
 
 #inputs {
   padding: 10px;
   text-align: center;
-  top:0px;
+  top: 0px;
 }
 
 .inputs {
@@ -508,19 +530,19 @@ top:55px;
 .selfview {
   position: relative;
   top: 0px;
-width:100%;
-display:grid;
-justify-items: center;
+  width: 100%;
+  display: grid;
+  justify-items: center;
 }
 .selfview > video {
-  width:100%;
+  width: 100%;
 }
 
 #controlsAudio {
   position: absolute;
   top: 5px;
   left: 0px;
-  width:100%;
+  width: 100%;
   text-align: center;
   margin: auto;
   color: white;
@@ -535,15 +557,13 @@ justify-items: center;
 
 #prevAudio {
   position: absolute;
-  left:0px;
+  left: 0px;
 }
 
 #nextAudio {
   position: absolute;
-  right:0px;
+  right: 0px;
 }
-
-
 
 #controlsVideo {
   position: absolute;
@@ -558,14 +578,14 @@ justify-items: center;
 
 #prevCam {
   position: absolute;
-  left:0px;
-  bottom:0px;
+  left: 0px;
+  bottom: 0px;
 }
 
 #nextCam {
   position: absolute;
-  right:0px;
-  bottom:0px;
+  right: 0px;
+  bottom: 0px;
 }
 
 #currentVideoDevice {
@@ -614,10 +634,9 @@ justify-items: center;
   right: 0;
   bottom: 0;
   background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
-
 
 .slider:before {
   position: absolute;
@@ -627,22 +646,22 @@ justify-items: center;
   left: 2px;
   bottom: 2px;
   background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 input:disabled + .slider {
   background-color: red;
-  -webkit-transition: .4s;
-  transition: .4s;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: #2196f3;
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px #2196f3;
 }
 
 input:checked + .slider:before {
@@ -661,7 +680,7 @@ input:checked + .slider:before {
 }
 
 .ligthBg {
-  background-color: rgba(240,240,240,.3);
+  background-color: rgba(240, 240, 240, 0.3);
 }
 
 .floating-1 {
@@ -680,7 +699,7 @@ input:checked + .slider:before {
 }
 
 .floating-1.out {
-  top:0px;
+  top: 0px;
 }
 
 .floating-2 {
@@ -699,7 +718,7 @@ input:checked + .slider:before {
   margin: auto;
   z-index: 14;
   border-radius: 2px;
-  box-shadow: 7px 7px 20px rgba(10,10,10,.4);
+  box-shadow: 7px 7px 20px rgba(10, 10, 10, 0.4);
   background-color: rgba(72, 60, 73, 1);
 }
 
@@ -712,7 +731,7 @@ input:checked + .slider:before {
   right: 75px;
   padding: 10px;
   border-radius: 5px 5px 0px 0px;
-  color:white;
+  color: white;
   z-index: 10000;
   background-color: #673ab7;
 }
@@ -759,7 +778,6 @@ li {
 .yellow {
   background: orange;
 }
-
 
 .lighter {
   background: orange;
@@ -812,7 +830,6 @@ li {
     width: 200px;
     z-index: 1000;
   }
-
 
   #chat-send {
     bottom: 20%;
@@ -870,7 +887,6 @@ li {
   }
 }
 
-
 @media only screen and (min-width: 768px) {
   .local-video {
     top: 35px;
@@ -897,24 +913,23 @@ li {
     box-shadow: 7px 7px 20px black;
   }
 
-#feedback {
-  position: fixed;
-  height: 25px;
-  width: 155px;
-  text-align: center;
-  top: 40px;
-  left: 0px;
-  font-size: 12px;
-  padding: 3px;
-  border-radius: 0px 0px 5px 0px;
-  color: white;
-  z-index: 100;
+  #feedback {
+    position: fixed;
+    height: 25px;
+    width: 155px;
+    text-align: center;
+    top: 40px;
+    left: 0px;
+    font-size: 12px;
+    padding: 3px;
+    border-radius: 0px 0px 5px 0px;
+    color: white;
+    z-index: 100;
   }
 
-
-#chat-send {
-  bottom: 7%;
-}
+  #chat-send {
+    bottom: 7%;
+  }
   .widget-button {
     border-radius: 0px 6px 6px 0px;
   }
