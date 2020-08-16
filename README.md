@@ -26,6 +26,10 @@ Ready to try Meething? Join Now!</a>
 #### Docker
 Try Meething using [docker](https://github.com/meething/meething-docker) containers
 #### Manual
+* Install `pm2`
+```
+sudo npm install pm2 -g
+```
 * Clone the repository and install using `npm`
 ```
 npm install
@@ -33,7 +37,7 @@ npm install
 #### Configuration
 * Copy the example `meething.config.example.js` to `meething.config.js`
 * Customize `meething.config.js` to set the desired port and other environment variables
-* Configure your SSL certificate&key in certs/ by either copying fullchain/privkey.pem.example to fullchain/privkey.pem or use your own certificate & key
+* Configure your SSL certificate &amp; key in `certs/` by either copying `certs/fullchain.pem.example` to `certs/fullchain.pem` and `certs/privkey.pem.example` to `certs/privkey.pem` or using your own certificate &amp; key
 * Run using pm2
 ```
 pm2 start meething.config.js
