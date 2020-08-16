@@ -26,6 +26,10 @@ Ready to try Meething? Join Now!</a>
 #### Docker
 Try Meething using [docker](https://github.com/meething/meething-docker) containers
 #### Manual
+* Install `pm2`
+```
+sudo npm install pm2 -g
+```
 * Clone the repository and install using `npm`
 ```
 npm install
