@@ -105,6 +105,7 @@ export default class Connection {
         med.h.swapGlow(data.socketId + "-talker");;
         med.h.swapPiP(data.socketId + "-video")
         med.h.swapDiv(data.socketId + "-widget");;
+        med.ee.emit('speaking', data);
       }
 
       if (data.readonly) {
