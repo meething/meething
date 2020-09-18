@@ -493,6 +493,10 @@ meter {
   top: 250px;
 }
 
+.wide {
+  width: 110px;
+}
+
 .noBoShadow {
   box-shadow: 7px 0px 8px black;
 }
@@ -582,7 +586,7 @@ justify-items: center;
 
 #options-button {
   position: absolute;
-  right: -50px;
+  right: -54px;
   bottom: 0px;
   box-shadow: 7px 7px 20px black;
 }

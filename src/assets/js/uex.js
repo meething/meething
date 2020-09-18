@@ -88,7 +88,7 @@ export default class UEX {
         var div = document.getElementById('mydiv');
         if (!div.style.display || div.style.display === 'block') div.style.display = 'none';
         else div.style.display = 'block';
-       
+
         med.ee.emit('uex:UserListToggle', e);
     });
 
@@ -136,7 +136,7 @@ export default class UEX {
       if(local) {
         var _stream = med.myStream;
         if(med.DEBUG) console.log(_stream,med.h.typeOf(_stream))
-        if(_stream && med.h.typeOf(_stream) == "mediastream") { 
+        if(_stream && med.h.typeOf(_stream) == "mediastream") {
           local.srcObject =_stream;
           local.play().then().catch((err)=>{console.warn(err);}); //not working in ios
         }
@@ -228,7 +228,7 @@ export default class UEX {
         }
       }
 
-      await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId)
+      //await med.getMediaStream(med.currentVideoDevice.deviceId, med.currentAudioDevice.deviceId)
     });
 
     /* options : navigating through cameras */
@@ -280,13 +280,6 @@ export default class UEX {
       if(document.querySelector('#username')){document.querySelector('#username').setAttribute('value', '')}
       if(document.querySelector('#username')){document.querySelector('#roomname').setAttribute('value', '')}
       if(document.querySelector('#pass')){document.querySelector('#pass').setAttribute('value', '')}
-    });
-
-    // options: avatar button
-
-    document.querySelector('#avatar').addEventListener('click', function (ev) {
-      //remove sessionStorage
-      alert("Coming Soon: Use an Avatar to allow for expressions, but also Anonimity. Only your face coordinates and Audio will stream to others. Caution, it's CPU intensive");
     });
 
     // options: slide out options
