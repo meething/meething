@@ -4,6 +4,7 @@ import Mesh from "./mesh/mesh.js"
 import DamEventEmitter from "./emitter.js";
 import MetaData from "./metadata.js";
 import Presence from "./presence.js";
+import config from './config.js';
 
 // create global scope to avoid .bind(this)
 var med = null;
@@ -18,6 +19,7 @@ export default class Connection {
   }
 
   init() {
+    this.initExtraSFU()
     this.initDamSocket();
     this.initMetaData();
     this.initPresence();
@@ -46,8 +48,16 @@ export default class Connection {
       new Mesh(med).establish();
     } else {
       console.log("Start SFU");
-      this.video = new Video(med).establish();
+      this.video = new Video(med).establish(config.wssFailover);
     }
+  }
+
+  initExtraSFU() {
+    med.ee.on("SFU:DEC", function (url) {
+      console.log("Connect other one");
+      self.external = new Video(med)
+      self.external.establish(url);
+    });
   }
 
   initPresence() {

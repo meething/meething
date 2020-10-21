@@ -342,6 +342,9 @@ export default {
     return this.attachSinkToVideo(video, sink, audio);
   },
   setAudioTrack(video, track) {
+    if(video.srcObject == undefined || video.srcObject == null) {
+      video.srcObject = new MediaStream();
+    }
     video.srcObject.addTrack(track);
     this.addAudio(video.srcObject);
   },

@@ -25,10 +25,12 @@ export class Peer extends EventEmitter {
         // @type {Map<Number, Object>}
         this._sents = new Map();
         this._handleTransport();
+
+        self = this;
+        return this;
     }
 
     _handleTransport() {
-        self = this;
         if (this._transport.closed) {
             this._closed = true;
 

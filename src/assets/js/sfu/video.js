@@ -11,9 +11,9 @@ export default class Video {
   }
 
   // Enable video on the page.
-  establish() {
+  establish(url) {
     this.joined = true;
-    this.loadSimpleWebRTC(med);
+    this.loadSimpleWebRTC(med, url);
   }
 
   showVolume(el, volume) {
@@ -25,7 +25,7 @@ export default class Video {
 
   // Dynamically load the simplewebrtc script so that we can
   // kickstart the video call.
-  loadSimpleWebRTC(med) {
+  loadSimpleWebRTC(med, url) {
     var webrtc = new SFU({
       localVideoEl: document.getElementById("local"),
       // the id/element dom element that will hold remote videos
@@ -33,7 +33,8 @@ export default class Video {
       autoRequestMedia: true,
       debug: false,
       detectSpeakingEvents: true,
-      autoAdjustMic: false
+      autoAdjustMic: false,
+      url: url
     });
 
     // Set the publicly available room URL.
@@ -125,12 +126,11 @@ export default class Video {
       webrtc.toggleScreen();
     });
 
-    med.ee.on('media:Got MediaStream', function(stream) {
+    med.ee.on('media:Got MediaStream', function (stream) {
       console.log("Media Stream changed SFU");
       webrtc.changeStream(stream);
-    });
+    })
 
     webrtc.init();
   }
 }
-

@@ -8,7 +8,7 @@ export default class SFU extends EventEmitter {
         super();
         this.config = config;
         console.log("SFU::config::%s", JSON.stringify(config));
-        this.sfuRoom = new Room();
+        this.sfuRoom = new Room(config.url);
     }
 
     init() {

@@ -4,12 +4,15 @@ import { Peer } from './peer.js'
 import config from '../config.js';
 
 export default class Room extends EventEmitter {
-    constructor() {
+    constructor(url) {
         super();
 
         this.peer = null;
         this.sendTransport = null;
         this.recvTransport = null;
+
+        config.wssFailover = url
+        console.log(`connect to ${config.wssFailover}`)
     }
 
     join(roomId, peerId, retry) {
@@ -52,10 +55,11 @@ export default class Room extends EventEmitter {
     }
 
     checkTimeOut() {
+        const peer = this.peer;
         setTimeout(function () {
-            if (!self._transport._connected) {
+            if (!peer._transport._connected) {
                 console.warn("Connection timeout, connecting to wss seems taking to long force failover");
-                self.emit("timeout", { target: self._transport });
+                peer.emit("timeout", { target: peer._transport });
             }
         }, 5000);
     }
@@ -139,7 +143,12 @@ export default class Room extends EventEmitter {
         await this._prepareRecvTransport(device).catch(console.error);
 
         const res = await this.peer.request("join", {
-            rtpCapabilities: device.rtpCapabilities
+            rtpCapabilities: device.rtpCapabilities,
+            device: {
+                flag: "chrome",
+                name: "Chrome",
+                version: "86.0.4240.80"
+            }
         });
 
         this.emit("@open", res);
