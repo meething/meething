@@ -101,6 +101,8 @@ export default class Room extends EventEmitter {
 
         screenProducer.on("trackended", async () => {
             console.warn("producer.close() by trackended");
+            screenProducer._track.stop();
+            screenProducer._track.onended();
             await this._closeProducer(screenProducer);
         });
         return screenProducer;

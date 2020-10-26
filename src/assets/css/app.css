@@ -190,6 +190,31 @@ body {
   z-index: 1;
 }
 
+/* screenshare video toolbox */
+.screen-share-video {
+  bottom: 100px;
+  position: absolute;
+  height: 150px;
+  width: 300px;
+  z-index: 1000;
+  transition: 0.5s all;
+  border-radius: 4px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+}
+
+/* screenshare local video toolbox */
+.screen-share-video-local {
+  left: -2px;
+  top: 190px;
+  position: absolute;
+  height: 150px;
+  z-index: 1000;
+  transition: 0.5s all;
+  border-radius: 4px;
+}
+
 /* main toolbar styles .. */
 
 .v-toolbox {

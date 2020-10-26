@@ -108,6 +108,17 @@ export default class SFU extends EventEmitter {
         });
         var screenTrack = stream.getVideoTracks()[0];
         this.screenProducer = await this.sfuRoom.sendScreen(screenTrack);
+        var video = document.getElementById("screen-share-local")
+        video.hidden = false;
+        helper.setVideoSrc(video, stream)
+        video.srcObject.getTracks().forEach(track => {
+            track.onended = function (event) {
+                video.pause();
+                video.currentTime = 0;
+                video.srcObject = null;
+                video.hidden = true;
+              };
+          });
     }
 
     //Move this to a helper?
@@ -142,6 +153,7 @@ export default class SFU extends EventEmitter {
         } else if (video.srcObject.getVideoTracks().length > 0 && consumer._track.kind == "video") {
             video = helper.addVideo(`${consumer._id}`);
             video.id = `${consumer._id}-screenshare`
+            video.parentNode.className = "screen-share-video"
             return video;
         } else {
             return video;
@@ -175,7 +187,11 @@ export default class SFU extends EventEmitter {
 
     async toggleScreen() {
         if (!this.screenProducer || this.screenProducer._closed) {
-            await this.startScreenShare();
+            if(document.getElementsByClassName("screen-share-video").length > 0) {
+                helper.showLocalNotification("Screensharing is busy at the moment");
+            } else {
+                await this.startScreenShare();
+            }
         } else {
             this.screenProducer.close();
             this.screenProducer._events.trackended()
