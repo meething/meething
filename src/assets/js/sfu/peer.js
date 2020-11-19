@@ -1,5 +1,7 @@
 import EventEmitter from "../ee.js";
 
+var self = null;
+
 export class Peer extends EventEmitter {
     constructor(transport) {
         super();
@@ -25,10 +27,13 @@ export class Peer extends EventEmitter {
         // @type {Map<Number, Object>}
         this._sents = new Map();
         this._handleTransport();
+
+
+        self = this;
+        return this;
     }
 
     _handleTransport() {
-        self = this;
         if (this._transport.closed) {
             this._closed = true;
 
@@ -77,7 +82,7 @@ export class Peer extends EventEmitter {
             self.emit('failed', event);
         };
 
-        this._transport.onmessage = self._receiveMessage
+        this._transport.onmessage = this._receiveMessage
     }
 
     _receiveMessage(message) {
@@ -126,7 +131,7 @@ export class Peer extends EventEmitter {
         var oldOnMessage = self._transport.onmessage;
         return new Promise((res, rej) => {
             var capa = { "request": true, "id": 133437, "method": method, "data": data }
-            this._transport.onmessage = function (message) {
+            self._transport.onmessage = function (message) {
                 var response = JSON.parse(message.data)
                 if (response.request) {
                     oldOnMessage(message);
@@ -136,7 +141,7 @@ export class Peer extends EventEmitter {
                 }
 
             }
-            this._transport.send(JSON.stringify(capa));
+            self._transport.send(JSON.stringify(capa));
         });
     }
 }

@@ -3,6 +3,8 @@ import EventEmitter from "../ee.js";
 import { Peer } from './peer.js'
 import config from '../config.js';
 
+var self = null;
+
 export default class Room extends EventEmitter {
     constructor() {
         super();
@@ -10,6 +12,9 @@ export default class Room extends EventEmitter {
         this.peer = null;
         this.sendTransport = null;
         this.recvTransport = null;
+
+        self = this;
+        return this;
     }
 
     join(roomId, peerId, retry) {
@@ -53,9 +58,9 @@ export default class Room extends EventEmitter {
 
     checkTimeOut() {
         setTimeout(function () {
-            if (!self._transport._connected) {
+            if (!self.peer._transport._connected) {
                 console.warn("Connection timeout, connecting to wss seems taking to long force failover");
-                self.emit("timeout", { target: self._transport });
+                self.emit("timeout", { target: self.peer });
             }
         }, 5000);
     }
