@@ -2,12 +2,14 @@ import SFU from './sfu.js'
 import helper from '../helpers.js'
 
 var med = null;
+var self = null;
 
 export default class Video {
   constructor(mediator) {
     med = mediator;
     this.joined = false;
     self = this;
+    return this;
   }
 
   // Enable video on the page.
@@ -125,7 +127,7 @@ export default class Video {
       webrtc.toggleScreen();
     });
 
-    med.ee.on('media:Got MediaStream', function(stream) {
+    med.ee.on('media:Got MediaStream', function (stream) {
       console.log("Media Stream changed SFU");
       webrtc.changeStream(stream);
     });

@@ -46,7 +46,7 @@ export default class Connection {
       new Mesh(med).establish();
     } else {
       console.log("Start SFU");
-      this.video = new Video(med).establish();
+      new Video(med).establish();
     }
   }
 

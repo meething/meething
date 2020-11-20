@@ -1,10 +1,12 @@
 var med = null;
+var self = null;
 
 export default class Toggles {
   constructor(mediator) {
     med = mediator;
     this.init();
     self = this;
+    return this;
   }
 
   init() {
