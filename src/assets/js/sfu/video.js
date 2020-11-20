@@ -132,6 +132,11 @@ export default class Video {
       webrtc.changeStream(stream);
     });
 
+    med.ee.on('connect:sfu', function (url) {
+      console.log(`connect to ${url} as extra SFU`);
+      webrtc.connect(url, med.socketId);
+    });
+
     webrtc.init();
   }
 }

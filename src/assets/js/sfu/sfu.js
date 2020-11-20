@@ -62,6 +62,10 @@ export default class SFU extends EventEmitter {
         this.sfuRoom.join(room, peerId);
     }
 
+    connect(url, peerId) {
+        this.sfuRoom.joinExtraSFU(this.room, peerId, url);
+    }
+
     async startBroadcast(peerCount) {
         if (!this.broadcasting) {
             try {
