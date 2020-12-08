@@ -9,7 +9,7 @@ export default class Room extends EventEmitter {
     constructor() {
         super();
 
-        this.peer = null;
+
         this.sendTransport = null;
         this.recvTransport = null;
 
@@ -19,6 +19,8 @@ export default class Room extends EventEmitter {
 
     join(roomId, peerId, retry) {
         console.warn("room.join()");
+
+         var peer;
 
         try {
             // Select SFU Server from config or try self
@@ -32,35 +34,44 @@ export default class Room extends EventEmitter {
             console.log("Joining Local SFU", SFU_URL);
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
             if (wsTransport.readyState == 2 || wsTransport.readyState == 3) { console.error('something not right with webSocket'); throw 'webSocket Local Error'; }
-            this.peer = new Peer(wsTransport);
-            console.log('peer', this.peer._transport._connected, wsTransport.readyState);
-            this.checkTimeOut();
+            peer = new Peer(wsTransport);
+            console.log('peer', peer._transport._connected, wsTransport.readyState);
+            this.checkTimeOut(peer);
 
         } catch (e) {
             console.log('SFU Failover! Use Remote default');
             var SFU_URL = `${config.wssFailover}`
             const wsTransport = new WebSocket(`${SFU_URL}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
-            this.peer = new Peer(wsTransport);
+            peer = new Peer(wsTransport);
         }
 
-        this.peer.on("open", this.onPeerOpen.bind(this));
-        this.peer.on("request", this.onPeerRequest.bind(this));
-        this.peer.on("notification", this.onPeerNotification.bind(this));
-        this.peer.on("failed", console.error);
-        this.peer.on("disconnected", console.error);
-        this.peer.on("close", console.error);
-        this.peer.on("peers", this.onPeers.bind(this));
-        this.peer.on("failed", this.onFailed.bind(this));
-        this.peer.on("timeout", this.onFailed.bind(this));
+        peer.on("open", this.onPeerOpen.bind(this, peer));
+        peer.on("request", this.onPeerRequest.bind(this, peer));
+        peer.on("notification", this.onPeerNotification.bind(this, peer));
+        peer.on("failed", console.error);
+        peer.on("disconnected", console.error);
+        peer.on("close", console.error);
+        peer.on("peers", this.onPeers.bind(this, peer));
+        peer.on("failed", this.onFailed.bind(this, peer));
+        peer.on("timeout", this.onFailed.bind(this, peer));
 
-        console.log(this.peer.id);
+        console.log(peer.id);
     }
 
-    checkTimeOut() {
+    joinExtraSFU(roomId, peerId, url) {
+        const wsTransport = new WebSocket(`${url}/?roomId=${roomId}&peerId=${peerId}`, "protoo");
+        if (wsTransport.readyState == 2 || wsTransport.readyState == 3) { console.error('something not right with webSocket'); throw 'webSocket Local Error'; }
+        const peer = new Peer(wsTransport);
+
+        peer.on("open", this.onPeerOpen.bind(this, peer));
+        peer.on("request", this.onPeerRequest.bind(this, peer));
+    }
+
+    checkTimeOut(peer) {
         setTimeout(function () {
-            if (!self.peer._transport._connected) {
+            if (peer._transport._connected) {
                 console.warn("Connection timeout, connecting to wss seems taking to long force failover");
-                self.emit("timeout", { target: self.peer });
+                self.emit("timeout", { target: peer });
             }
         }, 5000);
     }
@@ -114,9 +125,9 @@ export default class Room extends EventEmitter {
     }
 
     async onFailed(event) {
-        if (event.target._connected !== "connected") {
+        if (event._connected !== "connected") {
             console.log("Failing retry failback?")
-            const params = this.getParams(event.target.url);
+            const params = this.getParams(event._transport.url);
             this.join(params.roomId, params.peerId, true);
         }
     }
@@ -133,19 +144,19 @@ export default class Room extends EventEmitter {
         return params;
     };
 
-    async onPeerOpen() {
+    async onPeerOpen(peer) {
         console.warn("room.peer:open");
         const device = new mediasoupClient.Device();
 
-        const routerRtpCapabilities = await this.peer
+        const routerRtpCapabilities = await peer
             .request("getRouterRtpCapabilities")
             .catch(console.error);
         await device.load({ routerRtpCapabilities });
 
-        await this._prepareSendTransport(device).catch(console.error);
-        await this._prepareRecvTransport(device).catch(console.error);
+        await this._prepareSendTransport(peer, device).catch(console.error);
+        await this._prepareRecvTransport(peer, device).catch(console.error);
 
-        const res = await this.peer.request("join", {
+        const res = await peer.request("join", {
             rtpCapabilities: device.rtpCapabilities
         });
 
@@ -156,8 +167,8 @@ export default class Room extends EventEmitter {
         this.emit("@open", res);
     }
 
-    async _prepareSendTransport(device) {
-        const transportInfo = await this.peer
+    async _prepareSendTransport(peer, device) {
+        const transportInfo = await peer
             .request("createWebRtcTransport", {
                 producing: true,
                 consuming: false
@@ -180,7 +191,7 @@ export default class Room extends EventEmitter {
             "connect",
             ({ dtlsParameters }, callback, errback) => {
                 console.warn("room.sendTransport:connect");
-                this.peer
+                peer
                     .request("connectWebRtcTransport", {
                         transportId: this.sendTransport.id,
                         dtlsParameters
@@ -194,7 +205,7 @@ export default class Room extends EventEmitter {
             async ({ kind, rtpParameters, appData }, callback, errback) => {
                 console.warn("room.sendTransport:produce");
                 try {
-                    const { id } = await this.peer.request("produce", {
+                    const { id } = await peer.request("produce", {
                         transportId: this.sendTransport.id,
                         kind,
                         rtpParameters,
@@ -209,8 +220,8 @@ export default class Room extends EventEmitter {
         );
     }
 
-    async _prepareRecvTransport(device) {
-        const transportInfo = await this.peer
+    async _prepareRecvTransport(peer, device) {
+        const transportInfo = await peer
             .request("createWebRtcTransport", {
                 producing: false,
                 consuming: true
@@ -233,7 +244,7 @@ export default class Room extends EventEmitter {
             "connect",
             ({ dtlsParameters }, callback, errback) => {
                 console.warn("room.recvTransport:connect");
-                this.peer
+                peer
                     .request("connectWebRtcTransport", {
                         transportId: this.recvTransport.id,
                         dtlsParameters
@@ -246,13 +257,13 @@ export default class Room extends EventEmitter {
 
     async _closeProducer(producer) {
         producer.close();
-        await this.peer
+        await peer
             .request("closeProducer", { producerId: producer.id })
             .catch(console.error);
         this.emit("@producerClosed", { producerId: producer.id });
     }
 
-    onPeerRequest(req, resolve, reject) {
+    onPeerRequest(peer, req, resolve, reject) {
         console.warn("room.peer:request", req.method);
         switch (req.method) {
             // if you decline this offer, will not request `newConsumer`
@@ -264,7 +275,7 @@ export default class Room extends EventEmitter {
                     ok: true,
                     data: { accept: true }
                 };
-                this.peer._transport.send(JSON.stringify(response));
+                peer._transport.send(JSON.stringify(response));
                 break;
             }
             case "newConsumer": {
@@ -281,7 +292,7 @@ export default class Room extends EventEmitter {
                     ok: true,
                     data: { accept: true }
                 };
-                this.peer._transport.send(JSON.stringify(response));
+                peer._transport.send(JSON.stringify(response));
                 break;
             }
             default:
