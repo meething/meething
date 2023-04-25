@@ -239,7 +239,7 @@ function Mediator() {
     }
 
     if(typeof audioDeviceId == 'string' && !this.audioMuted) {
-      constraints.audio = { deviceId: { ideal: audioDeviceId }};
+      constraints.audio = getCustomAudio(audioDeviceId);
     } else if(typeof audioDeviceId == 'boolean') {
       constraints.audio = audioDeviceId;
       addMutedAudio = true;
@@ -276,6 +276,23 @@ function Mediator() {
     this.ee.emit("media:Got MediaStream", stream);
     this.ee.emit("localStream changed", stream);
     return true;
+  }
+}
+
+function getCustomAudio(audioDeviceId) {
+  if (!document.getElementById("custom-audio-controls").hidden) {
+      return {
+        deviceId: { ideal: audioDeviceId },
+        autoGainControl: document.getElementById("autoGainControl").checked,
+        channelCount: document.getElementById("channelCount").value,
+        echoCancellation: document.getElementById("echoCancellation").checked,
+        noiseSuppresion: document.getElementById("noiseSuppresion").checked,
+        sampleRate: { ideal: document.getElementById("sampleRate").value }
+      };
+  } else {
+    return {
+      deviceId: { ideal: audioDeviceId }
+    }
   }
 }
 

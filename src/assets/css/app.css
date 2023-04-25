@@ -631,6 +631,18 @@ justify-items: center;
   height: 0;
 }
 
+.switchInput {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 20px;
+}
+
+.switchInput input {
+  width: 40px;
+  height: 20px;
+}
+
 .slider {
   position: absolute;
   cursor: pointer;
